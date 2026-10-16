@@ -55,7 +55,15 @@ Vercel 只是跑程式的地方。
 4. 把 JSON 金鑰內容貼進 Vercel 的 `GOOGLE_SERVICE_ACCOUNT_JSON`，並填 `GOOGLE_SHEET_ID`。
 5. Redeploy。第一次連上時，程式會在試算表建立所有工作表（一行一筆資料），之後就可以用。
 
-詳細圖文步驟見 `docs/02-google-sheets-setup.md`。
+逐步做法見 **`docs/02-google-sheets-setup.md`**（Google 三步 → Vercel 環境變數 → 檢查）。
+做完之後，領袖後台 → 設定 會顯示 **✅ 資料存放於 Google 試算表**（附連結）；仍顯示「⚠️ 資料暫存中」即代表未接通。
+
+本機可以先驗一次再部署：
+
+```bash
+export DATA_DRIVER=sheets GOOGLE_SHEET_ID=1AbC…xyz GOOGLE_SERVICE_ACCOUNT_FILE=./service-account.json
+python3 tools/check_sheets.py      # 逐項檢查，最後印 ALL GOOD
+```
 
 > **沒有試算表會怎樣？** 平台仍可運作，但資料寫在執行個體的 `/tmp`，
 > 一段時間沒有流量就回收 → 帳戶與進度回到空白。領袖後台 → **設定** 會顯示
