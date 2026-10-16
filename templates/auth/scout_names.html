@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import name_of, patrol_name with context %}
+{% set m = mascot_for(patrol) %}
+{% block title %}{{ patrol_label.en or patrol_label.zh }} · {{ L('選擇姓名', 'Choose your name') }}{% endblock %}
+{% block shell %}
+<div class="screen">
+  <div class="narrow names-card card pad-lg">
+    <div class="crumbs"><a href="{{ url_for('auth_routes.login') }}">‹ {{ L('返回', 'Back') }}</a></div>
+    <div class="steps">
+      <span class="dot active"></span><span class="dot active"></span><span class="dot"></span>
+    </div>
+
+    <div class="patrol-hero" style="--m-soft: {{ m.soft }}; --m-tint: {{ m.tint }}">
+      <span class="patrol-hero-art" aria-hidden="true">
+        {% if m.img %}
+          <img src="{{ m.img }}" width="620" height="775" alt="">
+        {% else %}
+          <span style="display:block; text-align:center; font-size:1.5rem; padding:1.2rem 0">{{ patrol_label.en or patrol_label.zh }}</span>
+        {% endif %}
+      </span>
+      <div>
+        <h1 style="margin:0">{{ patrol_label.en or patrol_label.zh }}</h1>
+        <p class="muted" style="margin:.15rem 0 0">
+          {{ L('哪一位是你？', 'Which one is you?') }}
+        </p>
+      </div>
+    </div>
+
+    {% if scouts %}
+      <div class="tile-grid" style="margin-top:.9rem">
+        {% for scout in scouts %}
+          <a class="name-tile" style="--i: {{ loop.index0 }}"
+             href="{{ url_for('auth_routes.scout_password', patrol=patrol, user_id=scout.id) }}">
+            <span class="name-tile-body">
+              <span class="nm-zh">{{ scout.display_name_zh or scout.display_name_en }}</span>
+            </span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty"><span class="empty-emoji">🐣</span>{{ L('這個小隊還沒有帳戶，請聯絡領袖。', 'No accounts in this patrol yet — ask a leader.') }}</div>
+    {% endif %}
+    <div class="divider"></div>
+    <div class="row wrap">
+      {% for other in all_patrols if other.value != patrol %}
+        <a class="btn ghost small" href="{{ url_for('auth_routes.scout_names', patrol=other.value) }}">
+          {{ other.label.en or other.label.zh }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

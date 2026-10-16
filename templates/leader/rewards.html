@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state with context %}
+{% block title %}{{ L('獎品', 'Rewards') }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">🎁 {{ L('獎品目錄', 'Rewards catalogue') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('設定獎品的積分價格。換領功能暫未開放（按你的要求）。', 'Set the points price of each reward. Redemption stays off for now, as you asked.') }}</p>
+  </div>
+</div>
+
+{% if not redemptions_enabled %}
+  <div class="alert info">{{ L('換領功能目前關閉 — 童軍只看到獎品和價格。', 'Redemption is currently switched off — scouts only see the rewards and their prices.') }}</div>
+{% endif %}
+
+<div class="console-split">
+  <div>
+    {% if items %}
+      <div class="stack">
+        {% for item in items %}
+          <div class="card">
+            <div class="spread wrap">
+              <div class="row" style="gap:.6rem">
+                <span style="font-size:1.8rem">{{ item.emoji }}</span>
+                <div>
+                  <strong>{{ L(item.title_zh, item.title_en) }}</strong>
+                  <div class="small muted">{{ L(item.desc_zh, item.desc_en) }}</div>
+                  <div class="row wrap" style="margin-top:.3rem">
+                    <span class="chip brass">🪙 {{ item.points_cost }}</span>
+                    <span class="chip light">{{ L('庫存', 'Stock') }} {{ item.stock }}</span>
+                    {% if item.active %}<span class="chip ok">{{ L('上架', 'Live') }}</span>{% else %}<span class="chip warn">{{ L('下架', 'Hidden') }}</span>{% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="row-actions">
+                <form method="post" action="{{ url_for('leader_routes.update_reward', item_id=item.id) }}">
+                  <input type="hidden" name="active" value="{{ '0' if item.active else '1' }}">
+                  <button class="btn small" type="submit">{{ L('下架', 'Hide') if item.active else L('上架', 'Show') }}</button>
+                </form>
+                <form method="post" action="{{ url_for('leader_routes.delete_reward', item_id=item.id) }}"
+                      data-confirm="{{ L('刪除這個獎品？', 'Delete this reward?') }}">
+                  <button class="btn small ghost" type="submit">🗑</button>
+                </form>
+              </div>
+            </div>
+            <details style="margin-top:.6rem">
+              <summary class="small muted" style="cursor:pointer">{{ L('編輯', 'Edit') }}</summary>
+              <form method="post" action="{{ url_for('leader_routes.update_reward', item_id=item.id) }}" data-inline style="margin-top:.6rem">
+                <div class="form-grid">
+                  <label class="field"><span>{{ L('名稱（中文）', 'Title (zh)') }}</span><input type="text" name="title_zh" value="{{ item.title_zh }}"></label>
+                  <label class="field"><span>{{ L('名稱（英文）', 'Title (en)') }}</span><input type="text" name="title_en" value="{{ item.title_en }}"></label>
+                  <label class="field"><span>{{ L('圖示', 'Emoji') }}</span><input type="text" name="emoji" value="{{ item.emoji }}"></label>
+                  <label class="field"><span>{{ L('積分價格', 'Points cost') }}</span><input type="number" name="points_cost" value="{{ item.points_cost }}"></label>
+                  <label class="field"><span>{{ L('庫存', 'Stock') }}</span><input type="number" name="stock" value="{{ item.stock }}"></label>
+                  <label class="field"><span>{{ L('分類', 'Category') }}</span><input type="text" name="category" value="{{ item.category }}"></label>
+                </div>
+                <label class="field"><span>{{ L('說明（中文）', 'Description (zh)') }}</span><textarea name="desc_zh">{{ item.desc_zh }}</textarea></label>
+                <label class="field"><span>{{ L('說明（英文）', 'Description (en)') }}</span><textarea name="desc_en">{{ item.desc_en }}</textarea></label>
+                <div class="form-actions"><button class="btn primary" type="submit">{{ L('儲存', 'Save') }}</button><span data-inline-note></span></div>
+              </form>
+            </details>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {{ empty_state('🧰', '還沒有獎品。', 'No rewards yet.') }}
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="section-title"><h2>➕ {{ L('新增獎品', 'New reward') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('leader_routes.create_reward') }}">
+      <label class="field"><span>{{ L('名稱（中文）', 'Title (zh)') }}</span><input type="text" name="title_zh" required></label>
+      <label class="field"><span>{{ L('名稱（英文）', 'Title (en)') }}</span><input type="text" name="title_en"></label>
+      <div class="form-grid">
+        <label class="field"><span>{{ L('圖示', 'Emoji') }}</span><input type="text" name="emoji" value="🎁"></label>
+        <label class="field"><span>{{ L('積分價格', 'Points cost') }}</span><input type="number" name="points_cost" value="100"></label>
+        <label class="field"><span>{{ L('庫存', 'Stock') }}</span><input type="number" name="stock" value="5"></label>
+        <label class="field"><span>{{ L('分類', 'Category') }}</span><input type="text" name="category" value="general"></label>
+      </div>
+      <label class="field"><span>{{ L('說明（中文）', 'Description (zh)') }}</span><textarea name="desc_zh"></textarea></label>
+      <label class="field"><span>{{ L('說明（英文）', 'Description (en)') }}</span><textarea name="desc_en"></textarea></label>
+      <label class="switch"><input type="checkbox" name="active" value="1" checked> {{ L('立即上架', 'Show to scouts') }}</label>
+      <button class="btn primary" type="submit" style="width:100%">{{ L('新增獎品', 'Add reward') }}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

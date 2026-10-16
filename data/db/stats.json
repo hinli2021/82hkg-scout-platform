@@ -1,0 +1,82 @@
+[
+  {
+    "user_id": "d36d1c007798c14e",
+    "points_balance": 0,
+    "tasks_done": 0,
+    "badges_done": 0,
+    "streak_current": 0,
+    "streak_best": 0,
+    "last_active_date": "",
+    "updated_at": "2026-10-15T00:29:43.299Z"
+  },
+  {
+    "user_id": "70bc0a5f9f781f1c",
+    "points_balance": 40,
+    "tasks_done": 3,
+    "badges_done": 0,
+    "streak_current": 1,
+    "streak_best": 1,
+    "last_active_date": "2026-10-15",
+    "updated_at": "2026-10-15T00:29:43.371Z"
+  },
+  {
+    "user_id": "0e2599a1fdef71b8",
+    "points_balance": 70,
+    "tasks_done": 4,
+    "badges_done": 0,
+    "streak_current": 1,
+    "streak_best": 1,
+    "last_active_date": "2026-10-15",
+    "updated_at": "2026-10-15T00:29:43.375Z"
+  },
+  {
+    "user_id": "f7335c95310527a9",
+    "points_balance": 50,
+    "tasks_done": 3,
+    "badges_done": 0,
+    "streak_current": 2,
+    "streak_best": 2,
+    "last_active_date": "2026-10-16",
+    "updated_at": "2026-10-16T00:55:52.937Z"
+  },
+  {
+    "user_id": "ec802ffc47a30e0c",
+    "points_balance": 10,
+    "tasks_done": 1,
+    "badges_done": 0,
+    "streak_current": 1,
+    "streak_best": 1,
+    "last_active_date": "2026-10-15",
+    "updated_at": "2026-10-15T00:29:43.379Z"
+  },
+  {
+    "user_id": "1b7568dbc5ca3028",
+    "points_balance": 30,
+    "tasks_done": 2,
+    "badges_done": 0,
+    "streak_current": 1,
+    "streak_best": 1,
+    "last_active_date": "2026-10-15",
+    "updated_at": "2026-10-15T00:29:43.382Z"
+  },
+  {
+    "user_id": "b823893451503b7d",
+    "points_balance": 0,
+    "tasks_done": 0,
+    "badges_done": 0,
+    "streak_current": 0,
+    "streak_best": 0,
+    "last_active_date": "",
+    "updated_at": "2026-10-15T00:29:43.383Z"
+  },
+  {
+    "user_id": "a040549c5fef559f",
+    "points_balance": 0,
+    "tasks_done": 0,
+    "badges_done": 0,
+    "streak_current": 0,
+    "streak_best": 0,
+    "last_active_date": "",
+    "updated_at": "2026-10-16T00:27:15.667Z"
+  }
+]

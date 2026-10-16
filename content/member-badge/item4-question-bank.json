@@ -1,0 +1,743 @@
+{
+  "schemaVersion": 1,
+  "quizId": "scout-member-badge-item4",
+  "title": "第4項｜認識世界及香港童軍運動發展",
+  "language": "zh-Hant-HK",
+  "scoring": {
+    "pointsPerQuestion": 2,
+    "maxScore": 100,
+    "passScore": 80,
+    "passPercent": 80
+  },
+  "defaults": {
+    "shuffleQuestions": false,
+    "shuffleOptions": true,
+    "reviewAfterSubmit": true
+  },
+  "parts": [
+    {
+      "id": "world",
+      "title": "甲部：世界童軍運動",
+      "icon": "🌍",
+      "order": 1,
+      "questionCount": 15
+    },
+    {
+      "id": "hk",
+      "title": "乙部：香港童軍運動",
+      "icon": "🏙️",
+      "order": 2,
+      "questionCount": 15
+    },
+    {
+      "id": "group",
+      "title": "丙部：童軍常識＋82旅",
+      "icon": "⚜️",
+      "order": 3,
+      "questionCount": 20
+    }
+  ],
+  "questionCount": 50,
+  "questions": [
+    {
+      "id": "甲1",
+      "order": 1,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "貝登堡勳爵的全名是甚麼？",
+      "options": [
+        "羅拔史提芬遜史密夫貝登堡維爾",
+        "貝倫史密夫基維爾馬倫斯貝登堡",
+        "羅拔迪尼路夫安達臣貝登堡維爾",
+        "史提夫史匹保堅尼基維爾貝登堡"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲2",
+      "order": 2,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "貝登堡率領軍隊平服哪一個地區的叛亂？",
+      "options": [
+        "東非洲",
+        "南非洲",
+        "西非洲",
+        "北非洲"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲3",
+      "order": 3,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "貝登堡用甚麼方法訓練他的軍隊？",
+      "options": [
+        "聯合訓練",
+        "小隊制度",
+        "個別訓練",
+        "精英制度"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲4",
+      "order": 4,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "貝登堡將自己的訓練大綱編寫成哪一本書？",
+      "options": [
+        "小狼手冊",
+        "童軍訓練綱要",
+        "警探術",
+        "少年警探"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲5",
+      "order": 5,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "1899年貝登堡駐守何處？",
+      "options": [
+        "基維爾",
+        "菲維特城",
+        "君士坦丁堡",
+        "梅富根城"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲6",
+      "order": 6,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "1901年貝登堡回英國擔任何種職位？",
+      "options": [
+        "軍隊教官",
+        "騎兵總監",
+        "艦隊司令",
+        "童軍領袖"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲7",
+      "order": 7,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "貝登堡享年多少歲？",
+      "options": [
+        "七十八歲",
+        "八十三歲",
+        "八十七歲",
+        "九十一歲"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲8",
+      "order": 8,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "貝登堡於何時出生？",
+      "options": [
+        "1857年2月22日",
+        "1867年2月22日",
+        "1875年2月22日",
+        "1957年2月22日"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲9",
+      "order": 9,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "世界幼童軍活動在哪一年開始？",
+      "options": [
+        "1916年",
+        "1917年",
+        "1918年",
+        "1919年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲10",
+      "order": 10,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "世界童軍活動在哪一年開始？",
+      "options": [
+        "1887年",
+        "1897年",
+        "1907年",
+        "1917年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲11",
+      "order": 11,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "第一屆世界童軍大露營在哪裡舉行？",
+      "options": [
+        "荷蘭基維爾",
+        "蘇格蘭愛丁堡",
+        "丹麥哥本哈根",
+        "英國倫敦奧林匹克"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲12",
+      "order": 12,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "第一屆世界童軍會議於哪一年舉行？",
+      "options": [
+        "1915年",
+        "1920年",
+        "1925年",
+        "1930年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲13",
+      "order": 13,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "1916年貝登堡出版了哪一本書？",
+      "options": [
+        "小狼手冊",
+        "童軍訓練綱要",
+        "警探術",
+        "童子警探"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲14",
+      "order": 14,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "國際性童軍雜誌《世界童軍運動》原名是甚麼？",
+      "options": [
+        "大露營",
+        "童子警探",
+        "貝登堡自傳",
+        "童軍文擇"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "甲15",
+      "order": 15,
+      "partId": "world",
+      "partTitle": "甲部：世界童軍運動",
+      "prompt": "1968年，世界童軍總辦事處遷往何處？",
+      "options": [
+        "美國華盛頓",
+        "加拿大溫哥華",
+        "法國巴黎",
+        "瑞士日內瓦"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙1",
+      "order": 16,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "香港何時開始有童軍活動？",
+      "options": [
+        "1890年",
+        "1900年",
+        "1909年",
+        "1910年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙2",
+      "order": 17,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "第一位香港童軍總領袖是哪一位？",
+      "options": [
+        "尤德爵士",
+        "梅含理爵士",
+        "金文泰爵士",
+        "司徒拔爵士"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙3",
+      "order": 18,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "首屆威爾斯太子錦標比賽在哪一年舉行？",
+      "options": [
+        "1913年",
+        "1923年",
+        "1933年",
+        "1943年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙4",
+      "order": 19,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "首位香港訓練總監是哪一位？",
+      "options": [
+        "陸榮生先生",
+        "盧孟吔先生",
+        "柯昭璋先生",
+        "田家騰先生"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙5",
+      "order": 20,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "為童軍團而設的嘉爾頓錦標首次在何時舉行？",
+      "options": [
+        "1948年",
+        "1949年",
+        "1950年",
+        "1951年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙6",
+      "order": 21,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "1960年政府撥出哪一塊土地作童軍營地？",
+      "options": [
+        "柴灣大潭灣",
+        "大埔洞梓",
+        "大老山徑土地",
+        "西貢白沙灣"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙7",
+      "order": 22,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "承上題，這塊地後來改稱甚麼名？",
+      "options": [
+        "白沙灣海上活動中心",
+        "香港基維爾營地",
+        "大潭童軍中心",
+        "大埔洞梓童軍中心"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙8",
+      "order": 23,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "香港首次全港大露營在哪一年舉行？",
+      "options": [
+        "1955年",
+        "1956年",
+        "1957年",
+        "1958年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙9",
+      "order": 24,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "承上題，該次大露營在哪裡舉行？",
+      "options": [
+        "大嶼山南山營地",
+        "柴灣大潭童軍中心",
+        "基維爾營地",
+        "上水金錢村"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙10",
+      "order": 25,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "第一屆全港童軍青年論壇在哪一年舉行？",
+      "options": [
+        "1955年",
+        "1965年",
+        "1975年",
+        "1985年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙11",
+      "order": 26,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "小童軍訓練支部在哪一年成立？",
+      "options": [
+        "1984年",
+        "1985年",
+        "1986年",
+        "1987年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙12",
+      "order": 27,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "承上題，小童軍招收多少歲成員？",
+      "options": [
+        "六至八歲",
+        "四至六歲",
+        "五至七歲",
+        "七至九歲"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙13",
+      "order": 28,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "香港童軍總會在哪一年遷往香港童軍中心？",
+      "options": [
+        "1991年",
+        "1992年",
+        "1993年",
+        "1994年"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙14",
+      "order": 29,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "全港共有幾個地域？",
+      "options": [
+        "三個",
+        "四個",
+        "五個",
+        "六個"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "乙15",
+      "order": 30,
+      "partId": "hk",
+      "partTitle": "乙部：香港童軍運動",
+      "prompt": "現任港島地域總監是哪一位？",
+      "options": [
+        "黃偉安先生",
+        "霍偉倫先生",
+        "張世華先生",
+        "楊國光博士"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙1",
+      "order": 31,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "本旅旅長是哪一位？",
+      "options": [
+        "梁健聰",
+        "鍾仁傑",
+        "張蔚浚",
+        "李樂熙"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙2",
+      "order": 32,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "旅長的肩章是甚麼顏色？",
+      "options": [
+        "綠色",
+        "淺藍色",
+        "紅色",
+        "黃色"
+      ],
+      "showColorSwatch": true
+    },
+    {
+      "id": "丙3",
+      "order": 33,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "本旅童軍團團長是哪一位？",
+      "options": [
+        "張蔚浚",
+        "陳致宏",
+        "李樂熙",
+        "李樂軒"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙4",
+      "order": 34,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "童軍團團長的肩章是甚麼顏色？",
+      "options": [
+        "淺藍色",
+        "紅色",
+        "黃色",
+        "綠色"
+      ],
+      "showColorSwatch": true
+    },
+    {
+      "id": "丙5",
+      "order": 35,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "港島第82旅屬於哪一個區？",
+      "options": [
+        "灣仔區",
+        "筲箕灣區",
+        "港島南區",
+        "柴灣區"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙6",
+      "order": 36,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "筲箕灣區隸屬哪個地域？",
+      "options": [
+        "港島地域",
+        "九龍地域",
+        "東九龍地域",
+        "新界東地域"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙7",
+      "order": 37,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "現任區總監是哪一位？",
+      "options": [
+        "莫穎民先生",
+        "林國雄先生",
+        "李國文先生",
+        "袁可秀女士"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙8",
+      "order": 38,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "童軍支部的年齡是多少歲？",
+      "options": [
+        "12–16歲",
+        "10–17歲",
+        "10½–16½歲",
+        "11–16歲"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙9",
+      "order": 39,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "童軍規律有多少條？",
+      "options": [
+        "六條",
+        "七條",
+        "十條",
+        "十二條"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙10",
+      "order": 40,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "下列哪一句是童軍誓詞的開頭？",
+      "options": [
+        "對規律，樂於助人",
+        "信用為人敬",
+        "我願以信譽為誓",
+        "勇敢不怕難"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙11",
+      "order": 41,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "童軍團的特色是甚麼？",
+      "options": [
+        "紀律",
+        "步操",
+        "唱遊為主",
+        "以小隊為中心"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙12",
+      "order": 42,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "童軍專科徽章包括哪些組別？",
+      "options": [
+        "興趣組",
+        "技能組",
+        "服務組",
+        "全部皆是"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙13",
+      "order": 43,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "童軍支部最高榮譽獎章是？",
+      "options": [
+        "金紫荊獎章",
+        "總領袖獎章",
+        "童軍高級獎章",
+        "會員章"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙14",
+      "order": 44,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "第82旅旅巾是甚麼顏色？",
+      "options": [
+        "綠色",
+        "紅色",
+        "紫色",
+        "以上皆是"
+      ],
+      "showColorSwatch": true
+    },
+    {
+      "id": "丙15",
+      "order": 45,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "你的童軍紀錄簿是甚麼顏色？",
+      "options": [
+        "紫色",
+        "綠色",
+        "紅色",
+        "以上皆是"
+      ],
+      "showColorSwatch": true
+    },
+    {
+      "id": "丙16",
+      "order": 46,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "82旅旅慶是何月何日？",
+      "options": [
+        "九月一日",
+        "十月一日",
+        "十月十日",
+        "十一月一日"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙17",
+      "order": 47,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "以下哪一項是本旅童軍團的小隊名稱？",
+      "options": [
+        "Tiger",
+        "Otter",
+        "Sea-gull",
+        "全部皆是"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙18",
+      "order": 48,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "童軍銘言是甚麼？",
+      "options": [
+        "紀律",
+        "信用為人敬",
+        "準備",
+        "我願以信譽為誓"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙19",
+      "order": 49,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "童軍周年大會操通常在哪一個月舉行？",
+      "options": [
+        "九月",
+        "十月",
+        "十一月",
+        "十二月"
+      ],
+      "showColorSwatch": false
+    },
+    {
+      "id": "丙20",
+      "order": 50,
+      "partId": "group",
+      "partTitle": "丙部：童軍常識＋82旅",
+      "prompt": "本旅共有幾個支部？",
+      "options": [
+        "2個",
+        "3個",
+        "4個",
+        "5個"
+      ],
+      "showColorSwatch": false
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import name_of, patrol_name with context %}
+{% set m = mascot_for(patrol) %}
+{% block title %}{{ L('設定你的密碼及電郵', 'Set your password and email') }}{% endblock %}
+{% block shell %}
+<div class="screen welcome-screen" style="--m-tint: {{ m.tint }}; --m-soft: {{ m.soft }}">
+  <div class="welcome-card card pad-lg">
+    <div class="welcome-hero" style="--m-soft: {{ m.soft }}">
+      <span class="welcome-art" aria-hidden="true">
+        {% if m.img %}
+          <img src="{{ m.img }}" width="620" height="775" alt="">
+        {% else %}
+          <span style="display:block; text-align:center; font-size:2.6rem; padding:1.2rem 0">{{ m.emoji }}</span>
+        {% endif %}
+      </span>
+      <div>
+        <span class="chip brass">{{ L('帳戶設定', 'Account setup') }} · {{ patrol_label.en or patrol_label.zh }}</span>
+        <h1 style="margin:.35rem 0 .1rem">
+          🎉 {{ L('歡迎，', 'Welcome, ') }}{{ scout.display_name_zh or scout.display_name_en }}！
+        </h1>
+        <p class="muted" style="margin:0">
+          {{ L('請先完成帳戶設定，然後開始歷險。', 'Complete your account setup before entering the platform.') }}
+        </p>
+      </div>
+    </div>
+
+    <div class="alert info" style="margin-top:.9rem">
+      {{ L('請設定自己的密碼並填寫聯絡電郵，兩項均為必填。完成後才可進入主頁；下次請使用新密碼登入。',
+           'Create your own password and enter a contact email. Both are required before you can enter Home. Use your new password next time.') }}
+    </div>
+
+    {% if err %}
+      <div class="alert warn">
+        {% if err == 'mismatch' %}{{ L('兩次輸入的密碼不同，請再試一次。', 'The two passwords did not match — please try again.') }}
+        {% elif err == 'missing_email' %}{{ L('請填寫聯絡電郵，才可進入平台。', 'Enter a contact email to continue.') }}
+        {% elif err == 'email' %}{{ L('電郵格式不正確，請再試一次。', 'That email address looked wrong — please try again.') }}
+        {% else %}{{ L('密碼最少 6 個字，請再試一次。', 'Passwords need at least 6 characters — please try again.') }}{% endif %}
+      </div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('scout_routes.save_password') }}" class="setup-form" style="margin-top:1rem">
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ L('新密碼', 'New password') }} <span class="hint">{{ L('最少 6 個字', 'at least 6 characters') }}</span></span>
+          <input type="password" name="password" minlength="6" required autofocus autocomplete="new-password">
+        </label>
+        <label class="field">
+          <span>{{ L('再輸入一次', 'Repeat password') }}</span>
+          <input type="password" name="confirm" minlength="6" required autocomplete="new-password">
+        </label>
+        <label class="field">
+          <span>{{ L('聯絡電郵（必填）', 'Contact email (required)') }}
+            <span class="hint">{{ L('忘記密碼時，重設連結會寄到這個電郵', 'a forgotten password sends a reset link here') }}</span></span>
+          <input type="email" name="email" value="{{ email }}" placeholder="you@example.com" autocomplete="email" required maxlength="254">
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">🔐 {{ L('儲存密碼及電郵，進入平台', 'Save password and email to continue') }}</button>
+      </div>
+    </form>
+
+    <p class="muted small" style="margin-top:1rem">
+      {{ L('密碼只有你知道。忘記了也不要緊：在密碼頁按「忘記密碼？」，系統會寄一條重設連結到這個電郵，你打開連結便可以設定新密碼。',
+           'Only you know your password. If you forget it, tap “Forgot password?” on the password page — we email a reset link here, and you choose a new password from it.') }}
+    </p>
+    <p class="small muted" style="margin:0">
+      {{ L('選錯姓名？', 'Wrong name?') }}
+      <a href="{{ url_for('auth_routes.logout_link') }}">{{ L('登出並重新選擇', 'Sign out and choose another name') }}</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

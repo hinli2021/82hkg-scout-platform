@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import badge_tile, name_of, patrol_name, streak_chip, type_chip with context %}
+{% block title %}{{ L('主頁', 'Home') }}{% endblock %}
+{% block body_attrs %}data-tour="1"
+  data-url-home="{{ url_for('scout_routes.home') }}"
+  data-url-badges="{{ url_for('scout_routes.badges') }}"
+  {%- if settings.feature_flags.get('leaderboard') %} data-url-leaderboard="{{ url_for('scout_routes.leaderboard_page') }}"{% endif %}{% endblock %}
+
+{% block hud_chips %}
+  <div class="hud-chips">
+    <span class="chip brass">🎖 {{ stats.badges_done }} {{ L('個獎章', 'badges') }}</span>
+    <span class="chip">{{ L('任務', 'Tasks') }} {{ overall.tasks_done }}/{{ overall.tasks_total }}</span>
+    {{ streak_chip(stats.streak_current) }}
+  </div>
+{% endblock %}
+
+{% block content %}
+{# ── greeting header — 問候 + 日行一善 + 公告 ─────────────────────────────────────────────────────────── #}
+<section class="home-hello card pad-lg row wrap" style="gap:1rem">   {# greeting — no progress dial: 我的獎章 is the first section below #}
+  <div class="hello-avatar">{{ user.avatar or '🦊' }}</div>
+  <div class="stack" style="flex:1; min-width:240px">
+    <h1 style="margin:0">{{ L('你好，', 'Hello, ') }}{{ name_of(user) }}！</h1>
+    <p class="muted" style="margin:0">{{ L(settings.motto_zh, settings.motto_en) }}</p>
+    {% if next_task %}
+      <a class="btn primary" href="{{ url_for('scout_routes.task_player', task_id=next_task.task.id) }}">
+        ▶ {{ L('繼續：', 'Continue: ') }}{{ L(next_task.task.title_zh, next_task.task.title_en) }}
+      </a>
+    {% elif badges and badges[0].is_game_badge and not badges[0].earned %}
+      <a class="btn primary" href="{{ url_for('scout_routes.badge_detail', badge_id=badges[0].id) }}">
+        🗺️ {{ L('繼續荒島歷險', 'Continue the island escape') }}
+      </a>
+    {% else %}
+      <span class="chip ok">✓ {{ L('所有任務都完成了！', 'Every task is complete!') }}</span>
+    {% endif %}
+  </div>
+
+  {# 公告 lives in this header card — it rides with the 日行一善 line instead of
+     taking a section of its own further down the page. #}
+  {% if announcements %}
+    <div class="hello-notices" data-hello-notices="1">
+      {% for note in announcements %}
+        <div class="hello-notice{{ ' pinned' if note.pinned }}">
+          <span class="hello-notice-bell" aria-hidden="true">📣</span>
+          {% if note.pinned %}<span class="chip brass">{{ L('置頂', 'Pinned') }}</span>{% endif %}
+          <strong class="hello-notice-title">{{ L(note.title_zh, note.title_en) }}</strong>
+          <span class="hello-notice-body muted">{{ L(note.body_zh, note.body_en) }}</span>
+          <span class="hello-notice-when timeline-when">{{ note.created_at[:10] }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% if url_ok == 'password' %}
+  <div class="alert ok" data-celebrate="1" data-flash-kind="success">
+    🎉 {{ L('密碼及電郵已設定！下次登入時輸入這個密碼即可。',
+            'Password and email saved! Next time, sign in with your new password.') }}
+  </div>
+{% endif %}
+{# ── 我的獎章 ── the first section on the page ──────────────────────────── #}
+<div class="section-title">
+  <h2>🎖 {{ L('我的獎章', 'My badges') }}</h2>
+  <span class="count">{{ stats.badges_done }}/{{ overall.badges_total }}</span>
+  <a class="btn ghost small" href="{{ url_for('scout_routes.badges') }}" style="margin-left:auto">{{ L('看路線圖', 'See the trail') }} ›</a>
+</div>
+{% set next_badge_id = overall.focus_badge_id %}
+<div class="badge-tiles">
+  {% for badge in badges %}
+    {{ badge_tile(badge, url_for('scout_routes.badge_detail', badge_id=badge.id),
+                  'earned' if badge.earned else 'next' if badge.id == next_badge_id else 'locked' if badge.locked else 'plain') }}
+  {% endfor %}
+</div>
+
+{# ── 建議 ─────────────────────────────────────────────────────────────── #}
+<div class="section-title"><h2>💡 {{ L('建議', 'Suggestions') }}</h2></div>
+{% if suggestions.all %}
+  {# Four ideas up front; the rest wait behind 顯示全部 so the page stays short. #}
+  {% set shown = suggestions.all[:4] %}
+  {% set extra = suggestions.all[4:] %}
+  <div class="suggest-grid" data-suggest-shown="1">
+    {% for idea in shown %}
+      <div class="suggest-card {{ 'auto' if idea.kind == 'auto' else 'cat-' ~ idea.category }}">
+        <div class="row" style="align-items:flex-start; gap:.6rem">
+          <span class="suggest-emoji">{{ idea.emoji }}</span>
+          <div class="grow">
+            <div class="suggest-title">{{ L(idea.title_zh, idea.title_en) }}</div>
+            <p class="suggest-desc">{{ L(idea.desc_zh, idea.desc_en) }}</p>
+          </div>
+        </div>
+        <div class="suggest-foot">
+          <span class="suggest-kind">{{ L('為你推薦', 'Picked for you') if idea.kind == 'auto' else L('領袖推薦', 'From your leader') }}</span>
+          {% if idea.task_id %}
+            <a class="btn small primary" href="{{ url_for('scout_routes.task_player', task_id=idea.task_id) }}">{{ L('去做', 'Do it') }}</a>
+          {% elif idea.badge_id %}
+            <a class="btn small" href="{{ url_for('scout_routes.badge_detail', badge_id=idea.badge_id) }}">{{ L('查看', 'View') }}</a>
+          {% elif idea.link_url %}
+            <a class="btn small" href="{{ idea.link_url }}" target="_blank" rel="noopener">{{ L(idea.link_label_zh or '連結', idea.link_label_en or 'Link') }}</a>
+          {% elif idea.route == 'badges' %}
+            <a class="btn small" href="{{ url_for('scout_routes.badges') }}">{{ L('查看', 'View') }}</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if extra %}
+    <div class="suggest-grid suggest-rest" id="suggest-rest" hidden>
+      {% for idea in extra %}
+        <div class="suggest-card {{ 'auto' if idea.kind == 'auto' else 'cat-' ~ idea.category }}">
+          <div class="row" style="align-items:flex-start; gap:.6rem">
+            <span class="suggest-emoji">{{ idea.emoji }}</span>
+            <div class="grow">
+              <div class="suggest-title">{{ L(idea.title_zh, idea.title_en) }}</div>
+              <p class="suggest-desc">{{ L(idea.desc_zh, idea.desc_en) }}</p>
+            </div>
+          </div>
+          <div class="suggest-foot">
+            <span class="suggest-kind">{{ L('為你推薦', 'Picked for you') if idea.kind == 'auto' else L('領袖推薦', 'From your leader') }}</span>
+            {% if idea.task_id %}
+              <a class="btn small primary" href="{{ url_for('scout_routes.task_player', task_id=idea.task_id) }}">{{ L('去做', 'Do it') }}</a>
+            {% elif idea.badge_id %}
+              <a class="btn small" href="{{ url_for('scout_routes.badge_detail', badge_id=idea.badge_id) }}">{{ L('查看', 'View') }}</a>
+            {% elif idea.link_url %}
+              <a class="btn small" href="{{ idea.link_url }}" target="_blank" rel="noopener">{{ L(idea.link_label_zh or '連結', idea.link_label_en or 'Link') }}</a>
+            {% elif idea.route == 'badges' %}
+              <a class="btn small" href="{{ url_for('scout_routes.badges') }}">{{ L('查看', 'View') }}</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="suggest-more-row">
+      <button class="btn ghost" type="button" data-suggest-toggle aria-expanded="false" aria-controls="suggest-rest"
+              data-label-more="{{ L('顯示全部建議', 'Show all suggestions') }}（{{ suggestions.all|length }}）"
+              data-label-less="{{ L('收起', 'Show fewer') }}">
+        {{ L('顯示全部建議', 'Show all suggestions') }}（{{ suggestions.all|length }}）
+      </button>
+    </div>
+  {% endif %}
+{% else %}
+  <div class="empty"><span class="empty-emoji">🌱</span>{{ L('暫時沒有建議，繼續完成任務吧！', 'No suggestions yet — keep going!') }}</div>
+{% endif %}
+
+{% endblock %}

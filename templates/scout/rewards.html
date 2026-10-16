@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state with context %}
+{% block title %}{{ L('獎品', 'Rewards') }}{% endblock %}
+{% block hud_chips %}{% endblock %}
+{% block content %}
+{# The ONLY place a scout sees their points balance — by design. #}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>{{ L('獎品', 'Rewards') }}</div>
+    <h1 style="margin:0">🎁 {{ L('獎品', 'Rewards') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('用你努力賺到的積分換取獎品。', 'Spend the points you have earned.') }}</p>
+  </div>
+</div>
+
+<section class="wallet-hero">
+  <span class="coins">🪙</span>
+  <div class="grow">
+    <div class="muted small">{{ L('我的積分', 'My points') }}</div>
+    <div class="amount" data-countup="{{ summary.balance }}">{{ summary.balance }}</div>
+    <div class="wallet-note">
+      {{ L('積分只會在這個頁面顯示。', 'Points are shown on this page only.') }}
+      · {{ L('最近 7 天 +', 'last 7 days +') }}{{ summary.earned_7d }}
+      · {{ L('最近 30 天 +', 'last 30 days +') }}{{ summary.earned_30d }}
+    </div>
+  </div>
+  <div class="stack right">
+    <span class="chip light">{{ L('總共賺取', 'Total earned') }} {{ summary.earned_total }}</span>
+  </div>
+</section>
+
+{% if not redemption_enabled %}
+  <div class="alert info" style="margin-top:.9rem">
+    {{ L('換領功能即將開放 — 請先累積積分，領袖正在準備獎品。', 'Redemption opens soon — keep collecting points while your leader prepares the rewards.') }}
+  </div>
+{% endif %}
+
+<div class="section-title"><h2>🧰 {{ L('獎品櫃', 'Treasure chests') }}</h2><span class="count">{{ rewards | length }}</span></div>
+{% if rewards %}
+  <div class="badge-tiles">
+    {% for reward in rewards %}
+      <div class="card chest {{ 'affordable' if reward.affordable else 'locked' }}" data-chest>
+        <div class="spread">
+          <span class="chest-art">{{ reward.emoji }}</span>
+          {% if reward.affordable %}<span class="chip brass">{{ L('可以換', 'Ready') }}</span>
+          {% else %}<span class="chip light">🔒</span>{% endif %}
+        </div>
+        <strong>{{ L(reward.title_zh, reward.title_en) }}</strong>
+        <div class="small muted">{{ L(reward.desc_zh, reward.desc_en) }}</div>
+        <div class="divider"></div>
+        <div class="spread">
+          <span class="chip light">🪙 {{ reward.points_cost }}</span>
+          {% if not reward.affordable %}
+            <span class="chest-note small muted">{{ L('還差', 'Short by') }} {{ reward.short_by }} {{ L('分', 'pts') }}</span>
+          {% endif %}
+        </div>
+        <button class="btn {{ 'primary' if reward.affordable else '' }}" type="button" disabled style="margin-top:.6rem; width:100%">
+          {{ L('換領（即將開放）', 'Redeem (coming soon)') }}
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  {{ empty_state('🧰', '領袖還未加入獎品。', 'Your leader has not added rewards yet.') }}
+{% endif %}
+
+{% if summary.recent %}
+  <div class="section-title"><h2>🧾 {{ L('最近的積分', 'Recent points') }}</h2></div>
+  <div class="card">
+    <ul class="tl">
+      {% for entry in summary.recent %}
+        <li>
+          <div class="spread">
+            <span>{{ L(entry.reason_zh, entry.reason_en) }}</span>
+            <strong class="{{ 'ok' if entry.points_delta > 0 else '' }}" style="color: var(--brass-dark)">+{{ entry.points_delta }}</strong>
+          </div>
+          <span class="timeline-when">{{ entry.created_at[:16].replace('T', ' ') }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% endblock %}

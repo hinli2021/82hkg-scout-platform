@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state, name_of, patrol_name, status_pill with context %}
+{% block title %}{{ L('審批', 'Review') }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">✅ {{ L('審批提交', 'Review submissions') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('核實相片、反思與簽核；小測驗與清單會自動完成。', 'Verify photos, reflections and sign-offs — quizzes and checklists finish themselves.') }}</p>
+  </div>
+  <div class="tabs" style="border:0; margin:0">
+    <a class="{{ 'on' if not request.args.get('status') or request.args.get('status') == 'pending' else '' }}" href="{{ url_for('leader_routes.review') }}">{{ L('待審批', 'Waiting') }} ({{ pending | length }})</a>
+    <a class="{{ 'on' if request.args.get('status') == 'decided' else '' }}" href="{{ url_for('leader_routes.review', status='decided') }}">{{ L('已處理', 'Handled') }}</a>
+  </div>
+</div>
+
+{% if request.args.get('status') == 'decided' %}
+  <div class="card">
+    {% if decided %}
+      <ul class="tl">
+        {% for row in decided %}
+          <li class="{{ 'badge-item' if row.status == 'completed' }}">
+            <div class="spread wrap">
+              <span>
+                <strong>{{ name_of(row.who) }}</strong>
+                · {{ L(row.task.get('title_zh', ''), row.task.get('title_en', '')) }}
+                {% if row.leader_comment %}<div class="small muted">{{ L('評語：', 'Comment: ') }}{{ row.leader_comment }}</div>{% endif %}
+              </span>
+              <span class="row">
+                {{ status_pill(row.status) }}
+                <span class="timeline-when">{{ (row.decided_at or '')[:16].replace('T', ' ') }}</span>
+              </span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      {{ empty_state('🗂️', '還沒有處理過的提交。', 'Nothing handled yet.') }}
+    {% endif %}
+  </div>
+{% else %}
+  <div id="review-queue" class="stack">
+    {% if pending %}
+      {% for row in pending %}
+        <div class="review-card">
+          <div class="review-head">
+            <span style="font-size:1.5rem">{{ row.who.get('avatar', '🦊') }}</span>
+            <div class="grow">
+              <strong>{{ name_of(row.who) }}</strong>
+              <div class="small muted">
+                {{ L(patrol_label(row.who.get('patrol', '')).zh, patrol_label(row.who.get('patrol', '')).en) }} ·
+                {{ L(row.badge.get('title_zh', ''), row.badge.get('title_en', '')) }}
+              </div>
+            </div>
+            <span class="chip light">{{ L((TASK_TYPES.get(row.task_type) or {}).get('label_zh', ''), (TASK_TYPES.get(row.task_type) or {}).get('label_en', '')) }}</span>
+            <span class="timeline-when">{{ (row.submitted_at or '')[:16].replace('T', ' ') }}</span>
+          </div>
+          <div class="review-body">
+            <strong>{{ L(row.task.get('title_zh', ''), row.task.get('title_en', '')) }}</strong>
+            <div class="small muted">{{ L(row.task.get('instruction_zh', ''), row.task.get('instruction_en', '')) }}</div>
+            <div class="divider"></div>
+
+            {% if row.task_type == 'evidence' %}
+              {% if row.evidence_url %}
+                <a href="{{ row.evidence_url }}" target="_blank" rel="noopener">
+                  <img src="{{ row.evidence_url }}" alt="evidence" style="max-width:280px; border-radius:10px; border:1px solid var(--line)">
+                </a>
+                <div class="small"><a href="{{ row.evidence_url }}" target="_blank" rel="noopener">{{ L('開啟原檔', 'Open the original') }}</a></div>
+              {% else %}
+                <span class="chip warn">{{ L('沒有相片', 'No photo') }}</span>
+              {% endif %}
+            {% elif row.task_type == 'reflection' %}
+              <blockquote style="margin:0; padding-left:.8rem; border-left:3px solid var(--line)">{{ row.reflection_text }}</blockquote>
+              <div class="small muted">{{ row.reflection_text | length }} {{ L('字', 'characters') }}</div>
+            {% elif row.task_type == 'signoff' %}
+              {# 領袖考核：the scout's note is the only thing to read before signing #}
+              {% if row.reflection_text %}
+                <blockquote style="margin:0; padding-left:.8rem; border-left:3px solid var(--line)">{{ row.reflection_text }}</blockquote>
+              {% else %}
+                <span class="chip light">{{ L('即場考核，沒有備註', 'In-person check — no note') }}</span>
+              {% endif %}
+            {% else %}
+              {% if row.checklist %}
+                <div class="small muted">{{ L('清單', 'Checklist') }}</div>
+                <div class="row wrap">
+                  {% for tick in row.checklist %}
+                    <span class="chip {{ 'ok' if tick else 'light' }}">{{ '✓' if tick else '○' }} {{ loop.index }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              {% if row.answers %}
+                <div class="small muted">{{ L('答案', 'Answers') }}</div>
+                <div class="row wrap">
+                  {% for answer in row.answers %}
+                    <span class="chip light">Q{{ loop.index }} → {{ ('—' if answer is none else answer | string) }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endif %}
+          </div>
+
+          <form method="post" action="{{ url_for('leader_routes.review_action', record_id=row.id) }}" data-review style="margin-top:.7rem">
+            <div class="form-grid">
+              <label class="field"><span>{{ L('評語（可選）', 'Comment (optional)') }}</span><input type="text" name="comment" placeholder="{{ L('做得好！', 'Well done!') }}"></label>
+              <label class="field"><span>{{ L('積分（可調整）', 'Points (adjustable)') }}</span><input type="number" name="points" value="{{ row.task.get('points', 0) }}"></label>
+            </div>
+            <div class="form-actions">
+              <button class="btn primary" type="submit" name="action" value="approve">✅ {{ L('批准並加分', 'Approve') }}</button>
+              <button class="btn" type="submit" name="action" value="reject">↩ {{ L('退回（可重做）', 'Send back') }}</button>
+              <button class="btn ghost" type="submit" name="action" value="reset">{{ L('稍後再審', 'Later') }}</button>
+            </div>
+          </form>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="card center muted">{{ L('沒有待審批的提交 ✓', 'Nothing waiting — all caught up ✓') }}</div>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

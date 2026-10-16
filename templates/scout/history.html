@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state, streak_chip with context %}
+{% block title %}{{ L('我的紀錄', 'My history') }}{% endblock %}
+{% block hud_chips %}<div class="hud-chips"><span class="chip brass">🎖 {{ stats.badges_done }}</span>{{ streak_chip(stats.streak_current) }}</div>{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>{{ L('我的紀錄', 'My history') }}</div>
+    <h1 style="margin:0">📜 {{ L('我的紀錄', 'My history') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('完成了甚麼、何時完成，一目了然。', 'What you finished, and when.') }}</p>
+  </div>
+</div>
+
+<section class="card pad-lg">
+  {% if timeline %}
+    <ul class="tl">
+      {% for item in timeline %}
+        <li class="{{ 'badge-item' if item.kind == 'badge' }}">
+          <div class="spread wrap">
+            <div class="row" style="gap:.6rem; align-items:flex-start">
+              <span class="timeline-emoji">
+                {% if item.kind == 'badge' %}{{ item.emoji or '🎖' }}
+                {% elif item.status == 'completed' %}✅
+                {% elif item.status == 'pending' %}⏳
+                {% else %}↩{% endif %}
+              </span>
+              <div>
+                <strong>
+                  {% if item.kind == 'badge' %}{{ L('考獲獎章：', 'Badge earned: ') }}{% endif %}{{ L(item.title_zh, item.title_en) }}
+                </strong>
+                <div class="small muted">
+                  {% if item.kind == 'badge' %}
+                    {{ L('恭喜！', 'Congratulations!') }}
+                  {% else %}
+                    {{ L(item.badge_zh, item.badge_en) }}
+                    {% if item.score %} · {{ L('得分', 'score') }} {{ item.score }}%{% endif %}
+                    {% if item.attempt_no and item.attempt_no > 1 %} · {{ L('第', 'attempt') }} {{ item.attempt_no }}{% endif %}
+                  {% endif %}
+                  {% if item.comment %}<div>{{ L('領袖評語：', 'Leader: ') }}{{ item.comment }}</div>{% endif %}
+                </div>
+              </div>
+            </div>
+            <span class="timeline-when">{{ (item.at or '')[:16].replace('T', ' ') }}</span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {{ empty_state('🌱', '還沒有紀錄 — 完成第一個任務就會出現在這裡。', 'Nothing here yet — finish your first task and it will show up.') }}
+  {% endif %}
+</section>
+{% endblock %}

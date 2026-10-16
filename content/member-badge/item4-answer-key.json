@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "quizId": "scout-member-badge-item4",
+  "answerIndexing": "0-based; based on the original options array in question-bank.json",
+  "answers": [
+    {
+      "id": "甲1",
+      "answerIndex": 0,
+      "explanation": "英文：Lord Robert Stephenson Smyth Baden-Powell of Gilwell。記憶法：三個 S —— Stephenson、Smyth、Scout！",
+      "reviewNote": null
+    },
+    {
+      "id": "甲2",
+      "answerIndex": 2,
+      "explanation": "1895年，他平定西非洲阿善提王(Ashanti)的叛亂，當地人尊稱他為「不睡之狼」🐺。注意：舊版筆記誤印為1875年，正確年份是1895年。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲3",
+      "answerIndex": 1,
+      "explanation": "小隊制度(Patrol System)——後來成為童軍團最大特色：以小隊為中心！你還記得本旅設有哪些小隊嗎？",
+      "reviewNote": null
+    },
+    {
+      "id": "甲4",
+      "answerIndex": 2,
+      "explanation": "《警探術》(Aids to Scouting)原為軍人而寫；其後有教師建議將內容改編為青少年版本，啟發了童軍運動的發展。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲5",
+      "answerIndex": 3,
+      "explanation": "南非梅富根城(Mafeking)。波爾戰爭期間，該城被圍困217日；他組織當地青年協助傳訊及急救工作，這些青年成為早期童軍活動的重要先驅。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲6",
+      "answerIndex": 1,
+      "explanation": "1901年升任少將，回國出任騎兵總監。他1907年舉辦實驗露營，之後辭去軍職全職推動童軍運動。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲7",
+      "answerIndex": 1,
+      "explanation": "他於1857年2月22日出生，1941年1月8日在肯雅逝世，享年83歲(按足歲計算；舊筆記採用虛歲，故列為84歲)。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲8",
+      "answerIndex": 0,
+      "explanation": "他於1857年2月22日出生於英國倫敦。有趣的是，他的妻子奧莉花也在2月22日生日，因此該日定為世界童軍懷念日。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲9",
+      "answerIndex": 0,
+      "explanation": "1916年，他為8至11歲兒童創立小狼活動(現稱幼童軍)，並於同年出版《小狼手冊》。樂行童軍則於1918年創立。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲10",
+      "answerIndex": 2,
+      "explanation": "1907年8月1日至9日，貝登堡在英國白浪島舉辦實驗露營，24名來自不同背景的兒童參加為期9日的營會，取得成功。童軍運動正式起航⛵",
+      "reviewNote": null
+    },
+    {
+      "id": "甲11",
+      "answerIndex": 3,
+      "explanation": "1920年英國倫敦奧林匹亞會場。貝登堡在這次大露營被各國代表推選為世界童軍總領袖👑",
+      "reviewNote": null
+    },
+    {
+      "id": "甲12",
+      "answerIndex": 1,
+      "explanation": "1920年，世界童軍會議與首屆大露營同年舉行；國際童軍辦事處亦於同年在倫敦設立。大露營以活動為主，世界童軍會議則討論運動發展。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲13",
+      "answerIndex": 0,
+      "explanation": "《小狼手冊》是配合幼童軍活動而出版。請勿混淆：警探術(軍人版)→童子警探(1908年童軍版)→小狼手冊(1916年幼童軍版)。",
+      "reviewNote": null
+    },
+    {
+      "id": "甲14",
+      "answerIndex": 0,
+      "explanation": "該刊物於1921年創刊時名為《大露營》(Jamboree)，其後於1955年更名為《世界童軍運動》。Jamboree即指大露營。🏕️",
+      "reviewNote": null
+    },
+    {
+      "id": "甲15",
+      "answerIndex": 3,
+      "explanation": "世界童軍總辦事處由加拿大遷往瑞士日內瓦，並一直設於當地。總部先後遷往倫敦、加拿大(1957年)及日內瓦(1968年)。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙1",
+      "answerIndex": 2,
+      "explanation": "香港於1909年開始有童軍活動；1911年由英國商人及軍人開辦旅團；1913年正式註冊為英國童軍海外屬會。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙2",
+      "answerIndex": 1,
+      "explanation": "1912年，港督梅含理爵士出任首位香港童軍總領袖。同年，貝登堡在遠東之旅期間到訪香港。🇭🇰",
+      "reviewNote": null
+    },
+    {
+      "id": "乙3",
+      "answerIndex": 1,
+      "explanation": "1922年威爾斯太子訪港捐旗，1923年首次比賽。1951年起改為深資童軍錦標，童軍團就改爭嘉爾頓錦標。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙4",
+      "answerIndex": 3,
+      "explanation": "1949年，田家騰先生出任首位香港訓練總監。同年，花園道摩士屋啟用作總部。戰後，香港童軍在侯利華會督及柯昭璋先生帶領下復興。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙5",
+      "answerIndex": 3,
+      "explanation": "該錦標於1951年首次舉行，由副總監田納先生捐贈。請記住：嘉爾頓錦標屬童軍團，威爾斯太子錦標屬深資童軍。🏆",
+      "reviewNote": null
+    },
+    {
+      "id": "乙6",
+      "answerIndex": 2,
+      "explanation": "1960年政府撥出大老山徑土地，後來命名為香港基維爾營地，紀念貝登堡的勳銜(Gilwell)。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙7",
+      "answerIndex": 1,
+      "explanation": "香港基維爾營地與英國基維爾領袖訓練中心同名，均為紀念貝登堡而命名。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙8",
+      "answerIndex": 2,
+      "explanation": "1957年——恰好是世界童軍50週年金禧紀念，香港代表團亦前往英國參加第9屆世界金禧大露營！",
+      "reviewNote": null
+    },
+    {
+      "id": "乙9",
+      "answerIndex": 3,
+      "explanation": "大露營於新界上水金錢村舉行。記憶提示：金禧年與金錢村均以「金」字開頭。💰",
+      "reviewNote": null
+    },
+    {
+      "id": "乙10",
+      "answerIndex": 2,
+      "explanation": "1975年。同年大埔童軍訓練中心正式啟用——也就是現在的大埔洞梓童軍中心。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙11",
+      "answerIndex": 0,
+      "explanation": "小童軍支部於1984年成立，招收6至8歲兒童。1986年，童軍支部亦開始接納女童軍；1987年首次舉行模範童軍選舉。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙12",
+      "answerIndex": 0,
+      "explanation": "6–8歲。升級路：小童軍6–8 → 幼童軍7–11 → 童軍11–16 → 深資15–21 → 樂行18–26。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙13",
+      "answerIndex": 3,
+      "explanation": "總會於1994年遷入尖沙咀香港童軍中心(總部大廈於1993年啟用)。此前，總部分別設於摩士屋及覺士道摩士大廈。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙14",
+      "answerIndex": 2,
+      "explanation": "香港共有五個地域：港島、九龍、東九龍、新界及新界東。港島地域轄下設有七個區，本旅屬於筲箕灣區。",
+      "reviewNote": null
+    },
+    {
+      "id": "乙15",
+      "answerIndex": 3,
+      "explanation": "資料列為2025–26年度的楊國光博士；使用前請領袖核實2026–27年度及最新名單。",
+      "reviewNote": "人事答案可能隨換屆改變，請領袖核實最新名單"
+    },
+    {
+      "id": "丙1",
+      "answerIndex": 0,
+      "explanation": "答案以旅部最新公佈為準。請記下旅長的姓名及樣貌，並保持禮貌。",
+      "reviewNote": "請領袖核實：旅長姓名"
+    },
+    {
+      "id": "丙2",
+      "answerIndex": 0,
+      "explanation": "請觀察旅長制服肩部的肩章並記下其顏色。不同職務配戴的肩章顏色或有不同，請以旅部資料為準。",
+      "reviewNote": "請領袖核實：旅長肩章顏色"
+    },
+    {
+      "id": "丙3",
+      "answerIndex": 0,
+      "explanation": "答案以旅部最新公佈為準。",
+      "reviewNote": "請領袖核實：童軍團團長姓名"
+    },
+    {
+      "id": "丙4",
+      "answerIndex": 0,
+      "explanation": "請觀察童軍團團長制服肩部的肩章。不同支部的領袖可能配戴不同顏色的肩章，以識別職務。",
+      "reviewNote": "請領袖核實：團長肩章顏色"
+    },
+    {
+      "id": "丙5",
+      "answerIndex": 1,
+      "explanation": "筲箕灣區！我們的主辦機構是香港小童群益會康山兒童中心。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙6",
+      "answerIndex": 0,
+      "explanation": "本旅的組織層級為：第82旅→筲箕灣區→港島地域→香港童軍總會。(原卷此題須辨認區章圖片；請仔細查看制服上的區章圖案。)",
+      "reviewNote": null
+    },
+    {
+      "id": "丙7",
+      "answerIndex": 0,
+      "explanation": "答案以區會最新公佈為準。區總監負責筲箕灣區的童軍事務。",
+      "reviewNote": "請領袖核實：區總監姓名"
+    },
+    {
+      "id": "丙8",
+      "answerIndex": 3,
+      "explanation": "11–16歲。你目前屬於此年齡階段，15歲後可升讀深資童軍。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙9",
+      "answerIndex": 1,
+      "explanation": "童軍規律共七條，內容由「信用為人敬」至「自重又重人」。請勿與幼童軍的三句規律混淆。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙10",
+      "answerIndex": 2,
+      "explanation": "「我願以信譽為誓，竭盡所能；對神明，對國家，盡責任；對別人，樂於助人；對規律，必遵行。」誓詞講承諾，規律講品格。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙11",
+      "answerIndex": 3,
+      "explanation": "以小隊為中心——源自貝登堡1895年的小隊制度！我們有Tiger、Otter、Sea-gull三個小隊。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙12",
+      "answerIndex": 3,
+      "explanation": "專科徽章分為興趣、技能及服務三組。逐步累積徽章經驗，有助邁向總領袖獎章。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙13",
+      "answerIndex": 1,
+      "explanation": "總領袖獎章！注意：金紫荊獎章是幼童軍的最高榮譽獎章，會員章只是入門——請勿混淆！(認章小貼士：考試時須能辨認相關徽章，複習時亦可參閱筆記圖片。)",
+      "reviewNote": null
+    },
+    {
+      "id": "丙14",
+      "answerIndex": 0,
+      "explanation": "請查看自己的旅巾，記下其顏色及款式。旅巾是本旅的識別標誌。",
+      "reviewNote": "請領袖核實：旅巾顏色"
+    },
+    {
+      "id": "丙15",
+      "answerIndex": 1,
+      "explanation": "童軍支部的紀錄簿為綠色。不同支部使用不同顏色；升級時須更換相應紀錄簿，並妥善記錄已完成的考核。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙16",
+      "answerIndex": 1,
+      "explanation": "旅慶是全旅的紀念日，請記得參加慶祝活動。🎂",
+      "reviewNote": "請領袖核實：旅慶日期"
+    },
+    {
+      "id": "丙17",
+      "answerIndex": 3,
+      "explanation": "Tiger🐯、Otter🦦及Sea-gull🕊️是本旅的三個小隊。你屬於哪一個小隊？",
+      "reviewNote": null
+    },
+    {
+      "id": "丙18",
+      "answerIndex": 2,
+      "explanation": "「準備」(Be Prepared)是貝登堡留給世界童軍的銘言，提醒大家時刻作好準備。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙19",
+      "answerIndex": 2,
+      "explanation": "通常於11月舉行，是全港童軍參與步操檢閱的一項年度活動。",
+      "reviewNote": null
+    },
+    {
+      "id": "丙20",
+      "answerIndex": 1,
+      "explanation": "請核對本旅設有哪些支部(小童軍、幼童軍、童軍、深資童軍及樂行童軍)，並在集會時留意其他支部的活動。",
+      "reviewNote": "請領袖核實：本旅支部數目"
+    }
+  ]
+}

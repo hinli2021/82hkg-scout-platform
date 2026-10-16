@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state, quest_node, ring, streak_chip with context %}
+{% block title %}{{ L('獎章', 'Badges') }}{% endblock %}
+{% block hud_chips %}
+  <div class="hud-chips">
+    <span class="chip brass">🎖 {{ stats.badges_done }} {{ L('個獎章', 'badges') }}</span>
+    <span class="chip">{{ L('任務', 'Tasks') }} {{ overall.tasks_done }}/{{ overall.tasks_total }}</span>
+    {{ streak_chip(stats.streak_current) }}
+  </div>
+{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>{{ L('獎章', 'Badges') }}</div>
+    <h1 style="margin:0">🗺️ {{ L('獎章進度', 'Badge journey') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('由下而上順序考取；會員章須完成五個區域的五個遊戲，其他獎章按各自要求開啟。', 'Earn awards in order: clear all five area games for the Membership Badge; other awards open in turn.') }}</p>
+  </div>
+  {{ ring(overall.percent, 96, sub=L('總進度', 'Overall')) }}
+</div>
+
+{% if done_task %}
+  <div class="alert ok" data-celebrate="1" data-flash-kind="success">
+    🎉 {{ L('完成了：', 'Finished: ') }}{{ L(done_task.title_zh, done_task.title_en) }}
+    — {{ L('記錄已加入你的時間軸。', 'it is on your timeline now.') }}
+  </div>
+{% endif %}
+{% if url_err %}
+  <div class="alert warn">{{ L('提交不成功，請再試一次。', 'Nothing was submitted — please try again.') }}</div>
+{% endif %}
+
+{% set current_id = overall.focus_badge_id %}
+<section class="card pad-lg">
+  <div class="quest-map">
+    {% for badge in badges %}
+      {% set state = 'done' if badge.earned else 'locked' if badge.locked else 'current' if badge.id == current_id else 'plain' %}
+      {{ quest_node(badge, state) }}
+    {% endfor %}
+  </div>
+</section>
+
+<div class="section-title"><h2>🎖 {{ L('獎章一覽', 'All awards') }}</h2></div>
+{% for badge in badges %}
+  {# the card carries its id so a checker (and the leader's console) can name it #}
+  <div class="card" data-badge-id="{{ badge.id }}" style="margin-bottom:.8rem">
+    <div class="spread">
+      <div class="row" style="gap:.6rem">
+        <span style="font-size:1.6rem">{{ badge.emoji }}</span>
+        <div>
+          <strong>{{ L(badge.title_zh, badge.title_en) }}</strong>
+          <div class="small muted">{{ L(badge.subtitle_zh, badge.subtitle_en) }}</div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="chip {{ 'brass' if badge.earned else 'light' }}">{{ '🎮' if badge.is_game_badge else '✓' }} {{ badge.progress_done }}/{{ badge.progress_total }} {{ L('個遊戲', 'games') if badge.is_game_badge else '' }}</span>
+        {% if badge.locked %}<span class="chip danger">🔒 {{ L('未解鎖', 'Locked') }}</span>
+        {% else %}<a class="btn small" href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L('打開', 'Open') }}</a>{% endif %}
+      </div>
+    </div>
+    {% if badge.is_game_badge %}
+      <div class="divider"></div>
+      <div class="small muted">{{ L('五個區域各有一個遊戲；按「打開」查看荒島尋寶圖及已開放的遊戲。',
+           'One game in each of five areas. Open the island map to see which games are ready.') }}</div>
+    {% elif badge.tasks %}
+      <div class="divider"></div>
+      <div class="stack">
+        {% for task in badge.tasks %}
+          <div class="task-row">
+            <span class="task-order">{{ loop.index }}</span>
+            <span class="grow">
+              <a href="{{ url_for('scout_routes.task_player', task_id=task.id) }}">{{ L(task.title_zh, task.title_en) }}</a>
+              <div class="small muted">{{ task.icon }} {{ L(task.type_label_zh, task.type_label_en) }} · {{ task.points }} {{ L('分', 'pts') }}</div>
+            </span>
+            {% if task.status == 'completed' %}<span class="chip ok">✓</span>
+            {% elif task.status == 'pending' %}<span class="chip warn">⏳</span>
+            {% elif task.status == 'rejected' %}<span class="chip danger">↩</span>
+            {% else %}<span class="chip light">○</span>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {{ empty_state('🗒️', '這個獎章還沒有任務，等領袖加入。', 'No tasks in this award yet — your leader will add them.') }}
+    {% endif %}
+  </div>
+{% endfor %}
+{% endblock %}

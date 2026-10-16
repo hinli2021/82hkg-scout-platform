@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{# the game takes the height of the window: the site chrome steps aside #}
+{% block body_attrs %}class="is-game"{% endblock %}
+
+{% block title %}{{ L(adventure.title_zh, adventure.title_en) }}{% endblock %}
+
+{# ── 迷霧渡口 — the second game of 會員章 (第 5 項：誓詞、規律和銘言). The same
+      picture-window shape as the cave: full-bleed artwork, one dark glass card,
+      a timeline of the teaching points. Three stages — 銘言, 誓詞, 規律 — and in
+      each one the scout lays the planks across the river in the right order.
+      Everything lives in static/js/bridge.js, so the game also plays inside the
+      offline demo file. ── #}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L(badge.title_zh, badge.title_en) }}</a><span class="breadcrumb-arrow">›</span>
+  {{ L('遊戲 2：迷霧渡口', 'Game 2 — the misty crossing') }}
+</div>
+
+<section class="cave bridge" id="bridge-root" data-bridge
+         data-bridge-config="{{ scene_json | forceescape }}">
+  <div class="cave-stage">
+    <div class="cave-picture">
+      <img class="cave-art-backdrop" data-bridge-art-backdrop="{{ art_names[0] }}" alt="" aria-hidden="true"
+           src="{{ url_for('static', filename='img/quest/bridge/' ~ art_names[0] ~ '.jpg') }}">
+      <img class="cave-art" data-bridge-art="{{ art_names[0] }}"
+           src="{{ url_for('static', filename='img/quest/bridge/' ~ art_names[0] ~ '.jpg') }}" alt="">
+      <div class="cave-shade" aria-hidden="true"></div>
+      <header class="cave-hud">
+        <a class="cave-hud-link" href="{{ url_for('scout_routes.home') }}">🏠 {{ L('主頁', 'Home') }}</a>
+        <span class="cave-hud-mid" data-bridge-progress>{{ L('迷霧渡口', 'The misty crossing') }}</span>
+        <a class="cave-hud-link" href="{{ badge_url }}">🎖 {{ L('會員章', 'Badge') }}</a>
+      </header>
+    </div>
+    <div class="cave-card-wrap">
+      <div class="cave-card" data-bridge-card aria-live="polite">
+        <span class="cave-kicker">{{ L(adventure.intro.kicker_zh, adventure.intro.kicker_en) }}</span>
+        <h1 class="cave-title">{{ L(adventure.intro.title_zh, adventure.intro.title_en) }}</h1>
+        {% for para in (adventure.intro.paras_zh if lang != 'en' else adventure.intro.paras_en) %}
+          <p class="cave-line">{{ para }}</p>
+        {% endfor %}
+        <div class="cave-actions">
+          <button class="btn primary big" type="button" data-bridge-go="teach" data-cheer="🔥,✨">
+            {{ L(adventure.intro.action_zh, adventure.intro.action_en) }}</button>
+        </div>
+      </div>
+    </div>
+    {# 向下捲動: shown while the panel still has more words below its edge #}
+    <div class="cave-more" data-bridge-more hidden>
+      <span class="cave-more-chip">▾ {{ L('向下捲動', 'Scroll down') }}</span>
+    </div>
+  </div>
+
+  {# the one real link in the game, kept here so the script can clone it: live it
+     is 會員章's URL, offline the builder turns it into a pane hop #}
+  <div hidden aria-hidden="true">
+    <a data-bridge-link="badge" href="{{ badge_url }}">🎖 {{ L('回到會員章', 'Back to the badge') }}</a>
+    {% for link in links or [] %}
+      <a data-bridge-link="ref" href="{{ link.url }}" target="_blank" rel="noopener">🔗 {{ L(link.label_zh, link.label_en) }}</a>
+    {% endfor %}
+  </div>
+
+  {# every picture the crossing can show, so nothing is fetched mid-game #}
+  <div class="cave-sources" hidden aria-hidden="true">
+    {% for name in art_names if name != art_names[0] %}
+      <img data-bridge-art="{{ name }}" src="{{ url_for('static', filename='img/quest/bridge/' ~ name ~ '.jpg') }}" alt="">
+    {% endfor %}
+  </div>
+
+  <noscript>
+    <p class="small muted">{{ L('渡口遊戲需要開啟 JavaScript。請開啟後再試，或請領袖協助。',
+                                'The crossing needs JavaScript. Enable it and try again, or ask your leader for help.') }}</p>
+  </noscript>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/bridge.js') }}"></script>
+{% endblock %}

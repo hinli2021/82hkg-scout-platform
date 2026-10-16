@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import name_of, patrol_name with context %}
+{% block title %}{{ L('已通知領袖', 'Request sent') }}{% endblock %}
+{% block shell %}
+<div class="screen">
+  <div class="narrow card pad-lg center">
+    <div style="font-size:3rem">📨</div>
+    <h1>{{ L('已收到你的請求', 'Request received') }}</h1>
+    <p class="muted">{{ scout.display_name_zh or scout.display_name_en }}</p>
+    <div class="alert ok">{{ L(message_zh, message_en) }}</div>
+    <a class="btn primary" href="{{ url_for('auth_routes.login') }}">{{ L('返回登入', 'Back to sign-in') }}</a>
+  </div>
+</div>
+{% endblock %}

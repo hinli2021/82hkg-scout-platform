@@ -1,0 +1,133 @@
+{#
+  Jinja macros shared by the pages. These render exactly the markup the Node
+  game layer produces (.badge-tile / .quest-node / .ring / .lb-row …), so both
+  editions look and feel the same and share one stylesheet.
+#}
+
+{% macro ring(percent, size=96, tone='green', sub=None, label=None) %}
+  {% set r = (size - 9) / 2 %}
+  {% set c = 2 * 3.14159265 * r %}
+  <div class="ring-wrap {{ 'is-brass' if tone == 'brass' else '' }}">
+    <svg viewBox="0 0 {{ size }} {{ size }}" width="{{ size }}" height="{{ size }}" class="ring tone-{{ tone }}">
+      <circle cx="{{ size / 2 }}" cy="{{ size / 2 }}" r="{{ r }}" fill="none" stroke-width="9" class="ring-track"></circle>
+      <circle cx="{{ size / 2 }}" cy="{{ size / 2 }}" r="{{ r }}" fill="none" stroke-width="9" class="ring-fill"
+              stroke-dasharray="{{ c }}" stroke-dashoffset="{{ c * (1 - percent / 100) }}"
+              stroke-linecap="round" transform="rotate(-90 {{ size / 2 }} {{ size / 2 }})"></circle>
+    </svg>
+    <div class="ring-centre">
+      {% if label %}<strong>{{ label }}</strong>{% else %}<strong data-overall-percent>{{ percent }}%</strong>{% endif %}
+      {% if sub %}<span class="ring-sub">{{ sub }}</span>{% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro node_bar(percent, badge_id=None) %}
+  <div class="node-bar"><i {% if badge_id %}data-badge-bar="{{ badge_id }}"{% endif %} style="width: {{ percent }}%"></i></div>
+{% endmacro %}
+
+{% macro tile_bar(percent, badge_id=None) %}
+  <div class="tile-bar"><i class="{{ 'done' if percent >= 100 else '' }}" {% if badge_id %}data-badge-bar="{{ badge_id }}"{% endif %} style="width: {{ percent }}%"></i></div>
+{% endmacro %}
+
+{% macro type_chip(type) %}
+  {% set meta = TASK_TYPES.get(type) or {} %}
+  <span class="chip light">{{ meta.get('icon', '✅') }} {{ L(meta.get('label_zh', type), meta.get('label_en', type)) }}</span>
+{% endmacro %}
+
+{# A drawn padlock: emoji fonts are missing on some phones/printers, an SVG is not. #}
+{% macro icon_lock(cls='lock-icon') %}
+  <svg class="{{ cls }}" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false">
+    <path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm3 8H9V7a3 3 0 1 1 6 0v3Z"/>
+  </svg>
+{% endmacro %}
+
+{% macro badge_art(badge, cls='badge-art') %}
+  {% if badge.image_url %}
+    <img class="{{ cls }}" src="{{ badge.image_url }}" alt="{{ L(badge.title_zh, badge.title_en) }}" loading="lazy">
+  {% else %}
+    <span style="font-size: 2rem">{{ badge.emoji or '🎖' }}</span>
+  {% endif %}
+{% endmacro %}
+
+{#
+  Square badge button — the shape the home page was redesigned around.
+  `state` is one of: earned · next · locked · plain
+#}
+{% macro badge_tile(badge, href=None, state='plain') %}
+  {% set tag = 'a' if href else 'div' %}
+  <{{ tag }} class="badge-tile {{ state }}" {% if href %}href="{{ href }}"{% endif %} style="--tint: {{ badge.color }}">
+    <span class="tile-state {{ 'is-locked' if badge.locked else '' }}">{% if badge.earned %}🎖{% elif badge.locked %}{{ icon_lock() }}{% elif state == 'next' %}▶{% endif %}</span>
+    <span class="tile-emoji plate">{{ badge_art(badge) }}</span>
+    <span class="tile-title">{{ L(badge.title_zh, badge.title_en) }}</span>
+    <span class="tile-meta" data-badge-meter="{{ badge.id }}">{{ badge.progress_done }} / {{ badge.progress_total }} {{ L('個遊戲', 'games') if badge.is_game_badge else '' }}{% if badge.earned %} · {{ L('已考獲', 'Earned') }}{% elif badge.locked %} · {{ L('未解鎖', 'Locked') }}{% endif %}</span>
+    {{ tile_bar(badge.percent, badge.id) }}
+  </{{ tag }}>
+{% endmacro %}
+
+{% macro quest_node(badge, state) %}
+  {% set href = None if state == 'locked' else url_for('scout_routes.badge_detail', badge_id=badge.id) %}
+  <{{ 'a' if href else 'div' }} class="quest-node {{ state }}" {% if href %}href="{{ href }}"{% endif %} style="text-decoration: none; color: inherit">
+    <span class="node-art">
+      {{ badge_art(badge) }}
+      <span class="node-badge {{ 'node-lock' if state == 'locked' else '' }}">{% if state == 'done' %}🎖{% elif state == 'current' %}▶{% else %}{{ icon_lock() }}{% endif %}</span>
+    </span>
+    <span class="node-body">
+      <span class="node-title">{{ L(badge.title_zh, badge.title_en) }}</span>
+      <span class="node-sub">
+        {% if state == 'done' %}{{ L('已考獲', 'Earned') }} · {{ badge.progress_total }} {{ L('個遊戲', 'games') if badge.is_game_badge else L('個任務', 'tasks') }}
+        {% elif state == 'locked' %}{{ L('先完成', 'Finish') }} {{ L(badge.prereq_zh, badge.prereq_en) }}
+        {% else %}{{ badge.progress_done }} / {{ badge.progress_total }} {{ L('個遊戲', 'games') if badge.is_game_badge else L('個任務', 'tasks') }}{% endif %}
+      </span>
+      <span class="node-meta">
+        <span class="chip {{ 'brass' if state == 'done' else 'light' }}">{{ badge.percent }}%</span>
+        {% if badge.points_reward %}<span class="chip light">🪙 {{ badge.points_reward }}</span>{% endif %}
+      </span>
+      {{ node_bar(badge.percent, badge.id) }}
+    </span>
+    {% if href %}<span class="node-go">›</span>{% endif %}
+  </{{ 'a' if href else 'div' }}>
+{% endmacro %}
+
+{% macro status_pill(status) %}
+  {% if status == 'completed' %}<span class="chip ok">✓ {{ L('已完成', 'Done') }}</span>
+  {% elif status == 'pending' %}<span class="chip warn">⏳ {{ L('待核實', 'Waiting') }}</span>
+  {% elif status == 'rejected' %}<span class="chip danger">↩ {{ L('可重做', 'Redo') }}</span>
+  {% else %}<span class="chip light">○ {{ L('未開始', 'To do') }}</span>{% endif %}
+{% endmacro %}
+
+{% macro empty_state(emoji, zh, en) %}
+  <div class="empty"><span class="empty-emoji">{{ emoji }}</span>{{ L(zh, en) }}</div>
+{% endmacro %}
+
+{% macro streak_chip(streak) %}
+  {% if streak %}
+    <span class="chip streak-hot"><span class="flame">🔥</span> {{ streak }} {{ L('天', 'days') }}</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro task_icon(task) %}
+  {% set meta = TASK_TYPES.get(task.type) or {} %}
+  <span class="task-icon {{ 'has-art' if task.type == 'signoff' else '' }}">{{ meta.get('icon', '✅') }}</span>
+{% endmacro %}
+
+{# ── names: English first, the Chinese name right beside it ────────────────
+   A person may have only one of the two names — whichever is there is shown
+   big, the other quietly after it. #}
+{% macro name_of(person, cls='') %}
+  {%- set zh = person.get('display_name_zh', '') if person is mapping else person.display_name_zh -%}
+  {%- set en = person.get('display_name_en', '') if person is mapping else person.display_name_en -%}
+  <span class="nm {{ cls }}">
+    <span class="nm-en">{{ en or zh }}</span>
+    {%- if zh and en %}<span class="nm-zh">{{ zh }}</span>{% endif %}
+  </span>
+{% endmacro %}
+
+{# The patrol the same way round: TIGER on top, 老虎 underneath. #}
+{% macro patrol_name(value, cls='') %}
+  {%- set label = patrol_label(value) -%}
+  <span class="nm {{ cls }}">
+    <span class="nm-en">{{ label.en or label.zh }}</span>
+    {%- if label.zh and label.en %}<span class="nm-zh">{{ label.zh }}</span>{% endif %}
+  </span>
+{% endmacro %}
+

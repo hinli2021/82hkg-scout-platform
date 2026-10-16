@@ -1,0 +1,50 @@
+[
+  {
+    "title_zh": "營繩（示例）",
+    "title_en": "Guy rope (sample)",
+    "emoji": "🪢",
+    "points_cost": 200,
+    "stock": -1,
+    "category": "gear",
+    "desc_zh": "",
+    "desc_en": "",
+    "active": true,
+    "id": "0c0fd814ed52c01a"
+  },
+  {
+    "title_zh": "童軍頸巾扣（示例）",
+    "title_en": "Woggle (sample)",
+    "emoji": "🌀",
+    "points_cost": 350,
+    "stock": 10,
+    "category": "gear",
+    "desc_zh": "",
+    "desc_en": "",
+    "active": true,
+    "id": "d41e810f55746744"
+  },
+  {
+    "title_zh": "旅團紀念章（示例）",
+    "title_en": "Group badge (sample)",
+    "emoji": "🎖️",
+    "points_cost": 500,
+    "stock": 20,
+    "category": "gear",
+    "desc_zh": "",
+    "desc_en": "",
+    "active": true,
+    "id": "1a17b55e192507e9"
+  },
+  {
+    "title_zh": "免費參加一次特別活動（示例）",
+    "title_en": "Free entry to a special activity (sample)",
+    "emoji": "🎟️",
+    "points_cost": 800,
+    "stock": 5,
+    "category": "experience",
+    "desc_zh": "",
+    "desc_en": "",
+    "active": true,
+    "id": "25ed6f49712aa1ea"
+  }
+]

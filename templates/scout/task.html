@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import status_pill, type_chip with context %}
+{% block title %}{{ L(task.title_zh, task.title_en) }}{% endblock %}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badges') }}">{{ L('獎章', 'Badges') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L(badge.title_zh, badge.title_en) }}</a><span class="breadcrumb-arrow">›</span>
+  {{ L(task.title_zh, task.title_en) }}
+</div>
+
+<section class="card pad-lg">
+  <div class="spread wrap">
+    <div>
+      <div class="row wrap" style="margin-bottom:.2rem">
+        <span class="chip light">{{ L(badge.title_zh, badge.title_en) }}</span>
+        {{ type_chip(task.type) }}
+        <span class="chip light">🪙 {{ task.points }} {{ L('分', 'pts') }}</span>
+        {% if task.pass_score %}<span class="chip light">{{ L('合格', 'Pass') }} {{ task.pass_score }}%</span>{% endif %}
+      </div>
+      <h1 style="margin:.2rem 0">{{ task.icon }} {{ L(task.title_zh, task.title_en) }}</h1>
+      <p class="muted" style="margin:0">{{ L(task.instruction_zh, task.instruction_en) }}</p>
+    </div>
+    <div class="stack" style="min-width:150px">
+      {{ status_pill(task.status) }}
+      <span class="attempt-note">{{ L('第', 'Task') }} {{ position }}/{{ badge.tasks_total }}</span>
+    </div>
+  </div>
+
+  {# 第 4 項 also comes as a cave: learn the history by walking it, then sit the
+     paper. The game is the same page for everybody; the paper below never moves. #}
+  {% if cave_ready %}
+    <div class="cave-invite">
+      <div class="cave-invite-text">
+        <strong>🕯️ {{ L('第 4 項的遊戲：童軍歷史山洞', 'Item 4\u2019s game — the cave of Scout history') }}</strong>
+        <span class="small">{{ L('四段壁畫、50 題 — 壁畫會先交代那一組題目要用的資料，之後在石室逐題作答；答錯會走入死路，死路會再講一次，然後回頭再選。',
+                                  'Four walls and fifty questions: each wall teaches what its group asks about, then the chamber asks one question at a time. A wrong answer leads to a dead end, which tells the story again — then you choose once more.') }}</span>
+      </div>
+      <a class="btn primary" href="{{ url_for('scout_routes.task_cave', task_id=task.id) }}">
+        ▶ {{ L('進入山洞歷險', 'Enter the cave') }}</a>
+    </div>
+  {% endif %}
+
+  {% if badge.locked %}
+    <div class="alert warn">🔒 {{ L('請先完成「', 'Finish “') }}{{ L(badge.prereq_zh, badge.prereq_en) }}{{ L('」才可以開始。', '” first.') }}</div>
+  {% endif %}
+  {% if task.status == 'completed' %}
+    <div class="alert ok">✓ {{ L('你已完成這個任務。', 'You have completed this task.') }}
+      {% if task.leader_comment %}<div class="small">{{ L('領袖評語：', 'Leader: ') }}{{ task.leader_comment }}</div>{% endif %}
+    </div>
+  {% elif task.status == 'pending' %}
+    <div class="alert info">⏳ {{ L('已提交，等待領袖核實。', 'Submitted — waiting for a leader to verify.') }}</div>
+  {% elif task.status == 'rejected' %}
+    <div class="alert warn">↩ {{ L('可以再做一次！', 'You can try again!') }}
+      {% if task.leader_comment %}<div class="small">{{ L('領袖評語：', 'Leader: ') }}{{ task.leader_comment }}</div>{% endif %}
+    </div>
+  {% endif %}
+</section>
+
+{% if request.args.get('redo') %}
+  <div class="alert warn" style="margin-top:.8rem">
+    {{ L('這次未達合格分數，請參考提示後再試 — 可以重做無限次。',
+         'Not quite there yet — read the tips and try again. Unlimited attempts.') }}
+  </div>
+{% endif %}
+<div id="task-feedback" class="card hidden" style="margin-top:.8rem"></div>
+<div id="next-action" class="card hidden" style="margin-top:.8rem"></div>
+
+{# the review is for any submitted attempt — a paper you failed is exactly
+   the one you want to read back before sitting it again                #}
+{% if task.status in ['completed', 'pending'] or task.answers_json %}
+  {# Everything the scout handed in, so the page is a record and not a blank form. #}
+  <section class="card" style="margin-top:.8rem">
+    <h3 style="margin-top:0">
+      {% if task.status == 'rejected' %}🔁 {{ L('上一次的成績', 'Last attempt') }}
+      {% else %}📄 {{ L('你的提交', 'Your submission') }}{% endif %}
+    </h3>
+    {% if task.type == 'quiz' and task.answers_json %}
+      {# 錯題檢討 — after any attempt the scout sees what was right, what was
+         wrong and why. This is a self-check paper: retakes are unlimited. #}
+      {% set review = quiz_review or [] %}
+      {% set right = review | selectattr('correct') | list %}
+      {% set wrong = review | rejectattr('correct') | list %}
+      <div class="row wrap" style="gap:.5rem; margin-bottom:.5rem">
+        <span class="chip ok">{{ L('答對', 'Correct') }} {{ right | length }} / {{ review | length }}</span>
+        {% if wrong %}<span class="chip warn">{{ L('要重溫', 'To review') }} {{ wrong | length }}</span>{% endif %}
+        {% if task.status == 'completed' %}<span class="chip brass">🎖 {{ L('已合格', 'Passed') }}</span>{% endif %}
+      </div>
+
+      {% if wrong %}
+        <h3 style="margin:.4rem 0 .4rem">🔍 {{ L('答錯的題目', 'Questions to review') }}</h3>
+        {% for row in wrong %}
+          <div class="quiz-question review-item">
+            <div class="q-num">{{ L('第', 'Q') }} {{ row.n }}</div>
+            <p style="margin:.2rem 0"><strong>{{ L(row.q_zh, row.q_en) }}</strong></p>
+            <div class="review-answers">
+              <span class="chip danger">✗ {{ L('你的答案', 'Your answer') }}:
+                {% if row.given is none %}{{ L('未作答', 'Not answered') }}
+                {% elif row.options|length > row.given %}{{ L(row.options[row.given].zh, row.options[row.given].en) if row.options[row.given] is mapping else row.options[row.given] }}
+                {% else %}{{ row.given }}{% endif %}</span>
+              <span class="chip ok">✓ {{ L('正確答案', 'Correct answer') }}:
+                {% if row.answer is not none and row.options|length > row.answer %}{{ L(row.options[row.answer].zh, row.options[row.answer].en) if row.options[row.answer] is mapping else row.options[row.answer] }}
+                {% else %}—{% endif %}</span>
+            </div>
+            {% if row.explain_zh %}
+              <p class="review-explain">💡 {{ L(row.explain_zh, row.explain_en or row.explain_zh) }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert ok" data-celebrate="1">🎉 {{ L('全部答對，做得好！', 'Every question right — well done!') }}</div>
+      {% endif %}
+
+      <details class="review-all">
+        <summary>{{ L('查看全部題目與作答', 'Show the whole paper and my answers') }}</summary>
+        {% for row in review %}
+          <div class="quiz-question">
+            <div class="q-num">{{ L('第', 'Q') }} {{ row.n }}</div>
+            <p style="margin:.2rem 0"><strong>{{ L(row.q_zh, row.q_en) }}</strong></p>
+            <span class="chip {{ 'ok' if row.correct else 'danger' }}">
+              {{ '✓' if row.correct else '✗' }} {{ L('你的答案', 'Your answer') }}:
+              {% if row.given is none %}{{ L('未作答', 'Not answered') }}
+              {% elif row.options|length > row.given %}{{ L(row.options[row.given].zh, row.options[row.given].en) if row.options[row.given] is mapping else row.options[row.given] }}
+              {% else %}{{ row.given }}{% endif %}</span>
+            {% if not row.correct and row.answer is not none %}
+              <span class="chip light">{{ L('正確答案', 'Correct') }}:
+                {{ L(row.options[row.answer].zh, row.options[row.answer].en) if row.options[row.answer] is mapping else row.options[row.answer] }}</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </details>
+    {% elif task.type == 'checklist' and task.checklist_json %}
+      {% for tick in task.checklist_json %}
+        {% set item = task.config_json.get('items', [])[loop.index0] if loop.index0 < (task.config_json.get('items', []) | length) else None %}
+        <div class="checklist-item">
+          <span>{{ '✅' if tick else '⬜' }}</span>
+          <span>{{ L(item.zh, item.en) if item else loop.index }}</span>
+        </div>
+      {% endfor %}
+    {% elif task.reflection_text %}
+      <blockquote style="margin:.2rem 0; padding-left:.9rem; border-left:3px solid var(--line)">{{ task.reflection_text }}</blockquote>
+      <div class="small muted">{{ task.reflection_text | length }} {{ L('字', 'characters') }}</div>
+    {% elif task.type == 'evidence' and task.evidence_url %}
+      <a href="{{ task.evidence_url }}" target="_blank" rel="noopener">
+        <img src="{{ task.evidence_url }}" alt="evidence" style="max-width:320px; border-radius:12px; border:1px solid var(--line)">
+      </a>
+    {% else %}
+      <p class="muted small" style="margin:0">{{ L('已提交，內容由領袖保存。', 'Submitted — your leader holds the details.') }}</p>
+    {% endif %}
+    {% if task.score %}
+      <div class="divider"></div>
+      <div class="row wrap">
+        <span class="chip light">{{ L('得分', 'Score') }} {{ task.score }}%</span>
+        <span class="chip light">{{ L('狀態', 'Status') }}: {{ task.status | status_word }}</span>
+      </div>
+    {% endif %}
+  </section>
+{% endif %}
+
+
+{% if task.status not in ['completed', 'pending'] and not badge.locked %}
+<section class="card pad-lg" style="margin-top:.8rem">
+  <form method="post" action="{{ url_for('scout_routes.submit', task_id=task.id) }}"
+        data-task-submit data-quiz="{{ '1' if task.type == 'quiz' else '0' }}"
+        data-require-all="{{ '1' if task.type == 'quiz' and task.config_json.get('require_all', True) else '0' }}">
+    {# ── quiz ─────────────────────────────────────────────────────────── #}
+    {% if task.type == 'quiz' %}
+      {% set questions = task.config_json.get('questions', []) %}
+      {% if task.config_json.get('links') %}
+        <div class="row wrap" style="gap:.4rem; margin-bottom:.5rem">
+          {% for link in task.config_json.get('links') %}
+            <a class="btn small ghost" href="{{ link.url }}" target="_blank" rel="noopener">🔗 {{ L(link.label_zh, link.label_en) }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <div class="row wrap small muted" style="gap:.6rem; margin-bottom:.4rem">
+        <span>{{ questions | length }} {{ L('題', 'questions') }}
+          {%- if task.config_json.get('per_question') %} · {{ L('每題', 'each') }} {{ task.config_json.get('per_question') }} {{ L('分', 'marks') }}{% endif %}
+          · {{ task.pass_score }}{{ L(' 分合格', ' to pass') }}</span>
+        {% if not task.config_json.get('require_all', True) %}
+          <span class="chip light">{{ L('可以留空，未作答的題目不計分', 'You may leave blanks — unanswered = 0') }}</span>
+        {% endif %}
+      </div>
+      <div class="q-dots" id="quiz-dots">
+        {% for q in questions %}<a class="q-dot" href="#q{{ loop.index }}" title="{{ loop.index }}"></a>{% endfor %}
+        <span class="q-dots-label">0 / {{ questions | length }}</span>
+      </div>
+      {% set ns = namespace(part='') %}
+      {% for q in questions %}
+        {% set qi = loop.index0 %}
+        {% if q.part_zh and q.part_zh != ns.part %}
+          {% set ns.part = q.part_zh %}
+          <div class="quiz-part" id="part-{{ loop.index }}">
+            <span>{{ L(q.part_zh, q.part_en or q.part_zh) }}</span>
+            <span class="muted small">{{ L('由第 ' ~ loop.index ~ ' 題開始', 'starts at Q' ~ loop.index) }}</span>
+          </div>
+        {% endif %}
+        <div class="quiz-question" id="q{{ loop.index }}">
+          <div class="q-num">{{ L('第', 'Q') }} {{ loop.index }}</div>
+          <p><strong>{{ L(q.q_zh, q.q_en) }}</strong></p>
+          <div class="choices">
+            {% for option in q.get('options', []) %}
+              <label class="radio-row">
+                <input type="radio" name="q{{ qi }}" value="{{ loop.index0 }}">
+                <span>{{ L(option.zh if option is mapping else option, option.en if option is mapping else option) }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+
+    {# ── checklist ────────────────────────────────────────────────────── #}
+    {% elif task.type == 'checklist' %}
+      <div data-checklist>
+        <div class="spread">
+          <strong>{{ L('做到的請打勾', 'Tick what you have done') }}</strong>
+          <span class="chip light" data-checklist-count>0 / {{ task.config_json.get('items', []) | length }}</span>
+        </div>
+        <div class="divider"></div>
+        {% for item in task.config_json.get('items', []) %}
+          <label class="checklist-item">
+            <input type="checkbox" name="item{{ loop.index0 }}" value="1">
+            <span>{{ L(item.zh if item is mapping else item, item.en if item is mapping else item) }}</span>
+          </label>
+        {% endfor %}
+      </div>
+
+    {# ── evidence (photo into Drive / uploads folder) ──────────────────── #}
+    {% elif task.type == 'evidence' %}
+      {% if task.config_json.get('hint_zh') %}
+        <div class="alert info">{{ L(task.config_json.get('hint_zh', ''), task.config_json.get('hint_en', '')) }}</div>
+      {% endif %}
+      <label class="field">
+        <span>{{ L('上載相片', 'Upload a photo') }} <span class="hint">{{ L('最大 5MB', 'up to 5MB') }}</span></span>
+        <input type="file" accept="image/*" data-upload>
+      </label>
+      <div id="upload-status" class="small muted">{{ L('還未選擇相片', 'No photo chosen yet') }}</div>
+      <input type="hidden" name="evidence_url" value="{{ task.evidence_url or '' }}">
+      {% if task.evidence_url %}
+        <div class="evidence-preview"><img src="{{ task.evidence_url }}" alt="evidence"></div>
+      {% endif %}
+      <label class="field" style="margin-top:.8rem">
+        <span>{{ L('補充說明', 'Notes') }} <span class="hint">{{ L('可留空', 'optional') }}</span></span>
+        <textarea name="notes" placeholder="{{ L('這張相片是甚麼？', 'What is in the photo?') }}"></textarea>
+      </label>
+
+    {# ── reflection ───────────────────────────────────────────────────── #}
+    {% elif task.type == 'reflection' %}
+      {% set min_chars = task.config_json.get('min_chars', 0) %}
+      <label class="field">
+        <span>{{ L('你的反思', 'Your reflection') }}
+          {% if min_chars %}<span class="hint">{{ L('最少', 'at least') }} {{ min_chars }} {{ L('字', 'characters') }}</span>{% endif %}</span>
+        <textarea name="reflection_text" rows="6" {% if min_chars %}minlength="{{ min_chars }}"{% endif %} required></textarea>
+      </label>
+
+    {# ── signoff (a leader confirms in person) ────────────────────────── #}
+    {% else %}
+      <div class="alert info">{{ L('這個任務需要領袖即場簽核。準備好就提交，領袖會收到通知。', 'This task is signed off by a leader in person. Submit when you are ready and they will be notified.') }}</div>
+      <label class="field">
+        <span>{{ L('補充說明', 'Notes') }}</span>
+        <textarea name="notes" placeholder="{{ L('例：已於集會示範繩結', 'e.g. demonstrated knots at the meeting') }}"></textarea>
+      </label>
+    {% endif %}
+
+    <div class="task-hint">
+      {% if task.auto %}<span class="dot-on">●</span> {{ L('提交後即時知道結果', 'You will see the result immediately') }}
+      {% else %}<span>●</span> {{ L('提交後由領袖核實', 'A leader reviews it after you submit') }}{% endif %}
+    </div>
+    <div class="form-actions">
+      <button class="btn primary" type="submit">🚀 {{ L('提交', 'Submit') }}</button>
+      <a class="btn ghost" href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L('返回獎章', 'Back to the award') }}</a>
+    </div>
+  </form>
+</section>
+{% endif %}
+
+{% if next_task %}
+  <div class="card" style="margin-top:.8rem">
+    <div class="spread wrap">
+      <div>
+        <div class="small muted">{{ L('下一個任務', 'Next task') }}</div>
+        <strong>{{ next_task.icon }} {{ L(next_task.title_zh, next_task.title_en) }}</strong>
+      </div>
+      <a class="btn" href="{{ url_for('scout_routes.task_player', task_id=next_task.id) }}">{{ L('看看', 'Peek') }} ›</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

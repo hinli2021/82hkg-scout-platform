@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('設定', 'Settings') }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">⚙️ {{ L('設定', 'Settings') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('單位資料、小隊與功能開關。', 'Unit details, patrols and feature switches.') }}</p>
+  </div>
+  <span class="chip light">{{ L('儲存於', 'Storage') }}: {{ storage_mode }}</span>
+</div>
+
+<form method="post" action="{{ url_for('leader_routes.save_settings') }}">
+  <input type="hidden" name="switches" value="1">
+  <div class="console-split">
+    <div>
+      <div class="card">
+        <h3 style="margin-top:0">🏕️ {{ L('單位', 'Unit') }}</h3>
+        <div class="form-grid">
+          <label class="field"><span>{{ L('單位名稱（中文）', 'Unit name (zh)') }}</span><input type="text" name="unit_name_zh" value="{{ current.unit_name_zh }}"></label>
+          <label class="field"><span>{{ L('單位名稱（英文）', 'Unit name (en)') }}</span><input type="text" name="unit_name_en" value="{{ current.unit_name_en }}"></label>
+          <label class="field"><span>{{ L('格言（中文）', 'Motto (zh)') }}</span><input type="text" name="motto_zh" value="{{ current.motto_zh }}"></label>
+          <label class="field"><span>{{ L('格言（英文）', 'Motto (en)') }}</span><input type="text" name="motto_en" value="{{ current.motto_en }}"></label>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">🐯 {{ L('小隊', 'Patrols') }}</h3>
+        <p class="small muted">{{ L('登入時會按這個次序顯示。', 'Shown in this order on the sign-in screens.') }}</p>
+        <div class="patrol-pills">
+          {% for patrol in current.patrols %}
+            <label class="chip"><input type="checkbox" name="patrols" value="{{ patrol }}" checked> {{ L(patrol_label(patrol).zh, patrol_label(patrol).en) }}</label>
+          {% endfor %}
+        </div>
+        <label class="field" style="margin-top:.6rem"><span>{{ L('新增小隊', 'Add a patrol') }}</span>
+          <input type="text" placeholder="{{ L('輸入後按 Enter', 'type and press Enter') }}" data-patrol-input="#patrol-list">
+        </label>
+        <div class="patrol-pills" id="patrol-list"></div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">🔐 {{ L('登入與帳戶', 'Sign-in & accounts') }}</h3>
+        <label class="switch"><input type="checkbox" name="scout_self_reset" value="1" {{ 'checked' if current.scout_self_reset }}>
+          {{ L('允許童軍自助重設密碼（忘記密碼時立即清除）', 'Allow self-service password reset') }}</label>
+        <label class="switch"><input type="checkbox" name="ui_sound" value="1" {{ 'checked' if current.ui_sound }}>
+          {{ L('預設開啟遊戲音效（童軍可在右上角自行關閉）', 'Game sound on by default (scouts can switch it off)') }}</label>
+      </div>
+
+      <div class="card" style="margin-top:1rem" id="mail">
+        <h3 style="margin-top:0">✉️ {{ L('寄信信箱（重設密碼連結）', 'Mailbox (password-reset links)') }}</h3>
+        <p class="small muted" style="margin:.2rem 0 .7rem">
+          {{ L('童軍在密碼頁按「忘記密碼？」，系統就會寄一條一次性連結到他的電郵，由他自己設定新密碼。要寄信，先填好這個信箱。',
+               'When a scout taps 「Forgot password?」 the platform emails them a one-time link so they can choose a new password. Fill this in to switch that on.') }}
+          <br>{{ L('用單位的 Gmail：主機 smtp.gmail.com、連接埠 587、加密 TLS，密碼填「應用程式密碼」（Google 帳戶 → 安全性 → 兩步驗證 → 應用程式密碼，16 個字）。', 'For a unit Gmail: host smtp.gmail.com, port 587, TLS, and an app password (Google account → Security → 2-Step Verification → App passwords).') }}
+          {% if current.smtp_host and current.smtp_from %}
+            <br><strong style="color:var(--green-700)">{{ L('現在已設定：可以寄出重設連結。', 'Set up: reset links can be sent.') }}</strong>
+          {% else %}
+            <br><strong>{{ L('還未設定：童軍會改為用電郵即時設定新密碼（或由你重設）。', 'Not set up yet: scouts fall back to the on-the-spot method, or you reset for them.') }}</strong>
+          {% endif %}
+        </p>
+        <div class="form-grid">
+          <label class="field"><span>{{ L('SMTP 主機', 'SMTP host') }}</span>
+            <input type="text" name="smtp_host" value="{{ current.smtp_host }}" placeholder="smtp.gmail.com"></label>
+          <label class="field"><span>{{ L('連接埠', 'Port') }}</span>
+            <input type="number" name="smtp_port" value="{{ current.smtp_port or 587 }}" min="1" max="65535"></label>
+          <label class="field"><span>{{ L('加密', 'Encryption') }}</span>
+            <select name="smtp_tls">
+              <option value="tls" {{ 'selected' if (current.smtp_tls or 'tls') == 'tls' }}>TLS (587)</option>
+              <option value="ssl" {{ 'selected' if current.smtp_tls == 'ssl' }}>SSL (465)</option>
+              <option value="none" {{ 'selected' if current.smtp_tls == 'none' }}>{{ L('無', 'None') }}</option>
+            </select></label>
+          <label class="field"><span>{{ L('寄件人', 'From address') }}</span>
+            <input type="text" name="smtp_from" value="{{ current.smtp_from }}" placeholder="yourunit@gmail.com"></label>
+          <label class="field"><span>{{ L('帳號（通常是同一個 Gmail）', 'Account (usually the same Gmail)') }}</span>
+            <input type="text" name="smtp_user" value="{{ current.smtp_user }}" autocomplete="off"></label>
+          <label class="field"><span>{{ L('應用程式密碼', 'App password') }}</span>
+            <input type="text" name="smtp_password" autocomplete="off"
+                   value="{{ '••••••••' if current.smtp_password else '' }}"
+                   placeholder="{{ L('貼上 16 個字的應用程式密碼', 'paste the 16-character app password') }}">
+            <span class="hint">{{ L('留空＝保留現有；填「-」＝清除。', 'Leave blank to keep it; type “-” to clear it.') }}</span></label>
+          <label class="field"><span>{{ L('重設連結有效期（分鐘）', 'Reset link lifetime (minutes)') }}</span>
+            <input type="number" name="reset_link_minutes" value="{{ current.reset_link_minutes or 60 }}" min="5" max="1440"></label>
+          <label class="field"><span>{{ L('平台網址（留空＝自動）', 'Public web address (blank = automatic)') }}</span>
+            <input type="text" name="public_base_url" value="{{ current.public_base_url }}" placeholder="http://192.168.1.20:5001"></label>
+        </div>
+        <p class="small muted" style="margin:.4rem 0 0">
+          {{ L('「平台網址」只有在電郵裡的連結要用另一個地址時才需要填（例如正式網址或區網 IP）。', 'Only fill the web address if the link in the email must use a different address (a real domain, or the LAN IP).') }}
+        </p>
+        {% if mail_result %}
+          <div class="alert {{ 'ok' if mail_result.ok else 'warn' }}" style="margin-top:.6rem">
+            {% if mail_result.ok %}
+              {{ L('上一次寄信成功：', 'Last send succeeded:') }} {{ mail_result.to }}
+            {% else %}
+              {{ L('上一次寄信失敗：', 'Last send failed:') }} {{ mail_result.error[:160] }}
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="card" style="margin-top:1rem" id="feature-switches">
+        <h3 style="margin-top:0">🧩 {{ L('功能開關', 'Feature switches') }}</h3>
+        {% set flags = current.feature_flags %}
+        <p class="muted small" style="margin:.2rem 0 .7rem">
+          {{ L('勾選就會即時開放該功能（選單與頁面一同出現）；不勾選則完全隱藏。想一項一項加上去就用這裡。',
+               'Tick one and it opens straight away — the menu link and the pages appear together. Unticked means hidden. Add the extras here, one at a time.') }}
+        </p>
+        <label class="switch"><input type="checkbox" name="flag_redeem" value="1" {{ 'checked' if flags.get('redeem') }}>
+          🎁 {{ L('獎品（積分換領）', 'Rewards (points shop)') }}
+          <span class="chip {{ 'ok' if flags.get('redeem') else '' }}">{{ L('開放中', 'Open') if flags.get('redeem') else L('未開放', 'Hidden') }}</span></label>
+        <label class="switch"><input type="checkbox" name="flag_leaderboard" value="1" {{ 'checked' if flags.get('leaderboard') }}>
+          🏆 {{ L('龍虎榜', 'Leaderboard') }}
+          <span class="chip {{ 'ok' if flags.get('leaderboard') else '' }}">{{ L('開放中', 'Open') if flags.get('leaderboard') else L('未開放', 'Hidden') }}</span></label>
+        <hr class="hair">
+        <label class="switch"><input type="checkbox" name="flag_streaks" value="1" {{ 'checked' if flags.get('streaks') }}> {{ L('連續活躍紀錄', 'Streaks') }}</label>
+        <label class="switch"><input type="checkbox" name="flag_evidence_upload" value="1" {{ 'checked' if flags.get('evidence_upload') }}> {{ L('相片上載（Google Drive）', 'Photo upload (Google Drive)') }}</label>
+        <label class="switch"><input type="checkbox" name="flag_announcements" value="1" {{ 'checked' if flags.get('announcements') }}> {{ L('公告', 'Notices') }}</label>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3 style="margin-top:0">💾 {{ L('資料儲存', 'Data storage') }}</h3>
+        <div class="kv">
+          <dt>{{ L('模式', 'Mode') }}</dt><dd>{{ L('本機 JSON 檔案', 'Local JSON files') if storage_mode == 'local' else 'Google Sheets + Drive' }}</dd>
+          <dt>{{ L('獎章', 'Awards') }}</dt><dd>{{ L('一個分頁一個資料表', 'one tab per collection') }}</dd>
+        </div>
+        <div class="divider"></div>
+        {% if storage_mode == 'local' %}
+          <p class="small muted">{{ L('要改用 Google 試算表：設定環境變數 DATA_DRIVER=sheets、GOOGLE_SHEET_ID 及服務帳戶，詳見 docs/02-google-sheets-setup.md。', 'To switch to Google Sheets: set DATA_DRIVER=sheets, GOOGLE_SHEET_ID and the service account — see docs/02-google-sheets-setup.md.') }}</p>
+        {% else %}
+          <p class="small muted">{{ L('資料即時寫入你的 Google 試算表，相片存到你的 Drive 資料夾。', 'Data is written straight into your Google Sheet; photos go to your Drive folder.') }}</p>
+        {% endif %}
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <h3 style="margin-top:0">ℹ️ {{ L('版本', 'Edition') }}</h3>
+        <p class="small muted">{{ L('這是 Python（Flask + Jinja）版本，與 Node 版本共用同一份試算表格式與密碼雜湊。', 'This is the Python (Flask + Jinja) edition — it shares the same Sheet layout and password hashing as the Node build.') }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions" style="position:sticky; bottom:1rem">
+    <button class="btn primary" type="submit">💾 {{ L('儲存設定', 'Save settings') }}</button>
+  </div>
+</form>
+
+<form method="post" action="{{ url_for('leader_routes.test_mail') }}" class="card" style="margin-top:1rem; max-width:520px">
+  <h3 style="margin-top:0">🧪 {{ L('試寄一封', 'Send a test email') }}</h3>
+  <p class="small muted" style="margin:.2rem 0 .5rem">{{ L('先儲存設定，再按這裡試寄一封，確認電郵真的出得去。', 'Save the settings first, then send one test message to prove mail really goes out.') }}</p>
+  <label class="field"><span>{{ L('寄到', 'Send to') }}</span>
+    <input type="email" name="to" value="{{ current.smtp_from }}" placeholder="yourunit@gmail.com"></label>
+  <button class="btn" type="submit">📤 {{ L('寄測試郵件', 'Send test email') }}</button>
+</form>
+{% endblock %}

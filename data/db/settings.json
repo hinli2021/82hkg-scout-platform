@@ -1,0 +1,77 @@
+[
+  {
+    "key": "unit_name_zh",
+    "value_json": "\"港島第八十二旅童軍團\"",
+    "updated_at": "2026-10-16T00:23:58.823Z"
+  },
+  {
+    "key": "unit_name_en",
+    "value_json": "\"Sample Scout Group\"",
+    "updated_at": "2026-10-16T00:23:58.824Z"
+  },
+  {
+    "key": "motto_zh",
+    "value_json": "\"日行一善\"",
+    "updated_at": "2026-10-16T00:23:58.824Z"
+  },
+  {
+    "key": "motto_en",
+    "value_json": "\"Do a good turn every day\"",
+    "updated_at": "2026-10-16T00:23:58.825Z"
+  },
+  {
+    "key": "smtp_host",
+    "value_json": "\"\"",
+    "updated_at": "2026-10-16T00:23:58.825Z"
+  },
+  {
+    "key": "smtp_user",
+    "value_json": "\"\"",
+    "updated_at": "2026-10-16T00:23:58.825Z"
+  },
+  {
+    "key": "smtp_from",
+    "value_json": "\"\"",
+    "updated_at": "2026-10-16T00:23:58.826Z"
+  },
+  {
+    "key": "public_base_url",
+    "value_json": "\"\"",
+    "updated_at": "2026-10-16T00:23:58.826Z"
+  },
+  {
+    "key": "smtp_tls",
+    "value_json": "\"tls\"",
+    "updated_at": "2026-10-16T00:23:58.826Z"
+  },
+  {
+    "key": "smtp_port",
+    "value_json": "587",
+    "updated_at": "2026-10-16T00:23:58.826Z"
+  },
+  {
+    "key": "reset_link_minutes",
+    "value_json": "60",
+    "updated_at": "2026-10-16T00:23:58.827Z"
+  },
+  {
+    "key": "patrols",
+    "value_json": "[\"Tiger\", \"Otter\", \"Seagull\"]",
+    "updated_at": "2026-10-16T00:23:58.827Z"
+  },
+  {
+    "key": "scout_self_reset",
+    "value_json": "false",
+    "updated_at": "2026-10-16T00:23:58.828Z"
+  },
+  {
+    "key": "ui_sound",
+    "value_json": "true",
+    "updated_at": "2026-10-16T00:23:58.828Z"
+  },
+  {
+    "key": "feature_flags",
+    "value_json": "{\"leaderboard\": true, \"redeem\": false, \"evidence_upload\": true, \"streaks\": true, \"announcements\": true}",
+    "updated_at": "2026-10-16T00:23:58.829Z"
+  }
+]

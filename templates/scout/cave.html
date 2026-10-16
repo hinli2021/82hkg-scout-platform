@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{# the game takes the height of the window: the site chrome steps aside #}
+{% block body_attrs %}class="is-game"{% endblock %}
+
+{% block title %}{{ L(adventure.title_zh, adventure.title_en) }}{% endblock %}
+
+{# ── 童軍歷史山洞 — the first game of 會員章. A full-bleed picture window: the
+      cave mouth, four wall paintings with their timelines, the chambers where
+      the fifty questions are answered, the dead ends a wrong answer leads to,
+      and the daylight at the exit. Everything lives in static/js/cave.js, so
+      the same game plays inside the offline demo file. ── #}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L(badge.title_zh, badge.title_en) }}</a><span class="breadcrumb-arrow">›</span>
+  {{ L('遊戲 1：童軍歷史山洞', 'Game 1 — the cave') }}
+</div>
+
+<section class="cave" id="cave-root" data-cave
+         data-cave-config="{{ scene_json | forceescape }}">
+  <div class="cave-stage">
+    <div class="cave-picture">
+      <img class="cave-art-backdrop" data-cave-art-backdrop="{{ art_names[0] }}" alt="" aria-hidden="true"
+           src="{{ url_for('static', filename='img/quest/cave/' ~ art_names[0] ~ '.jpg') }}">
+      <img class="cave-art" data-cave-art="{{ art_names[0] }}"
+           src="{{ url_for('static', filename='img/quest/cave/' ~ art_names[0] ~ '.jpg') }}" alt="">
+      <div class="cave-shade" aria-hidden="true"></div>
+      <header class="cave-hud">
+        <a class="cave-hud-link" href="{{ url_for('scout_routes.home') }}">🏠 {{ L('主頁', 'Home') }}</a>
+        <span class="cave-hud-mid" data-cave-progress>{{ L('山洞歷險', 'Cave adventure') }}</span>
+        <a class="cave-hud-link" href="{{ badge_url }}">🎖 {{ L('會員章', 'Badge') }}</a>
+      </header>
+    </div>
+    <div class="cave-card-wrap">
+      <div class="cave-card" data-cave-card aria-live="polite">
+        <span class="cave-kicker">{{ L(adventure.intro.kicker_zh, adventure.intro.kicker_en) }}</span>
+        <h1 class="cave-title">{{ L(adventure.intro.title_zh, adventure.intro.title_en) }}</h1>
+        {% for para in (adventure.intro.paras_zh if lang != 'en' else adventure.intro.paras_en) %}
+          <p class="cave-line">{{ para }}</p>
+        {% endfor %}
+        <div class="cave-actions">
+          <button class="btn primary big" type="button" data-cave-go="wall" data-cheer="🔥,✨">
+            {{ L(adventure.intro.action_zh, adventure.intro.action_en) }}</button>
+        </div>
+      </div>
+    </div>
+    {# 向下捲動: shown while the panel still has more words below its edge #}
+    <div class="cave-more" data-cave-more hidden>
+      <span class="cave-more-chip">▾ {{ L('向下捲動', 'Scroll down') }}</span>
+    </div>
+  </div>
+
+  {# the one real link in the game, kept here so the script can clone them: live they
+     are the map's URLs, offline the builder turns them into pane hops #}
+  <div hidden aria-hidden="true">
+    <a data-cave-link="badge" href="{{ badge_url }}">🎖 {{ L('返回會員章', 'Back to the badge') }}</a>
+    {% if next_game %}
+      {# 走出洞口 → the journey carries straight on to the next game #}
+      <a data-cave-link="next" href="{{ next_game.url }}">🎮
+        {{ L('繼續歷程 · 進入遊戲 ' ~ next_game.n ~ '（' ~ next_game.name_zh ~ '）',
+             'Continue the journey · Game ' ~ next_game.n ~ ' (' ~ next_game.name_en ~ ')') }}</a>
+    {% endif %}
+  </div>
+
+  {# every picture the game can show, so nothing has to be fetched mid-escape #}
+  <div class="cave-sources" hidden aria-hidden="true">
+    {# the picture already on screen is not listed twice: one copy is enough #}
+    {% for name in art_names if name != art_names[0] %}
+      <img data-cave-art="{{ name }}" src="{{ url_for('static', filename='img/quest/cave/' ~ name ~ '.jpg') }}" alt="">
+    {% endfor %}
+  </div>
+
+  <noscript>
+    <p class="small muted">{{ L('山洞歷險需要開啟 JavaScript。請開啟後再試，或請領袖協助。',
+                                'The cave needs JavaScript. Enable it and try again, or ask your leader for help.') }}</p>
+  </noscript>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/cave.js') }}"></script>
+{% endblock %}

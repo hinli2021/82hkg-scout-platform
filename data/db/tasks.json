@@ -1,0 +1,1241 @@
+[
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 1,
+  "code": "M01",
+  "title_zh": "第 1 項：與小隊長商議加入安排",
+  "title_en": "Item 1 — talk to your patrol leader about joining",
+  "instruction_zh": "與你的小隊長商議有關加入童軍團之安排。領袖確認你已加入童軍團。",
+  "instruction_en": "Discuss the arrangements for joining the Scout Troop with your patrol leader. A leader confirms that you have joined.",
+  "type": "signoff",
+  "points": 10,
+  "pass_score": 0,
+  "config_json": {},
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "d0e60b15317cad4f"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 2,
+  "code": "M02",
+  "title_zh": "第 2 項：加入小隊，認識隊中成員",
+  "title_en": "Item 2 — join a patrol and know its members",
+  "instruction_zh": "加入一小隊，並從小隊活動中認識隊中其他成員。考核時說出：小隊成員、小隊職位、小隊成員電話號碼（隊長／聯絡）。",
+  "instruction_en": "Join a patrol and get to know the other members through patrol activities. Show your leader that you know: the members, the patrol jobs, and the patrol phone numbers (leader / contact).",
+  "type": "signoff",
+  "points": 10,
+  "pass_score": 0,
+  "config_json": {},
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "88ebb66127fa67b2"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 3,
+  "code": "M03",
+  "title_zh": "第 3 項：參加六次團集會／活動",
+  "title_en": "Item 3 — attend six meetings / activities",
+  "instruction_zh": "最少參加六次團集會／活動，其中一次在戶外舉行。每次出席後打勾，領袖會核對出席紀錄。",
+  "instruction_en": "Take part in at least six troop meetings or activities, one of them outdoors. Tick each one after you attend — your leader checks the attendance record.",
+  "type": "checklist",
+  "points": 20,
+  "pass_score": 0,
+  "config_json": {
+   "items": [
+    {
+     "zh": "第一次室內集會／活動",
+     "en": "First indoor meeting / activity"
+    },
+    {
+     "zh": "第二次室內集會／活動",
+     "en": "Second indoor meeting / activity"
+    },
+    {
+     "zh": "第三次室內集會／活動",
+     "en": "Third indoor meeting / activity"
+    },
+    {
+     "zh": "第四次室內集會／活動",
+     "en": "Fourth indoor meeting / activity"
+    },
+    {
+     "zh": "第五次室內集會／活動",
+     "en": "Fifth indoor meeting / activity"
+    },
+    {
+     "zh": "一次戶外集會／活動",
+     "en": "One outdoor meeting / activity"
+    }
+   ]
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "9e3a8488fabad770"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 4,
+  "code": "M04",
+  "title_zh": "第 4 項：童軍歷史山洞（遊戲 1）",
+  "title_en": "Item 4 — The Cave of Scouting History (game 1)",
+  "instruction_zh": "第一個區域只有童軍歷史山洞：先閱讀四段壁畫，再在石室完成全部 50 題。走到洞口便自動通關並完成第 4 項；每題 2 分，成績只供回顧，不設合格分數，亦無須另做試卷。",
+  "instruction_en": "The first area's only game is the cave: read four wall paintings, then finish all 50 chamber questions. Reaching the exit automatically clears game 1 and item 4, whatever your score. Each question is worth 2 marks for review; there is no separate paper.",
+  "type": "quiz",
+  "points": 30,
+  "pass_score": 0,
+  "config_json": {
+   "bank": "member-badge/item4",
+   "require_all": true,
+   "links": [
+    {
+     "label_zh": "溫習資源",
+     "label_en": "Study resources",
+     "url": "https://drive.google.com/drive/folders/18XAKwwF-ECWkcO6NLd1L1Hw8lomZBCEb?usp=sharing"
+    }
+   ],
+   "questions": [
+    {
+     "id": "甲1",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "貝登堡勳爵的全名是甚麼？",
+     "q_en": "貝登堡勳爵的全名是甚麼？",
+     "options": [
+      "羅拔史提芬遜史密夫貝登堡維爾",
+      "貝倫史密夫基維爾馬倫斯貝登堡",
+      "羅拔迪尼路夫安達臣貝登堡維爾",
+      "史提夫史匹保堅尼基維爾貝登堡"
+     ],
+     "answer": 0,
+     "explain_zh": "英文：Lord Robert Stephenson Smyth Baden-Powell of Gilwell。記憶法：三個 S —— Stephenson、Smyth、Scout！",
+     "review_note": ""
+    },
+    {
+     "id": "甲2",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "貝登堡率領軍隊平服哪一個地區的叛亂？",
+     "q_en": "貝登堡率領軍隊平服哪一個地區的叛亂？",
+     "options": [
+      "東非洲",
+      "南非洲",
+      "西非洲",
+      "北非洲"
+     ],
+     "answer": 2,
+     "explain_zh": "1895年，他平定西非洲阿善提王(Ashanti)的叛亂，當地人尊稱他為「不睡之狼」🐺。注意：舊版筆記誤印為1875年，正確年份是1895年。",
+     "review_note": ""
+    },
+    {
+     "id": "甲3",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "貝登堡用甚麼方法訓練他的軍隊？",
+     "q_en": "貝登堡用甚麼方法訓練他的軍隊？",
+     "options": [
+      "聯合訓練",
+      "小隊制度",
+      "個別訓練",
+      "精英制度"
+     ],
+     "answer": 1,
+     "explain_zh": "小隊制度(Patrol System)——後來成為童軍團最大特色：以小隊為中心！你還記得本旅設有哪些小隊嗎？",
+     "review_note": ""
+    },
+    {
+     "id": "甲4",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "貝登堡將自己的訓練大綱編寫成哪一本書？",
+     "q_en": "貝登堡將自己的訓練大綱編寫成哪一本書？",
+     "options": [
+      "小狼手冊",
+      "童軍訓練綱要",
+      "警探術",
+      "少年警探"
+     ],
+     "answer": 2,
+     "explain_zh": "《警探術》(Aids to Scouting)原為軍人而寫；其後有教師建議將內容改編為青少年版本，啟發了童軍運動的發展。",
+     "review_note": ""
+    },
+    {
+     "id": "甲5",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "1899年貝登堡駐守何處？",
+     "q_en": "1899年貝登堡駐守何處？",
+     "options": [
+      "基維爾",
+      "菲維特城",
+      "君士坦丁堡",
+      "梅富根城"
+     ],
+     "answer": 3,
+     "explain_zh": "南非梅富根城(Mafeking)。波爾戰爭期間，該城被圍困217日；他組織當地青年協助傳訊及急救工作，這些青年成為早期童軍活動的重要先驅。",
+     "review_note": ""
+    },
+    {
+     "id": "甲6",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "1901年貝登堡回英國擔任何種職位？",
+     "q_en": "1901年貝登堡回英國擔任何種職位？",
+     "options": [
+      "軍隊教官",
+      "騎兵總監",
+      "艦隊司令",
+      "童軍領袖"
+     ],
+     "answer": 1,
+     "explain_zh": "1901年升任少將，回國出任騎兵總監。他1907年舉辦實驗露營，之後辭去軍職全職推動童軍運動。",
+     "review_note": ""
+    },
+    {
+     "id": "甲7",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "貝登堡享年多少歲？",
+     "q_en": "貝登堡享年多少歲？",
+     "options": [
+      "七十八歲",
+      "八十三歲",
+      "八十七歲",
+      "九十一歲"
+     ],
+     "answer": 1,
+     "explain_zh": "他於1857年2月22日出生，1941年1月8日在肯雅逝世，享年83歲(按足歲計算；舊筆記採用虛歲，故列為84歲)。",
+     "review_note": ""
+    },
+    {
+     "id": "甲8",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "貝登堡於何時出生？",
+     "q_en": "貝登堡於何時出生？",
+     "options": [
+      "1857年2月22日",
+      "1867年2月22日",
+      "1875年2月22日",
+      "1957年2月22日"
+     ],
+     "answer": 0,
+     "explain_zh": "他於1857年2月22日出生於英國倫敦。有趣的是，他的妻子奧莉花也在2月22日生日，因此該日定為世界童軍懷念日。",
+     "review_note": ""
+    },
+    {
+     "id": "甲9",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "世界幼童軍活動在哪一年開始？",
+     "q_en": "世界幼童軍活動在哪一年開始？",
+     "options": [
+      "1916年",
+      "1917年",
+      "1918年",
+      "1919年"
+     ],
+     "answer": 0,
+     "explain_zh": "1916年，他為8至11歲兒童創立小狼活動(現稱幼童軍)，並於同年出版《小狼手冊》。樂行童軍則於1918年創立。",
+     "review_note": ""
+    },
+    {
+     "id": "甲10",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "世界童軍活動在哪一年開始？",
+     "q_en": "世界童軍活動在哪一年開始？",
+     "options": [
+      "1887年",
+      "1897年",
+      "1907年",
+      "1917年"
+     ],
+     "answer": 2,
+     "explain_zh": "1907年8月1日至9日，貝登堡在英國白浪島舉辦實驗露營，24名來自不同背景的兒童參加為期9日的營會，取得成功。童軍運動正式起航⛵",
+     "review_note": ""
+    },
+    {
+     "id": "甲11",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "第一屆世界童軍大露營在哪裡舉行？",
+     "q_en": "第一屆世界童軍大露營在哪裡舉行？",
+     "options": [
+      "荷蘭基維爾",
+      "蘇格蘭愛丁堡",
+      "丹麥哥本哈根",
+      "英國倫敦奧林匹克"
+     ],
+     "answer": 3,
+     "explain_zh": "1920年英國倫敦奧林匹亞會場。貝登堡在這次大露營被各國代表推選為世界童軍總領袖👑",
+     "review_note": ""
+    },
+    {
+     "id": "甲12",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "第一屆世界童軍會議於哪一年舉行？",
+     "q_en": "第一屆世界童軍會議於哪一年舉行？",
+     "options": [
+      "1915年",
+      "1920年",
+      "1925年",
+      "1930年"
+     ],
+     "answer": 1,
+     "explain_zh": "1920年，世界童軍會議與首屆大露營同年舉行；國際童軍辦事處亦於同年在倫敦設立。大露營以活動為主，世界童軍會議則討論運動發展。",
+     "review_note": ""
+    },
+    {
+     "id": "甲13",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "1916年貝登堡出版了哪一本書？",
+     "q_en": "1916年貝登堡出版了哪一本書？",
+     "options": [
+      "小狼手冊",
+      "童軍訓練綱要",
+      "警探術",
+      "童子警探"
+     ],
+     "answer": 0,
+     "explain_zh": "《小狼手冊》是配合幼童軍活動而出版。請勿混淆：警探術(軍人版)→童子警探(1908年童軍版)→小狼手冊(1916年幼童軍版)。",
+     "review_note": ""
+    },
+    {
+     "id": "甲14",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "國際性童軍雜誌《世界童軍運動》原名是甚麼？",
+     "q_en": "國際性童軍雜誌《世界童軍運動》原名是甚麼？",
+     "options": [
+      "大露營",
+      "童子警探",
+      "貝登堡自傳",
+      "童軍文擇"
+     ],
+     "answer": 0,
+     "explain_zh": "該刊物於1921年創刊時名為《大露營》(Jamboree)，其後於1955年更名為《世界童軍運動》。Jamboree即指大露營。🏕️",
+     "review_note": ""
+    },
+    {
+     "id": "甲15",
+     "part": "world",
+     "part_zh": "甲部：世界童軍運動",
+     "part_en": "甲部：世界童軍運動",
+     "q_zh": "1968年，世界童軍總辦事處遷往何處？",
+     "q_en": "1968年，世界童軍總辦事處遷往何處？",
+     "options": [
+      "美國華盛頓",
+      "加拿大溫哥華",
+      "法國巴黎",
+      "瑞士日內瓦"
+     ],
+     "answer": 3,
+     "explain_zh": "世界童軍總辦事處由加拿大遷往瑞士日內瓦，並一直設於當地。總部先後遷往倫敦、加拿大(1957年)及日內瓦(1968年)。",
+     "review_note": ""
+    },
+    {
+     "id": "乙1",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "香港何時開始有童軍活動？",
+     "q_en": "香港何時開始有童軍活動？",
+     "options": [
+      "1890年",
+      "1900年",
+      "1909年",
+      "1910年"
+     ],
+     "answer": 2,
+     "explain_zh": "香港於1909年開始有童軍活動；1911年由英國商人及軍人開辦旅團；1913年正式註冊為英國童軍海外屬會。",
+     "review_note": ""
+    },
+    {
+     "id": "乙2",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "第一位香港童軍總領袖是哪一位？",
+     "q_en": "第一位香港童軍總領袖是哪一位？",
+     "options": [
+      "尤德爵士",
+      "梅含理爵士",
+      "金文泰爵士",
+      "司徒拔爵士"
+     ],
+     "answer": 1,
+     "explain_zh": "1912年，港督梅含理爵士出任首位香港童軍總領袖。同年，貝登堡在遠東之旅期間到訪香港。🇭🇰",
+     "review_note": ""
+    },
+    {
+     "id": "乙3",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "首屆威爾斯太子錦標比賽在哪一年舉行？",
+     "q_en": "首屆威爾斯太子錦標比賽在哪一年舉行？",
+     "options": [
+      "1913年",
+      "1923年",
+      "1933年",
+      "1943年"
+     ],
+     "answer": 1,
+     "explain_zh": "1922年威爾斯太子訪港捐旗，1923年首次比賽。1951年起改為深資童軍錦標，童軍團就改爭嘉爾頓錦標。",
+     "review_note": ""
+    },
+    {
+     "id": "乙4",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "首位香港訓練總監是哪一位？",
+     "q_en": "首位香港訓練總監是哪一位？",
+     "options": [
+      "陸榮生先生",
+      "盧孟吔先生",
+      "柯昭璋先生",
+      "田家騰先生"
+     ],
+     "answer": 3,
+     "explain_zh": "1949年，田家騰先生出任首位香港訓練總監。同年，花園道摩士屋啟用作總部。戰後，香港童軍在侯利華會督及柯昭璋先生帶領下復興。",
+     "review_note": ""
+    },
+    {
+     "id": "乙5",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "為童軍團而設的嘉爾頓錦標首次在何時舉行？",
+     "q_en": "為童軍團而設的嘉爾頓錦標首次在何時舉行？",
+     "options": [
+      "1948年",
+      "1949年",
+      "1950年",
+      "1951年"
+     ],
+     "answer": 3,
+     "explain_zh": "該錦標於1951年首次舉行，由副總監田納先生捐贈。請記住：嘉爾頓錦標屬童軍團，威爾斯太子錦標屬深資童軍。🏆",
+     "review_note": ""
+    },
+    {
+     "id": "乙6",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "1960年政府撥出哪一塊土地作童軍營地？",
+     "q_en": "1960年政府撥出哪一塊土地作童軍營地？",
+     "options": [
+      "柴灣大潭灣",
+      "大埔洞梓",
+      "大老山徑土地",
+      "西貢白沙灣"
+     ],
+     "answer": 2,
+     "explain_zh": "1960年政府撥出大老山徑土地，後來命名為香港基維爾營地，紀念貝登堡的勳銜(Gilwell)。",
+     "review_note": ""
+    },
+    {
+     "id": "乙7",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "承上題，這塊地後來改稱甚麼名？",
+     "q_en": "承上題，這塊地後來改稱甚麼名？",
+     "options": [
+      "白沙灣海上活動中心",
+      "香港基維爾營地",
+      "大潭童軍中心",
+      "大埔洞梓童軍中心"
+     ],
+     "answer": 1,
+     "explain_zh": "香港基維爾營地與英國基維爾領袖訓練中心同名，均為紀念貝登堡而命名。",
+     "review_note": ""
+    },
+    {
+     "id": "乙8",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "香港首次全港大露營在哪一年舉行？",
+     "q_en": "香港首次全港大露營在哪一年舉行？",
+     "options": [
+      "1955年",
+      "1956年",
+      "1957年",
+      "1958年"
+     ],
+     "answer": 2,
+     "explain_zh": "1957年——恰好是世界童軍50週年金禧紀念，香港代表團亦前往英國參加第9屆世界金禧大露營！",
+     "review_note": ""
+    },
+    {
+     "id": "乙9",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "承上題，該次大露營在哪裡舉行？",
+     "q_en": "承上題，該次大露營在哪裡舉行？",
+     "options": [
+      "大嶼山南山營地",
+      "柴灣大潭童軍中心",
+      "基維爾營地",
+      "上水金錢村"
+     ],
+     "answer": 3,
+     "explain_zh": "大露營於新界上水金錢村舉行。記憶提示：金禧年與金錢村均以「金」字開頭。💰",
+     "review_note": ""
+    },
+    {
+     "id": "乙10",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "第一屆全港童軍青年論壇在哪一年舉行？",
+     "q_en": "第一屆全港童軍青年論壇在哪一年舉行？",
+     "options": [
+      "1955年",
+      "1965年",
+      "1975年",
+      "1985年"
+     ],
+     "answer": 2,
+     "explain_zh": "1975年。同年大埔童軍訓練中心正式啟用——也就是現在的大埔洞梓童軍中心。",
+     "review_note": ""
+    },
+    {
+     "id": "乙11",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "小童軍訓練支部在哪一年成立？",
+     "q_en": "小童軍訓練支部在哪一年成立？",
+     "options": [
+      "1984年",
+      "1985年",
+      "1986年",
+      "1987年"
+     ],
+     "answer": 0,
+     "explain_zh": "小童軍支部於1984年成立，招收6至8歲兒童。1986年，童軍支部亦開始接納女童軍；1987年首次舉行模範童軍選舉。",
+     "review_note": ""
+    },
+    {
+     "id": "乙12",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "承上題，小童軍招收多少歲成員？",
+     "q_en": "承上題，小童軍招收多少歲成員？",
+     "options": [
+      "六至八歲",
+      "四至六歲",
+      "五至七歲",
+      "七至九歲"
+     ],
+     "answer": 0,
+     "explain_zh": "6–8歲。升級路：小童軍6–8 → 幼童軍7–11 → 童軍11–16 → 深資15–21 → 樂行18–26。",
+     "review_note": ""
+    },
+    {
+     "id": "乙13",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "香港童軍總會在哪一年遷往香港童軍中心？",
+     "q_en": "香港童軍總會在哪一年遷往香港童軍中心？",
+     "options": [
+      "1991年",
+      "1992年",
+      "1993年",
+      "1994年"
+     ],
+     "answer": 3,
+     "explain_zh": "總會於1994年遷入尖沙咀香港童軍中心(總部大廈於1993年啟用)。此前，總部分別設於摩士屋及覺士道摩士大廈。",
+     "review_note": ""
+    },
+    {
+     "id": "乙14",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "全港共有幾個地域？",
+     "q_en": "全港共有幾個地域？",
+     "options": [
+      "三個",
+      "四個",
+      "五個",
+      "六個"
+     ],
+     "answer": 2,
+     "explain_zh": "香港共有五個地域：港島、九龍、東九龍、新界及新界東。港島地域轄下設有七個區，本旅屬於筲箕灣區。",
+     "review_note": ""
+    },
+    {
+     "id": "乙15",
+     "part": "hk",
+     "part_zh": "乙部：香港童軍運動",
+     "part_en": "乙部：香港童軍運動",
+     "q_zh": "現任港島地域總監是哪一位？",
+     "q_en": "現任港島地域總監是哪一位？",
+     "options": [
+      "黃偉安先生",
+      "霍偉倫先生",
+      "張世華先生",
+      "楊國光博士"
+     ],
+     "answer": 3,
+     "explain_zh": "資料列為2025–26年度的楊國光博士；使用前請領袖核實2026–27年度及最新名單。",
+     "review_note": "人事答案可能隨換屆改變，請領袖核實最新名單"
+    },
+    {
+     "id": "丙1",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "本旅旅長是哪一位？",
+     "q_en": "本旅旅長是哪一位？",
+     "options": [
+      "梁健聰",
+      "鍾仁傑",
+      "張蔚浚",
+      "李樂熙"
+     ],
+     "answer": 0,
+     "explain_zh": "答案以旅部最新公佈為準。請記下旅長的姓名及樣貌，並保持禮貌。",
+     "review_note": "請領袖核實：旅長姓名"
+    },
+    {
+     "id": "丙2",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "旅長的肩章是甚麼顏色？",
+     "q_en": "旅長的肩章是甚麼顏色？",
+     "options": [
+      "綠色",
+      "淺藍色",
+      "紅色",
+      "黃色"
+     ],
+     "answer": 0,
+     "explain_zh": "請觀察旅長制服肩部的肩章並記下其顏色。不同職務配戴的肩章顏色或有不同，請以旅部資料為準。",
+     "review_note": "請領袖核實：旅長肩章顏色"
+    },
+    {
+     "id": "丙3",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "本旅童軍團團長是哪一位？",
+     "q_en": "本旅童軍團團長是哪一位？",
+     "options": [
+      "張蔚浚",
+      "陳致宏",
+      "李樂熙",
+      "李樂軒"
+     ],
+     "answer": 0,
+     "explain_zh": "答案以旅部最新公佈為準。",
+     "review_note": "請領袖核實：童軍團團長姓名"
+    },
+    {
+     "id": "丙4",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "童軍團團長的肩章是甚麼顏色？",
+     "q_en": "童軍團團長的肩章是甚麼顏色？",
+     "options": [
+      "淺藍色",
+      "紅色",
+      "黃色",
+      "綠色"
+     ],
+     "answer": 0,
+     "explain_zh": "請觀察童軍團團長制服肩部的肩章。不同支部的領袖可能配戴不同顏色的肩章，以識別職務。",
+     "review_note": "請領袖核實：團長肩章顏色"
+    },
+    {
+     "id": "丙5",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "港島第82旅屬於哪一個區？",
+     "q_en": "港島第82旅屬於哪一個區？",
+     "options": [
+      "灣仔區",
+      "筲箕灣區",
+      "港島南區",
+      "柴灣區"
+     ],
+     "answer": 1,
+     "explain_zh": "筲箕灣區！我們的主辦機構是香港小童群益會康山兒童中心。",
+     "review_note": ""
+    },
+    {
+     "id": "丙6",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "筲箕灣區隸屬哪個地域？",
+     "q_en": "筲箕灣區隸屬哪個地域？",
+     "options": [
+      "港島地域",
+      "九龍地域",
+      "東九龍地域",
+      "新界東地域"
+     ],
+     "answer": 0,
+     "explain_zh": "本旅的組織層級為：第82旅→筲箕灣區→港島地域→香港童軍總會。(原卷此題須辨認區章圖片；請仔細查看制服上的區章圖案。)",
+     "review_note": ""
+    },
+    {
+     "id": "丙7",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "現任區總監是哪一位？",
+     "q_en": "現任區總監是哪一位？",
+     "options": [
+      "莫穎民先生",
+      "林國雄先生",
+      "李國文先生",
+      "袁可秀女士"
+     ],
+     "answer": 0,
+     "explain_zh": "答案以區會最新公佈為準。區總監負責筲箕灣區的童軍事務。",
+     "review_note": "請領袖核實：區總監姓名"
+    },
+    {
+     "id": "丙8",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "童軍支部的年齡是多少歲？",
+     "q_en": "童軍支部的年齡是多少歲？",
+     "options": [
+      "12–16歲",
+      "10–17歲",
+      "10½–16½歲",
+      "11–16歲"
+     ],
+     "answer": 3,
+     "explain_zh": "11–16歲。你目前屬於此年齡階段，15歲後可升讀深資童軍。",
+     "review_note": ""
+    },
+    {
+     "id": "丙9",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "童軍規律有多少條？",
+     "q_en": "童軍規律有多少條？",
+     "options": [
+      "六條",
+      "七條",
+      "十條",
+      "十二條"
+     ],
+     "answer": 1,
+     "explain_zh": "童軍規律共七條，內容由「信用為人敬」至「自重又重人」。請勿與幼童軍的三句規律混淆。",
+     "review_note": ""
+    },
+    {
+     "id": "丙10",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "下列哪一句是童軍誓詞的開頭？",
+     "q_en": "下列哪一句是童軍誓詞的開頭？",
+     "options": [
+      "對規律，樂於助人",
+      "信用為人敬",
+      "我願以信譽為誓",
+      "勇敢不怕難"
+     ],
+     "answer": 2,
+     "explain_zh": "「我願以信譽為誓，竭盡所能；對神明，對國家，盡責任；對別人，樂於助人；對規律，必遵行。」誓詞講承諾，規律講品格。",
+     "review_note": ""
+    },
+    {
+     "id": "丙11",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "童軍團的特色是甚麼？",
+     "q_en": "童軍團的特色是甚麼？",
+     "options": [
+      "紀律",
+      "步操",
+      "唱遊為主",
+      "以小隊為中心"
+     ],
+     "answer": 3,
+     "explain_zh": "以小隊為中心——源自貝登堡1895年的小隊制度！我們有Tiger、Otter、Sea-gull三個小隊。",
+     "review_note": ""
+    },
+    {
+     "id": "丙12",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "童軍專科徽章包括哪些組別？",
+     "q_en": "童軍專科徽章包括哪些組別？",
+     "options": [
+      "興趣組",
+      "技能組",
+      "服務組",
+      "全部皆是"
+     ],
+     "answer": 3,
+     "explain_zh": "專科徽章分為興趣、技能及服務三組。逐步累積徽章經驗，有助邁向總領袖獎章。",
+     "review_note": ""
+    },
+    {
+     "id": "丙13",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "童軍支部最高榮譽獎章是？",
+     "q_en": "童軍支部最高榮譽獎章是？",
+     "options": [
+      "金紫荊獎章",
+      "總領袖獎章",
+      "童軍高級獎章",
+      "會員章"
+     ],
+     "answer": 1,
+     "explain_zh": "總領袖獎章！注意：金紫荊獎章是幼童軍的最高榮譽獎章，會員章只是入門——請勿混淆！(認章小貼士：考試時須能辨認相關徽章，複習時亦可參閱筆記圖片。)",
+     "review_note": ""
+    },
+    {
+     "id": "丙14",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "第82旅旅巾是甚麼顏色？",
+     "q_en": "第82旅旅巾是甚麼顏色？",
+     "options": [
+      "綠色",
+      "紅色",
+      "紫色",
+      "以上皆是"
+     ],
+     "answer": 0,
+     "explain_zh": "請查看自己的旅巾，記下其顏色及款式。旅巾是本旅的識別標誌。",
+     "review_note": "請領袖核實：旅巾顏色"
+    },
+    {
+     "id": "丙15",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "你的童軍紀錄簿是甚麼顏色？",
+     "q_en": "你的童軍紀錄簿是甚麼顏色？",
+     "options": [
+      "紫色",
+      "綠色",
+      "紅色",
+      "以上皆是"
+     ],
+     "answer": 1,
+     "explain_zh": "童軍支部的紀錄簿為綠色。不同支部使用不同顏色；升級時須更換相應紀錄簿，並妥善記錄已完成的考核。",
+     "review_note": ""
+    },
+    {
+     "id": "丙16",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "82旅旅慶是何月何日？",
+     "q_en": "82旅旅慶是何月何日？",
+     "options": [
+      "九月一日",
+      "十月一日",
+      "十月十日",
+      "十一月一日"
+     ],
+     "answer": 1,
+     "explain_zh": "旅慶是全旅的紀念日，請記得參加慶祝活動。🎂",
+     "review_note": "請領袖核實：旅慶日期"
+    },
+    {
+     "id": "丙17",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "以下哪一項是本旅童軍團的小隊名稱？",
+     "q_en": "以下哪一項是本旅童軍團的小隊名稱？",
+     "options": [
+      "Tiger",
+      "Otter",
+      "Sea-gull",
+      "全部皆是"
+     ],
+     "answer": 3,
+     "explain_zh": "Tiger🐯、Otter🦦及Sea-gull🕊️是本旅的三個小隊。你屬於哪一個小隊？",
+     "review_note": ""
+    },
+    {
+     "id": "丙18",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "童軍銘言是甚麼？",
+     "q_en": "童軍銘言是甚麼？",
+     "options": [
+      "紀律",
+      "信用為人敬",
+      "準備",
+      "我願以信譽為誓"
+     ],
+     "answer": 2,
+     "explain_zh": "「準備」(Be Prepared)是貝登堡留給世界童軍的銘言，提醒大家時刻作好準備。",
+     "review_note": ""
+    },
+    {
+     "id": "丙19",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "童軍周年大會操通常在哪一個月舉行？",
+     "q_en": "童軍周年大會操通常在哪一個月舉行？",
+     "options": [
+      "九月",
+      "十月",
+      "十一月",
+      "十二月"
+     ],
+     "answer": 2,
+     "explain_zh": "通常於11月舉行，是全港童軍參與步操檢閱的一項年度活動。",
+     "review_note": ""
+    },
+    {
+     "id": "丙20",
+     "part": "group",
+     "part_zh": "丙部：童軍常識＋82旅",
+     "part_en": "丙部：童軍常識＋82旅",
+     "q_zh": "本旅共有幾個支部？",
+     "q_en": "本旅共有幾個支部？",
+     "options": [
+      "2個",
+      "3個",
+      "4個",
+      "5個"
+     ],
+     "answer": 1,
+     "explain_zh": "請核對本旅設有哪些支部(小童軍、幼童軍、童軍、深資童軍及樂行童軍)，並在集會時留意其他支部的活動。",
+     "review_note": "請領袖核實：本旅支部數目"
+    }
+   ],
+   "quiz_title": "第4項｜認識世界及香港童軍運動發展",
+   "per_question": 2
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "d5823436ff751d52"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 5,
+  "code": "M05",
+  "title_zh": "第 5 項：迷霧渡口（遊戲 2）",
+  "title_en": "Item 5 — the misty crossing (game 2)",
+  "instruction_zh": "明瞭及接納童軍誓詞、規律和銘言。第二個區域只有這一個遊戲：先讀教學牌，再把木板按正確次序鋪成橋。三關全部鋪好即完成第 5 項，無須另做考核；宣誓時領袖仍會聽你親口講出誓詞、規律和銘言。",
+  "instruction_en": "Understand and accept the Scout Promise, Law and Motto. The second area's only game: read each teaching card, then lay the planks across the river in the right order. Laying all three stages completes item 5 — there is no separate paper. Your leader will still hear you say them aloud when you are invested.",
+  "type": "quiz",
+  "points": 15,
+  "pass_score": 0,
+  "config_json": {
+   "kind": "bridge",
+   "require_all": true,
+   "links": [
+    {
+     "label_zh": "童軍誓詞與規律（香港童軍總會）",
+     "label_en": "Scout Promise and Law (SAHK)",
+     "url": "https://www.scout.org.hk/tc/scouting/promise-law.html"
+    },
+    {
+     "label_zh": "溫習誓詞、規律和銘言（領袖提供）",
+     "label_en": "Promise, Law and motto — leader's revision sheet",
+     "url": "https://docs.google.com/document/d/1YzcUEjoG3vx1OuqH2lxzKNT0vtSAtcIcN_BohP6bCsU/"
+    }
+   ]
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T08:00:00.000Z",
+  "id": "ed68ce480ff3cd75"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 6,
+  "code": "M06",
+  "title_zh": "第 6 項：宣誓禮儀與中式隊列",
+  "title_en": "Item 6 — investiture customs and drill",
+  "instruction_zh": "認識宣誓時應有之童軍禮儀，以及中式隊列之基本動作。考核動作：salute；alert／stand-at-ease；right turn／left turn／about turn；pace forward／backward／left／right march；dressing right dress；mark time；by the front quick march。",
+  "instruction_en": "Know the Scout customs for the investiture ceremony and the basic movements of Chinese-style drill. Show: salute; alert / stand-at-ease; right turn / left turn / about turn; pace forward / backward / left / right march; dressing right dress; mark time; by the front quick march.",
+  "type": "signoff",
+  "points": 15,
+  "pass_score": 0,
+  "config_json": {
+   "links": [
+    {
+     "label_zh": "步操示範資源",
+     "label_en": "Drill reference",
+     "url": "https://drive.google.com/drive/folders/1o7CruXDWSruWb10vEhxfPO_yNiWi93-d?usp=sharing"
+    }
+   ]
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "3e71f807b938ab33"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 7,
+  "code": "M07",
+  "title_zh": "第 7 項：國旗與國徽",
+  "title_en": "Item 7 — national flag and emblem",
+  "instruction_zh": "能辨認中華人民共和國國旗和國徽，並能說明其含意。完成「第 7 至 10 項試卷」（24 分／30 分合格）後打勾。",
+  "instruction_en": "Recognise the national flag and emblem of the PRC and explain their meaning. Tick this when you have completed the Items 7–10 paper (pass mark 24/30).",
+  "type": "checklist",
+  "points": 10,
+  "pass_score": 0,
+  "config_json": {
+   "items": [
+    {
+     "zh": "我已完成第 7 至 10 項試卷（24 分／30 分或以上），並能說出國旗、國徽的含意",
+     "en": "I passed the Items 7–10 paper (24/30 or above) and can explain the national flag and emblem"
+    }
+   ],
+   "links": [
+    {
+     "label_zh": "第 7 至 10 項試卷（Google Form）",
+     "label_en": "Items 7–10 paper (Google Form)",
+     "url": "https://forms.gle/NmdM72WapUpbajFHA"
+    },
+    {
+     "label_zh": "溫習資源",
+     "label_en": "Study resources",
+     "url": "https://drive.google.com/drive/folders/1LtM4RykgGrrITxZRwWHeN-pWHnxKBKTY?usp=drive_link"
+    }
+   ]
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "31d08e64c1c238cf"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 8,
+  "code": "M08",
+  "title_zh": "第 8 項：區旗與區徽",
+  "title_en": "Item 8 — regional flag and emblem",
+  "instruction_zh": "能辨認香港特別行政區區旗和區徽，並能說明其含意。由「第 7 至 10 項試卷」考核。",
+  "instruction_en": "Recognise the HKSAR regional flag and emblem and explain their meaning. Covered by the Items 7–10 paper.",
+  "type": "checklist",
+  "points": 10,
+  "pass_score": 0,
+  "config_json": {
+   "items": [
+    {
+     "zh": "我能認出區旗、區徽，並說出它們的含意",
+     "en": "I can recognise the regional flag and emblem and explain their meaning"
+    }
+   ],
+   "links": [
+    {
+     "label_zh": "第 7 至 10 項試卷（Google Form）",
+     "label_en": "Items 7–10 paper (Google Form)",
+     "url": "https://forms.gle/NmdM72WapUpbajFHA"
+    }
+   ]
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "362b8c52ba4954ac"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 9,
+  "code": "M09",
+  "title_zh": "第 9 項：國歌奏唱與升旗禮儀",
+  "title_en": "Item 9 — etiquette for the anthem and flag-raising",
+  "instruction_zh": "認識在國歌奏唱和升掛國旗、區旗時應有之禮儀，以及升國旗的基本程序。由「第 7 至 10 項試卷」考核。",
+  "instruction_en": "Know the proper etiquette when the national anthem is played and the flags are raised, and the basic flag-raising procedure. Covered by the Items 7–10 paper.",
+  "type": "checklist",
+  "points": 10,
+  "pass_score": 0,
+  "config_json": {
+   "items": [
+    {
+     "zh": "我知道國歌奏唱及升旗時應有的禮儀，以及升國旗的基本程序",
+     "en": "I know the etiquette for the anthem and flag-raising, and the basic procedure"
+    }
+   ]
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "e68ea6b690ac4372"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 10,
+  "code": "M10",
+  "title_zh": "第 10 項：國歌的用意與背唱",
+  "title_en": "Item 10 — purpose of the anthem, sing from memory",
+  "instruction_zh": "明瞭設立國歌的用意，並能背唱之。由「第 7 至 10 項試卷」考核。",
+  "instruction_en": "Understand the purpose of the national anthem and be able to sing it from memory. Covered by the Items 7–10 paper.",
+  "type": "checklist",
+  "points": 10,
+  "pass_score": 0,
+  "config_json": {
+   "items": [
+    {
+     "zh": "我明瞭國歌的用意，並能背唱國歌",
+     "en": "I understand the purpose of the anthem and can sing it from memory"
+    }
+   ]
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "aac9f4e747d1d397"
+ },
+ {
+  "badge_id": "c41dd03dbfd5e5b9",
+  "order_index": 11,
+  "code": "M11",
+  "title_zh": "第 11 項：認識兒童侵害與保護自己",
+  "title_en": "Item 11 — child protection",
+  "instruction_zh": "認識常見兒童侵害情況、預防方法及處理方法。領袖會講解並與大家討論，之後核實。",
+  "instruction_en": "Know common situations of child abuse, how to prevent them and how to handle them. Your leader runs the session and the discussion, then signs this off.",
+  "type": "signoff",
+  "points": 10,
+  "pass_score": 0,
+  "config_json": {},
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "63f7958aef9203c6"
+ },
+ {
+  "badge_id": "9e800d41fdd69631",
+  "order_index": 2,
+  "code": "T-12",
+  "title_zh": "戶外活動紀錄（示例）",
+  "title_en": "Outdoor activity log (sample)",
+  "instruction_zh": "上載活動相片或連結。",
+  "instruction_en": "Upload a photo or a link.",
+  "type": "evidence",
+  "points": 40,
+  "pass_score": 0,
+  "config_json": {
+   "hint_zh": "可上載相片，或貼上雲端相簿連結",
+   "hint_en": "Upload a photo or paste a shared album link"
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "23bb86bce44a8b16"
+ },
+ {
+  "badge_id": "9e800d41fdd69631",
+  "order_index": 3,
+  "code": "T-13",
+  "title_zh": "領袖技能考核（示例）",
+  "title_en": "Practical assessment (sample)",
+  "instruction_zh": "於集會中由領袖即場考核。",
+  "instruction_en": "Assessed in person by a leader at a meeting.",
+  "type": "signoff",
+  "points": 45,
+  "pass_score": 0,
+  "config_json": {},
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "bca6bbebbcf3e55f"
+ },
+ {
+  "badge_id": "b7dc4886ef56e78e",
+  "order_index": 1,
+  "code": "T-21",
+  "title_zh": "服務紀錄（示例）",
+  "title_en": "Service log (sample)",
+  "instruction_zh": "記錄一次服務經歷。",
+  "instruction_en": "Record one service experience.",
+  "type": "evidence",
+  "points": 50,
+  "pass_score": 0,
+  "config_json": {},
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "963d98e88e6ffe9d"
+ },
+ {
+  "badge_id": "b7dc4886ef56e78e",
+  "order_index": 2,
+  "code": "T-22",
+  "title_zh": "反思短文（示例）",
+  "title_en": "Reflection (sample)",
+  "instruction_zh": "分享你對服務的體會。",
+  "instruction_en": "Share what the service meant to you.",
+  "type": "reflection",
+  "points": 50,
+  "pass_score": 0,
+  "config_json": {
+   "min_chars": 50,
+   "max_chars": 800
+  },
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "7e5c4b094297beb5"
+ },
+ {
+  "badge_id": "b7dc4886ef56e78e",
+  "order_index": 3,
+  "code": "T-23",
+  "title_zh": "小隊領袖簽核（示例）",
+  "title_en": "Patrol leader sign-off (sample)",
+  "instruction_zh": "由領袖確認領導表現。",
+  "instruction_en": "Leader confirms leadership performance.",
+  "type": "signoff",
+  "points": 60,
+  "pass_score": 0,
+  "config_json": {},
+  "status": "published",
+  "created_at": "2026-10-15T00:29:43.253Z",
+  "updated_at": "2026-10-15T00:29:43.253Z",
+  "id": "507063e5c3ee3bc3"
+ }
+]

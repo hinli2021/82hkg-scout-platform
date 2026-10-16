@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state, name_of, patrol_name with context %}
+{% block title %}{{ L('紀錄', 'Log') }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">🔍 {{ L('操作紀錄', 'Activity log') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('誰在何時做了甚麼 — 方便追查。', 'Who did what, and when.') }}</p>
+  </div>
+</div>
+
+{% if rows %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{ L('時間', 'When') }}</th><th>{{ L('操作者', 'Who') }}</th><th>{{ L('動作', 'Action') }}</th><th>{{ L('對象', 'Target') }}</th><th>{{ L('詳情', 'Detail') }}</th></tr></thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td class="nowrap">{{ (row.created_at or '')[:16].replace('T', ' ') }}</td>
+            <td>
+              {% if row._actor %}
+                {{ name_of(row._actor) }}
+                <div class="small muted">{{ L('領袖', 'Leader') if row.actor_role == 'leader' else L('童軍', 'Scout') }}</div>
+              {% else %}
+                <span class="muted">{{ L('系統', 'System') }}</span>
+              {% endif %}
+            </td>
+            <td><span class="chip light">{{ row.action }}</span></td>
+            <td class="small">{{ row.entity }}{% if row.entity_id %}<div class="muted small">{{ row.entity_id }}</div>{% endif %}</td>
+            <td class="small muted">{{ row.detail if row.detail else '' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  {{ empty_state('🗒️', '還沒有紀錄。', 'Nothing logged yet.') }}
+{% endif %}
+{% endblock %}

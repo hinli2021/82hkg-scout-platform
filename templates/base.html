@@ -1,0 +1,110 @@
+{% from 'partials/macros.html' import name_of, patrol_name with context %}
+{#
+  Every page extends this shell. The topbar, navigation and HUD are the same
+  components the Node build paints in JavaScript — here they are simply links.
+#}<!doctype html>
+<html lang="{{ 'en' if lang == 'en' else 'zh-Hant' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ L('童軍進度平台', 'Scout Progress Platform') }}{% endblock %} · {{ L(settings.unit_name_zh, settings.unit_name_en) }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/brand/favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/brand/favicon.png') }}">
+  <script>window.__scoutSoundDefault = {{ 'true' if settings.ui_sound else 'false' }};</script>
+  {# a page that needs a few rules of its own (the adventure's stage board) #}
+  {% block head %}{% endblock %}
+</head>
+<body data-build="{{ BUILD }}" {% block body_attrs %}{% endblock %}>
+{% block shell %}
+  {% if user %}
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ url_for('scout_routes.home') if user.role == 'scout' else url_for('leader_routes.overview') }}">
+        <img class="brand-logo" src="{{ url_for('static', filename='img/brand/82hkg-logo.webp') }}"
+             width="900" height="483" alt="{{ L(settings.unit_name_zh, settings.unit_name_en) }}">
+        <span class="brand-text">
+          <strong>{{ L(settings.unit_name_zh, settings.unit_name_en) }}</strong>
+          <small>{{ L('童軍進度平台', 'Scout Progress Platform') }}</small>
+        </span>
+      </a>
+      <nav class="tabbar">
+        {# 獎品 and 龍虎榜 only appear once the unit switches them on in
+           設定 → 功能開關. Everything else is the everyday furniture. #}
+        {% set flags = settings.feature_flags or {} %}
+        {% if user.role == 'scout' %}
+          {% set nav = [
+            ('scout_routes.home', '🏠', '主頁', 'Home'),
+            ('scout_routes.badges', '🎖', '獎章', 'Badges')
+          ] + ([('scout_routes.rewards', '🎁', '獎品', 'Rewards')] if flags.get('redeem') else [])
+            + ([('scout_routes.leaderboard_page', '🏆', '龍虎榜', 'Board')] if flags.get('leaderboard') else [])
+            + [('scout_routes.history', '📜', '我的紀錄', 'History')] %}
+        {% else %}
+          {% set nav = [
+            ('leader_routes.overview', '🧭', '總覽', 'Overview'),
+            ('leader_routes.content', '📚', '內容', 'Content'),
+            ('leader_routes.review', '✅', '審批', 'Review'),
+            ('leader_routes.accounts', '🧑‍🤝‍🧑', '帳戶', 'Accounts'),
+            ('leader_routes.announcements', '📣', '公告', 'Notices')
+          ] + ([('leader_routes.rewards', '🎁', '獎品', 'Rewards')] if flags.get('redeem') else [])
+            + [('leader_routes.settings_page', '⚙️', '設定', 'Settings'),
+               ('leader_routes.audit_log', '🔍', '紀錄', 'Log')] %}
+        {% endif %}
+        {% for endpoint, icon, zh, en in nav %}
+          <a href="{{ url_for(endpoint) }}" class="{{ 'active' if request.endpoint == endpoint else '' }}">{{ icon }} {{ L(zh, en) }}</a>
+        {% endfor %}
+      </nav>
+      <div class="topbar-right">
+        <button class="icon-btn" type="button" data-sound-toggle title="{{ L('遊戲音效', 'Game sound') }}">🔊</button>
+        <span class="lang-switch">
+          <a href="{{ url_for('set_language', code='zh', next=request.full_path.rstrip('?')) }}" class="{{ 'active' if lang != 'en' else '' }}">中文</a>
+          <a href="{{ url_for('set_language', code='en', next=request.full_path.rstrip('?')) }}" class="{{ 'active' if lang == 'en' else '' }}">EN</a>
+        </span>
+        <form method="post" action="{{ url_for('auth_routes.logout') }}" class="nowrap">
+          <button class="btn ghost small" type="submit" title="{{ L('登出', 'Sign out') }}">🚪</button>
+        </form>
+      </div>
+    </div>
+    {% block hud %}
+    <div class="hud">
+      <div class="hud-avatar">{{ user.avatar or '🦊' }}</div>
+      <div>
+        <div class="hud-name">{{ name_of(user) }}</div>
+        <div class="hud-sub">
+          {% if user.role == 'scout' %}{{ patrol_name(user.patrol) }} · {{ user.scout_no or user.username }}
+          {% else %}{{ L('領袖', 'Leader') }} · {{ user.unit or L(settings.unit_name_zh, settings.unit_name_en) }}{% endif %}
+        </div>
+      </div>
+      {% block hud_chips %}{% endblock %}
+    </div>
+    {% endblock %}
+  </header>
+  {% endif %}
+
+  <main class="page view-enter">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% if message is mapping %}
+            <div class="alert {{ 'ok' if message.kind == 'success' else 'warn' }}"
+                 data-flash-kind="{{ message.kind }}"{% if message.celebrate %} data-celebrate="1"{% endif %}>{{ L(message.zh, message.en) }}</div>
+          {% else %}
+            <div class="alert {{ category if category in ['error', 'ok', 'info', 'warn'] else 'info' }}">{{ message }}</div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+{% endblock %}
+
+<div id="fx-root"></div>
+<script src="{{ url_for('static', filename='js/effects.js') }}"></script>
+{% if user and user.role == 'leader' %}
+  <script src="{{ url_for('static', filename='js/leader.js') }}"></script>
+{% else %}
+  <script src="{{ url_for('static', filename='js/scout.js') }}"></script>
+{% endif %}
+{% block scripts %}{% endblock %}
+</body>
+</html>
