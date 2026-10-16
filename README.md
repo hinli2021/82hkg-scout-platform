@@ -45,7 +45,9 @@ live server; the offline file shows a clickable leader-home sample.
 
 The live server is the other path, and only lives while a session is open:
 
-    pip install flask && SECRET_KEY=dev DATA_DIR=./data DEMO_LOGIN=true SEED_DEMO=true \
+    # 正式預設＝沒有示範帳戶：第一次開啟會顯示「建立第一位領袖」。
+    # 想看示範帳戶（demo1/demo2）就加上 DEMO_LOGIN=true SEED_DEMO=true
+    pip install flask && SECRET_KEY=dev DATA_DIR=./data \
       python3 -m flask --app app run --host 0.0.0.0 --port 5001
 
 ## 1. 快速開始 (Quick start)
@@ -63,8 +65,8 @@ screen is populated — replace it with your own in *Content*.
 
 | 帳戶 | 方法 | 看到 |
 |---|---|---|
-| 領袖 | `POST /login/demo/demo1` | 領袖後台 |
-| 童軍 | `POST /login/demo/demo2` | 童軍主頁 |
+| 領袖（示範部署）| `POST /login/demo/demo1` | 領袖後台 |
+| 童軍（示範部署）| `POST /login/demo/demo2` | 童軍主頁 |
 | 直接登入 | 領袖代碼 `0082` | 領袖後台 |
 | 一按即入 | 領袖登入頁的 🧭 示範領袖 / 🎒 示範童軍 | 領袖後台 / 童軍主頁 |
 | 第一次登入 | `POST /login/demo/demo3` | 免密碼進入後**必須**設定密碼 + 電郵，否則不能進入任何童軍頁面 |
@@ -105,7 +107,7 @@ screen is populated — replace it with your own in *Content*.
   要在 *設定 → 寄信信箱* 填好單位 Gmail（應用程式密碼）才會寄信，步驟見
   `docs/03-email-setup.md`；未設定信箱、或帳號還未有電郵時，平台會改用電郵即時重設，
   docs/04-github.md           把計劃放上 GitHub（備份、版本記錄、三條路徑）
-docs/05-vercel.md          把 GitHub 接到 Vercel：測試站設定、環境變數、資料保存（/tmp 或 Google 試算表）
+docs/05-vercel.md          正式上線：Vercel 部署、第一次建立領袖、Google 試算表儲存、上線前檢查清單
   或由領袖在 *帳戶* 版面按 🔑 代為重設。
 - `scout07 吳卓穎` 保持「未設定密碼」狀態，方便示範第一次進入的情況（每次 `demo3` 進入
   都會先清空密碼，所以下次仍然由必填表單開始）。
@@ -298,8 +300,9 @@ python3 -m pytest -q          # 五區遊戲規則、舊試卷禁用、領袖配
 DATA_DIR=./data            # local 模式的資料夾
 SECRET_KEY=...             # 表單及山洞進行中題庫的簽署密鑰（正式使用請設定固定值；SESSION_SECRET 亦可）
 COOKIE_SECURE=true         # 只在 HTTPS 之下
-DEMO_LOGIN=false           # 關閉 demo1 / demo2 / demo3 示範捷徑
-SEED_DEMO=false            # 不要示範內容
+DEMO_LOGIN=true            # 只為示範：開放 demo1 / demo2 / demo3 一按即入
+SEED_DEMO=true             # 只為示範：加入示範領袖與七個示範童軍
+                           # 正式上線兩者都留空（＝關閉），第一次開啟會顯示「建立第一位領袖」
 DATA_DRIVER=sheets
 GOOGLE_SHEET_ID=...
 GOOGLE_DRIVE_FOLDER_ID=...

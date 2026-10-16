@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('建立第一位領袖', 'Create the first leader') }}{% endblock %}
+{% block shell %}
+<div class="screen">
+  <div class="narrow card pad-lg">
+    <img class="card-logo" src="{{ url_for('static', filename='img/brand/82hkg-logo.webp') }}"
+         width="900" height="483" alt="{{ L('港島第八十二旅童軍團', 'Sample Scout Group') }}">
+    <h1>{{ L('建立第一位領袖', 'Create the first leader') }}</h1>
+    <p class="muted small">
+      {{ L('這個平台還沒有領袖帳戶。填好下面幾欄，就會建立第一位領袖；之後由這位領袖在後台開童軍帳戶、編內容。',
+           'This platform has no leader account yet. Fill in the form below to create the first leader; '
+           'that leader then opens scout accounts and edits content in the console.') }}
+    </p>
+
+    {% if error_zh %}
+      <div class="alert error">{{ L(error_zh, error_en) }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('auth_routes.setup') }}">
+      <label class="field">
+        <span>{{ L('單位名稱（中文）', 'Unit name (Chinese)') }}</span>
+        <input type="text" name="unit_zh" value="{{ form.unit_zh }}" required>
+      </label>
+      <label class="field">
+        <span>{{ L('單位名稱（英文，可留空）', 'Unit name (English, optional)') }}</span>
+        <input type="text" name="unit_en" value="{{ form.unit_en }}" placeholder="Sample Scout Group">
+      </label>
+      <label class="field">
+        <span>{{ L('領袖中文姓名', 'Leader name (Chinese)') }}</span>
+        <input type="text" name="name_zh" value="{{ form.name_zh }}" placeholder="陳大文" required>
+      </label>
+      <label class="field">
+        <span>{{ L('領袖英文姓名（可留空）', 'Leader name (English, optional)') }}</span>
+        <input type="text" name="name_en" value="{{ form.name_en }}" placeholder="Chan Tai Man">
+      </label>
+      <label class="field">
+        <span>{{ L('登入帳號', 'Sign-in name') }}</span>
+        <input type="text" name="username" value="{{ form.username }}" placeholder="leader1"
+               autocapitalize="none" autocomplete="username" required>
+        <small class="muted">{{ L('小寫英文字母、數字、底線或橫線，3–32 個字。', 'Lower-case letters, digits, _ or -, 3–32 characters.') }}</small>
+      </label>
+      <label class="field">
+        <span>{{ L('領袖代碼（領袖登入的密碼）', 'Leader code (the leader sign-in password)') }}</span>
+        <input type="password" name="password" autocomplete="new-password" required>
+        <small class="muted">{{ L('至少 6 個字。領袖登入時在「領袖代碼」一欄輸入它。', 'At least 6 characters; type it in the “Leader code” box when signing in.') }}</small>
+      </label>
+      <label class="field">
+        <span>{{ L('再輸入一次', 'Type it again') }}</span>
+        <input type="password" name="password2" autocomplete="new-password" required>
+      </label>
+      <button class="btn primary" type="submit" style="width:100%">
+        {{ L('建立領袖帳戶，開始使用', 'Create the leader account and start') }}
+      </button>
+    </form>
+
+    <p class="muted small" style="margin-top:.8rem">
+      {{ L('已經有領袖帳戶？', 'Already have a leader account?') }}
+      <a href="{{ url_for('auth_routes.login') }}">{{ L('返回登入頁', 'Back to sign-in') }}</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

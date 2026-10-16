@@ -15,7 +15,7 @@
 GITHUB_TOKEN=github_pat_xxx bash tools/push.sh "這次改了甚麼"
 ```
 
-推送 `main` 之後，Vercel 會自動重新部署測試站（見 `docs/05-vercel.md`）。
+推送 `main` 之後，Vercel 會自動重新部署正式網站（見 `docs/05-vercel.md`）。
 token 只需要**這一個 repository** 的 **Contents: Read and write**；用完可以即時撤銷。
 若把 token 寫入 `~/.82hkg-github-token`（在 repository 之外，不入版控），
 `tools/push.sh` 就會自動讀取，之後不必每次貼上。

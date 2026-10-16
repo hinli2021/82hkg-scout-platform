@@ -68,6 +68,9 @@ def create_app(config: dict | None = None) -> Flask:
             "user": public_user(g.get("user")),
             "raw_user": g.get("user"),
             "storage_mode": store.driver.name,
+            # 正式上線時，若資料只寫在暫存空間，領袖後台要提醒（會自己重置）
+            "ephemeral_storage": (store.driver.name == "local"
+                                  and str(store.config.get("data_dir", "")).startswith("/tmp")),
             "demo_login": store.config.get("demo_login", True),
             "patrol_label": patrol_label,
             "mascot_for": mascot_for,       # 三個小隊吉祥物（登入卡、名牌）

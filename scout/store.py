@@ -33,8 +33,11 @@ class Store:
         env = env or os.environ
         driver_name = (env.get("DATA_DRIVER") or "local").lower()
         config = {
-            "demo_login": (env.get("DEMO_LOGIN") or "true").lower() != "false",
-            "seed_demo": (env.get("SEED_DEMO") or "true").lower() != "false",
+            # 正式預設：示範帳戶與示範資料都關上 —— 第一次開啟會看到
+            # 「建立第一位領袖」。要示範帳戶，明確設 DEMO_LOGIN=true /
+            # SEED_DEMO=true（離線試玩檔與檢查腳本會自行設定）。
+            "demo_login": (env.get("DEMO_LOGIN") or "false").lower() == "true",
+            "seed_demo": (env.get("SEED_DEMO") or "false").lower() == "true",
             "data_dir": env.get("DATA_DIR") or os.path.join(os.getcwd(), "data"),
         }
         if driver_name == "sheets":
