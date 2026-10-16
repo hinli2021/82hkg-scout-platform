@@ -83,6 +83,27 @@ def test_each_common_mistake_gets_its_own_plain_language_fix(error, expect):
     assert expect in (reason + advice)
 
 
+@pytest.mark.parametrize("message,expect", [
+    ("RuntimeError: Google API GET … → 403: {\"error\": {\"code\": 403, \"message\": "
+     "\"Google Sheets API has not been used in project 1234 before or it is disabled. "
+     "Enable it by visiting https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=1234\"}}",
+     "還未在 Google Cloud 專案啟用"),
+    ("RuntimeError: Google API POST … → 403: The caller does not have permission", "未共用給服務帳戶電郵"),
+])
+def test_the_api_not_enabled_message_is_not_blamed_on_sharing(message, expect):
+    reason, advice = storage_advice(message)
+    assert expect in reason, reason
+    if "啟用" in expect:
+        assert "程式庫" in advice and "共用" not in reason, "不要把未啟用 API 說成未共用"
+    else:
+        assert "共用" in advice
+
+
+def test_a_disabled_drive_api_names_drive_not_sheets():
+    reason, _ = storage_advice('403: Google Drive API has not been used in project 9 before or it is disabled')
+    assert "Drive" in reason
+
+
 def test_no_error_means_no_warning_at_all():
     assert storage_advice("") == ("", "")
     assert storage_advice(None) == ("", "")
