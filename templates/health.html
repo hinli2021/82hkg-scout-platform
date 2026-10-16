@@ -46,6 +46,9 @@
       <tr><td>任務與遊戲項目</td><td>{{ data.counts.tasks }}</td></tr>
       <tr><td>帳戶（領袖＋童軍）</td><td>{{ data.counts.users }}</td></tr>
       <tr><td>資料存放</td><td>{{ data.storage }}{% if data.storage == 'sheets' %}（Google 試算表）{% else %}（執行個體暫存空間）{% endif %}</td></tr>
+      {% if data.catalog_error %}
+      <tr><td>目錄建立</td><td><span class="chip warn">失敗</span> {{ data.catalog_error }}</td></tr>
+      {% endif %}
       <tr><td>示範帳戶</td><td>
         {% if data.demo %}<span class="chip warn">已開啟 —— 正式站應該關閉</span>{% else %}<span class="chip ok">已關閉</span>{% endif %}
       </td></tr>
