@@ -90,7 +90,22 @@ def safe_name(title: str) -> str:
     return "".join(keep).strip() or "tab"
 
 
+def unique_dir(path: pathlib.Path) -> pathlib.Path:
+    """永遠不覆蓋既有存檔：同一分鐘內跑兩次也不會蓋掉上一份。
+
+    更新前後的比較全靠兩份存檔；如果第二份蓋掉第一份，就等於沒有備份。
+    """
+    if not path.exists() or not any(path.iterdir()):
+        return path
+    for suffix in range(2, 100):
+        candidate = path.with_name(f"{path.name}-{suffix}")
+        if not candidate.exists() or not any(candidate.iterdir()):
+            return candidate
+    raise RuntimeError(f"存檔資料夾太多同名：{path}")
+
+
 def write_backup(tabs: dict[str, list[list[str]]], out_dir: pathlib.Path) -> dict:
+    out_dir = unique_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(tabs, ensure_ascii=False, indent=1, sort_keys=True)
     (out_dir / "all-tabs.json").write_text(payload, encoding="utf-8")
@@ -114,8 +129,9 @@ def write_backup(tabs: dict[str, list[list[str]]], out_dir: pathlib.Path) -> dic
 
 def previous_backup(parent: pathlib.Path, current: pathlib.Path) -> pathlib.Path | None:
     others = sorted(
-        (folder for folder in parent.glob("sheet-*") if folder.is_dir() and folder != current),
-        key=lambda folder: folder.name,
+        (folder for folder in parent.glob("sheet-*")
+         if folder.is_dir() and folder != current and (folder / "all-tabs.json").exists()),
+        key=lambda folder: (folder.stat().st_mtime, folder.name),
     )
     return others[-1] if others else None
 
@@ -156,7 +172,8 @@ def main(argv: list[str] | None = None) -> int:
 
     root = pathlib.Path(args.root).resolve()
     folder = pathlib.Path(args.out) if args.out else \
-        root / "backups" / datetime.now().strftime("sheet-%Y-%m-%d_%H%M")
+        root / "backups" / datetime.now().strftime("sheet-%Y-%m-%d_%H%M%S")
+    folder = unique_dir(folder)
 
     if not args.quiet:
         print("── 連接試算表（只讀）──")

@@ -14,7 +14,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from scout.drivers.sheets import SheetsDriver              # noqa: E402
 from test_sheets_driver import FakeGoogle                   # noqa: E402
-from tools.backup_sheet import compare, grab, write_backup   # noqa: E402
+from tools.backup_sheet import compare, grab, unique_dir, write_backup   # noqa: E402
 
 
 def driver_for(fake: FakeGoogle) -> SheetsDriver:
@@ -81,3 +81,34 @@ def test_a_stored_backup_can_be_read_back_as_json(tmp_path):
 
     restored = json.loads((made["dir"] / "all-tabs.json").read_text(encoding="utf-8"))
     assert restored["users"] == fake.tabs["users"]
+
+
+def test_two_backups_in_the_same_minute_never_overwrite_each_other(tmp_path):
+    """更新前後的兩份存檔必須同時存在 —— 第二份不可以蓋掉第一份。"""
+    fake = FakeGoogle()
+    fake.tabs["users"] = [["id", "display_name_zh"], ["u1", "王小明"]]
+    stamp = tmp_path / "backups" / "sheet-2026-10-16_100000"
+
+    first = write_backup(grab(driver_for(fake)), stamp)
+    fake.tabs["users"].append(["u2", "陳小美"])          # 中間有人完成了任務／開了帳戶
+    second = write_backup(grab(driver_for(fake)), stamp)
+
+    assert first["dir"] != second["dir"]
+    assert (first["dir"] / "all-tabs.json").exists(), "第一份存檔被蓋掉了"
+    assert first["counts"]["users"] == 1 and second["counts"]["users"] == 2
+    assert compare(first["dir"], second) == ["＋ users：1 → 2 列（＋1）"]
+
+
+def test_unique_dir_walks_past_folders_that_already_hold_a_backup(tmp_path):
+    taken = tmp_path / "sheet-x"
+    taken.mkdir()
+    (taken / "all-tabs.json").write_text("{}", encoding="utf-8")
+    assert unique_dir(taken).name == "sheet-x-2"          # 這一份還沒用過
+
+    (taken.parent / "sheet-x-2").mkdir()
+    (taken.parent / "sheet-x-2" / "all-tabs.json").write_text("{}", encoding="utf-8")
+    assert unique_dir(taken).name == "sheet-x-3"           # 再跳過一份已有內容的
+
+    # 空資料夾（上一次跑到一半失敗）可以直接再用，不必浪費名字
+    (taken.parent / "sheet-x-3").mkdir()
+    assert unique_dir(taken).name == "sheet-x-3"
