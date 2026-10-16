@@ -261,11 +261,10 @@
         say(teachHtml(false));
       } else if (scene === 'build') {
         setArt(stageArt());
+        /* 鋪木板不重覆次序：次序要記在腦裡。想再看，按下面的「再看一次教學牌」。 */
         say(kicker(fill(pick((cfg.planks || {}).kicker_zh, (cfg.planks || {}).kicker_en), { n: st.n })) +
             '<h2 class="cave-subtitle">' + esc(pick(st.teach.title_zh, st.teach.title_en)) + '</h2>' +
             '<p class="cave-line small">' + esc(pick((cfg.planks || {}).tip_zh, (cfg.planks || {}).tip_en)) + '</p>' +
-            '<p class="bridge-goal-label">' + esc(pick((cfg.planks || {}).goal_zh, (cfg.planks || {}).goal_en)) + '</p>' +
-            wordingBox(st.teach, { details: false, label: false }) +
             bridgeHtml() +
             '<div class="cave-actions"><button class="btn ghost" type="button" data-bridge-go="teach">' +
             esc(pick(L.card_reopen_zh, L.card_reopen_en) || '') + '</button></div>');

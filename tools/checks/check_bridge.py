@@ -139,11 +139,29 @@ def play(page):
               f'({", ".join(str(row["slots"]) for row in wanted)})')
         check([row['label'] for row in rows] == stage['rows_zh'],
               f'stage {index + 1}: each row is named ({", ".join(stage["rows_zh"])})')
-        goal = page.inner_text('.bridge-goal')
-        check(all(core(sentence) in core(goal)
-                  for sentence in stage['teach']['sentences_zh']),
-              f'stage {index + 1}: the order box gives the whole sentence'
-              + ('s' if len(stage['teach']['sentences_zh']) > 1 else ''))
+        # 鋪木板不再重覆次序：次序要在教學牌學，這裡不可以再寫出來。
+        # 判定標準是「有沒有把那句原文一行一句地列出來」（.bridge-goal-line），
+        # 而不是文字本身 —— 河岸上的木板本來就是那一句的字（準、備、Be Prepared）。
+        panel = page.inner_text('[data-bridge-card]')
+        check(page.query_selector('.bridge-goal') is None,
+              f'stage {index + 1}: the build screen shows no order box')
+        lines_shown = page.evaluate("""() => document.querySelectorAll('[data-bridge-card] .bridge-goal-line').length""")
+        check(lines_shown == 0,
+              f'stage {index + 1}: the build screen lists no sentence of the wording '
+              f'(found {lines_shown})')
+        check('橋上的次序' not in panel and 'The order on the bridge' not in panel,
+              f'stage {index + 1}: the order heading is gone')
+        # 教學牌本身仍然要一行一句（學習的地方）
+        page.click('[data-bridge-go="teach"]')
+        wait_scene(page, 'teach')
+        back = page.evaluate("""() => [...document.querySelectorAll('[data-bridge-card] .bridge-goal-line')]
+            .map(line => line.textContent.trim())""")
+        check(back == stage['teach']['sentences_zh'],
+              f'stage {index + 1}: the teaching card still gives the wording, one line each')
+        click(page, '[data-bridge-go="build"]')
+        wait_scene(page, 'build')
+        check(page.query_selector('[data-bridge-go="teach"]') is not None,
+              f'stage {index + 1}: a way back to the teaching card is offered')
 
         # one board out of order: the recap, never the answer
         keys = [plank['key'] for plank in stage['planks']]

@@ -314,8 +314,12 @@ with sync_playwright() as pw:
         assert notes == stage["teach"]["details_zh"], \
             f"stage {index}: every sentence needs its detail line, got {len(notes)}"
         page.click("#pane-bridge [data-bridge-go='build']"); page.wait_for_timeout(250)
-        # the empty boxes stand in rows, one row to a sentence, and the order box
-        # hands the scout the whole sentence — never a chopped-up trail
+        # 鋪木板只留下空格：次序要在教學牌學，這裡不再列出原文
+        assert page.locator("#pane-bridge [data-bridge-card] .bridge-goal").count() == 0, \
+            f"stage {index}: the build screen must not repeat the wording"
+        assert page.locator("#pane-bridge [data-bridge-card] .bridge-goal-line").count() == 0, \
+            f"stage {index}: no sentence of the wording on the build screen"
+        # the empty boxes stand in rows, one row to a sentence
         rows = page.evaluate("""() => [...document.querySelectorAll('#pane-bridge .bridge-line')]
             .map(row => row.querySelectorAll('.bridge-slot').length)""")
         want = []
@@ -326,16 +330,12 @@ with sync_playwright() as pw:
                 want[-1][1] += 1
         assert rows == [row[1] for row in want], \
             f"stage {index}: boxes should stand in sentence rows, got {rows} want {want}"
-        goal = page.locator("#pane-bridge .bridge-goal").inner_text()
-        assert all(''.join(sentence.split()) in ''.join(goal.split())
-                   for sentence in stage["teach"]["sentences_zh"]), \
-            f"stage {index}: the order box must show the whole sentence"
-        print(f"  stage {index}: {len(rows)} sentence rows | order box: {goal[:34]}…"
-              if len(goal) > 36 else f"  stage {index}: {len(rows)} sentence rows | order box: {goal}")
+        print(f"  stage {index}: {len(rows)} sentence rows | no order box (learned on the card)")
         if index == 1:
             print("  stage 1:", page.locator("#pane-bridge .bridge-slot").count(), "slots |",
                   page.locator("#pane-bridge .bridge-plank").count(), "planks |",
-                  page.locator("#pane-bridge .bridge-goal").inner_text())
+                  "step back to the card:",
+                  page.locator("#pane-bridge [data-bridge-go='teach']").count())
             page.screenshot(path=os.path.join(SHOTS, "offline-bridge-build.png"), full_page=False)
         if index == 2:
             # a board out of order: the teaching card comes back, not the answer
