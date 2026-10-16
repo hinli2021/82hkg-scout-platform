@@ -215,8 +215,9 @@ def create_app(config: dict | None = None) -> Flask:
             "counts": counts,
             "setup_ready": counts.get("badges", 0) >= 5 and counts.get("tasks", 0) >= 11,
         }
-        # 人在瀏覽器打開（Accept: text/html）就給他一張看得懂的頁；程式仍然拿 JSON
-        if request.accept_mimetypes["text/html"]:
+        # 人在瀏覽器打開（Accept 明確寫了 text/html）就給他一張看得懂的頁；
+        # curl／檢查腳本（Accept: */* 或沒有 Accept）仍然拿到 JSON。
+        if "text/html" in (request.headers.get("Accept") or ""):
             return render_template("health.html", data=payload, on_sheets=on_sheets,
                                    setup=setup_health_checks(store, counts, on_sheets))
         return payload
