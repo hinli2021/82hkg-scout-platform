@@ -126,10 +126,20 @@ class SheetsDriver:
             return json.dumps(value, ensure_ascii=False) if value not in (None, "") else ""
         if isinstance(value, bool):
             return "true" if value else "false"
-        return "" if value is None else value
+        if value is None:
+            return ""
+        if isinstance(value, (dict, list, tuple)):
+            # 保險：任何結構都不可以直接送去 Google（只收字串／數字／真假值）
+            return json.dumps(value, ensure_ascii=False)
+        return value
 
     def _from_cell(self, field: str, cell: Any) -> Any:
         text = "" if cell is None else str(cell)
+        if field not in JSON_FIELDS and text[:1] in ("{", "["):
+            try:                                   # 舊資料：結構曾被當成文字寫入
+                return json.loads(text)
+            except json.JSONDecodeError:
+                return text
         if field in JSON_FIELDS:
             if not text.strip():
                 return [] if field in {"prerequisite_badge_ids"} else {}

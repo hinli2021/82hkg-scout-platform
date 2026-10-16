@@ -117,6 +117,7 @@ COLLECTION_ORDER = list(COLLECTIONS.keys())
 
 #: Fields stored as JSON text in a single cell (arrays / objects).
 JSON_FIELDS = {
+    "guide_json",          # 會員章的完成指南（一整份結構）
     "prerequisite_badge_ids", "config_json", "answers_json", "checklist_json",
     "detail_json", "value_json",
 }

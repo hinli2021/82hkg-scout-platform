@@ -128,3 +128,34 @@ def test_the_two_writes_are_whole_tables_not_rows(monkeypatch):
     assert len(puts) == 2, puts
     assert any("badges!A2:" in url for url in puts), puts
     assert any("tasks!A2:" in url for url in puts), puts
+
+
+def test_the_membership_guide_survives_a_round_trip_through_the_sheet(monkeypatch):
+    """guide_json 是一整份結構：寫入時要變文字，讀回來要變回結構。
+
+    真實的 Google 只收字串／數字／真假值；把 dict 直接送去會換來 400，
+    而且整批寫入都會失敗 —— 這正是領袖的試算表一直是空的原因。
+    """
+    from scout.schema import COLLECTIONS
+
+    fake = FakeGoogle()
+    store = boot(fake, monkeypatch)
+    badge = next(row for row in store.list("badges") if row["code"] == "SC-01")
+    assert isinstance(badge["guide_json"], dict) and badge["guide_json"], "讀回來要是結構"
+
+    column = COLLECTIONS["badges"]["fields"].index("guide_json")
+    raw = fake.tabs["badges"][1][column]
+    assert isinstance(raw, str) and raw.lstrip().startswith("{"), f"寫出去要是文字：{type(raw)}"
+
+
+def test_a_dict_cell_is_refused_by_the_test_double_itself():
+    """防止假 Google 再次變得過度寬鬆（放行 dict 就是放行了不可能成功的寫入）。"""
+    import pytest
+
+    from test_sheets_driver import _reject_non_scalars
+
+    with pytest.raises(RuntimeError):
+        _reject_non_scalars("PUT x", [[{"a": 1}]])
+    with pytest.raises(RuntimeError):
+        _reject_non_scalars("PUT x", [["title", ["list"]]])
+    _reject_non_scalars("PUT x", [["文字", 3, 4.5, True, None, ""]])

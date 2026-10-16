@@ -46,6 +46,8 @@ class FakeGoogle:
 
         if method == "POST" and path.endswith("/values:batchUpdate"):
             for entry in (body or {}).get("data", []):
+                _reject_non_scalars(url, entry.get("values", []))
+            for entry in (body or {}).get("data", []):
                 tab, _, cell_range = entry["range"].partition("!")
                 if tab not in self.tabs:
                     raise RuntimeError(
@@ -72,6 +74,7 @@ class FakeGoogle:
             return {"replies": []}
 
         if method == "PUT" and "/values/" in path:
+            _reject_non_scalars(url, (body or {}).get("values", []))
             tab, cell_range = _split_range(url)
             match = re.search(r"([A-Z]+)(\d+):([A-Z]+)(\d+)", cell_range)
             col_start = _col_index(match.group(1))
@@ -97,6 +100,16 @@ class FakeGoogle:
             return {}
 
         raise AssertionError(f"unexpected call: {method} {url}")
+
+
+
+def _reject_non_scalars(url, values):
+    """Google accepts only strings, numbers, booleans and null in a values write."""
+    for row in values or []:
+        for cell in (row if isinstance(row, list) else [row]):
+            if isinstance(cell, (dict, list, tuple)):
+                detail = 'Invalid value at data.values[0][0]: ' + type(cell).__name__ + ' object'
+                raise RuntimeError('Google API PUT ' + url + ' -> 400: ' + detail)
 
 
 def _split_range(url: str) -> tuple[str, str]:
