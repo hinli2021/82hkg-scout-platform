@@ -31,6 +31,11 @@ class FakeGoogle:
 
         if method == "GET" and "/values/" in path:
             tab, cell_range = _split_range(url)
+            if tab not in self.tabs:
+                # exactly what Google answers for a tab that does not exist yet
+                raise RuntimeError(
+                    f'Google API GET {url} → 400: {{"error": {{"code": 400, "message": '
+                    f'"Unable to parse range: {tab}!{cell_range}"}}}}')
             grid = self.tabs.get(tab, [])
             start = re.search(r"[A-Z]+(\d+)", cell_range)
             first = int(start.group(1)) if start else 1
@@ -264,6 +269,7 @@ def test_store_round_trips_through_the_sheets_driver(sheets):
     from scout.engine import progress_for
     from scout.store import Store
 
+    sheets.ensure_schema()          # a real deployment creates the tabs on boot
     store = Store(driver=sheets, config={"demo_login": True, "seed_demo": True, "data_dir": "/tmp"})
     store.seed_demo()
     scout = next(u for u in store.list("users") if u["username"] == "scout03")

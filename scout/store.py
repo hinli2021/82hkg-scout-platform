@@ -92,16 +92,30 @@ def _sheets_driver(env: dict):
         raise ValueError("服務帳戶金鑰不完整：GOOGLE_SERVICE_ACCOUNT_JSON 要是整份 JSON 檔的內容")
     if not (env.get("GOOGLE_SHEET_ID") or "").strip():
         raise ValueError("未設定 GOOGLE_SHEET_ID")
+    sheet_id = env["GOOGLE_SHEET_ID"].strip()
+    if "/" in sheet_id or "docs.google.com" in sheet_id or " " in sheet_id:
+        raise ValueError("GOOGLE_SHEET_ID 是一整條網址；只要 /d/ 與 /edit 中間那一小段")
     return SheetsDriver(
-        spreadsheet_id=env["GOOGLE_SHEET_ID"].strip(),
+        spreadsheet_id=sheet_id,
         service_account=account,
         drive_folder_id=env.get("GOOGLE_DRIVE_FOLDER_ID", ""),
     )
 
 
 def _probe(driver) -> None:
-    """One read-only call — enough to prove the key, the ID and the sharing."""
-    driver.list("badges")
+    """Prove the key, the ID and the sharing before the app relies on them.
+
+    Tabs missing from a brand-new Sheet are created here (the app does this on
+    every boot anyway). A bare 「Unable to parse range」 still counts as
+    reachable — it only means the tab was not there yet.
+    """
+    driver.ensure_schema()
+    try:
+        driver.list("badges")
+    except Exception as exc:                    # noqa: BLE001
+        if "Unable to parse range" in str(exc):
+            return
+        raise
 
 
 def storage_advice(error: str) -> tuple[str, str]:
@@ -130,6 +144,17 @@ def storage_advice(error: str) -> tuple[str, str]:
                 "到 console.cloud.google.com → 左邊「API 和服務 → 程式庫」，搜尋 Google Sheets API 與 "
                 "Google Drive API，各按一次「啟用」（上面的錯誤訊息裡也有直接連結）。啟用後等一兩分鐘，"
                 "回到 Vercel Redeploy 一次即可。")
+    if "Unable to parse range" in text:
+        return ("試算表已連上，但分頁還未建立（程式會自動補上）。",
+                "重新開啟平台一次即可；程式在第一次連上時會建立 15 個分頁。"
+                "若持續出現，到 Vercel → Deployments → Redeploy 部署最新版本。")
+    if "Invalid spreadsheet id" in text or "invalid spreadsheet id" in text:
+        return ("GOOGLE_SHEET_ID 不完整或格式不對。",
+                "由試算表網址 /d/ 與 /edit 中間複製完整那一段（通常 44 個字元，只會有英文字母、數字、- 和 _），"
+                "貼回 Vercel 的 GOOGLE_SHEET_ID，存檔後 Redeploy。")
+    if "400" in text:
+        return ("Google 回應 400：請求格式有問題，最常見是 GOOGLE_SHEET_ID 貼得不完整。",
+                "重新複製試算表網址 /d/ 與 /edit 中間那一段，貼回 Vercel 的 GOOGLE_SHEET_ID，存檔後 Redeploy。")
     if "insufficient" in text.lower() and "scope" in text.lower():
         return ("服務帳戶金鑰的授權範圍不足。",
                 "重新下載一次服務帳戶金鑰（Google Cloud → IAM 與管理 → 服務帳戶 → 金鑰 → JSON），"

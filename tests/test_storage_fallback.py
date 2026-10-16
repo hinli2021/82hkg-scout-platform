@@ -124,3 +124,77 @@ def test_a_working_sheet_never_triggers_the_fallback(monkeypatch):
     assert store.driver.name == "sheets"
     assert store.config["storage_error"] == ""
     assert len(store.list("badges")) == 5, "目錄在第一次連上時建立"
+
+def test_a_brand_new_empty_sheet_is_reachable_not_broken(tmp_path, monkeypatch):
+    """領袖的真實情況：試算表全新、一個分頁都沒有。
+
+    第一次連上時 `values/badges!A1:S20000` 會得到 400「Unable to parse range」，
+    因為分頁未存在 —— 這證明試算表其實連得上。之前的探測把它當成失敗，令平台
+    錯誤地退回暫存空間，畫面顯示「試算表連不上」。現在必須開得成 sheets。
+    """
+    from test_sheets_driver import FakeGoogle
+    from scout.drivers.sheets import SheetsDriver
+
+    fake = FakeGoogle()                       # 完全空白：沒有任何分頁
+    driver = SheetsDriver("sheet-new", {"client_email": "svc@example.iam.gserviceaccount.com",
+                                        "private_key": "x", "project_id": "p"})
+    driver._api = fake.api
+    monkeypatch.setattr(store_module, "_sheets_driver", lambda env: driver)
+
+    store = Store.from_env({"DATA_DRIVER": "sheets", "GOOGLE_SHEET_ID": "sheet-new",
+                            "GOOGLE_SERVICE_ACCOUNT_JSON": "{}", "DATA_DIR": str(tmp_path)})
+
+    assert store.config["storage_error"] == "", store.config["storage_error"]
+    assert store.driver.name == "sheets", "全新的空試算表不可以被當成連不上"
+    assert len(store.list("badges")) == 5, "第一次連上就建立獎章目錄"
+    assert set(fake.tabs) >= {"badges", "tasks", "users", "settings"}, "15 個分頁都要建立"
+
+
+def test_the_probe_also_tolerates_a_range_error_on_its_own(monkeypatch):
+    """即使建立分頁那一步做不到，單純的「range 不存在」也不等於連不上。"""
+    from scout.store import _probe
+
+    class OnlyRanges:
+        def ensure_schema(self):
+            raise RuntimeError('Google API POST … → 400: {"error": {"code": 400, '
+                               '"message": "Unable to parse range: badges!A1:S20000"}}')
+
+        def list(self, collection):
+            raise AssertionError("不應該走到這裡")
+
+    with pytest.raises(RuntimeError):
+        _probe(OnlyRanges())                  # 建立分頁失敗仍然要如實拋出
+
+    class Reachable:
+        def ensure_schema(self):
+            return None
+
+        def list(self, collection):
+            raise RuntimeError('Google API GET … → 400: {"error": {"code": 400, '
+                               '"message": "Unable to parse range: badges!A1:S20000"}}')
+
+    _probe(Reachable())                       # 讀取時才發現分頁不存在 → 視為已連上
+
+
+@pytest.mark.parametrize("message,expect", [
+    ('Google API GET … → 400: {"error": {"code": 400, "message": "Unable to parse range: badges!A1:S20000"}}',
+     "分頁還未建立"),
+    ('Google API GET … → 400: {"error": {"code": 400, "message": "Invalid spreadsheet id value: 123"}}',
+     "GOOGLE_SHEET_ID 不完整"),
+    ("RuntimeError: Google API GET … → 400: some other bad request", "400"),
+])
+def test_the_four_hundreds_are_explained_in_plain_language(message, expect):
+    reason, advice = storage_advice(message)
+    assert expect in reason, reason
+    assert advice, "每一種都要有「怎樣做」"
+
+
+def test_a_pasted_url_instead_of_an_id_is_refused_by_name(monkeypatch):
+    monkeypatch.setattr(store_module, "_sheets_driver", store_module._sheets_driver)
+    with pytest.raises(ValueError) as caught:
+        store_module._sheets_driver({
+            "GOOGLE_SHEET_ID": "https://docs.google.com/spreadsheets/d/1AbCdef/edit",
+            "GOOGLE_SERVICE_ACCOUNT_JSON": json.dumps(
+                {"client_email": "svc@x.iam.gserviceaccount.com", "private_key": "k"}),
+        })
+    assert "中間那一小段" in str(caught.value)
