@@ -108,6 +108,7 @@ Token 只需要這個 repository 的 **Contents: Read and write**，用完可以
 
 | 情況 | 處理 |
 | --- | --- |
+| 網站顯示 page is not available／Function crashed 之後改好環境變數仍然一樣 | 多數是部署缺少套件或變數內容有誤。2026-10-16 曾發生：`requirements.txt` 少了 `google-auth`，一設 `DATA_DRIVER=sheets` 就在啟動時 `ModuleNotFoundError: No module named 'google'` 而全站掛掉。已修正；Redeploy 最新版本即可。現在程式亦會在連不上試算表時改用暫存並在 `/health` 說明原因，不會再整站消失 |
 | 網站 500（Function Error） | Vercel → Project → Logs 看 `api/index` 的訊息；最常見是 `templates/`、`content/` 沒有被 `includeFiles` 帶上，或 Google 金鑰貼錯 |
 | 玩了很久之後回到登入頁 | 執行個體被回收、資料回到示範狀態 → 未接上試算表；按第 4 節設定 |
 | 童軍上載相片失敗 | 未設 `GOOGLE_DRIVE_FOLDER_ID`，或資料夾未共用給服務帳戶 |

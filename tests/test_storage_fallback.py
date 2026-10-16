@@ -74,6 +74,9 @@ def test_a_missing_sheet_id_is_named_as_the_problem(tmp_path, monkeypatch):
     ("RuntimeError: Google API GET … → 404: Requested entity was not found.", "找不到那張試算表"),
     ("ValueError: 服務帳戶金鑰不完整：GOOGLE_SERVICE_ACCOUNT_JSON 要是整份 JSON 檔的內容", "整份 JSON"),
     ('json.decoder.JSONDecodeError: Expecting value', "不是有效的 JSON"),
+    ("ValueError: Could not deserialize key data. The data may be in an incorrect format",
+     "private_key 不完整"),
+    ("ModuleNotFoundError: No module named 'google'", "部署缺少套件"),
 ])
 def test_each_common_mistake_gets_its_own_plain_language_fix(error, expect):
     reason, advice = storage_advice(error)

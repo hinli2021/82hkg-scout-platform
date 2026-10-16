@@ -1,2 +1,4 @@
 Flask>=3.0,<4
 requests>=2.31
+itsdangerous>=2.1       # 簽發／驗證童軍的登入 token
+google-auth>=2.0,<3          # Google Sheets + Drive（服務帳戶簽章）

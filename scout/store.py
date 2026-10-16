@@ -52,6 +52,13 @@ def storage_advice(error: str) -> tuple[str, str]:
     text = str(error or "")
     if not text.strip():
         return ("", "")                      # 沒有錯誤就不要嚇人
+    if "ModuleNotFoundError" in text or "No module named" in text:
+        missing = text.split("'")[1] if "'" in text else "某個套件"
+        return (f"部署缺少套件（{missing}），所以連不上 Google。",
+                "requirements.txt 未包含這個套件；部署最新版本（程式已補上 google-auth）後即可。")
+    if "deserialize" in text.lower() or "Could not parse" in text or "InvalidKey" in text:
+        return ("服務帳戶金鑰的 private_key 不完整（貼上時被截斷，或前後加了引號）。",
+                "在 Vercel 重新貼上整份 JSON 檔內容：由 { 到 } 都要有，private_key 整段（含 -----BEGIN…-----）不可換行錯誤，前後不要加引號，存檔後 Redeploy。")
     if "JSONDecodeError" in text or "服務帳戶金鑰不完整" in text:
         return ("服務帳戶金鑰（GOOGLE_SERVICE_ACCOUNT_JSON）不是有效的 JSON。",
                 "在 Vercel 重新貼上整份 JSON 檔內容，由 { 到 } 都要有，前後不要加引號，存檔後 Redeploy。")
