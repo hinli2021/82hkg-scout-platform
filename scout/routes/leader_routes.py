@@ -1111,6 +1111,9 @@ def _game_content(tasks: list[dict]) -> dict[str, bool]:
 
 def setup_checks(st) -> dict:
     """給領袖後台「設定檢查」卡用的清單 —— 只讀，不會改動任何資料。"""
+    from ..store import storage_advice as _advice
+
+    reason, advice = _advice(getattr(st, "config", {}).get("storage_error", ""))
     settings = st.settings()
     badges = st.list("badges")
     tasks = st.list("tasks")
@@ -1127,10 +1130,12 @@ def setup_checks(st) -> dict:
                 "detail_en": detail_en, "fix_zh": fix_zh, "fix_en": fix_en, "optional": optional}
 
     checks = [
-        row("storage", on_sheets, "資料儲存在 Google 試算表", "Data lives in the Google Sheet",
-            ("試算表 ID：" + sheet_id[:12] + "…") if on_sheets else "目前寫在執行個體暫存空間，會被回收",
+        row("storage", on_sheets,
+            "資料儲存在 Google 試算表" if on_sheets else "連不上 Google 試算表，資料暫存中",
+            "Data lives in the Google Sheet" if on_sheets else "Cannot reach the Sheet — storage is temporary",
+            ("試算表 ID：" + sheet_id[:12] + "…") if on_sheets else reason or "目前寫在執行個體暫存空間，會被回收",
             ("Spreadsheet ID: " + sheet_id[:12] + "…") if on_sheets else "Currently in the instance /tmp — it will be recycled",
-            "在 Vercel 加入 GOOGLE_SHEET_ID 與 GOOGLE_SERVICE_ACCOUNT_JSON，然後 Redeploy（docs/02）",
+            advice or "在 Vercel 加入 GOOGLE_SHEET_ID 與 GOOGLE_SERVICE_ACCOUNT_JSON，然後 Redeploy（docs/02）",
             "Add GOOGLE_SHEET_ID and GOOGLE_SERVICE_ACCOUNT_JSON in Vercel, then Redeploy (docs/02)"),
         row("badges", len(badges) >= 5, "獎章目錄已經建立", "Badge catalogue created",
             str(len(badges)) + " 個獎章", str(len(badges)) + " badges",

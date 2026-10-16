@@ -28,7 +28,7 @@ from scout import auth as auth_module
 from scout.auth import public_user
 from scout.schema import TASK_TYPES, patrol_label
 from scout.mascots import MASCOTS, mascot_for
-from scout.store import Store
+from scout.store import Store, storage_advice
 from scout.routes.auth_routes import auth_routes
 from scout.routes.leader_routes import leader_routes
 from scout.routes.scout_routes import scout_routes
@@ -39,14 +39,20 @@ def setup_health_checks(store, counts: dict, on_sheets: bool) -> list[dict]:
     """健康檢查頁上的幾行：每一行都說「現在怎樣」和「怎樣做」。"""
     badge_count = counts.get("badges", 0)
     task_count = counts.get("tasks", 0)
+    reason, advice = storage_advice(getattr(store, "config", {}).get("storage_error", ""))
     return [
         {
             "ok": on_sheets,
-            "title": "資料儲存在 Google 試算表" if on_sheets else "資料暫存在執行個體空間",
+            "title": ("資料儲存在 Google 試算表" if on_sheets else
+                      "試算表連不上，暫時寫在執行個體空間" if reason else
+                      "資料暫存在執行個體空間"),
             "detail": ("帳戶、進度、積分都存在你的試算表，重新部署不會影響。"
                        if on_sheets else
+                       reason + " 現在寫在執行個體的 /tmp，一段時間沒有流量就會被回收 —— 帳戶與進度會消失。"
+                       if reason else
                        "現在寫在執行個體的 /tmp，一段時間沒有流量就會被回收 —— 帳戶與進度會消失。"),
-            "fix": ("", "在 Vercel → Settings → Environment Variables 加入 GOOGLE_SHEET_ID 與 "
+            "fix": ("", advice if reason else
+                        "在 Vercel → Settings → Environment Variables 加入 GOOGLE_SHEET_ID 與 "
                         "GOOGLE_SERVICE_ACCOUNT_JSON，然後到 Deployments → ⋯ → Redeploy。"),
         },
         {
@@ -101,6 +107,9 @@ def create_app(config: dict | None = None) -> Flask:
             # 正式上線時，若資料只寫在暫存空間，領袖後台要提醒（會自己重置）
             "ephemeral_storage": (store.driver.name == "local"
                                   and str(store.config.get("data_dir", "")).startswith("/tmp")),
+            # 試算表連不上時，把原因與修正方法帶到畫面上（不再只有一句「暫存中」）
+            "storage_error": store.config.get("storage_error", ""),
+            "storage_advice": storage_advice(store.config.get("storage_error", "")),
             "demo_login": store.config.get("demo_login", True),
             "patrol_label": patrol_label,
             "mascot_for": mascot_for,       # 三個小隊吉祥物（登入卡、名牌）
