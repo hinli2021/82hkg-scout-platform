@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="880" viewBox="0 0 1000 880" font-family="Helvetica, Arial, 'PingFang HK', 'Microsoft JhengHei', sans-serif">
+  <rect width="1000" height="880" fill="#f6f7f9"/>
+  <text x="40" y="48" font-size="26" font-weight="bold" fill="#111827">Vercel：環境變數要加在哪裡</text>
+  <text x="40" y="76" font-size="15" fill="#6b7280">由左至右、由上至下跟著做。全部在 vercel.com 的專案裡面，不是在 GitHub，也不是在 repo 的檔案裡。</text>
+
+  <!-- ① project -->
+  <rect x="40" y="100" width="280" height="180" rx="10" fill="#0b0d12"/>
+  <text x="58" y="128" font-size="13" fill="#9ca3af">vercel.com/dashboard</text>
+  <rect x="58" y="142" width="244" height="54" rx="8" fill="#161a22" stroke="#22c55e" stroke-width="2"/>
+  <text x="72" y="166" font-size="14" fill="#e5e7eb">82hkg-scout-platform</text>
+  <text x="72" y="186" font-size="12" fill="#9ca3af">● Ready</text>
+  <text x="58" y="222" font-size="13" fill="#9ca3af">其他專案…</text>
+  <text x="58" y="246" font-size="13" fill="#9ca3af">其他專案…</text>
+  <circle cx="60" cy="118" r="12" fill="#22c55e"/>
+  <text x="60" y="123" font-size="13" font-weight="bold" fill="#06280f" text-anchor="middle">1</text>
+  <text x="330" y="150" font-size="15" fill="#111827" font-weight="bold">① 先點進你的專案</text>
+  <text x="330" y="174" font-size="13" fill="#4b5563">在 Vercel 首頁選擇 82hkg-scout-platform。</text>
+  <text x="330" y="196" font-size="13" fill="#b45309">未進入專案的話，看不到 Settings。</text>
+
+  <!-- ② settings tab -->
+  <rect x="40" y="310" width="280" height="120" rx="10" fill="#0b0d12"/>
+  <text x="58" y="336" font-size="12" fill="#9ca3af">Project / Deployments / Logs /</text>
+  <rect x="56" y="346" width="104" height="30" rx="6" fill="#1f2937" stroke="#ef4444" stroke-width="2"/>
+  <text x="108" y="366" font-size="13" fill="#ffffff" text-anchor="middle">Settings</text>
+  <text x="196" y="366" font-size="12" fill="#6b7280">← 點這個</text>
+  <text x="58" y="400" font-size="12" fill="#6b7280">（手機版在右上角的 ⋯ 選單裡）</text>
+  <circle cx="60" cy="328" r="12" fill="#ef4444"/>
+  <text x="60" y="333" font-size="13" font-weight="bold" fill="#2a0606" text-anchor="middle">2</text>
+  <text x="330" y="360" font-size="15" fill="#111827" font-weight="bold">② 專案上方的 Settings</text>
+
+  <!-- ③ env vars in sidebar -->
+  <rect x="40" y="460" width="280" height="150" rx="10" fill="#0b0d12"/>
+  <text x="58" y="486" font-size="13" fill="#6b7280">General</text>
+  <text x="58" y="508" font-size="13" fill="#6b7280">Domains</text>
+  <text x="58" y="530" font-size="13" fill="#6b7280">Git</text>
+  <rect x="52" y="544" width="200" height="30" rx="6" fill="#1f2937" stroke="#3b82f6" stroke-width="2"/>
+  <text x="66" y="564" font-size="13" fill="#ffffff">Environment Variables</text>
+  <text x="58" y="596" font-size="13" fill="#6b7280">Functions · Integrations …</text>
+  <circle cx="60" cy="478" r="12" fill="#3b82f6"/>
+  <text x="60" y="483" font-size="13" font-weight="bold" fill="#061a33" text-anchor="middle">3</text>
+  <text x="330" y="500" font-size="15" fill="#111827" font-weight="bold">③ 左邊清單的 Environment Variables</text>
+  <text x="330" y="524" font-size="13" fill="#4b5563">不在 General、不在 Domains，也不是 GitHub → Settings。</text>
+
+  <!-- ④ the form -->
+  <rect x="40" y="640" width="600" height="200" rx="10" fill="#0b0d12"/>
+  <text x="58" y="668" font-size="13" fill="#9ca3af">Environment Variables</text>
+  <rect x="58" y="680" width="230" height="34" rx="6" fill="#161a22" stroke="#4b5563"/>
+  <text x="70" y="702" font-size="13" fill="#9ca3af">Key</text>
+  <text x="120" y="702" font-size="13" fill="#e5e7eb">GOOGLE_SHEET_ID</text>
+  <rect x="300" y="680" width="320" height="34" rx="6" fill="#161a22" stroke="#4b5563"/>
+  <text x="312" y="702" font-size="13" fill="#9ca3af">Value  ← 貼上對應的值</text>
+  <text x="58" y="740" font-size="12" fill="#9ca3af">Environments</text>
+  <rect x="58" y="748" width="96" height="26" rx="13" fill="#14532d"/><text x="106" y="766" font-size="12" fill="#86efac" text-anchor="middle">✓ Production</text>
+  <rect x="162" y="748" width="86" height="26" rx="13" fill="#14532d"/><text x="205" y="766" font-size="12" fill="#86efac" text-anchor="middle">✓ Preview</text>
+  <rect x="256" y="748" width="106" height="26" rx="13" fill="#1f2937"/><text x="309" y="766" font-size="12" fill="#9ca3af" text-anchor="middle">Development</text>
+  <rect x="470" y="744" width="150" height="32" rx="6" fill="#ffffff"/>
+  <text x="545" y="765" font-size="13" font-weight="bold" fill="#111827" text-anchor="middle">Save</text>
+  <text x="58" y="800" font-size="12" fill="#facc15">每個變數分開加一次；存好一個再按 Add / Save 加下一個。</text>
+  <circle cx="60" cy="658" r="12" fill="#eab308"/>
+  <text x="60" y="663" font-size="13" font-weight="bold" fill="#2a2206" text-anchor="middle">4</text>
+
+  <!-- ⑤ redeploy -->
+  <rect x="670" y="640" width="290" height="200" rx="10" fill="#0b0d12"/>
+  <text x="688" y="668" font-size="13" fill="#9ca3af">Deployments</text>
+  <rect x="688" y="680" width="254" height="40" rx="6" fill="#161a22" stroke="#f97316" stroke-width="2"/>
+  <text x="700" y="705" font-size="13" fill="#e5e7eb">今天的最新部署　…</text>
+  <text x="700" y="748" font-size="13" fill="#fdba74">⋯ → Redeploy → 確認</text>
+  <text x="688" y="778" font-size="12" fill="#facc15">存檔之後一定要做這一步，</text>
+  <text x="688" y="796" font-size="12" fill="#facc15">新變數才會生效。</text>
+  <text x="688" y="820" font-size="12" fill="#9ca3af">約 1 分鐘後打開 <tspan fill="#93c5fd">/health</tspan> 看結果。</text>
+  <circle cx="690" cy="658" r="12" fill="#f97316"/>
+  <text x="690" y="663" font-size="13" font-weight="bold" fill="#2a1106" text-anchor="middle">5</text>
+
+  <!-- the five values -->
+  <rect x="330" y="100" width="630" height="182" rx="10" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="350" y="128" font-size="15" font-weight="bold" fill="#111827">要加的變數（Key 要一模一樣）</text>
+  <text x="350" y="156" font-size="13" fill="#374151">GOOGLE_SHEET_ID　　　　試算表網址 /d/ 與 /edit 中間那一段</text>
+  <text x="350" y="180" font-size="13" fill="#374151">GOOGLE_SERVICE_ACCOUNT_JSON　整份 JSON 檔內容（連大括號）</text>
+  <text x="350" y="204" font-size="13" fill="#374151">DATA_DRIVER　　　　　　sheets　（固定寫這個）</text>
+  <text x="350" y="228" font-size="13" fill="#374151">SESSION_SECRET　　　　　隨機長字串（32 個字以上）</text>
+  <text x="350" y="252" font-size="13" fill="#374151">GOOGLE_DRIVE_FOLDER_ID　　相片資料夾 ID（可留空／可不加）</text>
+  <text x="350" y="272" font-size="12" fill="#b91c1c">不要加引號、不要貼在 GitHub、不要寫進 repo 檔案。</text>
+
+  <text x="40" y="866" font-size="12" fill="#6b7280">港島第八十二旅童軍團 · 上線檢查 · 加好之後打開 &lt;你的網址&gt;/health，「資料存放」要顯示 Google 試算表。</text>
+</svg>

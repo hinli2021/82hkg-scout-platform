@@ -83,8 +83,11 @@
    - 如果看不到這個 repo：按 *Configure GitHub App* 授權 Vercel 讀取它
    - **Framework Preset**：`Other`
    - **Root Directory / Build / Output**：全部留空（`vercel.json` 已經寫好）
-3. **Environment Variables**（Settings → Environment Variables）逐個貼上，
-   Production 與 Preview 都勾：
+3. **Environment Variables 在哪裡**：進入專案後，按專案上方的 **Settings**
+   → 左邊清單的 **Environment Variables**（不在 General、不在 Domains，
+   也不是 GitHub 的 Settings），然後 **Add New**。
+   圖解見 `docs/screens/vercel-env-howto.svg`。逐個貼上，
+   **Environments 要勾 Production**（Preview 建議一齊勾）：
 
    | 名稱 | 值 | 從哪裡拿 |
    |---|---|---|
@@ -96,8 +99,10 @@
 
    - `DEMO_LOGIN`、`SEED_DEMO` **不要設定**（正式版要關掉示範帳戶）
    - ⏰ 時區已固定在程式裡（Asia/Hong_Kong），不用設
-4. 按 **Deploy** → 等 1–2 分鐘 → 完成後會給你網址，例如
-   `https://82hkg-scout-platform.vercel.app`
+4. **存好變數之後**，到 **Deployments → 最上面那個 → ⋯ → Redeploy** → 等 1–2 分鐘。
+   這一步不能省：Vercel 只在建置時讀取環境變數，已經部署好的舊版本不會自動看到新變數。
+   （第一次部署時按 **Deploy** 也可以；之後每次改動變數都一定要 Redeploy。）
+   → 完成後會給你網址，例如 `https://82hkg-scout-platform.vercel.app`
    - 想用自己的網域：Settings → Domains
 
 ---
