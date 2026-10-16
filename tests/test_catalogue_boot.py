@@ -121,13 +121,70 @@ def test_a_failing_catalogue_never_blocks_the_site(monkeypatch):
 
 
 def test_the_two_writes_are_whole_tables_not_rows(monkeypatch):
-    """獎章一次、任務一次 —— 這樣才不會超時。"""
+    """獎章一次、任務一次（另外一格是「建立中」記號）—— 這樣才不會超時。"""
     fake = FakeGoogle()
     boot(fake, monkeypatch)
     puts = [url for method, url in fake.calls if method == "PUT"]
-    assert len(puts) == 2, puts
+    assert len(puts) <= 3, puts
     assert any("badges!A2:" in url for url in puts), puts
     assert any("tasks!A2:" in url for url in puts), puts
+    assert all("!A2:" in url or "settings!" in url for url in puts), puts
+
+
+def test_duplicate_catalogue_rows_are_merged_and_repointed(monkeypatch):
+    """兩次冷啟動撞在一起 → 獎章與任務各多一份；下一次啟動要自動合併。"""
+    fake = FakeGoogle()
+    store = boot(fake, monkeypatch)
+    badges = store.list("badges")
+    tasks = store.list("tasks")
+
+    # 模擬第二個啟動：整份目錄再寫一次（新的 id）
+    store.insert_many("badges", [{**row, "id": f"dup-{row['id']}"} for row in badges])
+    store.insert_many("tasks", [{**row, "id": f"dup-{row['id']}",
+                                 "badge_id": f"dup-{row['badge_id']}"} for row in tasks])
+    assert len(store.list("badges")) == 10 and len(store.list("tasks")) == 34
+
+    healed = boot(fake, monkeypatch)                       # 下一次啟動
+    assert len(healed.list("badges")) == 5, [b["code"] for b in healed.list("badges")]
+    assert len(healed.list("tasks")) == 17
+
+    kept = {row["code"]: row["id"] for row in healed.list("badges")}
+    for row in healed.list("tasks"):
+        assert str(row["badge_id"]) in set(kept.values()), "任務要指向保留的那個獎章"
+
+
+def test_a_leader_created_row_is_never_touched_by_the_merge(monkeypatch):
+    fake = FakeGoogle()
+    store = boot(fake, monkeypatch)
+    store.insert("tasks", {"badge_id": "", "code": "", "title_zh": "領袖自訂任務",
+                           "title_en": "Custom", "type": "check", "points": 5,
+                           "status": "published", "order_index": 99})
+    healed = boot(fake, monkeypatch)
+    titles = [row["title_zh"] for row in healed.list("tasks")]
+    assert "領袖自訂任務" in titles, "領袖自己新增的任務不可以被合併程序刪走"
+
+
+def test_the_lease_keeps_two_simultaneous_first_boots_apart(monkeypatch):
+    """第一次啟動寫下記號之後，緊接的另一個啟動要讓路。"""
+    from scout.util import now_iso
+
+    fake = FakeGoogle()
+    first = boot(fake, monkeypatch)
+    assert len(first.list("badges")) == 5
+
+    # 全新試算表＋一個剛剛寫下的記號 → 第二個啟動不建立
+    fresh = FakeGoogle()
+    import json as _json
+
+    fresh.tabs["settings"] = [["id", "key", "value_json"],
+                              ["s1", "catalog_boot", _json.dumps(now_iso())]]
+    second = boot(fresh, monkeypatch)
+    assert second.list("badges") == [], "記號仍然有效，第二個啟動要讓路"
+
+    # 記號過期（兩分鐘以上）→ 可以接手
+    fresh.tabs["settings"][1][2] = "2026-01-01T00:00:00.000Z"
+    third = boot(fresh, monkeypatch)
+    assert len(third.list("badges")) == 5, "過期的記號不可以永遠擋住建立"
 
 
 def test_the_membership_guide_survives_a_round_trip_through_the_sheet(monkeypatch):

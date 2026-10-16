@@ -209,7 +209,8 @@ class Store:
             # 正式部署：空資料庫第一次連上時建立獎章目錄；之後只補缺少的項目，
             # 任何部署、任何重啟都不會改動已有的資料。失敗也不可以讓網站打不開。
             try:
-                store.ensure_catalog()
+                store.settle_catalog()              # 先合併重複（例如首次啟動撞在一起）
+                store.ensure_catalog()              # 再補上缺少的項目
             except Exception as exc:                # noqa: BLE001
                 config["catalog_error"] = f"{type(exc).__name__}: {exc}"
         return store
@@ -358,6 +359,66 @@ class Store:
         return leader
 
     # --- the platform's own content -----------------------------------------
+    CATALOG_LEASE_SECONDS = 120
+
+    def claim_catalog_boot(self) -> bool:
+        """只有一個啟動可以建立目錄 —— 快速連開兩次也只是一次。
+
+        記在設定 `catalog_boot`。超過兩分鐘的記錄會被接管，所以中途中斷的
+        啟動不會永遠擋住建立。
+        """
+        import time as _time
+
+        claimed = str(self.settings().get("catalog_boot") or "")
+        if claimed:
+            age = _time.time() - (parse_time(claimed) or 0)
+            if 0 <= age < self.CATALOG_LEASE_SECONDS:
+                return False
+        self.save_setting("catalog_boot", now_iso())
+        return True                                 # 記錄只能減低撞在一起的機會，
+        #                                             真正的保險是 settle_catalog()
+
+    def settle_catalog(self) -> dict:
+        """合併重複的內建獎章／任務（併發首次啟動可能各寫一次）。
+
+        只處理程式內建的代碼（SC-01…／M01…／T-…）：同一代碼只留最先出現的一列，
+        刪走其餘重複，最後把內建任務指向保留的那個獎章。領袖自己新增的內容
+        （代碼空白或不在名單內）一律不動；健康的話一次寫入都不會發生。
+        """
+        badge_codes = {str(badge["code"]) for badge in SEED_BADGES}
+        task_badge = {str(task["code"]): str(badge["code"])
+                      for badge in SEED_BADGES for task in badge["tasks"]}
+        merged = {"badges": 0, "tasks": 0}
+
+        seen_tasks: set[str] = set()
+        for row in self.list("tasks"):
+            code = str(row.get("code") or "")
+            if code not in task_badge:
+                continue
+            if code in seen_tasks:
+                self.remove("tasks", row["id"])
+                merged["tasks"] += 1
+            else:
+                seen_tasks.add(code)
+
+        kept: dict[str, dict] = {}
+        for row in self.list("badges"):
+            code = str(row.get("code") or "")
+            if code not in badge_codes:
+                continue
+            if code in kept:
+                self.remove("badges", row["id"])
+                merged["badges"] += 1
+            else:
+                kept[code] = row
+
+        for row in self.list("tasks"):
+            badge_code = task_badge.get(str(row.get("code") or ""))
+            target = kept.get(badge_code or "")
+            if target and str(row.get("badge_id")) != str(target["id"]):
+                self.update("tasks", row["id"], {"badge_id": target["id"]})
+        return merged
+
     def ensure_catalog(self) -> bool:
         """建立缺少的獎章與任務 —— 只新增，永不改寫已有的列。
 
@@ -373,6 +434,9 @@ class Store:
         by_code: dict[str, dict] = {str(row.get("code")): row for row in self.list("badges")}
         have_tasks = {str(row.get("code")) for row in self.list("tasks") if row.get("code")}
         removed = {str(code) for code in (self.settings().get("catalog_removed") or [])}
+
+        if not by_code and not self.claim_catalog_boot():
+            return False                            # 另一個啟動正在建立
 
         new_badges: list[dict] = []
         # 逐一按次序處理：新獎章的 id 先產生，下一個獎章才可以指向它
