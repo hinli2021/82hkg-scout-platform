@@ -289,8 +289,11 @@ def configure_area_game(badge_id: str, area_n: int):
 @leader_required
 def delete_badge(badge_id: str):
     st = store()
+    badge = st.get("badges", badge_id) or {}
     for task in [t for t in st.list("tasks") if t.get("badge_id") == badge_id]:
+        st.remember_removed(task.get("code"))          # 不要在新版本重新出現
         st.remove("tasks", task["id"])
+    st.remember_removed(badge.get("code"))
     st.remove("badges", badge_id)
     audit(g.user, "delete_badge", "badges", badge_id, {})
     return _done("已刪除獎章（及其任務）", "Badge deleted (with its tasks)", "leader_routes.content")
@@ -609,6 +612,7 @@ def delete_task(task_id: str):
            and (a.get("game") or {}).get("task_code") == task.get("code") for a in areas):
         return fail(409, "assigned_game", "請先解除區域的遊戲設定；第一區山洞不可刪除",
                     "Unassign this game from its area first; game 1's cave cannot be deleted")
+    st.remember_removed(task.get("code"))              # 不要在新版本重新出現
     st.remove("tasks", task_id)
     audit(g.user, "delete_task", "tasks", task_id, {})
     return _done("已刪除任務", "Task deleted", "leader_routes.content")
@@ -1138,7 +1142,10 @@ def setup_checks(st) -> dict:
             advice or "在 Vercel 加入 GOOGLE_SHEET_ID 與 GOOGLE_SERVICE_ACCOUNT_JSON，然後 Redeploy（docs/02）",
             "Add GOOGLE_SHEET_ID and GOOGLE_SERVICE_ACCOUNT_JSON in Vercel, then Redeploy (docs/02)"),
         row("badges", len(badges) >= 5, "獎章目錄已經建立", "Badge catalogue created",
-            str(len(badges)) + " 個獎章", str(len(badges)) + " badges",
+            (str(len(badges)) + " 個獎章" +
+             ("（上次啟動時建立失敗：" + str(st.config.get("catalog_error"))[:90] + "）"
+              if st.config.get("catalog_error") else "")),
+            str(len(badges)) + " badges",
             "目錄會在第一次連上空試算表時自動建立；若一直是 0，代表正在執行的版本未含此功能，請部署最新版本",
             "The catalogue is created once on the first connection; 0 means the running version is out of date — redeploy"),
         row("tasks", len(tasks) >= 11, "任務與遊戲項目齊全", "Tasks and game items present",

@@ -206,9 +206,12 @@ class Store:
         if config["seed_demo"] and store.needs_setup():
             store.seed_demo()
         else:
-            # 正式部署：空資料庫第一次連上時建立獎章目錄（只建立一次，
-            # 之後任何部署、任何重啟都不會改動已有的資料）
-            store.ensure_catalog()
+            # 正式部署：空資料庫第一次連上時建立獎章目錄；之後只補缺少的項目，
+            # 任何部署、任何重啟都不會改動已有的資料。失敗也不可以讓網站打不開。
+            try:
+                store.ensure_catalog()
+            except Exception as exc:                # noqa: BLE001
+                config["catalog_error"] = f"{type(exc).__name__}: {exc}"
         return store
 
     # --- pass-throughs ------------------------------------------------------
@@ -220,6 +223,23 @@ class Store:
 
     def insert(self, collection: str, record: dict) -> dict:
         return self.driver.insert(collection, record)
+
+    def insert_many(self, collection: str, records: list[dict]) -> list[dict]:
+        """One round trip for a whole block of rows (when the driver can)."""
+        writer = getattr(self.driver, "append_many", None)
+        if callable(writer):
+            return writer(collection, records)
+        return [self.driver.insert(collection, row) for row in records]
+
+    def remember_removed(self, code: str) -> None:
+        """領袖刪除的目錄項目要記住 —— 部署新版本時不可自動重建。"""
+        code = str(code or "").strip()
+        if not code:
+            return
+        current = [str(item) for item in (self.settings().get("catalog_removed") or [])]
+        if code not in current:
+            current.append(code)
+            self.save_setting("catalog_removed", current)
 
     def update(self, collection: str, key: Any, patch: dict) -> dict | None:
         return self.driver.update(collection, key, patch)
@@ -339,42 +359,66 @@ class Store:
 
     # --- the platform's own content -----------------------------------------
     def ensure_catalog(self) -> bool:
-        """建立獎章與任務目錄 —— 只在完全沒有獎章時執行一次。
+        """建立缺少的獎章與任務 —— 只新增，永不改寫已有的列。
 
-        正式上線第一次連上（空試算表）就會跑，把會員章、其餘四個獎章及 11 個
-        項目建立好；之後每次部署、每次重啟都不會再寫，所以領袖改過的標題、
-        題目、獎章設定都不會被新版本覆蓋。回傳 True 代表這次真的建立了內容。
+        第一次連上空試算表時建立全部；之後每次啟動只補上「程式有、試算表沒有」
+        的項目（例如日後新增的獎章），領袖改過的標題、題目與正確答案一律保留。
+        領袖在後台刪除過的項目記在設定 `catalog_removed`，不會被重新建立。
+        全程只有兩次寫入（獎章一次、任務一次），避免啟動時超時。
+        回傳 True 代表這次真的有新增。
         """
-        if self.list("badges"):
-            return False
         now = now_iso()
-        badge_ids: list[str] = []
-        # 完成指南: the 11 items in the unit's own words (content/member-badge/guide.json)
         guide = member_badge_guide()
         item4 = item4_questions()
-        for index, badge in enumerate(SEED_BADGES):
-            created = self.insert("badges", {
-                "section": "scout", "order_index": index + 1, "code": badge["code"],
-                "title_zh": badge["title_zh"], "title_en": badge["title_en"],
-                "subtitle_zh": badge["subtitle_zh"], "subtitle_en": badge["subtitle_en"],
-                "desc_zh": badge["desc_zh"], "desc_en": badge["desc_en"],
-                "emoji": badge["emoji"], "image_url": badge["image_url"], "color": badge["color"],
-                "points_reward": badge["points_reward"],
-                "prerequisite_badge_ids": [] if index == 0 else [badge_ids[index - 1]],
-                # the first award (會員章) is the one with a step-by-step guide
-                "guide_json": guide if index == 0 else None,
-                "status": "published", "created_at": now, "updated_at": now,
-            })
-            badge_ids.append(created["id"])
-            for order, task in enumerate(badge["tasks"], start=1):
+        by_code: dict[str, dict] = {str(row.get("code")): row for row in self.list("badges")}
+        have_tasks = {str(row.get("code")) for row in self.list("tasks") if row.get("code")}
+        removed = {str(code) for code in (self.settings().get("catalog_removed") or [])}
+
+        new_badges: list[dict] = []
+        # 逐一按次序處理：新獎章的 id 先產生，下一個獎章才可以指向它
+        for index, spec in enumerate(SEED_BADGES):
+            code = str(spec["code"])
+            if code in removed:
+                continue
+            if code not in by_code:
+                previous = SEED_BADGES[index - 1] if index else None
+                prerequisite = [by_code[str(previous["code"])]["id"]] if previous else []
+                row = {
+                    "id": new_id(), "section": "scout", "order_index": index + 1, "code": code,
+                    "title_zh": spec["title_zh"], "title_en": spec["title_en"],
+                    "subtitle_zh": spec["subtitle_zh"], "subtitle_en": spec["subtitle_en"],
+                    "desc_zh": spec["desc_zh"], "desc_en": spec["desc_en"],
+                    "emoji": spec["emoji"], "image_url": spec["image_url"], "color": spec["color"],
+                    "points_reward": spec["points_reward"],
+                    "prerequisite_badge_ids": prerequisite,
+                    "guide_json": guide if index == 0 else None,
+                    "status": "published", "created_at": now, "updated_at": now,
+                }
+                new_badges.append(row)
+                by_code[code] = row
+
+        added = False
+        if new_badges:
+            self.insert_many("badges", new_badges)
+            added = True
+
+        new_tasks: list[dict] = []
+        for spec in SEED_BADGES:
+            badge = by_code.get(str(spec["code"]))
+            if badge is None:                      # 領袖刪除了這個獎章
+                continue
+            for order, task in enumerate(spec["tasks"], start=1):
+                code = str(task["code"])
+                if code in removed or code in have_tasks:
+                    continue
                 config = dict(task.get("config_json", {}))
                 if config.get("bank") == "member-badge/item4" and item4:
                     # merge the 50-question paper in; `bank` stays as a breadcrumb
                     config["questions"] = item4
                     config["quiz_title"] = item4_meta().get("title_zh", "")
                     config["per_question"] = item4_meta().get("per_question", 2)
-                row = self.insert("tasks", {
-                    "badge_id": created["id"], "order_index": order, "code": task["code"],
+                new_tasks.append({
+                    "badge_id": badge["id"], "order_index": order, "code": code,
                     "title_zh": task["title_zh"], "title_en": task["title_en"],
                     "instruction_zh": task["instruction_zh"], "instruction_en": task["instruction_en"],
                     "type": task["type"], "points": task["points"],
@@ -382,7 +426,10 @@ class Store:
                     "config_json": config,
                     "status": "published", "created_at": now, "updated_at": now,
                 })
-        return True
+        if new_tasks:
+            self.insert_many("tasks", new_tasks)
+            added = True
+        return added
 
     # --- demo seed ----------------------------------------------------------
     def seed_demo(self) -> None:

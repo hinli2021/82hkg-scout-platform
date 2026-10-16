@@ -44,6 +44,27 @@ class FakeGoogle:
         if method == "GET" and "/spreadsheets/" in path and "/values/" not in path:
             return {"sheets": [{"properties": {"title": title}} for title in self.tabs]}
 
+        if method == "POST" and path.endswith("/values:batchUpdate"):
+            for entry in (body or {}).get("data", []):
+                tab, _, cell_range = entry["range"].partition("!")
+                if tab not in self.tabs:
+                    raise RuntimeError(
+                        f'Google API POST {url} → 400: {{"error": {{"code": 400, "message": '
+                        f'"Unable to parse range: {entry["range"]}"}}}}')
+                grid = self.tabs[tab]
+                match = re.search(r"([A-Z]+)(\d+)", cell_range)
+                row_number = int(match.group(2))
+                while len(grid) < row_number:
+                    grid.append([])
+                for offset, row_values in enumerate(entry.get("values", [])):
+                    row = grid[row_number - 1 + offset]
+                    for index, value in enumerate(row_values):
+                        while len(row) <= index:
+                            row.append("")
+                        row[index] = value
+            return {"totalUpdatedCells": sum(len(entry.get("values", [[]])[0])
+                                             for entry in (body or {}).get("data", []))}
+
         if method == "POST" and path.endswith(":batchUpdate"):
             for request in (body or {}).get("requests", []):
                 title = request["addSheet"]["properties"]["title"]
