@@ -22,6 +22,63 @@ from .content import item4_meta, item4_questions, member_badge_guide
 
 
 
+def _unescape_raw_newlines(text: str) -> str:
+    """Escape newlines/tabs that ended up *inside* JSON strings.
+
+    Copying a key through some editors turns the private key's \n escapes into
+    real line breaks, which is invalid JSON. Walk the text, and while inside a
+    string literal, escape them back.
+    """
+    out: list[str] = []
+    in_string = False
+    escaped = False
+    for character in text:
+        if escaped:
+            out.append(character)
+            escaped = False
+            continue
+        if character == "\\":
+            out.append(character)
+            escaped = True
+            continue
+        if character == '"':
+            in_string = not in_string
+            out.append(character)
+            continue
+        if in_string and character == "\n":
+            out.append("\\n")
+            continue
+        if in_string and character == "\r":
+            continue
+        if in_string and character == "\t":
+            out.append("\\t")
+            continue
+        out.append(character)
+    return "".join(out)
+
+
+def parse_service_account(raw: str) -> dict:
+    """Parse the key the way it actually arrives, not the way it should."""
+    text = str(raw or "").strip().lstrip("\ufeff")
+    if not text:
+        raise ValueError("GOOGLE_SERVICE_ACCOUNT_JSON 是空的")
+    if text.startswith('"') and text.endswith('"') and len(text) > 2:
+        inner = text[1:-1].strip()                      # 整段被引號包住
+        try:
+            json.loads(inner)
+            text = inner
+        except ValueError:
+            unescaped = inner.replace('\\"', '"').replace("\\\\", "\\")
+            text = unescaped
+    try:
+        return json.loads(text)
+    except ValueError as first:
+        try:
+            return json.loads(_unescape_raw_newlines(text))
+        except ValueError:
+            raise first from None                       # 保留原本的錯誤訊息（給 advice 判斷）
+
+
 def _sheets_driver(env: dict):
     """Build the Google Sheets driver from the environment."""
     account: dict = {}
@@ -30,7 +87,7 @@ def _sheets_driver(env: dict):
         with open(path, encoding="utf-8") as handle:
             account = json.load(handle)
     elif env.get("GOOGLE_SERVICE_ACCOUNT_JSON"):
-        account = json.loads(env["GOOGLE_SERVICE_ACCOUNT_JSON"])
+        account = parse_service_account(env["GOOGLE_SERVICE_ACCOUNT_JSON"])
     if not isinstance(account, dict) or not account.get("client_email"):
         raise ValueError("服務帳戶金鑰不完整：GOOGLE_SERVICE_ACCOUNT_JSON 要是整份 JSON 檔的內容")
     if not (env.get("GOOGLE_SHEET_ID") or "").strip():
@@ -61,7 +118,8 @@ def storage_advice(error: str) -> tuple[str, str]:
                 "在 Vercel 重新貼上整份 JSON 檔內容：由 { 到 } 都要有，private_key 整段（含 -----BEGIN…-----）不可換行錯誤，前後不要加引號，存檔後 Redeploy。")
     if "JSONDecodeError" in text or "服務帳戶金鑰不完整" in text:
         return ("服務帳戶金鑰（GOOGLE_SERVICE_ACCOUNT_JSON）不是有效的 JSON。",
-                "在 Vercel 重新貼上整份 JSON 檔內容，由 { 到 } 都要有，前後不要加引號，存檔後 Redeploy。")
+                "在 Vercel 重新貼上整份 JSON 檔內容，由 { 到 } 都要有，前後不要加引號，存檔後 Redeploy。"
+                "（可先在瀏覽器打開 tools/check-service-account.html 貼上檢查一次）")
     if "GOOGLE_SHEET_ID" in text:
         return ("未設定 GOOGLE_SHEET_ID。",
                 "把試算表網址 /d/ 與 /edit 中間那一段貼進 Vercel 的 GOOGLE_SHEET_ID，存檔後 Redeploy。")
