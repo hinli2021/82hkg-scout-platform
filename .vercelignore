@@ -1,0 +1,14 @@
+# 只把要公開展示的檔案上載到 Vercel；其餘留在 GitHub。
+# （Vercel 的靜態輸出目錄是 public/，所以敏感資料不會被公開取用。）
+
+docs/
+tests/
+tools/
+uploads/
+data/uploads/
+data/db/sessions.json
+
+*.zip
+*.log
+*.md.tmp
+test-run-final.log

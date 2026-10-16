@@ -37,6 +37,7 @@ live server; the offline file shows a clickable leader-home sample.
 | `tools/checks/check_offline.py` | 離線先走第一次登入的必填表單（重複密碼、長度、電郵四種錯誤＋繞路全部擋下），再走完四段壁畫和 50 題（包括死路），按實際選項算分，返回地圖見 1/5；檢查主頁出口、領袖代碼與 0 個外部請求 |
 | `tools/checks/check_cave.py` | 實機版山洞：中文全程、一次錯路、伺服器評分與錯題回顧；示範童軍進度在檢查後還原 |
 | `tools/checks/check_bridge.py` | 實機版**迷霧渡口**（遊戲 2）：三關教學牌、錯板重講、鋪滿過橋、伺服器記錄與會員章進度；跑完用 `demo_reset.blank_game` 還原示範童軍 |
+| `tools/push.sh` | 把改動提交並推送 GitHub（Vercel 隨自動部署）：`GITHUB_TOKEN=… bash tools/push.sh "說明"`；token 也可放入 `~/.82hkg-github-token` |
 | `tools/bridge_preview.py` | 產生 `bridge-preview.html`：只含遊戲 2 的單檔離線試玩（不需要先過山洞），供領袖試玩及截圖 |
 | `tools/checks/check_cave_editor.py` | 領袖代碼登入、四壁 50 題編輯入口、答案欄位、英語切換和手機版；不更動題庫 |
 | `tools/checks/check_exit.py` | 實機和離線版離開山洞提示：主頁／會員章／頁首、取消保留答案、確認後重入由頭開始，以及英文／手機版 |
@@ -104,6 +105,7 @@ screen is populated — replace it with your own in *Content*.
   要在 *設定 → 寄信信箱* 填好單位 Gmail（應用程式密碼）才會寄信，步驟見
   `docs/03-email-setup.md`；未設定信箱、或帳號還未有電郵時，平台會改用電郵即時重設，
   docs/04-github.md           把計劃放上 GitHub（備份、版本記錄、三條路徑）
+docs/05-vercel.md          把 GitHub 接到 Vercel：測試站設定、環境變數、資料保存（/tmp 或 Google 試算表）
   或由領袖在 *帳戶* 版面按 🔑 代為重設。
 - `scout07 吳卓穎` 保持「未設定密碼」狀態，方便示範第一次進入的情況（每次 `demo3` 進入
   都會先清空密碼，所以下次仍然由必填表單開始）。
