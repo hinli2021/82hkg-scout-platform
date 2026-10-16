@@ -792,3 +792,79 @@ def test_password_hash_never_reaches_a_page(client, store):
     for user in store.list("users"):
         if user.get("password_hash"):
             assert user["password_hash"] not in page
+
+# ── 第一次開啟：建立第一位領袖（正式上線的入口） ───────────────────────────
+
+def test_a_fresh_database_asks_for_the_first_leader(client, store):
+    """還沒有任何領袖時，任何人都被帶到建立第一位領袖那一頁。
+
+    這是正式上線的唯一無需登入入口：示範帳戶不會自動出現，帳戶由領袖建立。
+    """
+    assert store.needs_setup() is False, "the seeded fixture already has leader1"
+
+    store.remove_where("users", lambda row: row.get("role") == "leader")
+    assert store.needs_setup() is True
+
+    page = client.get("/", follow_redirects=True)
+    body = page.get_data(as_text=True)
+    assert page.status_code == 200
+    assert "建立第一位領袖" in body
+    assert "建立領袖帳戶" in body
+
+    door = client.get("/login/leader", follow_redirects=False)
+    assert door.status_code == 302 and door.headers["Location"].endswith("/setup")
+
+
+def test_the_first_leader_form_makes_an_account_and_signs_it_in(client, store):
+    store.remove_where("users", lambda row: row.get("role") == "leader")
+
+    bad = client.post("/setup", data={"name_zh": "陳大文", "username": "Chan!",
+                                      "password": "abcdef", "password2": "abcdef"})
+    assert bad.status_code == 400 and "登入帳號" in bad.get_data(as_text=True)
+
+    short = client.post("/setup", data={"name_zh": "陳大文", "username": "leader9",
+                                        "password": "abc", "password2": "abc"})
+    assert short.status_code == 400 and "至少 6" in short.get_data(as_text=True)
+
+    mismatch = client.post("/setup", data={"name_zh": "陳大文", "username": "leader9",
+                                           "password": "abcdef", "password2": "abcdeX"})
+    assert mismatch.status_code == 400 and "不相同" in mismatch.get_data(as_text=True)
+
+    made = client.post("/setup", data={
+        "unit_zh": "港島第八十二旅童軍團", "unit_en": "82nd Hong Kong Scout Group",
+        "name_zh": "陳大文", "name_en": "Chan Tai Man",
+        "username": "Leader9", "password": "harbour-82", "password2": "harbour-82",
+    }, follow_redirects=False)
+    assert made.status_code == 302 and "/leader" in made.headers["Location"]
+
+    leader = _find(store, "leader9")            # the name is stored lower-case
+    assert leader["display_name_zh"] == "陳大文" and leader["role"] == "leader"
+    assert "password_hash" not in leader.get("public", {})
+    assert store.settings()["unit_name_zh"] == "港島第八十二旅童軍團"
+    assert store.settings()["unit_name_en"] == "82nd Hong Kong Scout Group"
+
+    console = client.get("/leader")
+    assert console.status_code == 200 and "陳大文" in console.get_data(as_text=True)
+
+    # 建立之後這一頁自動收起，改為轉去登入頁
+    again = client.get("/setup", follow_redirects=False)
+    assert again.status_code == 302 and again.headers["Location"].startswith("/leader")
+
+
+def test_the_leader_code_signs_in_after_setup(client, store):
+    """領袖代碼就是第一位領袖設定的密碼（預設提示 0082 是示範帳戶的）。"""
+    store.remove_where("users", lambda row: row.get("role") == "leader")
+    client.post("/setup", data={"unit_zh": "港島第八十二旅童軍團", "name_zh": "陳大文",
+                                "username": "leader1", "password": "harbour-82",
+                                "password2": "harbour-82"})
+    client.post("/logout")
+    door = client.post("/login/leader", data={"password": "harbour-82"}, follow_redirects=False)
+    assert door.status_code == 302 and "/leader" in door.headers["Location"]
+    wrong = client.post("/logout") and client.post("/login/leader", data={"password": "0082"})
+    assert wrong.status_code == 401
+
+
+def test_official_defaults_leave_the_demo_accounts_out(client):
+    """正式上線：登入頁沒有示範帳戶、沒有示範提示（示範要明確開啟）。"""
+    page = client.get("/login").get_data(as_text=True)
+    assert "demo-accounts" not in page and "示範帳戶" not in page

@@ -130,6 +130,26 @@
           <p class="small muted">{{ L('資料即時寫入你的 Google 試算表，相片存到你的 Drive 資料夾。', 'Data is written straight into your Google Sheet; photos go to your Drive folder.') }}</p>
         {% endif %}
       </div>
+      {% if ephemeral_storage %}
+      <div class="card" style="margin-top:1rem; border-color:#a8722c">
+        <h3 style="margin-top:0">⚠️ {{ L('資料暫存中，會自己重置', 'Storage is temporary — it resets itself') }}</h3>
+        <p class="small">
+          {{ L('這個部署把資料寫在執行個體的暫存空間（/tmp），一段時間沒有流量就會被回收，帳戶與進度會回到空白。要正式使用，請在 Vercel 加入 Google 試算表設定：',
+               'This deployment writes to the instance’s scratch space (/tmp), which is recycled after a quiet spell — accounts and progress then start over. For real use, add the Google Sheet settings in Vercel:') }}
+        </p>
+        <p class="small muted" style="font-family:ui-monospace,monospace">
+          DATA_DRIVER=sheets<br>
+          GOOGLE_SHEET_ID=…<br>
+          GOOGLE_SERVICE_ACCOUNT_JSON=…<br>
+          GOOGLE_DRIVE_FOLDER_ID=…
+        </p>
+        <p class="small muted">
+          {{ L('設定步驟見', 'Setup steps:') }}
+          <code>docs/02-google-sheets-setup.md</code>
+          {{ L('與', 'and') }} <code>docs/05-vercel.md</code>
+        </p>
+      </div>
+      {% endif %}
       <div class="card" style="margin-top:1rem">
         <h3 style="margin-top:0">ℹ️ {{ L('版本', 'Edition') }}</h3>
         <p class="small muted">{{ L('這是 Python（Flask + Jinja）版本，與 Node 版本共用同一份試算表格式與密碼雜湊。', 'This is the Python (Flask + Jinja) edition — it shares the same Sheet layout and password hashing as the Node build.') }}</p>

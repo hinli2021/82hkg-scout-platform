@@ -1,74 +1,92 @@
-# 把 GitHub 接到 Vercel，開一個測試站
+# 正式上線（Vercel + GitHub）
 
-Vercel 會**看着這個 GitHub repository**：每次 `main` 有新提交，它就自動重新建置一個新版本。
-所以流程是 —— 在這裡改東西 → 推送 GitHub（`tools/push.sh`）→ Vercel 幾十秒後就是新版本，
-直接在手機或電腦打開網址就可以試。
+正式版的流程：在這裡改東西 → 推送 GitHub（`tools/push.sh`）→ Vercel 自動重新建置 →
+童軍打開網址就可以用。**資料不在 Vercel 上**，資料在 Google 試算表（見第 4 節），
+Vercel 只是跑程式的地方。
 
-## 第一次設定（在瀏覽器做一次，約三分鐘）
+---
 
-1. 開 **https://vercel.com** → **Continue with GitHub** → 用 **hinli2021** 登入。
-2. **Add New… → Project → Import Git Repository** → 選 **`82hkg-scout-platform`**。
-   - 私人 repository 要按 **Adjust GitHub App Permissions / Configure** 授權 Vercel 讀取它。
-3. 設定頁面：
-   - **Framework Preset**：`Other`
-   - **Root Directory**：`./`（不改）
-   - **Build Command / Output Directory**：**留空** —— `vercel.json` 已經寫好
-     （靜態檔由 `public/` 供應，其餘全部交給 `api/index.py` 的 Flask 應用）。
-4. **Environment Variables** 加入（見下一節）。
-5. 按 **Deploy**。完成後網址會像 `https://82hkg-scout-platform.vercel.app`。
+## 1. 首次部署（瀏覽器做一次，約 5 分鐘）
 
-## 環境變數（Settings → Environment Variables）
+1. **Vercel**：<https://vercel.com> → **Continue with GitHub**（`hinli2021`）登入 →
+   **Add New… → Project → Import** 選 `82hkg-scout-platform`。
+   - 私人 repository 要按 *Configure GitHub App* 授權 Vercel 讀取它。
+   - **Framework Preset**：`Other`；**Build／Output Directory 留空**（`vercel.json` 已寫好）。
+2. **Environment Variables**（Settings → Environment Variables，Production 與 Preview 都勾）見第 3 節。
+3. **Deploy**。完成後會有網址，例如 `https://82hkg-scout-platform.vercel.app`。
+   （可以再綁自己的網域：Settings → Domains。）
 
-| 名稱 | 值 | 為甚麼 |
+## 2. 第一次開啟平台：建立第一位領袖
+
+正式版**沒有示範帳戶**。第一次打開網址，平台會直接顯示 **「建立第一位領袖」**：
+
+1. 填單位名稱（中文必需，英文可留空）、領袖姓名（中文必需）、登入帳號、密碼（至少 6 個字）。
+2. 按「建立領袖帳戶，開始使用」→ 直接進入**領袖後台**，並且已登入。
+3. 之後這一頁自動收起，任何人再到網址就只看到登入頁。
+
+> 領袖登入：登入頁右下角**領袖入口** → 在「領袖代碼」一欄輸入**你自己設定的密碼**。
+> （示範帳戶的 `0082` 只屬於離線試玩檔與示範部署。）
+
+**接著在領袖後台建立童軍帳戶**：領袖 → 帳戶 → 新增（選擇小隊、姓名、設定密碼）。
+童軍第一次登入會看到「建立密碼／填電郵」的設定頁，之後就可以玩。
+
+## 3. 環境變數
+
+| 名稱 | 值 | 說明 |
 | --- | --- | --- |
-| `SESSION_SECRET` | 一段長隨機字串（例如 32 個字母數字） | 沒有它，程式每次啟動都會換鎖匙，登入與遊戲進度會在中途失效 |
-| `DEMO_LOGIN` | `true` | 讓 `/login/demo/demo1`（領袖）、`demo2`（童軍）一按即登入，方便測試 |
-| `SEED_DEMO` | `true` | 每次都建立示範領袖與七個示範童軍 |
-| `DATA_DIR` | `/tmp/scout-platform-data` | Vercel 只有 `/tmp` 可以寫入（見下方「資料會否保存」） |
+| `SESSION_SECRET` | 隨機長字串（例如 `openssl rand -hex 32`） | **建議設定**。未設定時平台會自動產生一次並保存在資料庫（試算表）裡，同樣不會登出；但明確設定最清楚 |
+| `DATA_DRIVER` | `sheets` | 正式儲存：資料寫進 Google 試算表（第 4 節）。不設定而只給 `GOOGLE_SHEET_ID` 時，程式也會自動用 `sheets` |
+| `GOOGLE_SHEET_ID` | 試算表 ID | 網址 `docs.google.com/spreadsheets/d/`**`<這一段>`**`/edit` |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | 服務帳戶金鑰**整段 JSON** | 貼在值欄（`GOOGLE_SERVICE_ACCOUNT_FILE` 亦可，但 Vercel 上通常用 JSON 變數） |
+| `GOOGLE_DRIVE_FOLDER_ID` | 雲端硬碟資料夾 ID（可留空） | 童軍證據相片存放位置；留空則不能上載相片 |
+| `DEMO_LOGIN` | 不設定（＝關閉） | 只在**示範部署**才設 `true` |
+| `SEED_DEMO` | 不設定（＝關閉） | 同上；正式版不要開，否則會加入示範童軍 |
+| `DATA_DIR` | `/tmp/scout-platform-data` | 只在沒有設定試算表時才用得到的暫存位置 |
 
-改了環境變數要 **Redeploy** 一次（Deployments → … → Redeploy）才會生效。
+**TZ** 已在 `api/index.py` 固定為 `Asia/Hong_Kong`，日期與「今日」都以香港時間計。
 
-## 資料會否保存？
+## 4. 資料放在 Google 試算表（正式版的資料庫）
 
-**預設（本機 JSON 驅動）**：不會。Vercel 的檔案系統是唯讀的，只有 `/tmp` 可以寫；
-`/tmp` 是每個執行個體自己的，一段時間沒有流量就會被回收，之後示範資料會重新建立。
-用來「打開看看、玩一局、試領袖後台」完全足夠，但不適合給多位童軍同時長期使用。
+1. 開一個新的 Google 試算表（名稱例如「82旅童軍進度」）。
+2. 到 <https://console.cloud.google.com>：建立專案 → 啟用 **Google Sheets API** 與 **Google Drive API**
+   → **IAM 與管理 → 服務帳戶** → 建立服務帳戶 → 建立**金鑰（JSON）**。
+3. 把試算表**共用**給服務帳戶的電郵（`…@….iam.gserviceaccount.com`），權限「編輯者」；
+   相片用的雲端硬碟資料夾亦一樣共用。
+4. 把 JSON 金鑰內容貼進 Vercel 的 `GOOGLE_SERVICE_ACCOUNT_JSON`，並填 `GOOGLE_SHEET_ID`。
+5. Redeploy。第一次連上時，程式會在試算表建立所有工作表（一行一筆資料），之後就可以用。
 
-**要真正保存進度**：讓平台把資料寫進 Google 試算表（這個專案本來就支援）：
+詳細圖文步驟見 `docs/02-google-sheets-setup.md`。
 
-| 名稱 | 值 |
-| --- | --- |
-| `DATA_DRIVER` | `sheets` |
-| `GOOGLE_SHEET_ID` | 試算表 ID（網址中 `/d/` 之後那一段） |
-| `GOOGLE_DRIVE_FOLDER_ID` | 放童軍證據相片的雲端硬碟資料夾 ID（可留空） |
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | 服務帳戶金鑰的**整段 JSON**（貼在值欄；或用 `GOOGLE_SERVICE_ACCOUNT_FILE` 指向檔案） |
+> **沒有試算表會怎樣？** 平台仍可運作，但資料寫在執行個體的 `/tmp`，
+> 一段時間沒有流量就回收 → 帳戶與進度回到空白。領袖後台 → **設定** 會顯示
+> 「⚠️ 資料暫存中」的提醒，看到這個提示就代表還未接上試算表。
 
-設定步驟見 `docs/02-google-sheets-setup.md`（把試算表與資料夾分享給服務帳戶的電郵即可）。
-設定好之後，帳戶、進度、積分、相片都會跨裝置保存，Vercel 只是跑程式的地方。
-
-## 測試站上有甚麼
-
-- `/`（`public/index.html`）：測試站首頁，一按即用示範帳號登入，另有離線試玩入口。
-- `/welcome`：真正的登入頁；`/login/demo/demo1`、`/login/demo/demo2` 直接登入示範帳號。
-- `/tasks/<id>/cave` 遊戲 1（山洞）、`/tasks/<id>/bridge` 遊戲 2（迷霧渡口）。
-- `/demo-preview.html`、`/bridge-preview.html`：離線單檔試玩（同一個部署的靜態檔）。
-- `docs/`、`tests/`、`tools/`、截圖 **不會**上載到 Vercel（`.vercelignore`），
-  亦不會經網址取用；`data/db/*.json` 只在函式內部使用，靜態輸出目錄是 `public/`，
-  所以帳戶資料不會被公開下載。
-
-## 每次更新的流程
+## 5. 每次更新的流程
 
 ```bash
 cd scout-platform-py
-GITHUB_TOKEN=github_pat_xxx bash tools/push.sh "改了甚麼"
+GITHUB_TOKEN=github_pat_xxx bash tools/push.sh "這次改了甚麼"
 ```
 
-推送完成後 Vercel 會自動建置新版本（Deployments 頁面可以看到進度，約 30–60 秒）。
-`GITHUB_TOKEN` 需要該 repository 的 **Contents: Read and write**；用完可以即時撤銷。
+推送 `main` 之後，Vercel 約 30–60 秒自動建置新版本（Deployments 頁可看進度）。
+Token 只需要這個 repository 的 **Contents: Read and write**，用完可以即時撤銷。
 
-## 如果 Vercel 失敗
+## 6. 上線前檢查清單
 
-- **Build 失敗**：多數是 `requirements.txt` 或 `vercel.json` 被改壞；在 Vercel 的 Build Logs 看最後十行即可。
-- **網站 500（Function Error）**：到 Vercel → Project → Logs，看 `api/index` 的錯誤訊息；
-  最常見是 `SESSION_SECRET` 未設定，或 `includeFiles` 漏了 `templates/`、`content/`。
-- **玩了很久之後回到登入頁**：執行個體被回收（正常），重新登入即可；要避免就設定 Sheets 儲存。
+- [ ] repository 已設為 **Private**（GitHub → Settings → General → 最底 Danger Zone）
+- [ ] Vercel 已加 `SESSION_SECRET`、`GOOGLE_SHEET_ID`、`GOOGLE_SERVICE_ACCOUNT_JSON`
+- [ ] 已建立第一位領袖，並且用領袖代碼登入過一次
+- [ ] 領袖後台 → 設定，**沒有**看到「資料暫存中」警告
+- [ ] 已建立至少一個童軍帳戶，實際玩過遊戲 1 與遊戲 2
+- [ ] 領袖後台 → 設定 → SMTP，用「試寄一封」確認找回密碼的郵件真的出得去（`docs/03-email-setup.md`）
+- [ ] 已把網址發給童軍（可連同 `demo-preview.html` 離線檔一起）
+
+## 7. 疑難排解
+
+| 情況 | 處理 |
+| --- | --- |
+| 網站 500（Function Error） | Vercel → Project → Logs 看 `api/index` 的訊息；最常見是 `templates/`、`content/` 沒有被 `includeFiles` 帶上，或 Google 金鑰貼錯 |
+| 玩了很久之後回到登入頁 | 執行個體被回收、資料回到示範狀態 → 未接上試算表；按第 4 節設定 |
+| 童軍上載相片失敗 | 未設 `GOOGLE_DRIVE_FOLDER_ID`，或資料夾未共用給服務帳戶 |
+| 忘記領袖密碼 | 有電郵的帳戶可用「忘記密碼」；否則在另一個已登入的領袖帳戶 → 帳戶 → 重設密碼 |
+| 想換網址 | Settings → Domains 綁自己的網域；更新後記得在領袖設定填回正確網址 |

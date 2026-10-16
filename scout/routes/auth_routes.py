@@ -83,15 +83,75 @@ def _in_scene_order(patrols: list[dict]) -> list[dict]:
 
 # ── the front door ──────────────────────────────────────────────────────────
 
+USERNAME_RE = __import__("re").compile(r"^[a-z0-9][a-z0-9_.\-]{2,31}$")
+
+
 @auth_routes.get("/")
 def root():
     user = g.get("user")
     return redirect(home_for(user))
 
 
+@auth_routes.get("/setup")
+def setup():
+    """第一次開啟：還沒有任何領袖帳戶時，先建立第一位領袖。
+
+    正式上線的資料庫是空的（示範帳戶不會自動產生），所以這是唯一不用登入
+    就可以建立帳戶的入口；一旦有領袖，這一頁就自動收起，改為轉去登入頁。
+    """
+    st = store()
+    if not st.needs_setup():
+        return redirect(home_for(g.get("user")) if g.get("user") else url_for("auth_routes.login"))
+    defaults = st.settings_cached()
+    return render_template("auth/setup.html", form={
+        "unit_zh": defaults.get("unit_name_zh") or "港島第八十二旅童軍團",
+        "unit_en": defaults.get("unit_name_en") or "Sample Scout Group",
+        "name_zh": "", "name_en": "", "username": "leader1",
+    })
+
+
+@auth_routes.post("/setup")
+def setup_create():
+    st = store()
+    if not st.needs_setup():
+        return redirect(url_for("auth_routes.login"))
+    form = request.form
+    values = {key: (form.get(key) or "").strip() for key in
+              ("unit_zh", "unit_en", "name_zh", "name_en", "username")}
+    password = form.get("password") or ""
+    password2 = form.get("password2") or ""
+
+    def back(zh, en):
+        return render_template("auth/setup.html", form={**values, "password": ""},
+                               error_zh=zh, error_en=en), 400
+
+    if not values["name_zh"]:
+        return back("請填領袖姓名。", "Please enter the leader's name.")
+    username = values["username"].lower()
+    if not USERNAME_RE.match(username):
+        return back("登入帳號請用小寫英文字母、數字、底線或橫線，3–32 個字。",
+                    "The sign-in name uses lower-case letters, digits, _ or -, 3–32 characters.")
+    if len(password) < 6:
+        return back("密碼至少 6 個字。", "The password needs at least 6 characters.")
+    if password != password2:
+        return back("兩次輸入的密碼不相同。", "The two passwords do not match.")
+
+    leader = st.create_first_leader(
+        username=username, password=password,
+        display_name_zh=values["name_zh"], display_name_en=values["name_en"],
+        unit=values["unit_zh"])
+    if values["unit_en"]:
+        st.save_setting("unit_name_en", values["unit_en"])
+    token, _ = sign_in(st, leader, request)
+    audit(leader, "first_leader_created", "users", leader["id"], {"username": username})
+    return _set_session_cookie(redirect(url_for("leader_routes.overview")), token)
+
+
 @auth_routes.get("/login")
 def login():
     st = store()
+    if st.needs_setup():
+        return redirect(url_for("auth_routes.setup"))
     settings = st.settings_cached()
     if g.get("user"):
         return redirect(home_for(g.user))
@@ -117,6 +177,8 @@ def leader_login_page():
     though the code was never asked for. The card then offers the console and
     a sign-out button, which is also the way to test the code again.
     """
+    if store().needs_setup():
+        return redirect(url_for("auth_routes.setup"))
     if g.get("user") and g.user.get("role") == "leader":
         return render_template("auth/leader_login.html", already=public_user(g.user), username="")
     if g.get("user"):
