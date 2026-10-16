@@ -20,7 +20,7 @@ import os
 
 from datetime import datetime
 
-from flask import Flask, abort, g, redirect, request, session, url_for
+from flask import render_template, Flask, abort, g, redirect, request, session, url_for
 
 APP_BUILD = datetime.now().strftime('%Y-%m-%d %H:%M')
 
@@ -33,6 +33,33 @@ from scout.routes.auth_routes import auth_routes
 from scout.routes.leader_routes import leader_routes
 from scout.routes.scout_routes import scout_routes
 
+
+
+def setup_health_checks(store, counts: dict, on_sheets: bool) -> list[dict]:
+    """健康檢查頁上的幾行：每一行都說「現在怎樣」和「怎樣做」。"""
+    badge_count = counts.get("badges", 0)
+    task_count = counts.get("tasks", 0)
+    return [
+        {
+            "ok": on_sheets,
+            "title": "資料儲存在 Google 試算表" if on_sheets else "資料暫存在執行個體空間",
+            "detail": ("帳戶、進度、積分都存在你的試算表，重新部署不會影響。"
+                       if on_sheets else
+                       "現在寫在執行個體的 /tmp，一段時間沒有流量就會被回收 —— 帳戶與進度會消失。"),
+            "fix": ("", "在 Vercel → Settings → Environment Variables 加入 GOOGLE_SHEET_ID 與 "
+                        "GOOGLE_SERVICE_ACCOUNT_JSON，然後到 Deployments → ⋯ → Redeploy。"),
+        },
+        {
+            "ok": badge_count >= 5 and task_count >= 11,
+            "title": "獎章目錄與遊戲項目" if badge_count >= 5 and task_count >= 11
+                     else "獎章目錄還未建立",
+            "detail": f"獎章 {badge_count}／任務 {task_count}。"
+                      + ("已完成，之後不會被更新覆蓋。" if badge_count >= 5 else
+                         "連上試算表後，第一次開啟會自動建立一次。"),
+            "fix": ("", "確認 Vercel 正在執行最新版本（Deployments → Redeploy），"
+                        "再重新打開平台一次。"),
+        },
+    ]
 
 def create_app(config: dict | None = None) -> Flask:
     app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -160,14 +187,18 @@ def create_app(config: dict | None = None) -> Flask:
 
     @app.get("/health")
     def health():
-        """部署是否就緒 —— 供上線檢查用（只回報數字，不含任何個人資料）。"""
+        """部署是否就緒 —— 供上線檢查用（只回報數字，不含任何個人資料）。
+
+        用瀏覽器打開會看到一張人看的狀態頁；程式（curl、檢查腳本）拿到的是 JSON。
+        """
         counts: dict[str, int] = {}
         for name in ("badges", "tasks", "users"):
             try:
                 counts[name] = len(store.list(name))
             except Exception:                       # noqa: BLE001 — health must never 500
                 counts[name] = -1
-        return {
+        on_sheets = store.driver.name == "sheets"
+        payload = {
             "ok": True,
             "storage": store.driver.name,
             "unit": store.settings_cached().get("unit_name_zh", ""),
@@ -175,6 +206,11 @@ def create_app(config: dict | None = None) -> Flask:
             "counts": counts,
             "setup_ready": counts.get("badges", 0) >= 5 and counts.get("tasks", 0) >= 11,
         }
+        # 人在瀏覽器打開（Accept: text/html）就給他一張看得懂的頁；程式仍然拿 JSON
+        if request.accept_mimetypes["text/html"]:
+            return render_template("health.html", data=payload, on_sheets=on_sheets,
+                                   setup=setup_health_checks(store, counts, on_sheets))
+        return payload
 
     @app.get("/img/badges/<path:filename>")
     def badge_art(filename: str):
