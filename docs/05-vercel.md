@@ -107,4 +107,6 @@ Token 只需要這個 repository 的 **Contents: Read and write**，用完可以
 - 領袖改過的任何內容、童軍的進度與積分，全部留在試算表，Redeploy 後照樣在。
 - 自動測試 `tests/test_redeploy_keeps_data.py` 已模擬「推送＋重新部署」整段流程並通過。
 - 詳見 `docs/02-google-sheets-setup.md`「推送新版本會不會洗掉資料？」。
+- 完整的安全更新流程（更新前備份、更新後比對、一鍵回舊版）：`docs/06-safe-updates.md`；
+  存檔工具：`python3 tools/backup_sheet.py`（只讀試算表，存到 `backups/`）。
 

@@ -329,3 +329,4 @@ GOOGLE_SERVICE_ACCOUNT_FILE=./service-account.json
 
 獎章圖片取自香港童軍總會《童軍訓練綱要》
 <https://scoutsinfohub.org.hk/scout-training-scheme>，供本旅團內部使用。
+- **更新平台前後**：[`docs/06-safe-updates.md`](docs/06-safe-updates.md) —— 推送新版本不會動到試算表資料，附存檔工具 `tools/backup_sheet.py`。
