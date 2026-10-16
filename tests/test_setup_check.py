@@ -123,6 +123,10 @@ def test_the_health_page_is_readable_in_a_browser_and_still_json_for_machines():
     json_body = client.get("/health").get_json()          # 檢查腳本／curl
     assert json_body["counts"]["badges"] == 5
 
+    # 檢查腳本（curl、urllib）拿到的是 JSON，不是 HTML
+    assert client.get("/health", headers={"Accept": "*/*"}).get_json()["ok"] is True
+    assert client.get("/health", headers={"Accept": "application/json"}).get_json()["ok"] is True
+
     page = client.get("/health", headers={"Accept": "text/html"}).get_data(as_text=True)
     assert "平台狀態" in page
     assert "資料儲存在 Google 試算表" in page
