@@ -87,6 +87,7 @@ Token 只需要這個 repository 的 **Contents: Read and write**，用完可以
 - [ ] repository 已設為 **Private**（GitHub → Settings → General → 最底 Danger Zone）
 - [ ] Vercel 已加 `SESSION_SECRET`、`GOOGLE_SHEET_ID`、`GOOGLE_SERVICE_ACCOUNT_JSON`
 - [ ] 已建立第一位領袖，並且用領袖代碼登入過一次
+- [ ] 領袖後台 → 設定 → **🧭 設定檢查** 卡顯示「全部就緒」（7 項之中，寄信信箱為可選）
 - [ ] 領袖後台 → 設定，**沒有**看到「資料暫存中」警告
 - [ ] 已建立至少一個童軍帳戶，實際玩過遊戲 1 與遊戲 2
 - [ ] 領袖後台 → 設定 → SMTP，用「試寄一封」確認找回密碼的郵件真的出得去（`docs/03-email-setup.md`）

@@ -160,7 +160,21 @@ def create_app(config: dict | None = None) -> Flask:
 
     @app.get("/health")
     def health():
-        return {"ok": True, "storage": store.driver.name, "unit": store.settings_cached().get("unit_name_zh", "")}
+        """部署是否就緒 —— 供上線檢查用（只回報數字，不含任何個人資料）。"""
+        counts: dict[str, int] = {}
+        for name in ("badges", "tasks", "users"):
+            try:
+                counts[name] = len(store.list(name))
+            except Exception:                       # noqa: BLE001 — health must never 500
+                counts[name] = -1
+        return {
+            "ok": True,
+            "storage": store.driver.name,
+            "unit": store.settings_cached().get("unit_name_zh", ""),
+            "demo": bool(store.config.get("demo_login") or store.config.get("seed_demo")),
+            "counts": counts,
+            "setup_ready": counts.get("badges", 0) >= 5 and counts.get("tasks", 0) >= 11,
+        }
 
     @app.get("/img/badges/<path:filename>")
     def badge_art(filename: str):
