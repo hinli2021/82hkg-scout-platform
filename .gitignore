@@ -13,8 +13,18 @@ data/db/*.tmp
 data/uploads/*
 !data/uploads/.gitkeep
 
-# 介面截圖：留在工作區不入庫（檢查腳本可隨時重拍）---------------------------
-docs/screens/
+# 介面截圖：PNG 存到 GitHub 的 screenshots 分支（用 API 上載，不佔本機空間）；
+# 本機只保留最新幾張，檢查腳本可隨時重拍。
+docs/screens/*.png
+
+# Vercel 建置時產生的靜態輸出（public/index.html 例外，它是首頁）
+public/static/
+public/demo-preview.html
+public/bridge-preview.html
+public/login-preview.html
+public/welcome-preview.html
+.vercel
+
 
 # 秘密：工作階段的登入憑證永不提交 ---------------------------------------
 data/db/sessions.json

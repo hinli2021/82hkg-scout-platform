@@ -2,10 +2,23 @@
 
 **現況：已放上 https://github.com/hinli2021/82hkg-scout-platform（私人 repository）**
 - 第一次上載：2026-10-16，163 個檔案、一次提交（commit `821d44e`）。
-- 未上載：`docs/screens/`（截圖，留在工作區）、`data/db/sessions.json`（登入憑證，程式自動重建）、
-  `data/uploads/`（童軍相片）。
-- 日後更新：把新檔案覆蓋到本機同一個資料夾，`git add -A && git commit -m "說明" && git push`；
-  或請平台代推（需要有效的 GitHub token，用完即撤銷）。
+- 未上載：`data/db/sessions.json`（登入憑證，程式自動重建）、`data/uploads/`（童軍相片）。
+- **110 張介面截圖**存放在同一個 repository 的另一個分支 **`screenshots`**
+  （壓縮版，22 MB），不佔用本機空間：
+  `https://github.com/hinli2021/82hkg-scout-platform/tree/screenshots/docs/screens`
+- 本機 `docs/screens/` 只保留最新 12 張（壓縮版），PNG 不入版控，重拍不會弄髒 `git status`；
+  檢查腳本隨時可以重拍任何一張。
+
+## 每次改動之後推送
+
+```bash
+GITHUB_TOKEN=github_pat_xxx bash tools/push.sh "這次改了甚麼"
+```
+
+推送 `main` 之後，Vercel 會自動重新部署測試站（見 `docs/05-vercel.md`）。
+token 只需要**這一個 repository** 的 **Contents: Read and write**；用完可以即時撤銷。
+若把 token 寫入 `~/.82hkg-github-token`（在 repository 之外，不入版控），
+`tools/push.sh` 就會自動讀取，之後不必每次貼上。
 
 整個計劃就是 `scout-platform-py` 這一個資料夾。放上 GitHub 之後，每次改動都有一個記錄，
 換電腦、換領袖接手，都可以由同一個地方取回完整檔案。

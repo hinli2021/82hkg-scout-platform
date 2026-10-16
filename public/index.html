@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>港島第八十二旅童軍團 · 童軍進度平台（測試站）</title>
+<style>
+  :root { --ink:#12261c; --green:#1c5a3c; --deep:#0d2b1d; --gold:#d9a441; --cream:#f7f2e6; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Noto Sans TC", "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
+         background: radial-gradient(120% 90% at 50% 0%, #1b3f2c 0%, #0d2b1d 60%, #081a12 100%);
+         color: var(--cream); min-height: 100vh; padding: 2rem 1rem 3rem; }
+  .wrap { max-width: 44rem; margin: 0 auto; }
+  .crest { display:flex; align-items:center; gap:.7rem; margin-bottom:1.2rem; }
+  .crest .mark { width:2.6rem; height:2.6rem; border-radius:.6rem; display:grid; place-items:center;
+                 background:linear-gradient(180deg,#e8c37a,#c9903a); color:#2b1d0c; font-weight:900; }
+  h1 { font-size:1.5rem; margin:.2rem 0 .3rem; letter-spacing:.02em; }
+  p.lead { margin:0 0 1.4rem; color:#cfe0cf; line-height:1.6; }
+  .card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.14);
+          border-radius:.9rem; padding:1rem 1.1rem; margin:0 0 1rem; }
+  .card h2 { font-size:1.02rem; margin:0 0 .5rem; color:#ffe4a8; }
+  .card p { margin:.2rem 0 .8rem; color:#d8e4d2; font-size:.92rem; line-height:1.55; }
+  .row { display:flex; flex-wrap:wrap; gap:.5rem; }
+  .btn { font:inherit; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block;
+         padding:.55rem .9rem; border-radius:.55rem; border:1px solid #6f4e28; color:#2b1d0c;
+         background:linear-gradient(180deg,#e2b877,#c3904f); box-shadow:0 2px 0 #6f4e28; }
+  .btn.ghost { background:rgba(255,255,255,.08); color:#f7f2e6; border-color:rgba(255,255,255,.3); box-shadow:none; }
+  .btn.primary { background:linear-gradient(180deg,#3f9a68,#256b45); color:#f7f2e6; border-color:#17472e; box-shadow:0 2px 0 #17472e; }
+  .note { font-size:.85rem; color:#bcd0bd; line-height:1.6; }
+  code { background:rgba(0,0,0,.3); padding:.1rem .35rem; border-radius:.3rem; font-size:.85em; }
+  footer { margin-top:1.4rem; font-size:.8rem; color:#9fb6a1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crest">
+    <span class="mark">82</span>
+    <div>
+      <strong>港島第八十二旅童軍團</strong><br>
+      <span class="note">童軍進度平台 · 測試站（Vercel）</span>
+    </div>
+  </div>
+
+  <h1>會員章五個遊戲，可以在這裡試玩</h1>
+  <p class="lead">這個測試站由 GitHub 自動部署：每次推送新版本，Vercel 會重新建置。
+     <strong>測試站的資料放在暫存空間</strong>，過一段時間沒有流量就會回到示範狀態（見下方說明）。</p>
+
+  <div class="card">
+    <h2>一、直接進入平台（示範帳號，一按即登入）</h2>
+    <p>領袖後台需要領袖代碼；童軍帳號已有部分進度，可直接玩遊戲 1 與遊戲 2。</p>
+    <div class="row">
+      <form method="post" action="/login/demo/demo2" style="margin:0">
+        <button class="btn primary" type="submit">🎮 以童軍身分進入（吳卓穎）</button>
+      </form>
+      <form method="post" action="/login/demo/demo1" style="margin:0">
+        <button class="btn" type="submit">🧑‍🏫 以領袖身分進入（陳領袖）</button>
+      </form>
+      <a class="btn ghost" href="/welcome">登入頁（自行輸入）</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>二、離線單檔試玩（不需要登入、不需要伺服器）</h2>
+    <p>整個旅程與兩個遊戲都內嵌在一個 HTML 檔裡，地鐵上、沒有網絡也玩得到。</p>
+    <div class="row">
+      <a class="btn" href="/demo-preview.html">完整旅程 demo-preview.html</a>
+      <a class="btn" href="/bridge-preview.html">遊戲 2 · 迷霧渡口</a>
+      <a class="btn ghost" href="/welcome-preview.html">第一次登入的畫面</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>三、測試站要知道的事</h2>
+    <p class="note">
+      · 帳戶、進度與積分寫在 Vercel 的暫存空間（<code>/tmp</code>）。同一次瀏覽一切正常；
+        但伺服器一段時間沒有流量就會回收，資料回到示範狀態。<br>
+      · 要讓進度真正保存，領袖可在 Vercel 加入 <code>DATA_DRIVER=sheets</code> 與 Google 服務帳戶設定
+        （<code>docs/02-google-sheets-setup.md</code>），資料就存進 Google 試算表。<br>
+      · 童軍相片上載（證據）需要雲端硬碟，暫存空間不支援。
+    </p>
+  </div>
+
+  <footer>港島第八十二旅童軍團 · 童軍進度平台 ｜ 測試站，資料屬示範性質，請勿輸入真實個人資料。</footer>
+</div>
+</body>
+</html>
