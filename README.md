@@ -37,6 +37,7 @@ live server; the offline file shows a clickable leader-home sample.
 | `tools/checks/check_offline.py` | 離線先走第一次登入的必填表單（重複密碼、長度、電郵四種錯誤＋繞路全部擋下），再走完四段壁畫和 50 題（包括死路），按實際選項算分，返回地圖見 1/5；檢查主頁出口、領袖代碼與 0 個外部請求 |
 | `tools/checks/check_cave.py` | 實機版山洞：中文全程、一次錯路、伺服器評分與錯題回顧；示範童軍進度在檢查後還原 |
 | `tools/checks/check_bridge.py` | 實機版**迷霧渡口**（遊戲 2）：三關教學牌、錯板重講、鋪滿過橋、伺服器記錄與會員章進度；跑完用 `demo_reset.blank_game` 還原示範童軍 |
+| `tools/check_sheets.py` | 部署前先驗 Google 試算表：環境變數、金鑰、建立分頁、讀寫與相片上載，逐項報錯並印 `ALL GOOD` |
 | `tools/push.sh` | 把改動提交並推送 GitHub（Vercel 隨自動部署）：`GITHUB_TOKEN=… bash tools/push.sh "說明"`；token 也可放入 `~/.82hkg-github-token` |
 | `tools/bridge_preview.py` | 產生 `bridge-preview.html`：只含遊戲 2 的單檔離線試玩（不需要先過山洞），供領袖試玩及截圖 |
 | `tools/checks/check_cave_editor.py` | 領袖代碼登入、四壁 50 題編輯入口、答案欄位、英語切換和手機版；不更動題庫 |

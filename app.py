@@ -68,6 +68,9 @@ def create_app(config: dict | None = None) -> Flask:
             "user": public_user(g.get("user")),
             "raw_user": g.get("user"),
             "storage_mode": store.driver.name,
+            # 領袖後台要知道資料放在哪裡：試算表模式顯示連結，暫存模式顯示警告
+            "storage_sheet_id": getattr(store.driver, "spreadsheet_id", ""),
+            "storage_drive_folder": getattr(store.driver, "drive_folder_id", ""),
             # 正式上線時，若資料只寫在暫存空間，領袖後台要提醒（會自己重置）
             "ephemeral_storage": (store.driver.name == "local"
                                   and str(store.config.get("data_dir", "")).startswith("/tmp")),

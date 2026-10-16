@@ -313,3 +313,48 @@ def test_local_driver_still_caches_when_the_file_is_untouched(tmp_path):
     driver.insert("users", {"id": "u1", "role": "scout", "username": "a"})
     first = driver._read("users")
     assert driver._read("users") is first          # same object: no re-read
+
+# ── the whole platform on a Sheet: first run, then the leader console ──────
+
+def test_a_fresh_sheet_asks_for_the_first_leader_and_then_stores_everything(fake):
+    """正式上線的完整路徑：空試算表 → 建立第一位領袖 → 資料寫在試算表裡。
+
+    沒有任何示範帳戶（DEMO_LOGIN / SEED_DEMO 都關），所以第一次開啟一定是
+    「建立第一位領袖」；建立之後領袖後台要顯示資料存放的位置，而不是暫存警告。
+    """
+    import pathlib as _pathlib
+    import sys
+
+    sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent))
+    from app import create_app                                      # noqa: E402
+    from scout.store import Store                                   # noqa: E402
+
+    driver = SheetsDriver("sheet-123", {"client_email": "svc@example.iam.gserviceaccount.com",
+                                        "private_key": "x", "project_id": "p"})
+    driver._api = fake.api
+    store = Store(driver=driver, config={"demo_login": False, "seed_demo": False,
+                                         "data_dir": "/tmp"})
+    driver.ensure_schema()
+
+    client = create_app({"STORE": store, "TESTING": True,
+                         "SECRET_KEY": "t"}).test_client()
+
+    first = client.get("/", follow_redirects=True)
+    body = first.get_data(as_text=True)
+    assert first.status_code == 200 and "建立第一位領袖" in body
+    assert "示範帳戶" not in body, "正式站不應出現示範帳戶"
+
+    made = client.post("/setup", data={
+        "unit_zh": "港島第八十二旅童軍團", "name_zh": "陳大文",
+        "username": "leader1", "password": "harbour-82", "password2": "harbour-82",
+    }, follow_redirects=False)
+    assert made.status_code == 302 and "/leader" in made.headers["Location"]
+
+    # 資料真的在試算表：users 分頁有領袖那一列
+    users_tab = [row for row in (fake.tabs.get("users") or [])]
+    assert any("leader1" in json.dumps(row, ensure_ascii=False) for row in users_tab)
+
+    settings = client.get("/leader/settings").get_data(as_text=True)
+    assert "資料存放於 Google 試算表" in settings
+    assert "docs.google.com/spreadsheets/d/sheet-123/edit" in settings
+    assert "資料暫存中" not in settings, "接了試算表就不應再顯示暫存警告"

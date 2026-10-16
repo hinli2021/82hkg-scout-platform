@@ -130,6 +130,32 @@
           <p class="small muted">{{ L('資料即時寫入你的 Google 試算表，相片存到你的 Drive 資料夾。', 'Data is written straight into your Google Sheet; photos go to your Drive folder.') }}</p>
         {% endif %}
       </div>
+      {% if storage_mode == 'sheets' %}
+      <div class="card" style="margin-top:1rem; border-color:#2f7d4f">
+        <h3 style="margin-top:0">✅ {{ L('資料存放於 Google 試算表', 'Data lives in your Google Sheet') }}</h3>
+        <p class="small">
+          {{ L('帳戶、進度、積分都寫在你的試算表裡 —— 任何裝置、任何人登入都會看到同一份資料，Vercel 重新部署也不會失去進度。',
+               'Accounts, progress and points are written to your own spreadsheet — every device and every sign-in sees the same data, and a redeploy cannot lose it.') }}
+        </p>
+        {% if storage_sheet_id %}
+        <p class="small">
+          {{ L('試算表', 'Spreadsheet') }}:
+          <a href="https://docs.google.com/spreadsheets/d/{{ storage_sheet_id }}/edit" target="_blank" rel="noopener">
+            {{ storage_sheet_id[:14] }}…{{ storage_sheet_id[-4:] }} ↗
+          </a>
+        </p>
+        {% endif %}
+        <p class="small muted">
+          {{ L('童軍上載的相片存放在 Google Drive', 'Scout photo uploads go to Google Drive') }}:
+          {% if storage_drive_folder %}
+            <code>{{ storage_drive_folder[:14] }}…{{ storage_drive_folder[-4:] }}</code>
+          {% else %}
+            {{ L('未設定資料夾，相片會放在服務帳戶自己的 Drive；建議設定 GOOGLE_DRIVE_FOLDER_ID。',
+                 'No folder set — photos land in the service account’s own Drive; set GOOGLE_DRIVE_FOLDER_ID to choose one.') }}
+          {% endif %}
+        </p>
+      </div>
+      {% endif %}
       {% if ephemeral_storage %}
       <div class="card" style="margin-top:1rem; border-color:#a8722c">
         <h3 style="margin-top:0">⚠️ {{ L('資料暫存中，會自己重置', 'Storage is temporary — it resets itself') }}</h3>
