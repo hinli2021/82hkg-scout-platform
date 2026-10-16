@@ -216,6 +216,8 @@ def create_app(config: dict | None = None) -> Flask:
             "setup_ready": counts.get("badges", 0) >= 5 and counts.get("tasks", 0) >= 11,
             # 連不上試算表時的「人話」原因（不含金鑰、不含電郵），方便遠端診斷
             "storage_reason": storage_advice(store.config.get("storage_error", ""))[0][:160],
+            # 目錄建立失敗時的原因（有值代表獎章／任務沒有建立成功）
+            "catalog_error": str(store.config.get("catalog_error", ""))[:200],
         }
         # 人在瀏覽器打開（Accept 明確寫了 text/html）就給他一張看得懂的頁；
         # curl／檢查腳本（Accept: */* 或沒有 Accept）仍然拿到 JSON。
