@@ -1,5 +1,12 @@
 # 放上 GitHub（備份與版本記錄）
 
+**現況：已放上 https://github.com/hinli2021/82hkg-scout-platform（私人 repository）**
+- 第一次上載：2026-10-16，163 個檔案、一次提交（commit `821d44e`）。
+- 未上載：`docs/screens/`（截圖，留在工作區）、`data/db/sessions.json`（登入憑證，程式自動重建）、
+  `data/uploads/`（童軍相片）。
+- 日後更新：把新檔案覆蓋到本機同一個資料夾，`git add -A && git commit -m "說明" && git push`；
+  或請平台代推（需要有效的 GitHub token，用完即撤銷）。
+
 整個計劃就是 `scout-platform-py` 這一個資料夾。放上 GitHub 之後，每次改動都有一個記錄，
 換電腦、換領袖接手，都可以由同一個地方取回完整檔案。
 
