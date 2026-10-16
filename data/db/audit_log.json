@@ -4638,5 +4638,55 @@
     "detail_json": "{\"status\": \"completed\", \"score\": 78}",
     "created_at": "2026-10-16T02:03:38.362Z",
     "id": "0d1113ceee9dcbab"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T02:31:16.282Z",
+    "id": "d764d5d2b559391b"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T02:31:36.583Z",
+    "id": "ee225c72b4f9348c"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T02:33:03.772Z",
+    "id": "3f06848639c3a0e4"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T02:33:16.377Z",
+    "id": "39465a7c877dd4a0"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T02:34:42.976Z",
+    "id": "33f8ccb2ce4fecb2"
   }
 ]

@@ -9,6 +9,42 @@
   <span class="chip light">{{ L('儲存於', 'Storage') }}: {{ storage_mode }}</span>
 </div>
 
+<div class="card" style="margin-bottom:1rem" data-setup-check>
+  <h3 style="margin-top:0">🧭 {{ L('設定檢查', 'Setup check') }}</h3>
+  {% if setup.ready %}
+    <p class="small" style="margin:.2rem 0 .6rem;color:var(--green-700)">
+      <strong>✅ {{ L('全部就緒 —— 可以開始使用，也可以把網址發給童軍。', 'All set — you can start using the platform and send the link to your scouts.') }}</strong>
+    </p>
+  {% else %}
+    <p class="small" style="margin:.2rem 0 .6rem;color:#a15c00">
+      <strong>⚠️ {{ L('還有', 'Still') }} {{ setup.pending }} {{ L('項要處理（見下面的說明）', 'item(s) to fix — details below') }}</strong>
+    </p>
+  {% endif %}
+  <table class="table small" style="width:100%">
+    <tbody>
+    {% for item in setup.checks %}
+      <tr>
+        <td style="width:2.2rem">
+          {% if item.ok %}<span class="chip ok">{{ L('完成', 'done') }}</span>
+          {% else %}<span class="chip warn">{{ L('待處理', 'todo') }}</span>{% endif %}
+        </td>
+        <td>
+          <div>{{ L(item.zh, item.en) }}{% if item.optional %} <span class="muted">（{{ L('可選', 'optional') }}）</span>{% endif %}</div>
+          <div class="muted">{{ L(item.detail_zh, item.detail_en) }}</div>
+          {% if not item.ok and item.fix_zh %}
+            <div class="muted">↳ {{ L('怎樣做：', 'How to fix:') }}{{ L(item.fix_zh, item.fix_en) }}</div>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="small muted" style="margin:.6rem 0 0">
+    {{ L('這張卡只是檢查，不會改動任何資料。獎章目錄只會在第一次連上空試算表時建立一次，之後任何更新都不會覆寫你在後台改過的內容。',
+         'This card only reads — it changes nothing. The badge catalogue is created once on the first connection, and later updates never overwrite what you edited.') }}
+  </p>
+</div>
+
 <form method="post" action="{{ url_for('leader_routes.save_settings') }}">
   <input type="hidden" name="switches" value="1">
   <div class="console-split">

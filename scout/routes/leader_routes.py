@@ -1083,6 +1083,93 @@ def adjust_points():
     return _done("已調整積分", "Points adjusted", "leader_routes.accounts")
 
 
+# ══ 上線檢查（只讀：一眼看到設定是否齊全）═════════════════════════════════
+
+def _game_content(tasks: list[dict]) -> dict[str, bool]:
+    """遊戲內容是否就緒。
+
+    遊戲的內容（洞穴壁畫、過河木板）隨程式提供，放在
+    `content/member-badge/cave.json` 與 `river.json`；任務分頁則負責讓童軍
+    找得到入口。所以兩邊都要有：內容檔案讀得到，對應的任務（第 4、5 項）也在。
+    """
+    from ..content import cave_adventure, river_adventure
+
+    def load(loader):
+        try:
+            return loader() or {}
+        except Exception:                     # noqa: BLE001 — a broken file is "not ready"
+            return {}
+
+    cave = load(cave_adventure)
+    river = load(river_adventure)
+    codes = {str(task.get("code") or "") for task in tasks}
+    return {
+        "cave": bool(cave.get("groups")) and "M04" in codes,
+        "river": bool(river.get("stages")) and "M05" in codes,
+    }
+
+
+def setup_checks(st) -> dict:
+    """給領袖後台「設定檢查」卡用的清單 —— 只讀，不會改動任何資料。"""
+    settings = st.settings()
+    badges = st.list("badges")
+    tasks = st.list("tasks")
+    users = st.list("users")
+    leaders = [row for row in users if row.get("role") == "leader"]
+    scouts = [row for row in users if row.get("role") == "scout"]
+    games = _game_content(tasks)
+    on_sheets = st.driver.name == "sheets"
+    sheet_id = str(getattr(st.driver, "spreadsheet_id", "") or "")
+    mail_ready = bool(str(settings.get("smtp_host") or "").strip())
+
+    def row(key, ok, zh, en, detail_zh, detail_en, fix_zh="", fix_en="", optional=False):
+        return {"key": key, "ok": bool(ok), "zh": zh, "en": en, "detail_zh": detail_zh,
+                "detail_en": detail_en, "fix_zh": fix_zh, "fix_en": fix_en, "optional": optional}
+
+    checks = [
+        row("storage", on_sheets, "資料儲存在 Google 試算表", "Data lives in the Google Sheet",
+            ("試算表 ID：" + sheet_id[:12] + "…") if on_sheets else "目前寫在執行個體暫存空間，會被回收",
+            ("Spreadsheet ID: " + sheet_id[:12] + "…") if on_sheets else "Currently in the instance /tmp — it will be recycled",
+            "在 Vercel 加入 GOOGLE_SHEET_ID 與 GOOGLE_SERVICE_ACCOUNT_JSON，然後 Redeploy（docs/02）",
+            "Add GOOGLE_SHEET_ID and GOOGLE_SERVICE_ACCOUNT_JSON in Vercel, then Redeploy (docs/02)"),
+        row("badges", len(badges) >= 5, "獎章目錄已經建立", "Badge catalogue created",
+            str(len(badges)) + " 個獎章", str(len(badges)) + " badges",
+            "目錄會在第一次連上空試算表時自動建立；若一直是 0，代表正在執行的版本未含此功能，請部署最新版本",
+            "The catalogue is created once on the first connection; 0 means the running version is out of date — redeploy"),
+        row("tasks", len(tasks) >= 11, "任務與遊戲項目齊全", "Tasks and game items present",
+            str(len(tasks)) + " 個項目", str(len(tasks)) + " items",
+            "部署最新版本；已建立過的目錄不會被覆蓋",
+            "Deploy the latest version; existing rows are never overwritten"),
+        row("games", games["cave"] and games["river"],
+            "遊戲 1（石室）與遊戲 2（過河）已就緒", "Game 1 (cave) and Game 2 (river) ready",
+            ("石室題目與過河木板都已載入" if games["cave"] and games["river"]
+             else "石室：" + ("有" if games["cave"] else "缺") + "，過河：" + ("有" if games["river"] else "缺")),
+            "cave: " + ("yes" if games["cave"] else "missing") + ", river: " + ("yes" if games["river"] else "missing"),
+            "部署最新版本（遊戲內容隨程式提供）",
+            "Deploy the latest version (game content ships with the code)"),
+        row("leaders", len(leaders) >= 1, "領袖帳戶", "Leader account",
+            str(len(leaders)) + " 位領袖", str(len(leaders)) + " leader(s)"),
+        row("scouts", len(scouts) >= 1, "童軍帳戶已經開好", "Scout accounts created",
+            str(len(scouts)) + " 位童軍", str(len(scouts)) + " scout(s)",
+            "領袖後台 → 帳戶 → 開設童軍帳戶",
+            "Leader console → Accounts → Create a scout account"),
+        row("email", mail_ready, "找回密碼的寄信信箱", "Mailbox for password resets",
+            "已設定，可以寄出重設連結" if mail_ready else "未設定；童軍仍可在密碼頁用電郵即時設定新密碼",
+            "Set up — reset links can be sent" if mail_ready else "Not set — scouts fall back to the on-the-spot method",
+            "設定 → 寄信信箱（docs/03-email-setup.md）",
+            "Settings → Mailbox (docs/03-email-setup.md)", optional=True),
+    ]
+    required = [item for item in checks if not item["optional"]]
+    return {
+        "checks": checks,
+        "ready": all(item["ok"] for item in required),
+        "pending": sum(1 for item in required if not item["ok"]),
+        "optional_pending": sum(1 for item in checks if item["optional"] and not item["ok"]),
+        "counts": {"badges": len(badges), "tasks": len(tasks),
+                   "leaders": len(leaders), "scouts": len(scouts)},
+    }
+
+
 # ══ settings ═══════════════════════════════════════════════════════════════
 
 @leader_routes.get("/leader/settings")
@@ -1090,7 +1177,8 @@ def adjust_points():
 def settings_page():
     st = store()
     return render_template("leader/settings.html", current=st.settings(force=True),
-                           defaults=DEFAULT_SETTINGS, mail_result=mailer.LAST_RESULT or None)
+                           defaults=DEFAULT_SETTINGS, mail_result=mailer.LAST_RESULT or None,
+                           setup=setup_checks(st))
 
 
 @leader_routes.post("/leader/settings")
