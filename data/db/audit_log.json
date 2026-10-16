@@ -4688,5 +4688,95 @@
     "detail_json": "{}",
     "created_at": "2026-10-16T02:34:42.976Z",
     "id": "33f8ccb2ce4fecb2"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T09:33:05.822Z",
+    "id": "4c894450bd2ed2a1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T09:33:38.549Z",
+    "id": "261b723fc90cc95f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T09:34:15.874Z",
+    "id": "fc26e34ca98d16b0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T09:34:49.844Z",
+    "id": "b6bc92269894e53e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T09:35:24.101Z",
+    "id": "8455021c7b6d486f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T09:35:53.835Z",
+    "id": "3f6b503052b22ffb"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T09:36:51.984Z",
+    "id": "fbc90e7b6e0909c1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T09:37:02.111Z",
+    "id": "cb6cac75fe1bb734"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T09:37:35.975Z",
+    "id": "01fb7b66a08874da"
   }
 ]
