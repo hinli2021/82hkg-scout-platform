@@ -111,3 +111,20 @@ def test_health_reports_counts_without_any_names():
     assert body["counts"] == {"badges": 5, "tasks": 17, "users": 1}
     assert body["setup_ready"] is True
     assert "陳大文" not in json.dumps(body, ensure_ascii=False), "健康檢查不可以回傳姓名"
+
+
+def test_the_health_page_is_readable_in_a_browser_and_still_json_for_machines():
+    fake = FakeGoogle()
+    store = boot(fake)
+    store.create_first_leader(username="leader1", password="harbour-82", display_name_zh="陳大文")
+    app = create_app({"STORE": store, "TESTING": True, "SECRET_KEY": "t"})
+    client = app.test_client()
+
+    json_body = client.get("/health").get_json()          # 檢查腳本／curl
+    assert json_body["counts"]["badges"] == 5
+
+    page = client.get("/health", headers={"Accept": "text/html"}).get_data(as_text=True)
+    assert "平台狀態" in page
+    assert "資料儲存在 Google 試算表" in page
+    assert "完成" in page
+    assert "陳大文" not in page, "狀態頁不可以顯示任何姓名"

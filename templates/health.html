@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}平台狀態{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">🩺 平台狀態</h1>
+    <p class="muted small" style="margin:0">
+      這個地址（<code>/health</code>）讓你隨時檢查部署是否正常。它只讀，不會改動任何資料。
+    </p>
+  </div>
+  <span class="chip light">{{ data.unit or '（未命名單位）' }}</span>
+</div>
+
+{% set pending = setup | rejectattr('ok') | list | length %}
+<div class="card" style="margin-bottom:1rem;border-left:6px solid {{ '#2e7d32' if pending == 0 else '#c77700' }}">
+  <h3 style="margin-top:0">
+    {% if pending == 0 %}✅ 一切正常 —— 資料安全，可以放心使用。{% else %}⚠️ 有 {{ pending }} 項要處理。{% endif %}
+  </h3>
+  <p class="small muted" style="margin:.2rem 0 0">
+    {% if pending == 0 %}
+      帳戶、進度、積分都寫在你的 Google 試算表；之後更新平台也不會影響。
+    {% else %}
+      照下面每一行的「怎樣做」處理，然後回來按重新整理再看一次。
+    {% endif %}
+  </p>
+</div>
+
+{% for item in setup %}
+  <div class="card" style="margin-bottom:.7rem">
+    <div style="display:flex;gap:.6rem;align-items:baseline">
+      <span class="chip {{ 'ok' if item.ok else 'warn' }}">{{ '完成' if item.ok else '待處理' }}</span>
+      <strong>{{ item.title }}</strong>
+    </div>
+    <p class="small" style="margin:.45rem 0 0">{{ item.detail }}</p>
+    {% if not item.ok and item.fix[1] %}
+      <p class="small muted" style="margin:.3rem 0 0">↳ 怎樣做：{{ item.fix[1] }}</p>
+    {% endif %}
+  </div>
+{% endfor %}
+
+<div class="card" style="margin-top:1rem">
+  <h3 style="margin-top:0">📊 目前數量</h3>
+  <table class="table small" style="width:100%">
+    <tbody>
+      <tr><td>獎章</td><td>{{ data.counts.badges }}</td></tr>
+      <tr><td>任務與遊戲項目</td><td>{{ data.counts.tasks }}</td></tr>
+      <tr><td>帳戶（領袖＋童軍）</td><td>{{ data.counts.users }}</td></tr>
+      <tr><td>資料存放</td><td>{{ data.storage }}{% if data.storage == 'sheets' %}（Google 試算表）{% else %}（執行個體暫存空間）{% endif %}</td></tr>
+      <tr><td>示範帳戶</td><td>
+        {% if data.demo %}<span class="chip warn">已開啟 —— 正式站應該關閉</span>{% else %}<span class="chip ok">已關閉</span>{% endif %}
+      </td></tr>
+    </tbody>
+  </table>
+  <p class="small muted" style="margin:.6rem 0 0">
+    數字會隨着童軍使用而增加。這裡不會顯示任何姓名或個人資料。
+  </p>
+</div>
+
+<div style="display:flex;gap:.5rem;margin-top:1rem">
+  <a class="btn" href="{{ url_for('auth_routes.login') }}">← 回到登入頁</a>
+  <a class="btn" href="{{ url_for('health') }}">重新整理</a>
+</div>
+{% endblock %}
