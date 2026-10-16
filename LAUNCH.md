@@ -45,9 +45,14 @@
 
 1. 開 <https://console.cloud.google.com> → 最上方專案選單 → **新增專案**
    - 名稱：`82hkg-scout` → 建立 → 等幾秒 → 切換到這個專案
-2. 左邊選單 **APIs 和服務 → 程式庫**（APIs & Services → Library）
-   - 搜尋 **Google Sheets API** → 啟用
-   - 再搜尋 **Google Drive API** → 啟用
+2. 左邊選單 **API 和服務 → 程式庫**（APIs & Services → Library）
+   - 搜尋 **Google Sheets API** → **啟用**
+   - 再搜尋 **Google Drive API** → **啟用**（相片上載用；一齊開好省事）
+   - 兩個都要在同一個專案（就是上面建立的 `82hkg-scout`）。
+     完成後可以在 **API 和服務 → 已啟用的 API 和服務** 見到這兩個名字。
+   - 這一步驟不會收費；小型旅團的用量遠低於免費額度。
+   - ⚠️ 若未啟用，之後 `/health` 會顯示「Google Sheets API 還未在 Google Cloud 專案啟用」——
+     那不是共用設定錯，而是回到這一頁按「啟用」。
 3. 左邊 **APIs 和服務 → 憑證**（Credentials）→ **建立憑證 → 服務帳戶**
    - 名稱：`scout-platform` → 建立並繼續 → （不用給角色）繼續 → 完成
 4. 在服務帳戶清單點進剛才那個 → 上方分頁 **金鑰（Keys）**

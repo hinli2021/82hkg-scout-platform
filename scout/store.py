@@ -123,6 +123,17 @@ def storage_advice(error: str) -> tuple[str, str]:
     if "GOOGLE_SHEET_ID" in text:
         return ("未設定 GOOGLE_SHEET_ID。",
                 "把試算表網址 /d/ 與 /edit 中間那一段貼進 Vercel 的 GOOGLE_SHEET_ID，存檔後 Redeploy。")
+    if ("has not been used in project" in text or "SERVICE_DISABLED" in text
+            or "is disabled" in text or "accessNotConfigured" in text):
+        api = "Google Drive API" if "drive" in text.lower() else "Google Sheets API"
+        return (f"{api} 還未在 Google Cloud 專案啟用。",
+                "到 console.cloud.google.com → 左邊「API 和服務 → 程式庫」，搜尋 Google Sheets API 與 "
+                "Google Drive API，各按一次「啟用」（上面的錯誤訊息裡也有直接連結）。啟用後等一兩分鐘，"
+                "回到 Vercel Redeploy 一次即可。")
+    if "insufficient" in text.lower() and "scope" in text.lower():
+        return ("服務帳戶金鑰的授權範圍不足。",
+                "重新下載一次服務帳戶金鑰（Google Cloud → IAM 與管理 → 服務帳戶 → 金鑰 → JSON），"
+                "重新貼上並 Redeploy。")
     if "403" in text:
         return ("Google 拒絕存取：試算表（或資料夾）未共用給服務帳戶電郵。",
                 "打開試算表 → 共用 → 加入服務帳戶電郵（…@….iam.gserviceaccount.com），權限「編輯者」。")

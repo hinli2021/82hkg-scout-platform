@@ -119,7 +119,8 @@ python3 tools/check_sheets.py
 | 情況 | 原因 / 解法 |
 |---|---|
 | 領袖設定仍顯示「資料暫存中」 | `DATA_DRIVER=sheets` 未設，或未 Redeploy |
-| `Google API … → 403` | 未分享試算表給服務帳戶電郵，或只給了檢視權限 |
+| `403 … has not been used in project … or it is disabled` | **API 未啟用**（不是共用問題）：到 console.cloud.google.com → API 和服務 → 程式庫，啟用 **Google Sheets API** 與 **Google Drive API**，等一兩分鐘後 Redeploy |
+| `403 … The caller does not have permission` | 未分享試算表給服務帳戶電郵，或只給了檢視權限 |
 | `GOOGLE_SHEET_ID is required` | 環境變數名稱打錯，或值有前後空白 |
 | 相片打不開 | Drive 資料夾未分享給服務帳戶；程式會嘗試設為「知道連結者可檢視」 |
 | 想確認是不是真的在寫入 | 一邊用人員帳戶玩遊戲，一邊開著試算表 `progress_records` 分頁看它增加 |
