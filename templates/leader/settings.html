@@ -195,6 +195,16 @@
       {% if ephemeral_storage %}
       <div class="card" style="margin-top:1rem; border-color:#a8722c">
         <h3 style="margin-top:0">⚠️ {{ L('資料暫存中，會自己重置', 'Storage is temporary — it resets itself') }}</h3>
+        {% if storage_error %}
+        <p class="small" style="margin:.2rem 0">
+          <strong>{{ L('連不上 Google 試算表：', 'Could not reach the Google Sheet:') }}</strong>
+          {{ storage_advice[0] }}
+        </p>
+        <p class="small" style="margin:.2rem 0">
+          ↳ {{ L('怎樣做：', 'How to fix:') }}{{ storage_advice[1] }}
+        </p>
+        <p class="small muted" style="margin:.2rem 0; font-family:ui-monospace,monospace">{{ storage_error }}</p>
+        {% endif %}
         <p class="small">
           {{ L('這個部署把資料寫在執行個體的暫存空間（/tmp），一段時間沒有流量就會被回收，帳戶與進度會回到空白。要正式使用，請在 Vercel 加入 Google 試算表設定：',
                'This deployment writes to the instance’s scratch space (/tmp), which is recycled after a quiet spell — accounts and progress then start over. For real use, add the Google Sheet settings in Vercel:') }}

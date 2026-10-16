@@ -21,6 +21,56 @@ from .util import hash_password, new_id, now_iso, parse_time, today_iso
 from .content import item4_meta, item4_questions, member_badge_guide
 
 
+
+def _sheets_driver(env: dict):
+    """Build the Google Sheets driver from the environment."""
+    account: dict = {}
+    path = env.get("GOOGLE_SERVICE_ACCOUNT_FILE")
+    if path and os.path.exists(path):
+        with open(path, encoding="utf-8") as handle:
+            account = json.load(handle)
+    elif env.get("GOOGLE_SERVICE_ACCOUNT_JSON"):
+        account = json.loads(env["GOOGLE_SERVICE_ACCOUNT_JSON"])
+    if not isinstance(account, dict) or not account.get("client_email"):
+        raise ValueError("服務帳戶金鑰不完整：GOOGLE_SERVICE_ACCOUNT_JSON 要是整份 JSON 檔的內容")
+    if not (env.get("GOOGLE_SHEET_ID") or "").strip():
+        raise ValueError("未設定 GOOGLE_SHEET_ID")
+    return SheetsDriver(
+        spreadsheet_id=env["GOOGLE_SHEET_ID"].strip(),
+        service_account=account,
+        drive_folder_id=env.get("GOOGLE_DRIVE_FOLDER_ID", ""),
+    )
+
+
+def _probe(driver) -> None:
+    """One read-only call — enough to prove the key, the ID and the sharing."""
+    driver.list("badges")
+
+
+def storage_advice(error: str) -> tuple[str, str]:
+    """(中文說明, 中文修正) — 把 Google／Python 的錯誤翻譯成人看的兩句。"""
+    text = str(error or "")
+    if not text.strip():
+        return ("", "")                      # 沒有錯誤就不要嚇人
+    if "JSONDecodeError" in text or "服務帳戶金鑰不完整" in text:
+        return ("服務帳戶金鑰（GOOGLE_SERVICE_ACCOUNT_JSON）不是有效的 JSON。",
+                "在 Vercel 重新貼上整份 JSON 檔內容，由 { 到 } 都要有，前後不要加引號，存檔後 Redeploy。")
+    if "GOOGLE_SHEET_ID" in text:
+        return ("未設定 GOOGLE_SHEET_ID。",
+                "把試算表網址 /d/ 與 /edit 中間那一段貼進 Vercel 的 GOOGLE_SHEET_ID，存檔後 Redeploy。")
+    if "403" in text:
+        return ("Google 拒絕存取：試算表（或資料夾）未共用給服務帳戶電郵。",
+                "打開試算表 → 共用 → 加入服務帳戶電郵（…@….iam.gserviceaccount.com），權限「編輯者」。")
+    if "404" in text:
+        return ("找不到那張試算表：GOOGLE_SHEET_ID 可能不是這份檔案的 ID。",
+                "重新複製試算表網址 /d/ 與 /edit 中間那一段，貼回 GOOGLE_SHEET_ID，存檔後 Redeploy。")
+    if "401" in text or "invalid_grant" in text or "credentials" in text.lower():
+        return ("服務帳戶金鑰被拒：金鑰可能已被刪除或複製不完整。",
+                "到 Google Cloud → IAM 與管理 → 服務帳戶 → 金鑰，建立新的 JSON 金鑰並重新貼上。")
+    return ("連不上 Google 試算表：" + text[:160],
+            "檢查 GOOGLE_SHEET_ID、GOOGLE_SERVICE_ACCOUNT_JSON 與共用設定，然後 Redeploy。")
+
+
 class Store:
     def __init__(self, driver, config: dict):
         self.driver = driver
@@ -40,19 +90,14 @@ class Store:
             "seed_demo": (env.get("SEED_DEMO") or "false").lower() == "true",
             "data_dir": env.get("DATA_DIR") or os.path.join(os.getcwd(), "data"),
         }
+        config["storage_error"] = ""
         if driver_name == "sheets":
-            account: dict = {}
-            path = env.get("GOOGLE_SERVICE_ACCOUNT_FILE")
-            if path and os.path.exists(path):
-                with open(path, encoding="utf-8") as handle:
-                    account = json.load(handle)
-            elif env.get("GOOGLE_SERVICE_ACCOUNT_JSON"):
-                account = json.loads(env["GOOGLE_SERVICE_ACCOUNT_JSON"])
-            driver = SheetsDriver(
-                spreadsheet_id=env.get("GOOGLE_SHEET_ID", ""),
-                service_account=account,
-                drive_folder_id=env.get("GOOGLE_DRIVE_FOLDER_ID", ""),
-            )
+            try:
+                driver = _sheets_driver(env)
+                _probe(driver)                      # read one tab: proves key + id + sharing
+            except Exception as exc:                # noqa: BLE001 — never let config kill the site
+                config["storage_error"] = f"{type(exc).__name__}: {exc}"
+                driver = LocalDriver(config["data_dir"])
         else:
             driver = LocalDriver(config["data_dir"])
         store = cls(driver=driver, config=config)
