@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('編輯任務', 'Edit task') }}{% endblock %}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('leader_routes.content') }}">{{ L('內容', 'Content') }}</a>
+  <span class="breadcrumb-arrow">›</span>{{ L(badge.title_zh if badge else '', badge.title_en if badge else '') }}
+</div>
+<div class="page-head">
+  <h1 style="margin:0">✏️ {{ L(task.title_zh, task.title_en) }}</h1>
+  <a class="btn ghost" href="{{ url_for('leader_routes.content') }}">{{ L('返回內容', 'Back to content') }}</a>
+</div>
+
+<div class="console-split">
+  <form class="card" method="post" action="{{ url_for('leader_routes.update_task', task_id=task.id) }}">
+    <div class="form-grid">
+      <label class="field"><span>{{ L('任務名稱（中文）', 'Title (zh)') }}</span><input type="text" name="raw_title_zh" value="{{ task.title_zh }}"></label>
+      <label class="field"><span>{{ L('任務名稱（英文）', 'Title (en)') }}</span><input type="text" name="raw_title_en" value="{{ task.title_en }}"></label>
+      <label class="field"><span>{{ L('類型', 'Type') }}</span>
+        <select name="raw_type">
+          {% for key, meta in task_types.items() %}
+            <option value="{{ key }}" {{ 'selected' if task.type == key }}>{{ meta.icon }} {{ L(meta.label_zh, meta.label_en) }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field"><span>{{ L('積分', 'Points') }}</span><input type="number" name="points" value="{{ task.points }}"></label>
+      {% if badge and badge.code == 'SC-01' and task.code == 'M04' %}
+        <div class="field"><span>{{ L('山洞通關規則', 'Cave completion rule') }}</span><p class="small muted">{{ L('完成全部 50 題即通關，分數只供回顧。', 'Finish all 50 questions to clear the cave; the score is for review only.') }}</p></div>
+      {% else %}
+        <label class="field"><span>{{ L('合格分數（小測驗）', 'Pass mark (quiz)') }}</span><input type="number" name="pass_score" value="{{ task.pass_score }}"></label>
+      {% endif %}
+      <label class="field"><span>{{ L('次序', 'Order') }}</span><input type="number" name="order_index" value="{{ task.order_index }}"></label>
+      <label class="field"><span>{{ L('狀態', 'Status') }}</span>
+        <select name="raw_status">
+          <option value="published" {{ 'selected' if task.status == 'published' }}>{{ L('已發佈', 'Published') }}</option>
+          <option value="draft" {{ 'selected' if task.status != 'published' }}>{{ L('草稿', 'Draft') }}</option>
+        </select>
+      </label>
+    </div>
+    <label class="field"><span>{{ L('指示（中文）', 'Instruction (zh)') }}</span><textarea name="raw_instruction_zh">{{ task.instruction_zh }}</textarea></label>
+    <label class="field"><span>{{ L('指示（英文）', 'Instruction (en)') }}</span><textarea name="raw_instruction_en">{{ task.instruction_en }}</textarea></label>
+
+    <h3 style="margin-top:1rem">{{ L('任務內容', 'Task content') }}</h3>
+    {% if cave_task %}
+      <div class="alert info">{{ L('山洞的 50 題分屬四面壁畫，不能在此貼上普通測驗清單；請使用下方專用編輯頁，逐題修改內容與答案，題號及分組會自動保留。',
+                                  'The cave’s 50 questions are linked to four walls. Do not paste a normal quiz list here. Use the dedicated editor to update questions and answers while preserving their IDs and groups.') }}</div>
+      <a class="btn primary" href="{{ url_for('leader_routes.cave_questions', task_id=task.id) }}">🕯️ {{ L('編輯山洞題目與答案', 'Edit cave questions & answers') }}</a>
+    {% elif task.type == 'quiz' %}
+      <p class="small muted">{{ L('一行一題，格式：題目｜答案（1 = 第一個選項）｜選項一｜選項二｜…', 'One question per line: question | answer (1 = first option) | option one | …') }}</p>
+      <label class="field" style="margin-bottom:.4rem">
+        <span>{{ L('中文', 'Chinese') }}</span>
+        <textarea name="quiz_zh" rows="6">{% for q in raw_config.get('questions', []) %}{{ q.q_zh }} | {{ (q.answer or 0) + 1 }} | {{ q.options | map(attribute='zh') | join(' | ') if q.options and q.options[0] is mapping else q.options | join(' | ') }}
+{% endfor %}</textarea>
+      </label>
+      <label class="field">
+        <span>{{ L('英文', 'English') }}</span>
+        <textarea name="quiz_en" rows="6">{% for q in raw_config.get('questions', []) %}{{ q.q_en }} | {{ (q.answer or 0) + 1 }} | {{ q.options | map(attribute='en') | join(' | ') if q.options and q.options[0] is mapping else q.options | join(' | ') }}
+{% endfor %}</textarea>
+      </label>
+    {% elif task.type == 'checklist' %}
+      <p class="small muted">{{ L('一行一項。', 'One item per line.') }}</p>
+      <label class="field"><span>{{ L('中文', 'Chinese') }}</span><textarea name="items_zh" rows="5">{% for item in task.config_json.get('items', []) %}{{ item.zh if item is mapping else item }}
+{% endfor %}</textarea></label>
+      <label class="field"><span>{{ L('英文', 'English') }}</span><textarea name="items_en" rows="5">{% for item in task.config_json.get('items', []) %}{{ item.en if item is mapping else '' }}
+{% endfor %}</textarea></label>
+    {% elif task.type == 'reflection' %}
+      <label class="field"><span>{{ L('最少字數', 'Minimum characters') }}</span>
+        <input type="number" name="min_chars" value="{{ task.config_json.get('min_chars', 0) }}"></label>
+    {% elif task.type == 'evidence' %}
+      <p class="small muted">{{ L('童軍會上載相片，領袖在這裡審批。', 'Scouts upload a photo; you approve it in the review queue.') }}</p>
+      <label class="field"><span>{{ L('提示（中文）', 'Hint (zh)') }}</span><input type="text" name="hint_zh" value="{{ task.config_json.get('hint_zh', '') }}"></label>
+      <label class="field"><span>{{ L('提示（英文）', 'Hint (en)') }}</span><input type="text" name="hint_en" value="{{ task.config_json.get('hint_en', '') }}"></label>
+    {% else %}
+      <p class="small muted">{{ L('簽核任務：童軍提交後，領袖在審批頁確認。', 'Sign-off tasks: the scout submits, you confirm in the review queue.') }}</p>
+    {% endif %}
+
+    <div class="form-actions">
+      <button class="btn primary" type="submit">{{ L('儲存任務', 'Save task') }}</button>
+    </div>
+  </form>
+
+  <div>
+    <div class="card">
+      <h3 style="margin-top:0">{{ L('預覽', 'Preview') }}</h3>
+      <div class="kv">
+        <dt>{{ L('類型', 'Type') }}</dt><dd>{{ task.type_label_zh if lang != 'en' else task.type_label_en }}</dd>
+        <dt>{{ L('自動', 'Automatic') }}</dt><dd>{{ L('是', 'Yes') if task.auto else L('否（領袖核實）', 'No (leader verifies)') }}</dd>
+        {% if badge and badge.code == 'SC-01' and task.code == 'M04' %}
+          <dt>{{ L('山洞通關規則', 'Cave completion') }}</dt><dd>{{ L('完成全部 50 題', 'All 50 questions') }}</dd>
+        {% else %}
+          <dt>{{ L('合格分數', 'Pass mark') }}</dt><dd>{{ task.pass_score }}%</dd>
+        {% endif %}
+        <dt>{{ L('積分', 'Points') }}</dt><dd>🪙 {{ task.points }}</dd>
+      </div>
+      <div class="divider"></div>
+      <a class="btn" href="{{ url_for('scout_routes.task_player', task_id=task.id) }}" target="_blank" rel="noopener">{{ L('以童軍身分查看', 'See the scout view') }}</a>
+      <p class="small muted" style="margin-top:.6rem">{{ L('（會以你現在的帳戶開啟；如要真正測試童軍流程，請用示範登入。', '(It opens with your current account — use the demo sign-in to test the scout flow.)') }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

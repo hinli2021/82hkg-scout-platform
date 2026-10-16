@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state, name_of, patrol_name with context %}
+{% block title %}{{ L('帳戶', 'Accounts') }}{% endblock %}
+{% block content %}
+{% if not mail_ready %}
+  <div class="alert warn">
+    {{ L('還未設定寄信信箱，所以「✉️ 寄重設連結」暫時不能用。童軍仍可在密碼頁用電郵即時設定新密碼，或由你按 🔑 代為重設。到 設定 → 寄信信箱 填好 Gmail 資料即可開放。',
+         'No mailbox set up yet, so “✉️ Email a reset link” is off. Scouts can still set a new password with their email, or you can reset with 🔑. Fill in 設定 → 寄信信箱 to switch it on.') }}
+  </div>
+{% endif %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">🧑‍🤝‍🧑 {{ L('童軍帳戶', 'Scout accounts') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('童軍不能自行註冊 — 所有帳戶由領袖開設。', 'Scouts never self-register — leaders create every account.') }}</p>
+  </div>
+  <a class="btn" href="{{ url_for('leader_routes.export_scouts') }}">⬇️ {{ L('匯出 CSV', 'Export CSV') }}</a>
+</div>
+
+{% if reset_requests %}
+  <div class="card reset-banner" style="margin-bottom:1rem">
+    <strong>🔑 {{ L('忘記密碼申請', 'Password reset requests') }}</strong>
+    <div class="stack" style="margin-top:.6rem">
+      {% for req in reset_requests %}
+        <div class="reset-row">
+          <span class="grow">
+            {{ name_of(req) }}
+            <span class="small muted">{{ L(patrol_label(req.get('patrol', '')).zh, patrol_label(req.get('patrol', '')).en) }}
+              · {{ (req.get('requested_at') or '')[:16].replace('T', ' ') }}</span>
+          </span>
+          <form method="post" action="{{ url_for('leader_routes.account_action', user_id=req.user_id, action='reset') }}" data-inline>
+            <button class="btn small primary" type="submit">{{ L('重設密碼', 'Reset password') }}</button>
+          </form>
+          <form method="post" action="{{ url_for('leader_routes.dismiss_reset', request_id=req.id) }}">
+            <button class="btn small ghost" type="submit">{{ L('略過', 'Dismiss') }}</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+<div class="card" style="margin-bottom:1rem">
+  <form class="inline-form" method="get" action="{{ url_for('leader_routes.accounts') }}">
+    <label class="field"><span>{{ L('搜尋', 'Search') }}</span><input type="text" name="q" value="{{ search }}" placeholder="{{ L('姓名或用戶名稱', 'name or username') }}"></label>
+    <label class="field"><span>{{ L('小隊', 'Patrol') }}</span>
+      <select name="patrol">
+        <option value="">{{ L('全部', 'All') }}</option>
+        {% for p in patrols %}<option value="{{ p }}" {{ 'selected' if patrol_filter == p }}>{{ L(patrol_label(p).zh, patrol_label(p).en) }}</option>{% endfor %}
+      </select>
+    </label>
+    <button class="btn" type="submit">{{ L('篩選', 'Filter') }}</button>
+  </form>
+</div>
+
+<div class="console-split">
+  <div>
+    {% if scouts %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ L('姓名', 'Name') }}</th><th>{{ L('小隊', 'Patrol') }}</th><th>{{ L('進度', 'Progress') }}</th>
+              <th>{{ L('密碼', 'Password') }}</th><th>{{ L('狀態', 'Status') }}</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for scout in scouts %}
+              <tr>
+                <td>
+                  <div class="avatar-cell">
+                    <span style="font-size:1.3rem">{{ scout.avatar }}</span>
+                    <div>
+                      <strong>{{ name_of(scout) }}</strong>
+                      <div class="small muted">{{ scout.username }}{% if scout.scout_no %} · {{ scout.scout_no }}{% endif %}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ L(patrol_label(scout.patrol).zh, patrol_label(scout.patrol).en) }}</td>
+                <td>
+                  <span class="chip brass">🎖 {{ scout.stats.badges_done }}</span>
+                  <span class="chip light">✓ {{ scout.stats.tasks_done }}</span>
+                </td>
+                <td>
+                  {% if scout.has_password %}<span class="chip ok">{{ L('已設定', 'Set') }}</span>
+                  {% else %}<span class="chip warn">{{ L('未設定', 'Not set') }}</span>{% endif %}
+                </td>
+                <td>
+                  {% if scout.status == 'active' %}<span class="chip ok">{{ L('使用中', 'Active') }}</span>
+                  {% else %}<span class="chip danger">{{ L('已停用', 'Locked') }}</span>{% endif %}
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <form method="post" action="{{ url_for('leader_routes.send_reset_link', user_id=scout.id) }}"
+                          data-confirm="{{ L('寄一條重設密碼連結給這位童軍？', 'Email this scout a password-reset link?') }}">
+                      <button class="btn small" type="submit"
+                              title="{{ L('寄重設連結', 'Email a reset link') }}"
+                              {{ 'disabled' if not scout.email or not mail_ready }}>✉️</button>
+                    </form>
+                    <form method="post" action="{{ url_for('leader_routes.account_action', user_id=scout.id, action='reset') }}"
+                          data-confirm="{{ L('重設此童軍的密碼？', 'Reset this scout’s password?') }}">
+                      <button class="btn small" type="submit" title="{{ L('重設密碼', 'Reset password') }}">🔑</button>
+                    </form>
+                    {% if scout.status == 'active' %}
+                      <form method="post" action="{{ url_for('leader_routes.account_action', user_id=scout.id, action='lock') }}">
+                        <button class="btn small" type="submit" title="{{ L('停用', 'Lock') }}">🔒</button>
+                      </form>
+                    {% else %}
+                      <form method="post" action="{{ url_for('leader_routes.account_action', user_id=scout.id, action='unlock') }}">
+                        <button class="btn small" type="submit" title="{{ L('啟用', 'Unlock') }}">🔓</button>
+                      </form>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('leader_routes.account_action', user_id=scout.id, action='delete') }}"
+                          data-confirm="{{ L('刪除帳戶及所有紀錄？此動作不能復原。', 'Delete the account and all its records? This cannot be undone.') }}">
+                      <button class="btn small ghost" type="submit" title="{{ L('刪除', 'Delete') }}">🗑</button>
+                    </form>
+                  </div>
+                  <details style="margin-top:.35rem">
+                    <summary class="small muted" style="cursor:pointer">{{ L('編輯', 'Edit') }}</summary>
+                    <form method="post" action="{{ url_for('leader_routes.update_scout', user_id=scout.id) }}" data-inline style="margin-top:.4rem">
+                      <div class="form-grid">
+                        <label class="field"><span>{{ L('中文姓名', 'Name (zh)') }}</span><input type="text" name="display_name_zh" value="{{ scout.display_name_zh }}"></label>
+                        <label class="field"><span>{{ L('英文姓名', 'Name (en)') }}</span><input type="text" name="display_name_en" value="{{ scout.display_name_en }}"></label>
+                        <label class="field"><span>{{ L('小隊', 'Patrol') }}</span>
+                          <select name="patrol">
+                            {% for p in patrols %}<option value="{{ p }}" {{ 'selected' if scout.patrol == p }}>{{ L(patrol_label(p).zh, patrol_label(p).en) }}</option>{% endfor %}
+                          </select>
+                        </label>
+                        <label class="field"><span>{{ L('童軍編號', 'Scout no.') }}</span><input type="text" name="scout_no" value="{{ scout.scout_no }}"></label>
+                        <label class="field"><span>{{ L('電郵', 'Email') }}</span><input type="email" name="email" value="{{ scout.email }}"></label>
+                        <label class="field"><span>{{ L('頭像', 'Avatar') }}</span><input type="text" name="avatar" value="{{ scout.avatar }}"></label>
+                      </div>
+                      <label class="switch"><input type="checkbox" name="show_on_leaderboard" value="1" {{ 'checked' if scout.show_on_leaderboard }}> {{ L('顯示在龍虎榜', 'Show on the leaderboard') }}</label>
+                      <div class="form-actions"><button class="btn small primary" type="submit">{{ L('儲存', 'Save') }}</button><span data-inline-note></span></div>
+                    </form>
+                  </details>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ empty_state('🐣', '沒有符合條件的帳戶。', 'No accounts match.') }}
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="section-title"><h2>➕ {{ L('開設童軍帳戶', 'Create a scout account') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('leader_routes.create_scout') }}">
+      <label class="field"><span>{{ L('中文姓名', 'Name (zh)') }}</span><input type="text" name="display_name_zh" required></label>
+      <label class="field"><span>{{ L('英文姓名', 'Name (en)') }}</span><input type="text" name="display_name_en"></label>
+      <label class="field"><span>{{ L('小隊', 'Patrol') }}</span>
+        <select name="patrol" required>
+          {% for p in patrols %}<option value="{{ p }}">{{ L(patrol_label(p).zh, patrol_label(p).en) }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="field"><span>{{ L('用戶名稱', 'Username') }} <span class="hint">{{ L('留空自動產生', 'auto if empty') }}</span></span><input type="text" name="username"></label>
+      <label class="field"><span>{{ L('童軍編號', 'Scout no.') }}</span><input type="text" name="scout_no"></label>
+      <label class="field"><span>{{ L('電郵', 'Email') }}</span><input type="email" name="email"></label>
+      <label class="field"><span>{{ L('頭像', 'Avatar') }}</span><input type="text" name="avatar" value="🦊"></label>
+      <label class="field"><span>{{ L('初始密碼', 'Initial password') }} <span class="hint">{{ L('可留空；不論有否初始密碼，首次登入均須設定個人密碼及電郵', 'optional; first sign-in still requires a personal password and email') }}</span></span><input type="text" name="password"></label>
+      <button class="btn primary" type="submit" style="width:100%">{{ L('開設帳戶', 'Create account') }}</button>
+    </form>
+
+    <div class="section-title"><h2>📥 {{ L('匯入 CSV', 'Import CSV') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('leader_routes.import_scouts') }}" enctype="multipart/form-data">
+      <p class="small muted">{{ L('欄位：username, display_name_zh, display_name_en, patrol, scout_no, email, avatar', 'Columns: username, display_name_zh, display_name_en, patrol, scout_no, email, avatar') }}</p>
+      <label class="field"><span>{{ L('CSV 檔案', 'CSV file') }}</span><input type="file" name="file" accept=".csv,text/csv"></label>
+      <button class="btn" type="submit" style="width:100%">{{ L('匯入', 'Import') }}</button>
+    </form>
+
+    <div class="section-title"><h2>🪙 {{ L('調整積分', 'Adjust points') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('leader_routes.adjust_points') }}" data-inline>
+      <label class="field"><span>{{ L('童軍', 'Scout') }}</span>
+        <select name="user_id">
+          {% for scout in scouts %}<option value="{{ scout.id }}">{{ scout.display_name_en or scout.display_name_zh }}</option>{% endfor %}
+        </select>
+      </label>
+      <div class="form-grid">
+        <label class="field"><span>{{ L('增減', 'Delta') }}</span><input type="number" name="points_delta" value="10"></label>
+        <label class="field"><span>{{ L('原因', 'Reason') }}</span><input type="text" name="reason" placeholder="{{ L('協助集會', 'helped at the meeting') }}"></label>
+      </div>
+      <div class="form-actions"><button class="btn" type="submit">{{ L('套用', 'Apply') }}</button><span data-inline-note></span></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

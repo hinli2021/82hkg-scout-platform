@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import name_of, patrol_name with context %}
+{% block title %}{{ L('忘記密碼', 'Forgot password') }}{% endblock %}
+{% block shell %}
+<div class="screen">
+  <div class="narrow card pad-lg">
+    <div class="crumbs"><a href="{{ url_for('auth_routes.login') }}">‹ {{ L('返回登入', 'Back to sign-in') }}</a></div>
+    <h1>{{ L('忘記密碼', 'Forgot password') }}</h1>
+    {% if self_reset %}
+      <div class="alert info">{{ L('本單位已開啟自助重設：確認身分後密碼會立即清除，下次登入重新設定。', 'Self-service reset is on: confirming clears the password, and you set a new one at your next sign-in.') }}</div>
+    {% else %}
+      <div class="alert info">{{ L('送出後領袖會收到通知，重設後你便可以用新密碼登入。', 'After sending, your leader is notified and resets it — then you can sign in again.') }}</div>
+    {% endif %}
+
+    {% if error_zh %}<div class="alert error">{{ L(error_zh, error_en) }}</div>{% endif %}
+
+    <form method="post" action="{{ url_for('auth_routes.forgot_request') }}">
+      <label class="field">
+        <span>{{ L('小隊', 'Patrol') }}</span>
+        <select name="patrol" onchange="window.location.href='{{ url_for('auth_routes.forgot_names', patrol='__P__') }}'.replace('__P__', this.value)">
+          <option value="">{{ L('請選擇', 'Choose') }}</option>
+          {% for p in patrols %}
+            <option value="{{ p.value }}" {{ 'selected' if patrol == p.value else '' }}>{{ p.label.en or p.label.zh }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>{{ L('你的姓名', 'Your name') }}</span>
+        <select name="user_id">
+          <option value="">{{ L('請選擇', 'Choose') }}</option>
+          {% for scout in scouts or [] %}
+            <option value="{{ scout.id }}">{{ scout.display_name_zh or scout.display_name_en }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="btn primary" type="submit" style="width:100%">{{ L('通知領袖重設密碼', 'Ask a leader to reset it') }}</button>
+    </form>
+    <p class="muted small" style="margin-top:.8rem">{{ L('忘記小隊？請直接找領袖協助。', 'Not sure of your patrol? Just ask a leader.') }}</p>
+  </div>
+</div>
+{% endblock %}

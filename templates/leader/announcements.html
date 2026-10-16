@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state with context %}
+{% block title %}{{ L('公告', 'Notices') }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">📣 {{ L('公告', 'Notices') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('置頂公告會出現在童軍主頁最上方。', 'Pinned notices appear at the top of every scout’s home page.') }}</p>
+  </div>
+</div>
+
+<div class="console-split">
+  <div>
+    {% if items %}
+      <div class="stack">
+        {% for item in items %}
+          <div class="card">
+            <div class="spread wrap">
+              <div>
+                {% if item.pinned %}<span class="chip brass">{{ L('置頂', 'Pinned') }}</span>{% endif %}
+                <span class="chip light">{{ {'all': L('全部', 'Everyone'), 'scout': L('童軍', 'Scouts'), 'leader': L('領袖', 'Leaders')}[item.audience] }}</span>
+                <strong>{{ L(item.title_zh, item.title_en) }}</strong>
+                <div class="small muted">{{ L(item.body_zh, item.body_en) }}</div>
+                <div class="timeline-when">{{ (item.created_at or '')[:10] }}{% if item.expires_at %} · {{ L('至', 'until') }} {{ item.expires_at[:10] }}{% endif %}</div>
+              </div>
+              <div class="row-actions">
+                <form method="post" action="{{ url_for('leader_routes.update_announcement', item_id=item.id) }}">
+                  <input type="hidden" name="pinned" value="{{ '0' if item.pinned else '1' }}">
+                  <button class="btn small" type="submit">{{ L('取消置頂', 'Unpin') if item.pinned else L('置頂', 'Pin') }}</button>
+                </form>
+                <form method="post" action="{{ url_for('leader_routes.delete_announcement', item_id=item.id) }}"
+                      data-confirm="{{ L('刪除這則公告？', 'Delete this notice?') }}">
+                  <button class="btn small ghost" type="submit">🗑</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {{ empty_state('📭', '還沒有公告。', 'No notices yet.') }}
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="section-title"><h2>➕ {{ L('新增公告', 'New notice') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('leader_routes.create_announcement') }}">
+      <label class="field"><span>{{ L('標題（中文）', 'Title (zh)') }}</span><input type="text" name="title_zh" required></label>
+      <label class="field"><span>{{ L('標題（英文）', 'Title (en)') }}</span><input type="text" name="title_en"></label>
+      <label class="field"><span>{{ L('內容（中文）', 'Body (zh)') }}</span><textarea name="body_zh"></textarea></label>
+      <label class="field"><span>{{ L('內容（英文）', 'Body (en)') }}</span><textarea name="body_en"></textarea></label>
+      <div class="form-grid">
+        <label class="field"><span>{{ L('對象', 'Audience') }}</span>
+          <select name="audience">
+            <option value="all">{{ L('全部', 'Everyone') }}</option>
+            <option value="scout">{{ L('童軍', 'Scouts') }}</option>
+            <option value="leader">{{ L('領袖', 'Leaders') }}</option>
+          </select>
+        </label>
+        <label class="field"><span>{{ L('到期日', 'Expires') }}</span><input type="date" name="expires_at"></label>
+      </div>
+      <label class="switch"><input type="checkbox" name="pinned" value="1"> {{ L('置頂', 'Pin to the top') }}</label>
+      <button class="btn primary" type="submit" style="width:100%">{{ L('發佈', 'Post') }}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

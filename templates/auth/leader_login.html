@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('領袖登入', 'Leader sign-in') }}{% endblock %}
+{% block shell %}
+<div class="screen">
+  <div class="narrow card pad-lg">
+    <div class="crumbs"><a href="{{ url_for('auth_routes.login') }}">‹ {{ L('返回', 'Back') }}</a></div>
+    <img class="card-logo" src="{{ url_for('static', filename='img/brand/82hkg-logo.webp') }}"
+         width="900" height="483" alt="{{ L(settings.unit_name_zh, settings.unit_name_en) }}">
+    <h1>{{ L('領袖登入', 'Leader sign-in') }}</h1>
+    <p class="muted small">{{ L('領袖可以編輯內容、管理帳戶、審批提交。', 'Leaders edit content, manage accounts and review submissions.') }}</p>
+    {% if error_zh %}
+      <div class="alert error">{{ L(error_zh, error_en) }}</div>
+    {% endif %}
+    {% if already %}
+      {# already signed in — the code is not needed again while the session lives #}
+      <div class="alert ok">
+        {{ L('你已經以', 'You are already signed in as') }}
+        <strong>{{ already.display_name_en or already.display_name_zh }}</strong>
+        {{ L('身分登入。', '.') }}
+      </div>
+      <a class="btn primary" style="width:100%" href="{{ url_for('leader_routes.overview') }}">
+        {{ L('進入領袖後台', 'Go to the leader console') }}
+      </a>
+      <form method="post" action="{{ url_for('auth_routes.logout') }}" style="margin-top:.5rem">
+        <button class="btn" type="submit" style="width:100%">
+          {{ L('登出（重新輸入領袖代碼）', 'Sign out (to type the code again)') }}
+        </button>
+      </form>
+    {% else %}
+    {% if other %}
+      <div class="alert">
+        {{ L('你現時以', 'Currently signed in as') }}
+        <strong>{{ other.display_name_en or other.display_name_zh }}</strong>
+        {{ L('身分登入（童軍帳戶）。輸入領袖代碼即會切換至領袖身分。',
+             '(a scout account). Entering the leader code switches to the leader.') }}
+      </div>
+    {% endif %}
+    <form method="post" action="{{ url_for('auth_routes.leader_login') }}">
+      <label class="field">
+        <span>{{ L('領袖代碼', 'Leader code') }}</span>
+        <input type="password" name="password" autocomplete="current-password"
+               inputmode="numeric" placeholder="0082" required autofocus>
+      </label>
+      <input type="hidden" name="username" value="{{ username or '' }}">
+      <button class="btn primary" type="submit" style="width:100%">{{ L('登入', 'Sign in') }}</button>
+    </form>
+    {% if demo_login %}
+      <p class="demo-hint">{{ L('示範領袖代碼', 'Demo leader code') }}: <code>0082</code></p>
+    {% endif %}
+    {% endif %}
+
+    {% if demo_login %}
+      {# ── the two demo accounts: one tap each, no password ── #}
+      <div class="demo-accounts">
+        <p class="demo-title">
+          {{ L('示範帳戶：一點即入，無須密碼', 'Demo accounts: one tap, no password') }}
+        </p>
+        <div class="demo-buttons">
+          <form method="post" action="{{ url_for('auth_routes.demo_login', handle='demo1') }}">
+            <button class="btn" type="submit" data-demo="leader">
+              🧭 {{ L('示範領袖', 'Demo leader') }}
+            </button>
+          </form>
+          <form method="post" action="{{ url_for('auth_routes.demo_login', handle='demo2') }}">
+            <button class="btn" type="submit" data-demo="scout">
+              🎒 {{ L('示範童軍', 'Demo scout') }}
+            </button>
+          </form>
+        </div>
+        <p class="demo-note">
+          {{ L('示範完畢後，可於右上角登出，再試另一個。', 'Sign out from the top bar to try the other one.') }}
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

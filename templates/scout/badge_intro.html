@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block title %}{{ L(quest.title_zh, quest.title_en) }}{% endblock %}
+
+{% block content %}
+{% set animal = url_for('static', filename='img/mascots/' ~ (user.patrol | lower) ~ '.webp') %}
+{% set beats = quest.beats_zh if lang != 'en' else quest.beats_en %}
+{% set done_areas = stages | selectattr('done') | list | length %}
+{% set games_done = stages | selectattr('game_done') | list | length %}
+<div class="crumbs">
+  <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badges') }}">{{ L('我的獎章', 'My awards') }}</a><span class="breadcrumb-arrow">›</span>
+  {{ L(badge.title_zh, badge.title_en) }}
+</div>
+
+{# ── the island: the same hand-drawn world the scout signed in with ─────── #}
+{% if request.args.get('started') %}
+  {# Casting off begins the voyage; no hidden task is awarded. #}
+  <div class="quest-opening" data-celebrate="1">
+    <span class="quest-opening-star">🧭</span>
+    <div class="grow">
+      <strong>{{ L(quest.credited_title_zh, quest.credited_title_en) }}</strong>
+      <p class="small" style="margin:.2rem 0 0">{{ L(quest.credited_body_zh, quest.credited_body_en) }}</p>
+    </div>
+
+  </div>
+{% endif %}
+
+<section class="story-hero" data-story-hero>
+  <img class="story-art" src="{{ url_for('static', filename='img/mascots/quest-island.jpg') }}" alt="">
+  <div class="story-veil"></div>
+  <span class="story-spark" style="--i:0" aria-hidden="true">✨</span>
+  <span class="story-spark" style="--i:1" aria-hidden="true">⭐</span>
+  <span class="story-spark" style="--i:2" aria-hidden="true">✨</span>
+  <div class="story-body">
+    <span class="chip story-chip">🧭 {{ L('荒島逃生', 'Island escape') }} · {{ L('進度性獎章', 'Progressive award') }} {{ badge.order_index }} / 5</span>
+    <h1 class="story-title">{{ L(quest.story_title_zh, quest.story_title_en) }}</h1>
+    <p class="story-lead">{{ L(quest.story_lead_zh, quest.story_lead_en) }}</p>
+    <div class="story-beacon">
+      <span class="story-beacon-face">
+        <img src="{{ animal }}" alt="">
+      </span>
+      <span class="story-beacon-text">
+        <strong>🔥 {{ L(quest.route_zh, quest.route_en) }}</strong>
+        <span class="small">🎮 {{ L(quest.game_rule_zh, quest.game_rule_en) }}</span>
+      </span>
+      <span class="story-beacon-meter">
+        <span class="story-beacon-bar"><span style="width: {{ (done_areas * 100 // stages | length) }}%"></span></span>
+        <span class="small">{{ done_areas }} / {{ stages | length }} {{ L('個區域已走過', 'areas crossed') }}
+          · 🎮 {{ games_done }} / {{ stages | length }} {{ L('個遊戲已完成', 'games cleared') }}</span>
+      </span>
+    </div>
+  </div>
+</section>
+
+{# ── the story, one beat per line of the trail ──────────────────────────── #}
+<ol class="story-path">
+  <li class="story-step" data-cheer="✨,{{ beats[0].icon }}">
+    <span class="story-step-mark"><span class="story-step-icon">{{ beats[0].icon }}</span></span>
+    <div class="story-step-body">
+      <strong>{{ beats[0].title }}</strong>
+      <p>{{ beats[0].text }}</p>
+    </div>
+  </li>
+
+  {% for beat in beats[1:] %}
+    <li class="story-step" data-cheer="✨,{{ beat.icon }}">
+      <span class="story-step-mark"><span class="story-step-icon">{{ beat.icon }}</span></span>
+      <div class="story-step-body">
+        <strong>{{ beat.title }}</strong>
+        <p>{{ beat.text }}</p>
+      </div>
+    </li>
+  {% endfor %}
+
+  {# the last beat of the story is the trail itself: five areas to the beach #}
+  <li class="story-step story-step-trail" id="map" data-cheer="🗺️,🛶">
+    <span class="story-step-mark"><span class="story-step-icon">🗺️</span></span>
+    <div class="story-step-body">
+      <strong>{{ L(quest.trail_title_zh, quest.trail_title_en) }}</strong>
+      <p>{{ L(quest.trail_lead_zh, quest.trail_lead_en) }}</p>
+
+      {# The locations are readable in-place: no radio selection, no hidden
+         first-area panel. The only gameplay link is below the map. #}
+      <div class="stage-map stage-map-direct">
+        {# the map itself: aged paper, one dashed trail, the beach at the end.
+           The doodles are drawn in ink (inline SVG), not emoji, so the chart
+           looks the same on every device. All of it is decoration. #}
+        <div class="map-canvas">
+          <svg class="map-trail" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="map-trail-dash"
+                  d="M 30 75 C 38 81, 42 78, 50 76 C 58 70, 42 53, 50 39 C 56 30, 65 25, 73 25 C 79 32, 75 50, 76 60 C 80 73, 86 77, 91 83"/>
+          </svg>
+
+          <span class="map-plate" aria-hidden="true">{{ L('荒島尋寶圖', 'Island treasure map') }}</span>
+
+          <svg class="map-compass" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="8.2" fill="none" stroke="#a9793c" stroke-width="1.1"/>
+            <path d="M12 3.6 L14.2 10 L20.4 12 L14.2 14 L12 20.4 L9.8 14 L3.6 12 L9.8 10 Z"
+                  fill="#a9793c" fill-opacity=".5" stroke="#8a5a1f" stroke-width=".9" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="1.3" fill="#8a5a1f"/>
+          </svg>
+
+          <svg class="map-palm" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <g fill="none" stroke="#8a5a1f" stroke-width="1.2" stroke-linecap="round">
+              <path d="M12 21.4 C11.9 17.4, 11.5 13.6, 10.8 10.2"/>
+              <path d="M10.8 10.2 C8.4 8.2, 5.6 7.8, 3.2 8.8"/>
+              <path d="M10.8 10.2 C9.2 7.2, 6.6 5.6, 3.8 5.6"/>
+              <path d="M10.8 10.2 C11.8 7, 14.2 5.2, 17.2 5.4"/>
+              <path d="M10.8 10.2 C13 8.4, 16 8.2, 18.4 9.6"/>
+              <path d="M5.4 21.2 C7.6 20.2, 16.4 20.2, 18.6 21.2"/>
+            </g>
+          </svg>
+
+          <svg class="map-mount" viewBox="0 0 34 22" aria-hidden="true" focusable="false">
+            <g fill="none" stroke="#a9793c" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round">
+              <path d="M2 19.6 L11 4.6 L20 19.6 Z"/>
+              <path d="M8.4 9.6 L11 13 L13.6 9.6"/>
+              <path d="M15 19.6 L23.4 8 L31.8 19.6 Z"/>
+              <path d="M21.4 12.4 L23.4 15 L25.4 12.4"/>
+            </g>
+          </svg>
+
+          <svg class="map-waves" viewBox="0 0 44 14" aria-hidden="true" focusable="false">
+            <g fill="none" stroke="#5b8fa8" stroke-width="1.2" stroke-linecap="round" opacity=".8">
+              <path d="M2 4 C6 1, 10 7, 14 4 C18 1, 22 7, 26 4 C30 1, 34 7, 38 4"/>
+              <path d="M2 10 C6 7, 10 13, 14 10 C18 7, 22 13, 26 10 C30 7, 34 13, 38 10"/>
+            </g>
+          </svg>
+          <span class="map-sea" aria-hidden="true">{{ L('大海', 'the sea') }}</span>
+
+          <span class="map-beach">
+            <span class="map-beach-art" aria-hidden="true">
+              <svg viewBox="0 0 30 24" focusable="false">
+                <g fill="none" stroke="#8a5a1f" stroke-width="1.5" stroke-linecap="round">
+                  <path d="M4 19.5 H26"/><path d="M5.5 16.5 H24.5"/><path d="M7 13.8 H23"/>
+                  <path d="M15 13.8 V4.6"/>
+                </g>
+                <path d="M15 4.6 L23 6.8 L15 9 Z" fill="#c2492f" fill-opacity=".85" stroke="#8a5a1f" stroke-width=".9"/>
+              </svg>
+            </span>
+            {{ L('沙灘 · 木筏', 'Beach · raft') }}
+            <span class="map-x" aria-hidden="true">
+              <svg viewBox="0 0 20 20" focusable="false">
+                <g stroke="#b23b2e" stroke-width="2.6" stroke-linecap="round" fill="none">
+                  <path d="M4.5 4.5 L15.5 15.5"/><path d="M15.5 4.5 L4.5 15.5"/>
+                </g>
+              </svg>
+            </span>
+          </span>
+
+          <ol class="stage-chips" aria-label="{{ L('五個區域的尋寶圖', 'Map of five locations') }}">
+            {% for stage in stages %}
+              <li class="stage-chip{{ ' stage-chip-first' if loop.first }}{{ ' is-done' if stage.done }}{{ ' is-here' if stage.next }}"
+                  data-stage="{{ stage.n }}">
+                <div class="stage-chip-card"{% if stage.next %} aria-current="step"{% endif %}>
+                  <span class="stage-chip-pin">
+                    <span class="stage-chip-num">{{ stage.n }}</span>
+                    <span class="stage-chip-icon">{{ stage.icon }}</span>
+                  </span>
+                  <span class="stage-chip-content">
+                    {% if loop.first %}
+                      <span class="stage-chip-eyebrow">{{ L('第一站 · 從這裡開始', 'FIRST STOP · START HERE') }}</span>
+                    {% endif %}
+                    <strong class="stage-chip-name">{{ L(stage.name_zh, stage.name_en) }}</strong>
+                    <span class="stage-chip-game">🎮 {{ L('遊戲', 'Game') }} {{ stage.game_n }} ·
+                      {{ L(stage.game_name_zh, stage.game_name_en) if stage.game_ready else L('即將推出', 'Coming soon') }}</span>
+                    {% if loop.first or stage.game_ready %}
+                      <span class="stage-chip-desc">{{ L(stage.game_blurb_zh, stage.game_blurb_en) }}</span>
+                    {% endif %}
+                    <span class="stage-chip-state" data-game-state>
+                      {% if stage.done %}✔ {{ L('已完成', 'Cleared') }}
+                      {% elif not stage.game_ready %}🔒 {{ L('等待領袖加入', 'Waiting for your leader') }}
+                      {% elif stage.pending %}⏳ {{ L('等領袖核實', 'With a leader') }}
+                      {% else %}{{ L('等你開始', 'Ready to play') }}{% endif %}
+                    </span>
+                    {# A cleared game keeps a small door of its own: the bottom
+                       button carries on to the NEXT game, and a scout who wants
+                       to walk this one again taps here. #}
+                    {% if stage.done and stage.game_ready and stage.game_task and not badge.locked %}
+                      <a class="stage-chip-replay" data-replay="stage-{{ stage.n }}"
+                         href="{{ url_for('scout_routes.task_cave', task_id=stage.game_task.id)
+                                  if stage.game_kind == 'cave'
+                                  else (url_for('scout_routes.task_bridge', task_id=stage.game_task.id)
+                                        if stage.game_kind == 'bridge'
+                                        else url_for('scout_routes.task_player', task_id=stage.game_task.id)) }}">
+                        🎮 {{ L('再玩一次', 'Play again') }}
+                      </a>
+                    {% endif %}
+                  </span>
+                  {% if stage.next %}
+                    <span class="stage-chip-me" title="{{ L('你在這裡', 'You are here') }}">
+                      <img src="{{ animal }}" alt="">
+                    </span>
+                  {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        </div>
+
+        <p class="map-legend small muted">
+          ✔ {{ L('已完成', 'Cleared') }} · ● {{ L('你在這裡', 'You are here') }}
+          · ✕ {{ L('木筏就在這裡', 'the raft is here') }}
+          · ── {{ L('虛線就是你的路線', 'the dashed line is your route') }}
+        </p>
+
+        <div class="story-raft">
+          <span class="story-raft-art">🛶</span>
+          <strong>{{ L(quest.trail_last_zh, quest.trail_last_en) }}</strong>
+          <span class="small muted">{{ L(quest.trail_last_note_zh, quest.trail_last_note_en) }}</span>
+          <span class="story-raft-meter small">{{ done_areas }} / {{ stages | length }}</span>
+        </div>
+      </div>
+    </div>
+  </li>
+</ol>
+
+{# A single, obvious action below the map. No cast-off form or second Play
+   button inside a location. Future games use the same action when ready. #}
+{% set next_stage = (stages | selectattr('next') | list | first) %}
+<div class="story-launch" data-journey-launch>
+  {% if badge.earned %}
+    <p class="story-launch-note">🎖 {{ L('五個遊戲全部完成！你已考獲會員章。',
+                                      'All five games cleared! You have earned the Membership Badge.') }}</p>
+  {% elif next_stage and next_stage.game_ready and next_stage.game_task and not badge.locked %}
+    {% set play = url_for('scout_routes.task_cave', task_id=next_stage.game_task.id)
+                  if next_stage.game_kind == 'cave'
+                  else (url_for('scout_routes.task_bridge', task_id=next_stage.game_task.id)
+                        if next_stage.game_kind == 'bridge'
+                        else url_for('scout_routes.task_player', task_id=next_stage.game_task.id)) %}
+    <p class="small muted story-launch-note">{{ L(quest.first_stage_note_zh, quest.first_stage_note_en)
+      if next_stage.n == 1 else L('直接進入「' ~ next_stage.game_name_zh ~ '」。',
+                                   'Go straight into “' ~ next_stage.game_name_en ~ '”.') }}</p>
+  {% else %}
+    <p class="story-launch-note" data-journey-wait>🔒 {{ L('下一個遊戲尚未開放，請等待領袖加入。',
+                                                              'The next game is not available yet. Your leader will add it later.') }}</p>
+  {% endif %}
+  {% if next_stage and next_stage.n == 1 %}
+    <p class="story-launch-note" data-journey-wait hidden>🔒 {{ L('遊戲 2 尚未開放，請等待領袖加入。',
+                                                                     'Game 2 is not available yet. Your leader will add it later.') }}</p>
+  {% endif %}
+  {% if not badge.earned and next_stage and next_stage.game_ready and next_stage.game_task and not badge.locked %}
+    <a class="btn primary big" data-journey-play href="{{ play }}">
+      🎮 {{ L(quest.start_zh, quest.start_en) if next_stage.n == 1
+            else L('繼續歷險 · 進入遊戲 ' ~ next_stage.game_n,
+                   'Continue the journey · Game ' ~ next_stage.game_n) }}
+    </a>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,4522 @@
+[
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "seed_demo",
+    "entity": "system",
+    "entity_id": "",
+    "detail_json": "{\"scouts\": 7}",
+    "created_at": "2026-10-15T00:29:43.253Z",
+    "id": "d20e7838f490b559"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:29:48.083Z",
+    "id": "f1273f2185209457"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:32:55.480Z",
+    "id": "d4c139910fbb818b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:33:02.545Z",
+    "id": "c4fb6a6f7c51d79a"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:35:22.577Z",
+    "id": "814ac1e871ec3f3d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:35:26.884Z",
+    "id": "c52a16d59f1409ec"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:35:28.077Z",
+    "id": "b6e806e381848569"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:35:35.662Z",
+    "id": "ac09fef1bde499e0"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:35:42.569Z",
+    "id": "366aaf6ab2cdb90e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 98}",
+    "created_at": "2026-10-15T00:36:36.989Z",
+    "id": "71a0d0772e4dd13a"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:36:51.682Z",
+    "id": "862de5bfb94ceaaf"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:37:07.737Z",
+    "id": "7a36321deb2d3438"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:37:10.916Z",
+    "id": "5af913c887e55729"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:37:21.161Z",
+    "id": "121375a92f61c5f0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:38:53.248Z",
+    "id": "c139041e2d6c02a3"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T00:40:36.495Z",
+    "id": "a5fa05efc23c7b2d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:20:24.750Z",
+    "id": "3cd914fea68b070b"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 98}",
+    "created_at": "2026-10-15T01:21:18.421Z",
+    "id": "9572b71bfd2bf14c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:21:23.855Z",
+    "id": "80e7797377130cc9"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:28:12.350Z",
+    "id": "28044cbabb2beee1"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 98}",
+    "created_at": "2026-10-15T01:29:05.820Z",
+    "id": "756283cae3cc14ad"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:29:15.293Z",
+    "id": "06746947f4722e8b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:31:13.685Z",
+    "id": "4643d2294d0c1018"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:31:25.926Z",
+    "id": "38130db9db053e4d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:31:37.179Z",
+    "id": "8d746ce0b23531e7"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:31:50.767Z",
+    "id": "0d2f8e2abab52bb6"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:31:53.968Z",
+    "id": "591d9dcb3489cb93"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:32:05.625Z",
+    "id": "4e555416169db263"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:32:15.506Z",
+    "id": "e09e2f2f886dde92"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T01:32:27.033Z",
+    "id": "1ad116570b7e11d8"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:07:22.490Z",
+    "id": "dfc82e78547b4d6e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:07:38.314Z",
+    "id": "950cbb839e570ea4"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:07:40.819Z",
+    "id": "1d14e2ae3d3c97a8"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:07:58.173Z",
+    "id": "8d585a8de488d2f3"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:08:17.948Z",
+    "id": "0818ae1121137937"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:13:06.974Z",
+    "id": "ecff1a092d29604d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:13:26.554Z",
+    "id": "475f89a46d299083"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 98}",
+    "created_at": "2026-10-15T02:14:21.260Z",
+    "id": "86eb738ab0ffd712"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:16:12.067Z",
+    "id": "6b3d32ac6c749175"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:17:32.269Z",
+    "id": "91078eeb5e4f9515"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:17:32.915Z",
+    "id": "fc3ae4aa377577c0"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:17:33.597Z",
+    "id": "25047ccb0d7d8063"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:17:34.270Z",
+    "id": "43fb5e9fbff356f9"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:19:34.540Z",
+    "id": "97ed7b94e93daae5"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:19:35.359Z",
+    "id": "cca0523be8080c76"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:19:57.412Z",
+    "id": "e822438f5af0c6b0"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:19:58.315Z",
+    "id": "a40cc5629f216a17"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:21:04.312Z",
+    "id": "dbb48356c3144b91"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:26:54.005Z",
+    "id": "c1f9419bc60e1092"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:28:01.007Z",
+    "id": "bef295557042161d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:28:01.884Z",
+    "id": "bf8a2690ae583fe8"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:38:18.089Z",
+    "id": "4a47fd84ac1eead9"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:38:27.212Z",
+    "id": "cd8cbcdfb07958e8"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:41:06.388Z",
+    "id": "145e5a8dc99552e5"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 98}",
+    "created_at": "2026-10-15T02:41:59.983Z",
+    "id": "537194bbcf5ae412"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:42:11.530Z",
+    "id": "22e1e54d3859045d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:42:51.416Z",
+    "id": "a057db8fe0a0a658"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:44:23.123Z",
+    "id": "c89aeab94a6c5a15"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:44:57.467Z",
+    "id": "6df0b08a5f4b5946"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:45:37.819Z",
+    "id": "bba0c86fae4d76b0"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:45:59.777Z",
+    "id": "3c6e052ab6db212e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T02:47:25.998Z",
+    "id": "4aac186b4d1b3594"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:07:27.927Z",
+    "id": "885603ece8699f6c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:09:29.665Z",
+    "id": "a72b10d12d26b122"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T03:10:44.479Z",
+    "id": "accda30820be0528"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:11:13.696Z",
+    "id": "923ba18a1178fcd5"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:12:11.591Z",
+    "id": "19df3c878bc16ebb"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:12:23.840Z",
+    "id": "471aad7951ca5935"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:20:34.747Z",
+    "id": "a22c6426c84ab473"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T03:21:48.499Z",
+    "id": "230bf72270d57403"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:27:16.365Z",
+    "id": "297a3cd056105ac3"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:27:36.701Z",
+    "id": "5f9aa1a5a16e2c85"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T03:28:47.169Z",
+    "id": "2aa5a612fd42ae66"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:48:02.439Z",
+    "id": "537616ff3403089e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:55:22.007Z",
+    "id": "be327417aebc8350"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T03:56:29.083Z",
+    "id": "797068332c2e4e5b"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:57:37.146Z",
+    "id": "7bff8883f12f4932"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:57:37.927Z",
+    "id": "33f353c36e324d10"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T03:58:58.934Z",
+    "id": "ff2e744c3ba4a65e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:01:01.939Z",
+    "id": "6619a612498f13ec"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:01:03.025Z",
+    "id": "b1dea448ab2cfabe"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:32:42.229Z",
+    "id": "d9d26ed861e969fa"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:32:54.816Z",
+    "id": "131de9cde213abaa"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "export_scouts",
+    "entity": "users",
+    "entity_id": "",
+    "detail_json": "{\"rows\": 7}",
+    "created_at": "2026-10-15T04:33:19.827Z",
+    "id": "2c197cbf7af10cc7"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "delete_task",
+    "entity": "tasks",
+    "entity_id": "331d700defc48f80",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:33:50.454Z",
+    "id": "69e22d2c2ae33db7"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:36:07.848Z",
+    "id": "14cf22a98bd743c5"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_entry",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:36:07.849Z",
+    "id": "1643c1b130c48175"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:36:23.430Z",
+    "id": "f6a9ebdd8ea6e227"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:37:47.254Z",
+    "id": "508cc14c027f4273"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "delete_announcement",
+    "entity": "announcements",
+    "entity_id": "a8d34c0426afca2c",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:38:02.875Z",
+    "id": "bfc2bdf4bbfc6b3b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:38:11.374Z",
+    "id": "0f3a58445598e7dd"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:52:51.655Z",
+    "id": "0065923db4f4970d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:52:51.722Z",
+    "id": "dcc45b4ef91888dd"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T04:54:04.885Z",
+    "id": "78edfe411659c4f7"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:54:08.897Z",
+    "id": "c269246a590aba3a"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:54:08.953Z",
+    "id": "254c28ad23ea6b5c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:54:16.386Z",
+    "id": "48af480d5f0676c5"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:54:16.457Z",
+    "id": "f412222addfdfabc"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:54:30.548Z",
+    "id": "788da6d4d8f7f8cc"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:54:34.768Z",
+    "id": "7366933ce35aa1aa"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:54:36.020Z",
+    "id": "c9c98fc2b529d594"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:54:47.826Z",
+    "id": "21725668037028db"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:55:01.152Z",
+    "id": "261847015da575e9"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:55:04.376Z",
+    "id": "ed37bdb904bc0be3"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:55:15.437Z",
+    "id": "c7064ec28f51cbdd"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:55:28.829Z",
+    "id": "8d8eb2d301ff6e3d"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:55:31.897Z",
+    "id": "1b328635a43f209f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:55:34.095Z",
+    "id": "ca034c07ec98f638"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:55:38.196Z",
+    "id": "f4d29ff375955957"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T04:55:39.362Z",
+    "id": "6f1cbd365b21875d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:13:58.902Z",
+    "id": "42714e6ecdfac185"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:13:58.959Z",
+    "id": "d89236407ba41706"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:14:07.757Z",
+    "id": "2b6c66b1b86cfd01"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:14:07.820Z",
+    "id": "be97bb68c198e35d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:32:13.178Z",
+    "id": "bb723e961f9b77fd"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:33:25.507Z",
+    "id": "01c3661a6f72266a"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:33:25.574Z",
+    "id": "86503c68ea9856b4"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:33:32.232Z",
+    "id": "50427dcb77404960"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:33:36.449Z",
+    "id": "417b9421aa08ec5d"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:33:37.609Z",
+    "id": "50efd45ec7a57269"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:43:09.357Z",
+    "id": "918f64c97a442771"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:43:09.438Z",
+    "id": "c499d3c9e537c324"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:43:16.320Z",
+    "id": "9a8c5666afa4401d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:43:20.520Z",
+    "id": "fd7ab9ed069f121b"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:43:21.677Z",
+    "id": "b2ae51697c3a2bc2"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:55:08.472Z",
+    "id": "674102e30679c12c"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "configure_game",
+    "entity": "badges",
+    "entity_id": "c41dd03dbfd5e5b9",
+    "detail_json": "{\"area\": 4, \"task_code\": \"\"}",
+    "created_at": "2026-10-15T05:56:03.357Z",
+    "id": "04fafd09ac35a90f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:57:05.594Z",
+    "id": "f8a459a9756a12cf"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:03.837Z",
+    "id": "09453a87d66b230d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:03.904Z",
+    "id": "531b2501684c25e8"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:10.529Z",
+    "id": "a1ee3396245afd65"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:14.766Z",
+    "id": "80d2680a19c59e90"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:15.937Z",
+    "id": "4064e891e404c9e9"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:46.698Z",
+    "id": "fcbd2d0b7f13ff42"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:46.804Z",
+    "id": "a2f11d8d11c34e53"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:54.025Z",
+    "id": "009ca167d09f9b45"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T05:59:54.086Z",
+    "id": "36c76c7239912bcc"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T06:15:24.526Z",
+    "id": "8948636671302383"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T06:15:24.656Z",
+    "id": "9f14bbd0ce347c2e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T06:15:31.858Z",
+    "id": "b29764f2092cf83d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T06:15:31.916Z",
+    "id": "5e4a6dc551023474"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T06:15:46.191Z",
+    "id": "05ffbd1bab950421"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T06:15:50.347Z",
+    "id": "305f2bbbd6014958"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T06:15:51.509Z",
+    "id": "a66229f12adc915c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:23:38.856Z",
+    "id": "3be19e28cb065ea9"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:23:38.982Z",
+    "id": "4274b03f2497bb19"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:23:46.082Z",
+    "id": "76166eb51c09afde"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:23:50.407Z",
+    "id": "5e0b93d9f954c708"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:23:51.605Z",
+    "id": "93acead872d0d0bc"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:24:01.112Z",
+    "id": "6f6089a60378d572"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:24:01.175Z",
+    "id": "36a3d69ff23bbd77"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:24:58.546Z",
+    "id": "21cc049165f8ef09"
+  },
+  {
+    "actor_id": "70bc0a5f9f781f1c",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "70bc0a5f9f781f1c",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:55:12.055Z",
+    "id": "0c9a74c0252b2f75"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T07:55:18.933Z",
+    "id": "7bdbead63880b1a1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:05:04.784Z",
+    "id": "d92d7ebcf202c478"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:05:40.076Z",
+    "id": "7a5b65c4247ad24b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:06:17.577Z",
+    "id": "40ecfcf53e693677"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:06:29.635Z",
+    "id": "01595026bbc404ba"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T08:06:52.474Z",
+    "id": "ae1485657a2f353e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:07:25.505Z",
+    "id": "ba503fd3a3b0b496"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:08:27.628Z",
+    "id": "4acecd183c3ba7d0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:09:01.291Z",
+    "id": "fd2ee1f56c444330"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:09:28.071Z",
+    "id": "8525654ee8bb0081"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:10:25.724Z",
+    "id": "7388ffca709ac3db"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:11:31.054Z",
+    "id": "7fb5c055a1d6eaaa"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:12:32.690Z",
+    "id": "0bd854fbc852de0c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:12:35.132Z",
+    "id": "575f4de8cd4e5634"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:12:38.962Z",
+    "id": "96555cdcb67adb6e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:13:29.041Z",
+    "id": "202ecf0f38f41b87"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T08:13:48.971Z",
+    "id": "10f99ce46858e18c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:14:10.391Z",
+    "id": "e088685b221b6667"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:14:41.178Z",
+    "id": "3f8b1a630aadb34e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T08:15:04.492Z",
+    "id": "0382c2f53aa4193c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:15:31.666Z",
+    "id": "e6f9d8ddc4d81574"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:15:35.826Z",
+    "id": "c789fd408c1c726f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:15:46.288Z",
+    "id": "e58adc54127b754f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:15:47.041Z",
+    "id": "7a3e1137ec57fbe2"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T08:16:10.751Z",
+    "id": "ac13ca163a67ee22"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:16:38.343Z",
+    "id": "d9a52280a1e4d13b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T08:17:03.029Z",
+    "id": "e729a3df7303affe"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:26:11.893Z",
+    "id": "6cbee4ac63486325"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:29:29.271Z",
+    "id": "962e5fbd60cd06e7"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:29:29.348Z",
+    "id": "8d04ad395c1a36d9"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:29:37.248Z",
+    "id": "0136f0cef55b195e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:29:37.321Z",
+    "id": "ec9eb08b8066a820"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:29:51.682Z",
+    "id": "fe2a62fa564384aa"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:29:56.655Z",
+    "id": "72d1f794ae0ca129"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:29:57.821Z",
+    "id": "97cfc93afae7dd33"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:33:53.528Z",
+    "id": "6b148d77fb598cf9"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:34:09.921Z",
+    "id": "94c1bfb063ad43a8"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:34:13.001Z",
+    "id": "5498f39b0c7dc24e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:34:15.339Z",
+    "id": "d702336efdaa6b9d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:34:15.403Z",
+    "id": "9f8ce77f1672e669"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T08:35:24.126Z",
+    "id": "7fba5c81a73e18d6"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:35:35.525Z",
+    "id": "85269bf486134916"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:35:35.607Z",
+    "id": "728cf311d363fe54"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T08:36:45.202Z",
+    "id": "a80b31fdb883e4bb"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:38:25.412Z",
+    "id": "3bda3ff7efb096d4"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:39:27.588Z",
+    "id": "05bc7d3f8dfa7694"
+  },
+  {
+    "actor_id": "0e2599a1fdef71b8",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "0e2599a1fdef71b8",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:41:10.969Z",
+    "id": "c0a7a93fb76a332a"
+  },
+  {
+    "actor_id": "0e2599a1fdef71b8",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "0e2599a1fdef71b8",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:41:45.400Z",
+    "id": "0b8ac571dd074ade"
+  },
+  {
+    "actor_id": "0e2599a1fdef71b8",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "0e2599a1fdef71b8",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:41:51.762Z",
+    "id": "e45c32df2f1635c7"
+  },
+  {
+    "actor_id": "0e2599a1fdef71b8",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "0e2599a1fdef71b8",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:42:26.918Z",
+    "id": "fa81e4a3fa8422fe"
+  },
+  {
+    "actor_id": "0e2599a1fdef71b8",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "0e2599a1fdef71b8",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:42:40.155Z",
+    "id": "87e37f08d7c0b57c"
+  },
+  {
+    "actor_id": "0e2599a1fdef71b8",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "0e2599a1fdef71b8",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:48:31.515Z",
+    "id": "58b7e8b1d98b363c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:48:33.066Z",
+    "id": "ae8323cd915f7ff5"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:59:19.432Z",
+    "id": "d234953de69f84fa"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 100}",
+    "created_at": "2026-10-15T08:59:19.534Z",
+    "id": "1ddcfe2f517b3bc0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:59:43.368Z",
+    "id": "d2f9405df9986a4c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:59:43.777Z",
+    "id": "41ef72b08259d0c2"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T08:59:43.861Z",
+    "id": "75a76a4dd7b1ac0e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:02:15.426Z",
+    "id": "791012687672f631"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T09:02:40.510Z",
+    "id": "4b2582e501d56e9c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:06:54.826Z",
+    "id": "e49180611dce46f3"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:07:10.768Z",
+    "id": "bd2bcff9a0b676f4"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:07:10.842Z",
+    "id": "ade48f4aa7a57f36"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T09:08:21.024Z",
+    "id": "91338d336219b715"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:09:06.271Z",
+    "id": "af41157441b32c0f"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:09:06.335Z",
+    "id": "0adee40226d8dbdf"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T09:10:17.020Z",
+    "id": "42876f1308240975"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:10:34.867Z",
+    "id": "603739fd7f975f66"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:10:34.991Z",
+    "id": "86ecdd775b413d96"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T09:11:45.705Z",
+    "id": "f5ce959a1de1ad1c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:11:59.567Z",
+    "id": "c9b5976d47cbd0b0"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:11:59.635Z",
+    "id": "31cc9d5ce893440d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T09:13:11.200Z",
+    "id": "ba6b7fe4defa7c5c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:26:40.280Z",
+    "id": "9603e2f821c45d9c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:28:38.618Z",
+    "id": "6a74bfcf60438be2"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:29:58.418Z",
+    "id": "4254cf6534242a53"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T09:30:21.986Z",
+    "id": "27f591f1a14b6a96"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:33:06.130Z",
+    "id": "18242fd0e21b09de"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:33:11.075Z",
+    "id": "6b4e558bdad8428a"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:33:12.263Z",
+    "id": "728e65d9a51c7ad5"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:33:41.319Z",
+    "id": "120034898787473c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:33:41.382Z",
+    "id": "077fbf9e08a51c7b"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 74}",
+    "created_at": "2026-10-15T09:34:52.561Z",
+    "id": "899a229826eb95f1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:34:56.630Z",
+    "id": "d8292893affdc1ee"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:34:57.578Z",
+    "id": "22804c25003d471f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T09:35:06.977Z",
+    "id": "84092d77919e842b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:37:57.770Z",
+    "id": "b7bc5e9458304d5b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:38:01.510Z",
+    "id": "f17366a6c76dba77"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:38:07.078Z",
+    "id": "8b3f195aeeb48346"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:55:57.814Z",
+    "id": "71d4c84b644ba6e3"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:55:57.942Z",
+    "id": "335354ead152eed3"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:56:10.887Z",
+    "id": "b95e97346adc8b60"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:56:10.949Z",
+    "id": "e3f08beb91706a54"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:57:00.918Z",
+    "id": "33839443aa4173b0"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:57:00.980Z",
+    "id": "d8c5ef180168fe47"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:58:18.134Z",
+    "id": "179589f5f5027b79"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T11:58:18.199Z",
+    "id": "e6dd7550106b1749"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T11:59:53.433Z",
+    "id": "56b9997776c02e33"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T12:00:00.311Z",
+    "id": "a0ac253ba05ab440"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T12:00:00.374Z",
+    "id": "8598267144e4ea6c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T12:01:37.810Z",
+    "id": "302d046252c74a91"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T12:06:47.111Z",
+    "id": "b997b4e1e98df9f6"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T12:06:51.999Z",
+    "id": "bf1770c2d5af8e96"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T12:06:53.172Z",
+    "id": "a46b48fd02f197bb"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T12:07:16.912Z",
+    "id": "436810e2f5216eaf"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T12:07:21.827Z",
+    "id": "c04a096be003e45d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T12:07:36.691Z",
+    "id": "5f4c811e702976b0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:01:58.329Z",
+    "id": "d6ec9c407700e1b1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:02:03.776Z",
+    "id": "60a171a999d08497"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:02:23.549Z",
+    "id": "38cac344b305990b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:02:33.097Z",
+    "id": "0c46ae12431f5e69"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:02:41.282Z",
+    "id": "f2ba532a0224bdb7"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:02:55.246Z",
+    "id": "ca9a2b57c3f1f44f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:03:05.784Z",
+    "id": "25e897c98a2286d5"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:03:34.567Z",
+    "id": "43cb377e549897ac"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:03:46.490Z",
+    "id": "57cdc418d4c543e4"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:03:59.080Z",
+    "id": "ad262b4f6a080f95"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:04:04.762Z",
+    "id": "a3614cbaac138b24"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:04:48.393Z",
+    "id": "bba06b680475042e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:05:14.895Z",
+    "id": "639f0a5192d61938"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:05:26.614Z",
+    "id": "bbdd9490e93587bc"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:05:26.706Z",
+    "id": "dc213c8f30038fb6"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T13:07:04.754Z",
+    "id": "13a0e9300196d4cf"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:13:50.948Z",
+    "id": "a9f8b226e1b10aeb"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T13:14:16.073Z",
+    "id": "152494225a8e180b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:15:41.275Z",
+    "id": "a0314ae662b78919"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:15:46.263Z",
+    "id": "36c5da2858e3d42a"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:15:47.430Z",
+    "id": "183f786807e0c89f"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:16:08.439Z",
+    "id": "93a42cacfa065dba"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:16:08.503Z",
+    "id": "3e726f1a9f73ac47"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T13:17:44.308Z",
+    "id": "f591a811080a55da"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:17:56.886Z",
+    "id": "85dbb6a3f4aa9f3b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:18:02.865Z",
+    "id": "b49843fccffadfff"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:18:22.932Z",
+    "id": "1d347daf96f6255f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:18:24.773Z",
+    "id": "fe137e12d578e958"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:18:37.430Z",
+    "id": "f9ef9c57a37e28b4"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:18:39.465Z",
+    "id": "2a42cd0204676fb4"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:18:41.235Z",
+    "id": "979c0480842536b8"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:18:53.314Z",
+    "id": "ed026491e5751e9c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:18:53.377Z",
+    "id": "a0a4109348670670"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T13:20:29.118Z",
+    "id": "c11c44f024151ce1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:23:44.779Z",
+    "id": "0ba4743384cdd30f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T13:24:07.699Z",
+    "id": "50ffcae9de57cebd"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:25:32.348Z",
+    "id": "7197db7d8b2f38bc"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T13:25:38.340Z",
+    "id": "15b1ec08b436126d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T14:26:53.534Z",
+    "id": "6a70ece71d55cbde"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:33:47.061Z",
+    "id": "491c4691e87bfd5d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:34:05.834Z",
+    "id": "05823dbf0c5498da"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:34:26.931Z",
+    "id": "fb7f6d9ba2f3eb2b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:34:45.836Z",
+    "id": "5de9907d8f45d9d8"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:35:01.695Z",
+    "id": "ca4b3928255d5dd3"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:35:03.860Z",
+    "id": "edecd7f0fe856f7b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:35:05.734Z",
+    "id": "0346e312d6c0ad26"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:35:32.054Z",
+    "id": "ba7d99fab205f1da"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:35:32.123Z",
+    "id": "99201eb27eec47db"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T15:37:09.378Z",
+    "id": "53a54182d655324a"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:40:13.225Z",
+    "id": "7ebc6904e012947e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T15:40:35.863Z",
+    "id": "c0bd0c7304085896"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:42:10.684Z",
+    "id": "31544e07ccc39daa"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:42:29.477Z",
+    "id": "fc6afad77834544c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:42:40.118Z",
+    "id": "5f67a6129bfea37a"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:42:55.484Z",
+    "id": "d3887399a6fefdfb"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:42:55.548Z",
+    "id": "4af295001dbd9627"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T15:44:33.521Z",
+    "id": "c098bbfbeac60915"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:47:35.283Z",
+    "id": "02a6e0bfa5e482c0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T15:47:51.948Z",
+    "id": "323a8d857daedd4a"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:49:02.792Z",
+    "id": "49e40094b3079d31"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:49:07.531Z",
+    "id": "b127e91a3bdf5f08"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:49:08.704Z",
+    "id": "2f2230ea8e001dbe"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:52:37.494Z",
+    "id": "7092a636b26e662b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:53:08.420Z",
+    "id": "5773542c293615b3"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:53:39.829Z",
+    "id": "fb88ee4909ece720"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:53:42.067Z",
+    "id": "d2973c8011380abb"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:53:43.980Z",
+    "id": "764c68e22379820f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:53:45.806Z",
+    "id": "cafa45916d50c24e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:53:54.988Z",
+    "id": "44853683e9896952"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:54:11.043Z",
+    "id": "bdfb6cc2759b738d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:54:11.130Z",
+    "id": "44a65def000d3e6f"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T15:55:49.872Z",
+    "id": "59ebf6f63413832c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:55:53.903Z",
+    "id": "0d9a3afe5314be6b"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:55:53.964Z",
+    "id": "f01abff184c7ac1f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T15:59:18.917Z",
+    "id": "8347adef31df895e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T15:59:36.577Z",
+    "id": "11c7abb68f291ada"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:00:51.616Z",
+    "id": "e63cf4b798d0a5d8"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:00:56.496Z",
+    "id": "612e5633260a468a"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:00:57.683Z",
+    "id": "bb47e0b2478606e9"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:01:12.600Z",
+    "id": "9c296cd864662266"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:06:13.349Z",
+    "id": "4c8f2a6786386ca9"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:06:28.295Z",
+    "id": "2257261b19487200"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:06:30.544Z",
+    "id": "f9a9fae24bd414a0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:06:32.757Z",
+    "id": "f38e180c9223c95c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:06:51.366Z",
+    "id": "2c3ac88b1d93ae5d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:06:51.445Z",
+    "id": "afa923d9e1f33b3e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T16:08:37.333Z",
+    "id": "553d5bf3f11244ef"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:11:37.354Z",
+    "id": "cf22473021bfe0d4"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:11:37.415Z",
+    "id": "c439f97b5d24c5cf"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:11:52.708Z",
+    "id": "a761fb73f35fc3e1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T16:12:09.299Z",
+    "id": "468dc3145960dfcf"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:13:30.465Z",
+    "id": "123dfdb6df52b3cb"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:13:35.390Z",
+    "id": "aac2df55b70d08cb"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:13:36.555Z",
+    "id": "6d4bf8766077c4dc"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:13:46.212Z",
+    "id": "7ac436ad1feb2a30"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:13:52.750Z",
+    "id": "8850b9110d5191d0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:18:36.443Z",
+    "id": "979cbeeeb7a41967"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:18:40.511Z",
+    "id": "520d45e7fc591210"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:18:42.359Z",
+    "id": "6be292926dd2a202"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:18:55.001Z",
+    "id": "4cafc3ac98164d53"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:18:55.072Z",
+    "id": "362faa16bc8bbbda"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T16:20:31.769Z",
+    "id": "310dc4ef0ff047eb"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:23:45.718Z",
+    "id": "4d2f9e8b15ad8c5d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:23:45.778Z",
+    "id": "f8a35493b3cf9e17"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:23:59.373Z",
+    "id": "fee2d70fff1b571f"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T16:24:21.274Z",
+    "id": "89c0940d1c77ecc0"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:25:40.815Z",
+    "id": "13c2390e537d44de"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:25:45.655Z",
+    "id": "9eea2a2161502c51"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:25:46.833Z",
+    "id": "568a17d73204ff3d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:32:36.795Z",
+    "id": "106fdecddd7e8ca1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T16:33:06.685Z",
+    "id": "4a44c0524b697e59"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:36:32.436Z",
+    "id": "ebd25fa327203d27"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:36:32.507Z",
+    "id": "5b5f059f790c7c6d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T16:38:09.134Z",
+    "id": "078d45a7d12434d8"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:39:16.308Z",
+    "id": "34d38e4507ddc355"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:39:16.364Z",
+    "id": "5a8b2d1345aaa888"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:39:39.963Z",
+    "id": "95f9f08cec8a07ba"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T16:40:14.297Z",
+    "id": "aa136e438c9c89b4"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:40:43.997Z",
+    "id": "f4635599ff5313fe"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T16:41:21.170Z",
+    "id": "4e557ea06831005e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:46:04.946Z",
+    "id": "896160e74f4775fb"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:46:09.799Z",
+    "id": "1c51e4e60bfe61ab"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:46:10.971Z",
+    "id": "1860bd25e6f11641"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:47:37.183Z",
+    "id": "728fc18bb7e0a67c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T16:48:12.840Z",
+    "id": "838c216c2d3a1592"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:48:57.892Z",
+    "id": "9e7f9a906130c2ab"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:49:59.514Z",
+    "id": "2704036ce34e103c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T16:50:26.062Z",
+    "id": "fbfd7b43bbb15b49"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:51:15.573Z",
+    "id": "abb07e1c5751a1c7"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T16:51:46.503Z",
+    "id": "54ac97165d405c49"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:52:12.238Z",
+    "id": "deb613a178418571"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:52:12.301Z",
+    "id": "5031b0b702475ba4"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-15T16:53:48.098Z",
+    "id": "c182492a864c5ce1"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:53:51.962Z",
+    "id": "557f01810a9d1989"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T16:53:52.024Z",
+    "id": "e12ffb83d1c89301"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T23:57:43.588Z",
+    "id": "fa1a552f5ad6ff8a"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T23:58:17.516Z",
+    "id": "50e8031ce6dc854d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T23:58:47.351Z",
+    "id": "451b1ef15622bcdb"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-15T23:59:18.611Z",
+    "id": "156088d1176ca063"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T23:59:29.815Z",
+    "id": "41a1c36de447d9e3"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-15T23:59:50.203Z",
+    "id": "f539a76dd7399897"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:00:13.227Z",
+    "id": "829c237f6d1c0ea4"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:00:24.043Z",
+    "id": "cb19a6756b06b7ea"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:01:22.593Z",
+    "id": "d724a1e1ed938388"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:02:25.537Z",
+    "id": "06ba8bfc7a2e3a45"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:02:25.615Z",
+    "id": "c8305a69ceb0191d"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-16T00:04:04.317Z",
+    "id": "822fbc3f3237a4aa"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:07:35.169Z",
+    "id": "b117ecfcba2c6c82"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:07:35.238Z",
+    "id": "5cc4e17a155d2359"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:09:06.552Z",
+    "id": "871864da02c99569"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:09:11.494Z",
+    "id": "7d88098344c0663b"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:09:12.669Z",
+    "id": "96ffb08b62615446"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:10:06.910Z",
+    "id": "f8ee72673d34830e"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 100}",
+    "created_at": "2026-10-16T00:10:06.928Z",
+    "id": "8272aa917d9a3de2"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:10:10.658Z",
+    "id": "1cb25a669f8a7faa"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:11:42.046Z",
+    "id": "d2df72e2833f634b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:14:09.946Z",
+    "id": "645692a006ed9333"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:17:04.024Z",
+    "id": "7acbe73c454e3a21"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:17:47.653Z",
+    "id": "61d4e7cacf4731d6"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:18:38.520Z",
+    "id": "b601a75e0dfb25f1"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:19:18.446Z",
+    "id": "9fc884fad6e857fd"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:20:46.740Z",
+    "id": "34856a30511605d6"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:21:28.150Z",
+    "id": "467d786b338ee2ff"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:22:09.819Z",
+    "id": "42d653165be7deb8"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_entry",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:22:09.823Z",
+    "id": "3a82dd4c0101064d"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:22:25.980Z",
+    "id": "ebbb97bfb464ab88"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "update_settings",
+    "entity": "settings",
+    "entity_id": "",
+    "detail_json": "{\"keys\": [\"flag_announcements\", \"flag_evidence_upload\", \"flag_leaderboard\", \"flag_streaks\", \"motto_en\", \"motto_zh\", \"patrols\", \"public_base_url\", \"reset_link_minutes\", \"smtp_from\", \"smtp_host\", \"smtp_password\", \"smtp_port\", \"smtp_tls\", \"smtp_user\", \"switches\", \"ui_sound\", \"unit_name_en\", \"unit_name_zh\"]}",
+    "created_at": "2026-10-16T00:23:58.829Z",
+    "id": "5b1af593dda999dc"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:24:15.488Z",
+    "id": "a21911225c120671"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:25:33.047Z",
+    "id": "c12dec17ece86c7a"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:25:33.113Z",
+    "id": "5af61b87b7ae3470"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:25:43.479Z",
+    "id": "fbddb48d09d8742b"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-16T00:27:12.310Z",
+    "id": "ea685a01bcd6ef4b"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:28:31.766Z",
+    "id": "caf550c4c1bd9dce"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:28:36.753Z",
+    "id": "08a49d9e79c6471d"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:28:37.953Z",
+    "id": "a18ac07e347cf952"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:30:53.600Z",
+    "id": "f1fe7ccc19d24a3d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:31:27.170Z",
+    "id": "92b27eafd7c6f666"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:32:32.121Z",
+    "id": "1c312ddf3ac0339d"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:33:04.007Z",
+    "id": "1cfb6e8ee2df5dc8"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:33:09.933Z",
+    "id": "8eaae32cbc4c0601"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:38:49.922Z",
+    "id": "762a2a9d192791cb"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:39:24.901Z",
+    "id": "cc652adc29f4e2a4"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:42:11.699Z",
+    "id": "c2a6c18cdf5e3de6"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:42:59.028Z",
+    "id": "852328a575a003c6"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:47:41.583Z",
+    "id": "8d8aa2208024a7f7"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:47:46.448Z",
+    "id": "9b7ec204f2cee168"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:47:47.615Z",
+    "id": "d94199176766f1d5"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:52:39.616Z",
+    "id": "052d45c782dc93c2"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:54:20.728Z",
+    "id": "c3d21d35c8e95cb6"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:55:02.073Z",
+    "id": "f17480ecf8deb954"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-16T00:55:06.165Z",
+    "id": "68fa7a337e6d9840"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T00:58:14.424Z",
+    "id": "ee09e739d3ab7cce"
+  }
+]

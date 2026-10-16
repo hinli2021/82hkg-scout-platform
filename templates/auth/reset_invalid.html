@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('連結已失效', 'Link no longer works') }}{% endblock %}
+{% block shell %}
+<div class="screen">
+  <div class="narrow card pad-lg center">
+    <div style="font-size:3rem" aria-hidden="true">⌛</div>
+    <h1>{{ L('連結已失效', 'This link no longer works') }}</h1>
+    <div class="alert warn">{{ L(reason_zh, reason_en) }}</div>
+    <p class="muted small">
+      {% if state == 'used' %}
+        {{ L('如果你已經設定過新密碼，直接用新密碼登入便可以。', 'If you already set a new password, just sign in with it.') }}
+      {% else %}
+        {{ L('重設連結 ' ~ '60' ~ ' 分鐘內有效。請回到登入頁，再按一次「忘記密碼？」索取新的連結。',
+             'Reset links stay good for about an hour. Go back to sign-in and ask for a new one with 「Forgot password?」.') }}
+      {% endif %}
+    </p>
+    <a class="btn primary" href="{{ url_for('auth_routes.login') }}">{{ L('返回登入', 'Back to sign-in') }}</a>
+    <a class="link-btn" href="{{ url_for('auth_routes.forgot') }}">{{ L('重新申請重設連結', 'Ask for a new reset link') }}</a>
+  </div>
+</div>
+{% endblock %}

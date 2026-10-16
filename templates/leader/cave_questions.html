@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('編輯山洞題目', 'Edit cave questions') }}{% endblock %}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('leader_routes.content') }}">{{ L('內容', 'Content') }}</a>
+  <span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('leader_routes.edit_task', task_id=task.id) }}">{{ L(task.title_zh, task.title_en) }}</a>
+  <span class="breadcrumb-arrow">›</span>{{ L('題目與答案', 'Questions & answers') }}
+</div>
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">🕯️ {{ L('編輯山洞題目', 'Edit cave questions') }}</h1>
+    <p class="muted small" style="margin:.3rem 0 0">{{ L('四段壁畫 · 50 題。一次修改及儲存一題；題號與分組保持不變。', 'Four walls · 50 questions. Edit and save one question at a time; its ID and group stay fixed.') }}</p>
+  </div>
+  <a class="btn ghost" href="{{ url_for('leader_routes.content') }}">{{ L('返回內容', 'Back to content') }}</a>
+</div>
+{% if request.args.get('saved') %}
+  <div class="alert ok" role="status">✅ {{ L('題目已儲存；新開始的山洞遊戲會使用更新後的內容。', 'Question saved. Newly started cave games will use your changes.') }}</div>
+{% endif %}
+<div class="card small muted" style="margin-bottom:.8rem">
+  {{ L('只供領袖修改。請同時檢查選項、正確答案及錯路提示；修改史實時，亦應核對四面教學壁畫。已完成的童軍進度不會重設。離線示範是靜態檔案，修改後需要重新產生。',
+       'Leader-only. Check the choices, correct answer and dead-end recap together; if you change a historical fact, also check the teaching wall. Existing scout progress stays intact. Rebuild the static offline demo to include local edits.') }}
+</div>
+<div class="cave-editor-layout">
+  <nav class="card cave-editor-index" aria-label="{{ L('題目清單', 'Question list') }}">
+    <strong>📋 {{ L('選擇題目', 'Choose a question') }}</strong>
+    {% for group in sections %}
+      <details open>
+        <summary>{{ group.icon }} {{ L(group.name_zh, group.name_en) }} · {{ group.questions | length }} {{ L('題', 'questions') }}</summary>
+        <div class="cave-editor-links">
+          {% for item in group.questions %}
+            <a href="{{ url_for('leader_routes.cave_questions', task_id=task.id, q=item.index) }}"
+               class="cave-editor-link {{ 'is-current' if item.index == index }}"
+               {% if item.index == index %}aria-current="page"{% endif %}>
+              <b>{{ item.id }}</b><span>{{ L(item.q_zh, item.q_en) }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </details>
+    {% endfor %}
+  </nav>
+
+  <div>
+    <form class="card cave-editor-form" method="post"
+          action="{{ url_for('leader_routes.save_cave_question', task_id=task.id, bank_index=index) }}">
+      <input type="hidden" name="question_id" value="{{ question.id }}">
+      <span class="chip light">{{ section.icon }} {{ L(section.name_zh, section.name_en) }} · {{ question.id }} · {{ position + 1 }} / 50</span>
+      <h2>{{ L('修改題目及答案', 'Edit question & answer') }}</h2>
+      <p class="small muted">{{ L('請保留題號及四組的順序。選擇正確答案時，點選對應選項左邊的圓點。', 'The question ID and its wall stay fixed. Select the correct answer with the radio button next to its choice.') }}</p>
+      <div class="form-grid">
+        <label class="field"><span>{{ L('題目（中文）', 'Question (Chinese)') }}</span>
+          <textarea name="q_zh" rows="3" maxlength="600" required>{{ question.q_zh }}</textarea></label>
+        <label class="field"><span>{{ L('題目（英文）', 'Question (English)') }}</span>
+          <textarea name="q_en" rows="3" maxlength="600" required>{{ question.q_en }}</textarea></label>
+      </div>
+      <fieldset class="cave-editor-choices">
+        <legend>{{ L('選項 · 請選擇一個正確答案', 'Choices · select one correct answer') }}</legend>
+        <p class="small muted">{{ L('前三個選項必填；第四個可留空。英文選項如留空，會暫時顯示中文。', 'The first three choices are required; the fourth is optional. If an English choice is blank, the Chinese text is used until you translate it.') }}</p>
+        {% for choice in choices %}
+          {% set n = loop.index0 %}
+          <div class="cave-editor-choice">
+            <label class="cave-editor-correct">
+              <input type="radio" name="answer" value="{{ n }}" {{ 'checked' if question.answer == n }} required>
+              <strong>{{ 'ABCD'[n] }} · {{ L('設為正確答案', 'Mark as correct') }}</strong>
+            </label>
+            <div class="form-grid">
+              <label class="field"><span>{{ L('選項', 'Choice') }} {{ 'ABCD'[n] }} {{ L('（中文）', '(Chinese)') }}{{ L(' · 可留空', ' · optional') if n == 3 }}</span>
+                <input name="option_{{ n }}_zh" type="text" value="{{ choice.zh }}" maxlength="300" {{ 'required' if n < 3 }}></label>
+              <label class="field"><span>{{ L('選項', 'Choice') }} {{ 'ABCD'[n] }} {{ L('（英文）', '(English)') }}</span>
+                <input name="option_{{ n }}_en" type="text" value="{{ choice.en }}" maxlength="300"></label>
+            </div>
+          </div>
+        {% endfor %}
+      </fieldset>
+      <h3>{{ L('錯路溫習提示', 'Dead-end recap') }}</h3>
+      <p class="small muted">{{ L('童軍答錯時只會看到這段提示，不會直接看到標示好的正確選項。請寫出可讓他們重溫並自行再選的資訊。',
+                                     'After a wrong turn scouts see this recap, not a labelled correct choice. Give them enough information to think and retry.') }}</p>
+      <div class="form-grid">
+        <label class="field"><span>{{ L('溫習提示（中文）', 'Recap (Chinese)') }}</span>
+          <textarea name="explain_zh" rows="4" maxlength="1200" required>{{ question.explain_zh }}</textarea></label>
+        <label class="field"><span>{{ L('溫習提示（英文，可留空）', 'Recap (English, optional)') }}</span>
+          <textarea name="explain_en" rows="4" maxlength="1200">{{ question.explain_en or '' }}</textarea></label>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">💾 {{ L('儲存這一題', 'Save this question') }}</button>
+        {% if prev_index is not none %}<a class="btn ghost" href="{{ url_for('leader_routes.cave_questions', task_id=task.id, q=prev_index) }}">← {{ L('上一題', 'Previous') }}</a>{% endif %}
+        {% if next_index is not none %}<a class="btn ghost" href="{{ url_for('leader_routes.cave_questions', task_id=task.id, q=next_index) }}">{{ L('下一題', 'Next') }} →</a>{% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

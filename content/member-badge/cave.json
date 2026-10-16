@@ -1,0 +1,681 @@
+{
+  "_note": "第 4 項的洞穴歷險。洞裡有四段壁畫，每段壁畫交代一組題目需要的資料；看完壁畫就入石室作答，答錯會走入死路（死路會把該段歷史再講一次），然後回頭再選。題目本身住在 item4-question-bank.json（答案在 item4-answer-key.json），這裡只寫故事、壁畫與死路。要改內容，改這個檔案即可：chambers 是石室的照片（答題時隨機抽），deadends 是死路照片（答錯時隨機抽），photos 可重複使用。",
+  "title_zh": "童軍歷史山洞",
+  "title_en": "The cave of Scout history",
+  "intro": {
+    "image": "entrance",
+    "kicker_zh": "遊戲 1 · 童軍歷史山洞",
+    "kicker_en": "Game 1 · The Cave of Scouting History",
+    "title_zh": "山洞深處，藏着童軍的故事",
+    "title_en": "Deep in the cave, the story of Scouting waits",
+    "paras_zh": [
+      "叢林深處有一道石壁，壁上刻着童軍的百合花。你舉起火炬，火光把洞口的黑暗推開一點。",
+      "山洞分為四段，每一段都有一面壁畫：世界童軍運動、香港童軍運動、八十二旅、還有誓詞與規律。",
+      "看完一面壁畫，就要在石室裡回答那一組題目 —— 四組加起來共 50 題。答錯了會走入死路，死路會把剛才壁畫上的資料再講一次，回頭再選便是。",
+      "這是第一個區域唯一的遊戲：50 題，每題 2 分，滿分 100 分。完成全部題目、走到洞口即自動通關，分數只供回顧；完成山洞便完成第 4 項，無須另做試卷。"
+    ],
+    "paras_en": [
+      "Deep in the jungle, a stone wall carries the Scout fleur-de-lis. You lift your torch and the dark of the cave mouth steps back a little.",
+      "The cave has four stretches, and each one holds a wall painting: Scouting around the world, Scouting in Hong Kong, the 82nd, and the Promise and Law.",
+      "Read a wall, then answer that group's questions in the chamber — fifty questions in all. A wrong path leads to a dead end, where the wall's facts are told again, and you come back and choose once more.",
+      "This is the first area’s only game: 50 questions, 2 marks each, 100 in total. Finish them all and reach the exit to clear it automatically, whatever your score. Clearing the cave completes item 4 — no separate paper."
+    ],
+    "action_zh": "舉起火炬，走進山洞",
+    "action_en": "Raise your torch and step in"
+  },
+  "groups": [
+    {
+      "n": 1,
+      "icon": "🌍",
+      "name_zh": "白浪島的營火",
+      "name_en": "The campfire on Brownsea",
+      "hint_zh": "世界童軍運動的開始",
+      "hint_en": "How Scouting began",
+      "wall": {
+        "image": "wall-world",
+        "title_zh": "壁畫一：白浪島的營火",
+        "title_en": "Wall one — the campfire on Brownsea",
+        "lead_zh": [
+          "火光沿着石壁爬過去，照亮一群少年圍着營火的身影，旗幟在風中翻動。",
+          "這一幅說的是童軍運動的開始：一個將軍、一次實驗露營，和一本書。"
+        ],
+        "lead_en": [
+          "The torchlight climbs the rock and picks out a ring of boys around a campfire, a flag turning in the wind.",
+          "This wall tells how Scouting began: one general, one experimental camp, and one book."
+        ],
+        "timeline": [
+          {
+            "when_zh": "1857 年 2 月 22 日",
+            "when_en": "22 February 1857",
+            "text_zh": "貝登堡出生。他的全名是羅拔·史提芬遜·史密夫·貝登堡維爾（Robert Stephenson Smyth Baden-Powell）。",
+            "text_en": "Baden-Powell is born. His full name is Robert Stephenson Smyth Baden-Powell."
+          },
+          {
+            "when_zh": "從軍的年代",
+            "when_en": "The army years",
+            "text_zh": "他率領軍隊平服西非洲的叛亂。他不用單操，而是把小隊制度用在軍隊裡 —— 幾個人成一隊，互相照應。",
+            "text_en": "He leads troops that put down the rising in West Africa. Instead of drilling men one by one he uses the patrol system in the army — a few men to a team, looking after one another."
+          },
+          {
+            "when_zh": "1899 年",
+            "when_en": "1899",
+            "text_zh": "他駐守南非的梅富根城。被圍期間，他把自己的訓練大綱寫成《警探術》一書。",
+            "text_en": "He is stationed at Mafeking in South Africa. During the siege he writes his training notes into the book Aids to Scouting."
+          },
+          {
+            "when_zh": "1901 年",
+            "when_en": "1901",
+            "text_zh": "他回到英國，出任騎兵總監。",
+            "text_en": "He returns to Britain as Inspector-General of Cavalry."
+          },
+          {
+            "when_zh": "1907 年 8 月",
+            "when_en": "August 1907",
+            "text_zh": "白浪島實驗露營：二十多名來自不同背景的少年，一起生活了九天。世界童軍運動就在這一堆營火旁邊開始。",
+            "text_en": "The experimental camp on Brownsea Island: some twenty boys from very different backgrounds live together for nine days. World Scouting begins beside that campfire."
+          },
+          {
+            "when_zh": "1916 年",
+            "when_en": "1916",
+            "text_zh": "世界幼童軍活動開始；貝登堡同年出版《小狼手冊》。",
+            "text_en": "Cub Scouting begins, and Baden-Powell publishes The Wolf Cub's Handbook the same year."
+          },
+          {
+            "when_zh": "1920 年",
+            "when_en": "1920",
+            "text_zh": "第一屆世界童軍會議舉行；第一屆世界童軍大露營在英國倫敦奧林匹克舉行。",
+            "text_en": "The first World Scout Conference is held, and the first World Scout Jamboree takes place at Olympia in London."
+          },
+          {
+            "when_zh": "1941 年",
+            "when_en": "1941",
+            "text_zh": "貝登堡逝世，享年八十三歲。",
+            "text_en": "Baden-Powell dies, aged eighty-three."
+          },
+          {
+            "when_zh": "1968 年",
+            "when_en": "1968",
+            "text_zh": "世界童軍總辦事處遷往瑞士日內瓦。",
+            "text_en": "The World Scout Bureau moves to Geneva, Switzerland."
+          }
+        ],
+        "facts": [
+          {
+            "label_zh": "訓練軍隊的方法",
+            "label_en": "How he trained his men",
+            "value_zh": "小隊制度",
+            "value_en": "the patrol system"
+          },
+          {
+            "label_zh": "第一本訓練大綱",
+            "label_en": "His first training notes",
+            "value_zh": "《警探術》",
+            "value_en": "Aids to Scouting"
+          },
+          {
+            "label_zh": "國際童軍雜誌《世界童軍運動》",
+            "label_en": "The Scout magazine World Scouting",
+            "value_zh": "原名《大露營》",
+            "value_en": "was first called Jamboree"
+          }
+        ],
+        "note_zh": "記住這條線：出生 → 從軍 → 梅富根 → 白浪島 → 幼童軍 → 世界大露營 → 逝世 → 總辦事處。",
+        "note_en": "Hold the line in mind: birth → army → Mafeking → Brownsea → Cubs → the Jamboree → his death → the Bureau."
+      },
+      "questions": [
+        "甲1",
+        "甲2",
+        "甲3",
+        "甲4",
+        "甲5",
+        "甲6",
+        "甲7",
+        "甲8",
+        "甲9",
+        "甲10",
+        "甲11",
+        "甲12",
+        "甲13",
+        "甲14",
+        "甲15"
+      ],
+      "deadend_zh": "石頭封住了去路，火把的光也照不進去。靠着石壁，把壁畫一的年份再看一遍 —— 那一條線就是答案所在。",
+      "deadend_en": "The rocks close the way and the torchlight will not reach past them. Lean on the wall and read wall one's years again — the line itself holds the answer."
+    },
+    {
+      "n": 2,
+      "icon": "🇭🇰",
+      "name_zh": "維多利亞港的旗幟",
+      "name_en": "Flags over Victoria Harbour",
+      "hint_zh": "香港童軍運動",
+      "hint_en": "Scouting in Hong Kong",
+      "wall": {
+        "image": "wall-hk",
+        "title_zh": "壁畫二：維多利亞港的旗幟",
+        "title_en": "Wall two — flags over Victoria Harbour",
+        "lead_zh": [
+          "這一幅壁畫更大：海港、渡輪、帆船，還有一列童軍在升旗。",
+          "畫上記着香港童軍運動的一個個年份 —— 由 1909 年一路數到香港童軍中心。"
+        ],
+        "lead_en": [
+          "This wall is larger: a harbour, ferries, a junk, and a line of Scouts raising the flag.",
+          "It marks the years of Scouting in Hong Kong — from 1909 all the way to the Scout Centre."
+        ],
+        "timeline": [
+          {
+            "when_zh": "1909 年",
+            "when_en": "1909",
+            "text_zh": "香港開始有童軍活動，最早由在港的英國商人及軍人帶起。",
+            "text_en": "Scouting begins in Hong Kong, started by British merchants and servicemen in the colony."
+          },
+          {
+            "when_zh": "1912 年",
+            "when_en": "1912",
+            "text_zh": "港督梅含理爵士出任第一位香港童軍總領袖。",
+            "text_en": "Governor Sir Francis Henry May becomes Hong Kong's first Chief Scout."
+          },
+          {
+            "when_zh": "1923 年",
+            "when_en": "1923",
+            "text_zh": "首屆威爾斯太子錦標比賽舉行。",
+            "text_en": "The first Prince of Wales Banner competition is held."
+          },
+          {
+            "when_zh": "1951 年",
+            "when_en": "1951",
+            "text_zh": "為童軍團而設的嘉爾頓錦標首次舉行。",
+            "text_en": "The Carlton Trophy, for Scout troops, is held for the first time."
+          },
+          {
+            "when_zh": "1957 年",
+            "when_en": "1957",
+            "text_zh": "香港首次全港大露營在上水金錢村舉行。",
+            "text_en": "Hong Kong's first territory-wide jamboree is held at Kam Tsin Village, Sheung Shui."
+          },
+          {
+            "when_zh": "1960 年",
+            "when_en": "1960",
+            "text_zh": "政府撥出大老山徑土地作童軍營地，這塊地後來改稱香港基維爾營地。",
+            "text_en": "The government grants land at Tate's Cairn for a Scout camp; it later becomes the Hong Kong Gilwell Camp."
+          },
+          {
+            "when_zh": "1975 年",
+            "when_en": "1975",
+            "text_zh": "第一屆全港童軍青年論壇舉行。",
+            "text_en": "The first territory-wide Scout youth forum is held."
+          },
+          {
+            "when_zh": "1984 年",
+            "when_en": "1984",
+            "text_zh": "小童軍訓練支部成立，招收六至八歲的成員。",
+            "text_en": "The Grasshopper (小童軍) section is formed for members aged six to eight."
+          },
+          {
+            "when_zh": "1994 年",
+            "when_en": "1994",
+            "text_zh": "香港童軍總會遷往香港童軍中心。",
+            "text_en": "The Scout Association of Hong Kong moves into the Hong Kong Scout Centre."
+          }
+        ],
+        "facts": [
+          {
+            "label_zh": "首位香港訓練總監",
+            "label_en": "First Hong Kong training commissioner",
+            "value_zh": "田家騰先生",
+            "value_en": "Mr TIN Ka-tang"
+          },
+          {
+            "label_zh": "全港地域數目",
+            "label_en": "Regions in Hong Kong",
+            "value_zh": "五個",
+            "value_en": "five"
+          },
+          {
+            "label_zh": "現任港島地域總監",
+            "label_en": "Current Island Region commissioner",
+            "value_zh": "楊國光博士",
+            "value_en": "Dr YEUNG Kwok-kwong"
+          }
+        ],
+        "note_zh": "香港的一條線：1909 開始 → 1912 總領袖 → 1923 錦標 → 1957 大露營 → 1984 小童軍 → 1994 童軍中心。",
+        "note_en": "Hong Kong's line: 1909 the start → 1912 the first Chief Scout → 1923 the banner → 1957 the jamboree → 1984 the Grasshoppers → 1994 the Scout Centre."
+      },
+      "questions": [
+        "乙1",
+        "乙2",
+        "乙3",
+        "乙4",
+        "乙5",
+        "乙6",
+        "乙7",
+        "乙8",
+        "乙9",
+        "乙10",
+        "乙11",
+        "乙12",
+        "乙13",
+        "乙14",
+        "乙15"
+      ],
+      "deadend_zh": "前面塌了，只有石頭與塵土。回頭再看壁畫二的年份 —— 香港童軍的每一步都在上面。",
+      "deadend_en": "The way ahead has fallen in — rock and dust only. Go back to wall two's years: every step Scouting took in Hong Kong is written there."
+    },
+    {
+      "n": 3,
+      "icon": "⚜️",
+      "name_zh": "八十二旅的記號",
+      "name_en": "The marks of the 82nd",
+      "hint_zh": "本旅、本區、小隊與支部",
+      "hint_en": "Our group, our district, our patrols",
+      "wall": {
+        "image": "wall-group",
+        "title_zh": "壁畫三：三隻小隊動物",
+        "title_en": "Wall three — three patrol animals",
+        "lead_zh": [
+          "牆上畫着三隻動物：老虎、水獺、海鷗 —— 牠們圍着一條綠色的旅巾，巾上繡着童軍的百合花。",
+          "這一幅寫的是我們自己的資料：本旅、我們的區、我們的領袖、我們的顏色。"
+        ],
+        "lead_en": [
+          "Three animals are painted here: a tiger, an otter and a sea-gull, gathered round a green scarf with the fleur-de-lis on it.",
+          "This wall is about us: our group, our district, our leaders and our colours."
+        ],
+        "timeline": [
+          {
+            "when_zh": "十月一日",
+            "when_en": "1 October",
+            "text_zh": "八十二旅的旅慶。每年這一天，本旅都會慶祝自己的生日。",
+            "text_en": "Founder's Day of the 82nd — the day the group celebrates its birthday every year."
+          }
+        ],
+        "facts": [
+          {
+            "label_zh": "本旅",
+            "label_en": "Our group",
+            "value_zh": "港島第 82 旅（八十二旅）",
+            "value_en": "82nd Hong Kong (Island) Scout Group"
+          },
+          {
+            "label_zh": "本旅旅長",
+            "label_en": "Group Scout Leader",
+            "value_zh": "梁健聰（肩章：綠色）",
+            "value_en": "LEUNG Kin-chung (green shoulder tab)"
+          },
+          {
+            "label_zh": "本旅童軍團團長",
+            "label_en": "Scout Troop leader",
+            "value_zh": "張蔚浚（肩章：淺藍色）",
+            "value_en": "CHEUNG Wai-tsun (light blue shoulder tab)"
+          },
+          {
+            "label_zh": "所屬區",
+            "label_en": "Our district",
+            "value_zh": "筲箕灣區（區總監：莫穎民先生）",
+            "value_en": "Shao Kei Wan District (commissioner: Mr MOK Wing-man)"
+          },
+          {
+            "label_zh": "隸屬地域",
+            "label_en": "Our region",
+            "value_zh": "港島地域",
+            "value_en": "Hong Kong Island Region"
+          },
+          {
+            "label_zh": "本旅童軍團的小隊",
+            "label_en": "Our troop's patrols",
+            "value_zh": "Tiger 老虎 · Otter 水獺 · Sea-gull 海鷗",
+            "value_en": "Tiger · Otter · Sea-gull"
+          },
+          {
+            "label_zh": "旅巾與童軍紀錄簿",
+            "label_en": "Scarf and record book",
+            "value_zh": "兩樣都是綠色",
+            "value_en": "both are green"
+          },
+          {
+            "label_zh": "本旅的支部",
+            "label_en": "Sections in the group",
+            "value_zh": "三個",
+            "value_en": "three"
+          }
+        ],
+        "note_zh": "這一幅不用死記年份，記着「三隻動物、一條綠巾、筲箕灣區、十月一日」就夠了。",
+        "note_en": "No years to remember here: three animals, one green scarf, Shao Kei Wan District, and the first of October."
+      },
+      "questions": [
+        "丙1",
+        "丙2",
+        "丙3",
+        "丙4",
+        "丙5",
+        "丙6",
+        "丙7",
+        "丙14",
+        "丙15",
+        "丙16",
+        "丙17",
+        "丙20"
+      ],
+      "deadend_zh": "窄得連肩也過不去，只好退回石室。望着牆上的三隻動物再想一次 —— 本旅的名字、顏色與區，壁畫上寫得很清楚。",
+      "deadend_en": "The gap is too narrow to squeeze through, so back to the chamber. Look again at the three animals — our group's name, colours and district are written plainly on that wall."
+    },
+    {
+      "n": 4,
+      "icon": "📜",
+      "name_zh": "誓詞與規律",
+      "name_en": "The Promise and the Law",
+      "hint_zh": "誓詞、規律、銘言與童軍支部",
+      "hint_en": "Promise, Law, motto and the Scout section",
+      "wall": {
+        "image": "wall-law",
+        "title_zh": "壁畫四：石室的誓詞碑",
+        "title_en": "Wall four — the tablets of the Promise",
+        "lead_zh": [
+          "最後一個石室最安靜。七塊石碑排成一行，最上面的一塊刻着童軍誓詞。",
+          "這一幅講的是童軍的規矩：誓詞、規律、銘言，還有童軍支部自己的事。"
+        ],
+        "lead_en": [
+          "The last chamber is the quietest. Seven tablets stand in a row, and the highest one carries the Scout Promise.",
+          "This wall is about what Scouting asks of us: the Promise, the Law, the motto — and the Scout section itself."
+        ],
+        "timeline": [
+          {
+            "when_zh": "十一月",
+            "when_en": "November",
+            "text_zh": "童軍周年大會操通常在這個月舉行，全港童軍一起步操、一起檢閱。",
+            "text_en": "The annual Scout rally and parade is usually held this month, when Scouts across Hong Kong march and are inspected together."
+          }
+        ],
+        "facts": [
+          {
+            "label_zh": "童軍誓詞的開頭",
+            "label_en": "The Promise opens",
+            "value_zh": "「我願以信譽為誓」",
+            "value_en": "“On my honour I promise …”"
+          },
+          {
+            "label_zh": "童軍規律",
+            "label_en": "The Scout Law",
+            "value_zh": "七條",
+            "value_en": "seven points"
+          },
+          {
+            "label_zh": "童軍銘言",
+            "label_en": "The Scout motto",
+            "value_zh": "準備（Be Prepared）",
+            "value_en": "Be Prepared"
+          },
+          {
+            "label_zh": "童軍團的特色",
+            "label_en": "The troop works",
+            "value_zh": "以小隊為中心",
+            "value_en": "through its patrols"
+          },
+          {
+            "label_zh": "童軍支部年齡",
+            "label_en": "Scout section ages",
+            "value_zh": "11–16 歲",
+            "value_en": "11–16"
+          },
+          {
+            "label_zh": "專科徽章",
+            "label_en": "Proficiency badges",
+            "value_zh": "興趣組、技能組、服務組",
+            "value_en": "interest, skill and service groups"
+          },
+          {
+            "label_zh": "童軍支部最高榮譽獎章",
+            "label_en": "Highest Scout section award",
+            "value_zh": "總領袖獎章",
+            "value_en": "the Chief Scout's Award"
+          }
+        ],
+        "note_zh": "誓詞是承諾，規律是品格，銘言是提醒 —— 三樣都要記牢。",
+        "note_en": "The Promise is a commitment, the Law is character, the motto is a reminder — know all three."
+      },
+      "questions": [
+        "丙8",
+        "丙9",
+        "丙10",
+        "丙11",
+        "丙12",
+        "丙13",
+        "丙18",
+        "丙19"
+      ],
+      "deadend_zh": "石碑後面是實心岩石。回頭再看中央那一塊碑 —— 誓詞的開頭、規律的數目、銘言，都刻在上面。",
+      "deadend_en": "Solid rock stands behind the tablets. Read the middle tablet again — the Promise's opening, the number of the Law and the motto are all carved there."
+    }
+  ],
+  "chambers": [
+    "fork",
+    "fork-b",
+    "chamber-c",
+    "chamber-d"
+  ],
+  "deadends": [
+    "deadend",
+    "deadend-b",
+    "deadend-c",
+    "deadend-d"
+  ],
+  "labels": {
+    "group_kicker_zh": "第 {n} 段 · 壁畫",
+    "group_kicker_en": "Stretch {n} · the wall",
+    "wall_button_zh": "看完了，入石室答題",
+    "wall_button_en": "Read it — into the chamber",
+    "wall_open_zh": "📜 看壁畫",
+    "wall_open_en": "📜 Read the wall",
+    "wall_close_zh": "收起壁畫",
+    "wall_close_en": "Close the wall",
+    "question_kicker_zh": "第 {n} 段 · 石室 · 第 {i} / {total} 題",
+    "question_kicker_en": "Stretch {n} · chamber · question {i} of {total}",
+    "progress_zh": "第 {n} / {groups} 段 · 已答 {done} / {total} 題",
+    "progress_en": "Stretch {n} of {groups} · {done} of {total} answered",
+    "right_kicker_zh": "✅ 答對了",
+    "right_kicker_en": "✅ Right",
+    "right_title_zh": "路通了，火光在前面晃動。",
+    "right_title_en": "The way opens and the torchlight moves on.",
+    "wrong_kicker_zh": "🚫 死路",
+    "wrong_kicker_en": "🚫 Dead end",
+    "wrong_title_zh": "此路不通",
+    "wrong_title_en": "No way through",
+    "why_zh": "為甚麼是這個答案？",
+    "why_en": "Why that answer?",
+    "recap_zh": "重溫壁畫的線索",
+    "recap_en": "Recap the clues from the wall",
+    "next_question_zh": "下一題 →",
+    "next_question_en": "Next question →",
+    "try_again_zh": "回頭再選一次",
+    "try_again_en": "Back — choose again",
+    "group_done_kicker_zh": "✅ 這一組答完了",
+    "group_done_kicker_en": "✅ Group complete",
+    "group_done_title_zh": "石室的後牆亮起，通往下一段。",
+    "group_done_title_en": "The back wall of the chamber lights up, and the way on opens.",
+    "next_wall_zh": "去看下一段壁畫 →",
+    "next_wall_en": "On to the next wall →",
+    "leave_zh": "走出山洞 →",
+    "leave_en": "Step outside →",
+    "submitting_zh": "正在記錄通關…",
+    "submitting_en": "Saving your completion…",
+    "result_kicker_zh": "遊戲 1 · 成績",
+    "result_kicker_en": "Game 1 · your score",
+    "score_zh": "{score} 分",
+    "score_en": "{score} marks",
+    "pass_zh": "遊戲 1 通關 ✓",
+    "pass_en": "Game 1 cleared ✓",
+    "pass_note_zh": "你已走完山洞並完成全部 50 題，第 4 項已完成，無須另做試卷。分數只供回顧，並不影響通關；其餘四個區域的遊戲還等着你。",
+    "pass_note_en": "You reached the exit and finished all 50 questions. Item 4 is complete with no separate paper. Your score is for review, not a pass mark; four other area games await.",
+    "review_title_zh": "錯題檢討",
+    "review_title_en": "Review of the questions you missed",
+    "review_none_zh": "全部答對，沒有錯題！",
+    "review_none_en": "Every question right — nothing to review!",
+    "your_answer_zh": "你的答案",
+    "your_answer_en": "Your answer",
+    "right_answer_zh": "正確答案",
+    "right_answer_en": "Correct answer",
+    "again_zh": "再走一次山洞",
+    "again_en": "Walk the cave again",
+    "badge_zh": "返回會員章",
+    "badge_en": "Back to the badge",
+    "result_score_zh": "{score} / 100 分",
+    "result_score_en": "{score} / 100",
+    "mark_zh": "第 {n} 題",
+    "mark_en": "Q{n}",
+    "your_choice_zh": "你選了",
+    "your_choice_en": "You chose",
+    "review_lead_zh": "以下是答錯的題目與解說。你已通關，無須重玩；如想練習，可隨時再走一次。",
+    "review_lead_en": "Below are the questions you missed, with explanations. You have already cleared the game; replay only if you want to practise.",
+    "timeline_title_zh": "壁畫上的時間線",
+    "timeline_title_en": "The wall's timeline",
+    "wall_reopen_zh": "再看一次壁畫",
+    "wall_reopen_en": "Read the wall again",
+    "short_zh": "第 {n} 段 · 第 {i} / {total} 題",
+    "short_en": "Stretch {n} · Q{i} of {total}",
+    "to_group_end_zh": "✅ 這一組答完了",
+    "to_group_end_en": "Group complete",
+    "back_wall_zh": "回去看壁畫",
+    "back_wall_en": "Back to the wall",
+    "save_error_zh": "未能記錄通關",
+    "save_error_en": "Could not record your completion",
+    "save_retry_zh": "你的作答仍在這個畫面，請再試一次。未成功儲存前不要離開。",
+    "save_retry_en": "Your answers are still here. Please retry before leaving; the game has not been saved.",
+    "retry_zh": "再次記錄通關",
+    "retry_en": "Try saving again"
+  },
+  "exit": {
+    "image": "exit",
+    "title_zh": "走出山洞",
+    "title_en": "Out of the cave",
+    "paras_zh": [
+      "你朝着洞口的亮光走出去，晨霧還在樹上。回頭看那塊刻着百合花的石壁 —— 四段壁畫記載的童軍故事，便是你在第 4 項的收穫。",
+      "沙灘就在前面，木筏等着下水。"
+    ],
+    "paras_en": [
+      "You walk out towards the light at the cave mouth, the morning mist still in the trees. Looking back at the fleur-de-lis wall, you remember the Scouting stories you explored for item 4.",
+      "The beach is ahead, and the raft is waiting for the tide."
+    ]
+  },
+  "setbacks": {
+    "wrong_limit": 3,
+    "_note": "一段路裡錯三次，就要退回這一段的入口：先重讀壁畫，再入石室由第一題重新答。每次回頭抽一個故事（順序輪流，不同段不會重複同一個），故事可以自由改寫、增刪；wrong_limit 是「一段可錯幾次」，改成 4 或 5 也可以。",
+    "torch_zh": "🔥 火把的光還有 {left} 次",
+    "torch_en": "🔥 The torch will hold for {left} more wrong turn(s)",
+    "torch_last_zh": "🔥 最後一次 —— 再錯就要退回這一段的入口。",
+    "torch_last_en": "🔥 One chance left — the next wrong turn sends you back to this stretch's wall.",
+    "kicker_zh": "第 {n} 段 · 要回頭了",
+    "kicker_en": "Stretch {n} · you have to turn back",
+    "note_zh": "一段路裡錯了三次，就要退回這一段的入口：先重看壁畫，再入石室重新答過。回頭是把壁畫看清楚，之前答錯的題仍然計分。",
+    "note_en": "Three wrong turns in one stretch and you go back to its wall: read it through again, then answer the chamber afresh. Turning back is for reading the wall properly — answers you have already missed still count.",
+    "back_zh": "回到壁畫前，重走這一段",
+    "back_en": "Back to the wall — walk this stretch again",
+    "stories": [
+      {
+        "id": "torch",
+        "image": "setback-torch",
+        "kicker_zh": "火把熄了",
+        "kicker_en": "The torch goes out",
+        "title_zh": "黑得看不見路",
+        "title_en": "Too dark to go on",
+        "paras_zh": [
+          "石縫裡忽然透出一股冷風，火把「噗」的一聲熄了。四周黑得連自己的手指也看不見。",
+          "摸着石壁走下去太危險。你順着來路一步一步退回去，回到那幅壁畫前面，重新點起火把。",
+          "火光亮起來，壁畫上的年份線也跟着亮起來。這一段路，要由這裡重新走一次。"
+        ],
+        "paras_en": [
+          "A draught slips out of a crack in the rock and the torch goes out with a soft puff. It is too dark to see your own hand.",
+          "Feeling your way on would be reckless. You follow your own steps back, one at a time, until the wall painting is in front of you, and strike the flint again.",
+          "The flame comes up, and the line of dates on the wall comes back with it. This stretch starts again from here."
+        ]
+      },
+      {
+        "id": "lost",
+        "image": "setback-lost",
+        "kicker_zh": "走錯了路",
+        "kicker_en": "The wrong turning",
+        "title_zh": "石道繞了一個圈",
+        "title_en": "The passage loops back",
+        "paras_zh": [
+          "前面的石道一分為二，兩邊看上去一模一樣。你挑了其中一邊，走了進去。",
+          "走了不久，腳下的石頭卻愈來愈眼熟 —— 石道繞了一個圈，把你帶回原來的地方。",
+          "退回壁畫前，把壁畫上的線由頭看一遍。認清了方向，再入石室。"
+        ],
+        "paras_en": [
+          "The passage splits in two and both sides look exactly alike. You pick one and walk in.",
+          "Before long the stones underfoot start to look familiar — the passage has looped round and brought you back where you began.",
+          "Step back to the wall and read its line from the beginning. With the direction clear, the chamber can be tried again."
+        ]
+      },
+      {
+        "id": "faint",
+        "image": "setback-faint",
+        "kicker_zh": "洞裡太悶",
+        "kicker_en": "The air is close",
+        "title_zh": "你昏過去了",
+        "title_en": "You faint",
+        "paras_zh": [
+          "石室的空氣又熱又悶，火把的光在眼前輕輕晃動。你想再走一步，腿一軟，就靠着石壁坐了下去。",
+          "醒來的時候，水壺還在手邊，火把只剩一點紅光。你原來仍在那一段的入口。",
+          "深呼吸幾次，等手腳恢復力氣，回到壁畫前，由這一幅壁畫重新開始。"
+        ],
+        "paras_en": [
+          "The chamber air is warm and close, and the torchlight sways in front of your eyes. You take one more step, your legs give way, and you slide down against the rock.",
+          "When you come to, the water bottle is still beside you and the torch is down to a red glow. You are back at the mouth of that same stretch.",
+          "Breathe slowly until your arms and legs come back, then return to the wall and begin the stretch from its painting."
+        ]
+      },
+      {
+        "id": "tired",
+        "image": "rest",
+        "kicker_zh": "走得太久了",
+        "kicker_en": "Too long on your feet",
+        "title_zh": "先坐下來歇一歇",
+        "title_en": "Sit down and rest first",
+        "paras_zh": [
+          "雙腿像灌了鉛，眼皮也沉下來。這樣走下去，只會看漏更多細節。",
+          "你走到洞裡那處有柴火的地方，坐下來喝一口水，把繩索一圈一圈整理好，讓心跳慢下來。",
+          "休息夠了，回到壁畫前重新出發。頭腦清醒，石壁上的字才看得清楚。"
+        ],
+        "paras_en": [
+          "Your legs feel like lead and your eyelids are heavy. Carrying on like this only means missing more of what the walls say.",
+          "You walk to the place in the cave where dry wood is stacked, sit down, drink some water and coil the rope back neatly until your heart slows.",
+          "When you are rested, you go back to the wall and set off again. A clear head is what reads a rock face properly."
+        ]
+      },
+      {
+        "id": "rockfall",
+        "image": "setback-rockfall",
+        "kicker_zh": "碎石塌下來",
+        "kicker_en": "The rock gives way",
+        "title_zh": "前面的路封住了",
+        "title_en": "The way ahead is blocked",
+        "paras_zh": [
+          "頭頂傳來一陣低沉的響聲，碎石和塵土一起落下來，把前面的通道封住了。",
+          "塵土嗆得人睜不開眼。站在原處等沒有用，你退回那一段的入口，等灰塵落定。",
+          "回到壁畫前，拍走肩上的灰。這一幅壁畫，其實剛才還沒有看完。"
+        ],
+        "paras_en": [
+          "A low rumble comes from above, and gravel and dust come down together, closing the passage in front of you.",
+          "The dust stings your eyes shut. Waiting where you stand does no good, so you go back to the mouth of that stretch and let the air settle.",
+          "At the wall you brush the dust off your shoulders. This painting, you realise, was not quite finished being read."
+        ]
+      },
+      {
+        "id": "notes",
+        "image": "setback-notes",
+        "kicker_zh": "筆記不見了",
+        "kicker_en": "The notes are gone",
+        "title_zh": "抄下的筆記留在壁畫前",
+        "title_en": "You left your notes at the wall",
+        "paras_zh": [
+          "伸手探進口袋，抄着年份的那張紙不見了 —— 大概是剛才蹲在壁畫前對年份時留下來的。",
+          "要答對下面的題目，就得靠那幾行字。你只好回頭，把筆記拾回來。",
+          "拾起那張紙，順便在壁畫前多站一會：這一邊的字，原來剛才還沒有看完。"
+        ],
+        "paras_en": [
+          "You reach into your pocket and the paper with the dates on it is not there — you must have left it by the wall while copying them down.",
+          "The lines on that paper are exactly what the next question needs. So you turn back and pick it up.",
+          "Notes in hand, you stand at the wall a while longer. There were words on this side you had not finished reading."
+        ]
+      }
+    ]
+  }
+}

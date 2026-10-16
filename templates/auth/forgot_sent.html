@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('已寄出重設連結', 'Reset link sent') }}{% endblock %}
+{% block shell %}
+<div class="screen">
+  <div class="narrow card pad-lg">
+    <div class="crumbs">
+      <a href="{{ url_for('auth_routes.login') }}">{{ L('登入', 'Sign in') }}</a>
+      <span class="breadcrumb-arrow">›</span>
+      <a href="{{ url_for('auth_routes.scout_names', patrol=patrol) }}">{{ patrol_label.en or patrol_label.zh }}</a>
+    </div>
+    <h1 style="margin-bottom:.2rem">📨 {{ L('請查看你的電郵', 'Check your email') }}</h1>
+    <p class="muted" style="margin:.15rem 0 .6rem">
+      {{ patrol_label.en or patrol_label.zh }} · {{ scout.display_name_zh or scout.display_name_en }}
+    </p>
+
+    {% if again %}
+      <div class="alert warn">
+        {{ L('剛剛已經寄出一次，請先查看收件箱（記得看看垃圾郵件），一分鐘後可以再寄。',
+             'A link went out moments ago — check your inbox (and the spam folder); you can ask again in a minute.') }}
+      </div>
+    {% else %}
+      <div class="alert ok">
+        {{ L('重設連結已寄到你的電郵。打開連結就可以設定新密碼；連結 ' ~ minutes ~ ' 分鐘內有效，而且只可以用一次。',
+             'A reset link is on its way. Open it to choose a new password — it works for ' ~ minutes ~ ' minutes and only once.') }}
+      </div>
+    {% endif %}
+
+    <div class="kv" style="margin:.6rem 0">
+      <dt>{{ L('寄到', 'Sent to') }}</dt><dd>{{ masked_email }}</dd>
+      <dt>{{ L('找不到？', 'Not there?') }}</dt><dd>{{ L('看看垃圾郵件箱，或再寄一次。', 'Check the spam folder, or resend it.') }}</dd>
+    </div>
+
+    <form method="post" action="{{ url_for('auth_routes.forgot_send_link', patrol=patrol, user_id=scout.id) }}">
+      <button class="btn primary" type="submit" style="width:100%">{{ L('再寄一次', 'Send it again') }}</button>
+    </form>
+
+    <div class="divider"></div>
+    <p class="small muted" style="margin:0 0 .4rem">
+      {{ L('電郵遲遲未到？也可以直接在這個平台設定新密碼。', 'Email taking too long? You can also set a new password right here.') }}
+    </p>
+    <a class="link-btn" href="{{ url_for('auth_routes.forgot_scout', patrol=patrol, user_id=scout.id) }}">
+      {{ L('用電郵即時設定新密碼', 'Set a new password with your email') }}
+    </a>
+    <a class="link-btn" href="{{ url_for('auth_routes.scout_password', patrol=patrol, user_id=scout.id) }}">
+      {{ L('返回輸入密碼', 'Back to the password page') }}
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import badge_art, empty_state with context %}
+{% block title %}{{ L('內容', 'Content') }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">📚 {{ L('獎章與任務', 'Awards & tasks') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('現在是示範內容 — 可自由修改或刪除，換成你們的進度性獎章。', 'These are sample entries — edit or delete them and add your own awards.') }}</p>
+  </div>
+</div>
+
+<div class="console-split">
+  <div>
+    {% if badges %}
+      {% for badge in badges %}
+        <div class="card" style="margin-bottom:.9rem">
+          <div class="spread wrap">
+            <div class="row" style="gap:.6rem">
+              <span class="tile-emoji plate" style="width:52px; height:52px">{{ badge_art(badge) }}</span>
+              <div>
+                <strong>{{ badge.order_index }}. {{ L(badge.title_zh, badge.title_en) }}</strong>
+                <div class="small muted">{{ badge.code }} · {{ badge.subtitle_en or badge.subtitle_zh }}</div>
+                <div class="row wrap" style="margin-top:.25rem">
+                  {% if badge.status == 'published' %}<span class="chip ok">{{ L('已發佈', 'Published') }}</span>
+                  {% else %}<span class="chip warn">{{ L('草稿', 'Draft') }}</span>{% endif %}
+                  <span class="chip light">{{ L('任務', 'Tasks') }} {{ badge._tasks | length }}</span>
+                  <span class="chip light">🪙 {{ badge.points_reward }}</span>
+                  {% set prereqs = badge.prerequisite_badge_ids or [] %}
+                  {% if prereqs %}<span class="chip info">🔗 {{ L('需先完成', 'after') }} {{ prereqs | length }}</span>{% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="row-actions">
+              <form method="post" action="{{ url_for('leader_routes.move_badge', badge_id=badge.id) }}">
+                <input type="hidden" name="direction" value="up"><button class="btn small" type="submit">↑</button>
+              </form>
+              <form method="post" action="{{ url_for('leader_routes.move_badge', badge_id=badge.id) }}">
+                <input type="hidden" name="direction" value="down"><button class="btn small" type="submit">↓</button>
+              </form>
+              <form method="post" action="{{ url_for('leader_routes.delete_badge', badge_id=badge.id) }}"
+                    data-confirm="{{ L('確定刪除這個獎章及其任務？', 'Delete this award and its tasks?') }}">
+                <button class="btn small ghost" type="submit">🗑</button>
+              </form>
+            </div>
+          </div>
+
+          <details style="margin-top:.7rem">
+            <summary class="small muted" style="cursor:pointer">{{ L('編輯獎章', 'Edit award') }}</summary>
+            <form method="post" action="{{ url_for('leader_routes.update_badge', badge_id=badge.id) }}" data-inline style="margin-top:.7rem">
+              <div class="form-grid">
+                <label class="field"><span>{{ L('名稱（中文）', 'Title (zh)') }}</span><input type="text" name="title_zh" value="{{ badge.title_zh }}"></label>
+                <label class="field"><span>{{ L('名稱（英文）', 'Title (en)') }}</span><input type="text" name="title_en" value="{{ badge.title_en }}"></label>
+                <label class="field"><span>{{ L('副題（中文）', 'Subtitle (zh)') }}</span><input type="text" name="subtitle_zh" value="{{ badge.subtitle_zh }}"></label>
+                <label class="field"><span>{{ L('副題（英文）', 'Subtitle (en)') }}</span><input type="text" name="subtitle_en" value="{{ badge.subtitle_en }}"></label>
+                <label class="field"><span>{{ L('代號', 'Code') }}</span><input type="text" name="code" value="{{ badge.code }}"></label>
+                <label class="field"><span>{{ L('圖示', 'Emoji') }}</span><input type="text" name="emoji" value="{{ badge.emoji }}"></label>
+                <label class="field"><span>{{ L('獎章積分', 'Badge points') }}</span><input type="number" name="points_reward" value="{{ badge.points_reward }}"></label>
+                <label class="field"><span>{{ L('次序', 'Order') }}</span><input type="number" name="order_index" value="{{ badge.order_index }}"></label>
+                <label class="field"><span>{{ L('狀態', 'Status') }}</span>
+                  <select name="status">
+                    <option value="published" {{ 'selected' if badge.status == 'published' }}>{{ L('已發佈', 'Published') }}</option>
+                    <option value="draft" {{ 'selected' if badge.status != 'published' }}>{{ L('草稿', 'Draft') }}</option>
+                  </select>
+                </label>
+                <label class="field"><span>{{ L('顏色', 'Colour') }}</span><input type="text" name="color" value="{{ badge.color }}"></label>
+                <label class="field" style="grid-column: 1 / -1"><span>{{ L('簡介（中文）', 'Description (zh)') }}</span><textarea name="desc_zh">{{ badge.desc_zh }}</textarea></label>
+                <label class="field" style="grid-column: 1 / -1"><span>{{ L('簡介（英文）', 'Description (en)') }}</span><textarea name="desc_en">{{ badge.desc_en }}</textarea></label>
+                <label class="field" style="grid-column: 1 / -1">
+                  <span>{{ L('前置獎章（未完成就不能開始）', 'Prerequisite awards') }}</span>
+                  <span class="patrol-pills">
+                    {% for other in badges if other.id != badge.id %}
+                      <label class="chip">
+                        <input type="checkbox" name="prerequisite_badge_ids" value="{{ other.id }}"
+                               {{ 'checked' if other.id in (badge.prerequisite_badge_ids or []) }}> {{ L(other.title_zh, other.title_en) }}
+                      </label>
+                    {% endfor %}
+                  </span>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="btn primary" type="submit">{{ L('儲存', 'Save') }}</button>
+                <span data-inline-note></span>
+              </div>
+            </form>
+          </details>
+
+          {% if badge._game_areas %}
+          <details class="leader-game-config" style="margin-top:.9rem">
+            <summary class="small muted" style="cursor:pointer">🎮 {{ L('五區遊戲設定', 'Five-area game setup') }}</summary>
+            <p class="small muted" style="margin:.7rem 0">
+              {{ L('第一區的山洞固定為遊戲 1。其餘區域沒有遊戲時仍會鎖上。請先在下方新增任務、填妥中英文內容並發佈，然後回到這裡指定遊戲 2–5；舊綱要任務不會自動算作遊戲。',
+                   'The cave is fixed as game 1. Other areas stay unavailable until you create and publish new playable tasks in both languages, then assign one distinct task to each game below. Existing syllabus tasks do not automatically count.') }}
+            </p>
+            {% for area in badge._game_areas %}
+              {% set n = loop.index %}
+              {% set game = area.game or {} %}
+              <form class="card" method="post" data-inline data-reload="1"
+                    action="{{ url_for('leader_routes.configure_area_game', badge_id=badge.id, area_n=n) }}"
+                    style="padding:1rem; margin:.55rem 0" data-game-area="{{ n }}">
+                <strong>📍 {{ L('第', 'Area ') }}{{ n }}{{ L('區', '') }} · {{ L(area.name_zh, area.name_en) }}</strong>
+                <div class="form-grid" style="margin:.55rem 0">
+                  <label class="field"><span>{{ L('區域名稱（中文）', 'Area name (zh)') }}</span>
+                    <input name="area_name_zh" type="text" value="{{ area.name_zh }}" maxlength="120"></label>
+                  <label class="field"><span>{{ L('區域名稱（英文）', 'Area name (en)') }}</span>
+                    <input name="area_name_en" type="text" value="{{ area.name_en }}" maxlength="120"></label>
+                </div>
+                {% if n == 1 %}
+                  <span class="chip ok">🎮 {{ L('遊戲 1：童軍歷史山洞（固定）', 'Game 1: Cave of Scouting History (fixed)') }}</span>
+                {% else %}
+                  {% if game.ready %}
+                    <p class="small" style="margin:.2rem 0 .3rem">
+                      <span class="chip ok">🎮 {{ L(game.name_zh, game.name_en) }} · {{ game.task_code }}</span>
+                      <label class="switch" style="margin-top:.3rem">
+                        <input type="checkbox" name="replace" value="1">
+                        {{ L('確定取代這一區的遊戲', 'Replace this area’s game') }}</label>
+                    </p>
+                  {% endif %}
+                  <label class="field"><span>🎮 {{ L('遊戲', 'Game') }} {{ n }} · {{ L('選擇新任務', 'Assign a new task') }}</span>
+                    <select name="task_id">
+                      <option value="">🔒 {{ L('尚未提供（保持鎖上）', 'Not provided (keep unavailable)') }}</option>
+                      {% for task in badge._game_candidates %}
+                        <option value="{{ task.id }}" {{ 'selected' if game.ready and game.task_code == task.code }}>
+                          {{ L(task.title_zh, task.title_en) }} · {{ task.code }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </label>
+                  <div class="form-grid" style="margin:.55rem 0">
+                    <label class="field"><span>{{ L('遊戲名稱（中文）', 'Game name (zh)') }}</span>
+                      <input name="game_name_zh" type="text" value="{{ game.name_zh if game.ready else '' }}" maxlength="120"></label>
+                    <label class="field"><span>{{ L('遊戲名稱（英文）', 'Game name (en)') }}</span>
+                      <input name="game_name_en" type="text" value="{{ game.name_en if game.ready else '' }}" maxlength="120"></label>
+                    <label class="field"><span>{{ L('遊戲簡介（中文）', 'Game description (zh)') }}</span>
+                      <textarea name="game_blurb_zh" maxlength="600">{{ game.blurb_zh if game.ready else '' }}</textarea></label>
+                    <label class="field"><span>{{ L('遊戲簡介（英文）', 'Game description (en)') }}</span>
+                      <textarea name="game_blurb_en" maxlength="600">{{ game.blurb_en if game.ready else '' }}</textarea></label>
+                  </div>
+                {% endif %}
+                <div class="form-actions" style="margin-top:.4rem">
+                  <button class="btn small primary" type="submit">{{ L('儲存這個區域', 'Save this area') }}</button>
+                  <span data-inline-note></span>
+                </div>
+              </form>
+            {% endfor %}
+          </details>
+          {% endif %}
+
+          <div class="divider"></div>
+          <div class="small muted" style="margin-bottom:.4rem">{{ L('任務（按次序）', 'Tasks (in order)') }}</div>
+          {% for task in badge._tasks %}
+            <div class="task-row">
+              <span class="task-order">{{ task.order_index }}</span>
+              <span class="grow">
+                <a href="{{ url_for('leader_routes.edit_task', task_id=task.id) }}">{{ L(task.title_zh, task.title_en) }}</a>
+                <div class="small muted">
+                  {{ (TASK_TYPES.get(task.type) or {}).get('icon', '') }} {{ L((TASK_TYPES.get(task.type) or {}).get('label_zh', task.type), (TASK_TYPES.get(task.type) or {}).get('label_en', task.type)) }}
+                  · 🪙 {{ task.points }}{% if task.pass_score %} · {{ L('合格', 'pass') }} {{ task.pass_score }}%{% endif %}
+                </div>
+              </span>
+              {% if task.status == 'published' %}<span class="chip ok">{{ L('已發佈', 'Live') }}</span>
+              {% else %}<span class="chip warn">{{ L('草稿', 'Draft') }}</span>{% endif %}
+              <span class="row-actions">
+                <form method="post" action="{{ url_for('leader_routes.move_task', task_id=task.id) }}"><input type="hidden" name="direction" value="up"><button class="btn small" type="submit">↑</button></form>
+                <form method="post" action="{{ url_for('leader_routes.move_task', task_id=task.id) }}"><input type="hidden" name="direction" value="down"><button class="btn small" type="submit">↓</button></form>
+                <a class="btn small" href="{{ url_for('leader_routes.edit_task', task_id=task.id) }}">✏️</a>
+                {% if badge.code == 'SC-01' and task.code == 'M04' %}
+                  <a class="btn small primary" href="{{ url_for('leader_routes.cave_questions', task_id=task.id) }}">🕯️ {{ L('編輯題目與答案', 'Edit questions & answers') }}</a>
+                {% endif %}
+                <form method="post" action="{{ url_for('leader_routes.delete_task', task_id=task.id) }}"
+                      data-confirm="{{ L('刪除這個任務？', 'Delete this task?') }}"><button class="btn small ghost" type="submit">🗑</button></form>
+              </span>
+            </div>
+          {% endfor %}
+          {% if not badge._tasks %}<p class="small muted">{{ L('還沒有任務。', 'No tasks yet.') }}</p>{% endif %}
+
+          <details style="margin-top:.5rem">
+            <summary class="small muted" style="cursor:pointer">➕ {{ L('在此獎章加入任務', 'Add a task to this award') }}</summary>
+            <form method="post" action="{{ url_for('leader_routes.create_task') }}" style="margin-top:.7rem">
+              <input type="hidden" name="badge_id" value="{{ badge.id }}">
+              <div class="form-grid">
+                <label class="field"><span>{{ L('任務名稱（中文）', 'Task title (zh)') }}</span><input type="text" name="title_zh" required></label>
+                <label class="field"><span>{{ L('任務名稱（英文）', 'Task title (en)') }}</span><input type="text" name="title_en"></label>
+                <label class="field"><span>{{ L('類型', 'Type') }}</span>
+                  <select name="type">
+                    {% for key, meta in TASK_TYPES.items() %}
+                      <option value="{{ key }}">{{ meta.icon }} {{ L(meta.label_zh, meta.label_en) }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+                <label class="field"><span>{{ L('積分', 'Points') }}</span><input type="number" name="points" value="10"></label>
+                <label class="field"><span>{{ L('合格分數（小測驗）', 'Pass mark (quiz)') }}</span><input type="number" name="pass_score" value="0"></label>
+                <label class="field"><span>{{ L('狀態', 'Status') }}</span>
+                  <select name="status"><option value="draft">{{ L('草稿', 'Draft') }}</option><option value="published">{{ L('已發佈', 'Published') }}</option></select>
+                </label>
+              </div>
+              <label class="field"><span>{{ L('指示（中文）', 'Instruction (zh)') }}</span><textarea name="instruction_zh"></textarea></label>
+              <label class="field"><span>{{ L('指示（英文）', 'Instruction (en)') }}</span><textarea name="instruction_en"></textarea></label>
+              <div class="form-actions"><button class="btn primary" type="submit">{{ L('加入任務', 'Add task') }}</button></div>
+            </form>
+          </details>
+        </div>
+      {% endfor %}
+    {% else %}
+      {{ empty_state('📚', '還沒有獎章，先新增一個。', 'No awards yet — add your first one.') }}
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="section-title"><h2>➕ {{ L('新增獎章', 'Add an award') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('leader_routes.create_badge') }}">
+      <label class="field"><span>{{ L('名稱（中文）', 'Title (zh)') }}</span><input type="text" name="title_zh" required></label>
+      <label class="field"><span>{{ L('名稱（英文）', 'Title (en)') }}</span><input type="text" name="title_en"></label>
+      <label class="field"><span>{{ L('副題（中文）', 'Subtitle (zh)') }}</span><input type="text" name="subtitle_zh"></label>
+      <label class="field"><span>{{ L('副題（英文）', 'Subtitle (en)') }}</span><input type="text" name="subtitle_en"></label>
+      <label class="field"><span>{{ L('代號', 'Code') }}</span><input type="text" name="code" placeholder="SC-04"></label>
+      <label class="field"><span>{{ L('圖示', 'Emoji') }}</span><input type="text" name="emoji" value="🎖"></label>
+      <label class="field"><span>{{ L('獎章積分', 'Badge points') }}</span><input type="number" name="points_reward" value="50"></label>
+      <label class="field"><span>{{ L('次序', 'Order') }}</span><input type="number" name="order_index" value="{{ next_order }}"></label>
+      <label class="field"><span>{{ L('狀態', 'Status') }}</span>
+        <select name="status"><option value="draft">{{ L('草稿（童軍看不到）', 'Draft (hidden)') }}</option><option value="published">{{ L('已發佈', 'Published') }}</option></select>
+      </label>
+      <label class="field"><span>{{ L('簡介（中文）', 'Description (zh)') }}</span><textarea name="desc_zh"></textarea></label>
+      <label class="field"><span>{{ L('簡介（英文）', 'Description (en)') }}</span><textarea name="desc_en"></textarea></label>
+      <button class="btn primary" type="submit" style="width:100%">{{ L('新增獎章', 'Add award') }}</button>
+      <p class="small muted" style="margin-top:.6rem">{{ L('提示：任務的內容（題目、清單項目）在每個任務的編輯頁輸入。', 'Tip: a task’s questions and checklist items are edited inside the task.') }}</p>
+    </form>
+  </div>
+</div>
+{% endblock %}

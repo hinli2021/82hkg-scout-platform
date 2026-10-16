@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state, name_of, patrol_name with context %}
+{% block title %}{{ L('龍虎榜', 'Leaderboard') }}{% endblock %}
+{% block hud_chips %}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>{{ L('龍虎榜', 'Leaderboard') }}</div>
+    <h1 style="margin:0">🏆 {{ L('龍虎榜', 'Leaderboard') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('先比考獲獎章，再比完成任務。', 'Ranked by badges earned first, then tasks done.') }}</p>
+  </div>
+</div>
+
+{% if disabled %}
+  <div class="alert warn">{{ L('龍虎榜未開放。', 'The leaderboard is switched off.') }}</div>
+{% else %}
+  <div class="tabs">
+    <a class="{{ 'on' if period == 'all' else '' }}" href="{{ url_for('scout_routes.leaderboard_page', period='all', scope=scope, patrol=patrol) }}">{{ L('全部時間', 'All time') }}</a>
+    <a class="{{ 'on' if period == 'month' else '' }}" href="{{ url_for('scout_routes.leaderboard_page', period='month', scope=scope, patrol=patrol) }}">{{ L('本月', 'This month') }}</a>
+    <a class="{{ 'on' if period == 'week' else '' }}" href="{{ url_for('scout_routes.leaderboard_page', period='week', scope=scope, patrol=patrol) }}">{{ L('本週', 'This week') }}</a>
+  </div>
+
+  <div class="patrol-pills">
+    <a class="patrol-pill {{ 'active' if scope == 'unit' else '' }}" href="{{ url_for('scout_routes.leaderboard_page', scope='unit', period=period) }}">{{ L('全部小隊', 'All patrols') }}</a>
+    {% for p in patrols %}
+      <a class="patrol-pill {{ 'active' if patrol == p else '' }}" href="{{ url_for('scout_routes.leaderboard_page', scope='patrol', patrol=p, period=period) }}">{{ patrol_name(p) }}</a>
+    {% endfor %}
+  </div>
+
+  {% if current %}
+    <div class="card" style="margin-bottom:.9rem">
+      <div class="spread wrap">
+        <div class="row">
+          <span style="font-size:1.6rem">{{ current.avatar }}</span>
+          <div>
+            <div class="small muted">{{ L('你的排名', 'Your rank') }}</div>
+            <strong>#{{ current.rank }} · {{ name_of(current) }}</strong>
+          </div>
+        </div>
+        <div class="row wrap">
+          <span class="chip brass">🎖 {{ current.badges_done }}</span>
+          <span class="chip light">{{ L('任務', 'Tasks') }} {{ current.tasks_done }}</span>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if rows %}
+    <div class="panel">
+      <div class="panel-head"><strong>{{ L('排名', 'Ranking') }}</strong><span class="small muted">{{ rows | length }} {{ L('位童軍', 'scouts') }}</span></div>
+      <div class="panel-body stack">
+        {% set top = rows[0].badges_done or 1 %}
+        {% for row in rows %}
+          <div class="lb-row {{ 'me' if row.is_me }}" style="position:relative; display:flex; align-items:center; gap:.6rem; padding:.5rem .6rem; border-radius:10px">
+            <span class="lb-fill" style="width: {{ (row.badges_done / top * 100) | round }}%"></span>
+            <strong style="min-width:2.2rem">#{{ row.rank }}</strong>
+            <span style="font-size:1.3rem">{{ row.avatar }}</span>
+            <span class="grow">
+              <strong>{{ name_of(row) }}</strong>
+              <div class="small muted">{{ L(patrol_label(row.patrol).zh, patrol_label(row.patrol).en) }}</div>
+            </span>
+            <span class="chip brass">🎖 {{ row.badges_done }}</span>
+            <span class="chip light">✓ {{ row.tasks_done }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    {{ empty_state('🏁', '還沒有排名資料。', 'No rankings yet.') }}
+  {% endif %}
+{% endif %}
+{% endblock %}

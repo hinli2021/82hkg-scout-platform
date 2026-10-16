@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('登入', 'Sign in') }}{% endblock %}
+{% block body_attrs %}class="scene-body"{% endblock %}
+{% block shell %}
+
+{# ══ the full-screen camp scene — the three animals are the buttons ══ #}
+<div class="scene-login" id="scene-login">
+  <img class="scene-img" src="{{ url_for('static', filename='img/mascots/scene.jpg') }}"
+       width="1920" height="1048" alt="" draggable="false">
+  <div class="scene-scrim" aria-hidden="true"></div>
+  <div class="scene-veil" aria-hidden="true"></div>
+
+  {% for patrol in patrols %}
+    {% set m = mascot_for(patrol.value) %}
+    {% if m.spot_x %}
+      <a class="scene-spot" style="--i: {{ loop.index0 }}; --col: {{ loop.index }}; --x: {{ m.spot_x }}%; --w: {{ m.spot_w }}%;
+             --m-tint: {{ m.tint }}; --m-glow: {{ m.glow }}"
+         href="{{ url_for('auth_routes.scout_names', patrol=patrol.value) }}"
+         data-mascot="{{ patrol.value }}"
+         data-patrol-label="{{ patrol.label.en or patrol.label.zh }}"
+         aria-label="{{ L('我是', 'I am ') }} {{ patrol.label.en or patrol.label.zh }}">
+        <span class="spot-glow" aria-hidden="true"></span>
+        <span class="spot-label">
+          <span class="spot-point" aria-hidden="true">▾</span>
+          <span class="spot-name">
+            <span class="en">{{ patrol.label.en or patrol.label.zh }}</span>
+          </span>
+        </span>
+      </a>
+    {% endif %}
+  {% endfor %}
+
+  <div class="scene-hud bc">
+    <h2 class="scene-prompt" id="scene-prompt">
+      <span class="zh">選擇你的小隊</span>
+      <span class="en" lang="en">Choose your patrol</span>
+    </h2>
+  </div>
+
+  <div class="scene-hud tr">
+    <span class="scene-logo">
+      <img src="{{ url_for('static', filename='img/brand/82hkg-logo.webp') }}"
+           width="900" height="483" alt="{{ L(settings.unit_name_zh, settings.unit_name_en) }}"
+           draggable="false">
+    </span>
+  </div>
+
+  {# the only other door on this page: the leaders' #}
+  <div class="scene-hud br">
+    <a class="scene-link scene-leader" href="{{ url_for('auth_routes.leader_login_page') }}">
+      🧭 {{ L('領袖登入', 'Leader sign-in') }}
+    </a>
+  </div>
+
+  {% set extras = patrols | rejectattr('value', 'in', ['Tiger', 'Otter', 'Seagull']) | list %}
+  {% if extras %}
+    <div class="scene-hud bl">
+      {% for patrol in extras %}
+        <a class="scene-link" href="{{ url_for('auth_routes.scout_names', patrol=patrol.value) }}">
+          {{ patrol.label.en or patrol.label.zh }}
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{# ══ a really small window: the same three doors as cards ══ #}
+<div class="screen mascot-fallback">
+  <div class="login-card card pad-lg" style="margin:auto; text-align:center">
+    <div class="mascot-stage" role="list">
+      {% for patrol in patrols %}
+        {% set m = mascot_for(patrol.value) %}
+        <a class="mascot-card" role="listitem"
+           style="--i: {{ loop.index0 }}; --m-tint: {{ m.tint }}; --m-tint-dark: {{ m.tint_dark }};
+                  --m-glow: {{ m.glow }}; --m-soft: {{ m.soft }}"
+           href="{{ url_for('auth_routes.scout_names', patrol=patrol.value) }}"
+           data-mascot="{{ patrol.value }}"
+           data-patrol-label="{{ patrol.label.en or patrol.label.zh }}"
+           aria-label="{{ L('我是', 'I am ') }} {{ patrol.label.en or patrol.label.zh }}">
+          <span class="mascot-glow" aria-hidden="true"></span>
+          {% if m.img %}
+            <img class="mascot-figure" src="{{ m.img }}" width="620" height="775" alt="" aria-hidden="true" draggable="false">
+          {% else %}
+            <span class="mascot-figure" style="position:absolute; left:50%; bottom:14%;
+                  transform:translateX(-50%); font-size:3.4rem" aria-hidden="true">{{ patrol.label.en or patrol.label.zh }}</span>
+          {% endif %}
+          <span class="mascot-cta">{{ L('按我', 'Tap') }} ›</span>
+          <span class="mascot-plate">
+            <span class="mascot-name">{{ patrol.label.en or patrol.label.zh }}</span>
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+
+    <h2 class="scene-prompt" id="scene-prompt" style="margin:.9rem 0 0">
+      <span class="zh">選擇你的小隊</span>
+      <span class="en" lang="en">Choose your patrol</span>
+    </h2>
+
+    <div class="row wrap" style="justify-content:center; margin-top:.8rem">
+      <a class="btn" href="{{ url_for('auth_routes.leader_login_page') }}">🧭 {{ L('領袖登入', 'Leader sign-in') }}</a>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}

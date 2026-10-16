@@ -1,0 +1,28 @@
+# 執行時產生的東西：不入版控 ---------------------------------------------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.DS_Store
+*.log
+*.tmp
+data/db/*.tmp
+data/uploads/*
+!data/uploads/.gitkeep
+
+# 介面截圖：留在工作區不入庫（檢查腳本可隨時重拍）---------------------------
+docs/screens/
+
+# 秘密：工作階段的登入憑證永不提交 ---------------------------------------
+data/db/sessions.json
+.env
+*.pem
+
+# 離線試玩檔由工具重新產生（如要保存可自行移除這幾行）--------------------
+# demo-preview.html
+# bridge-preview.html
+# login-preview.html
+# welcome-preview.html

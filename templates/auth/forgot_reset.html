@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('忘記密碼', 'Forgot password') }}{% endblock %}
+{% block shell %}
+<div class="screen">
+  <div class="narrow card pad-lg">
+    <div class="crumbs">
+      <a href="{{ url_for('auth_routes.login') }}">{{ L('登入', 'Sign in') }}</a>
+      <span class="breadcrumb-arrow">›</span>
+      <a href="{{ url_for('auth_routes.scout_names', patrol=patrol) }}">{{ patrol_label.en or patrol_label.zh }}</a>
+    </div>
+    <div class="steps">
+      <span class="dot active"></span><span class="dot active"></span><span class="dot active"></span>
+    </div>
+    <h1>{{ L('忘記密碼', 'Forgot password') }}</h1>
+    <p class="muted" style="margin:.15rem 0 .6rem">
+      {{ patrol_label.en or patrol_label.zh }} · {{ scout.display_name_zh or scout.display_name_en }}
+    </p>
+
+    {% if error_zh %}<div class="alert error">{{ L(error_zh, error_en) }}</div>{% endif %}
+    {% if notice_zh %}<div class="alert ok">{{ L(notice_zh, notice_en) }}</div>{% endif %}
+
+    {% if has_email and mail_ready %}
+      <div class="alert info">
+        {{ L('按下面的按鈕，我們會把一條重設連結寄到你的電郵。打開連結就可以設定新密碼，密碼不會寫在電郵裡。',
+             'Tap the button and we will email you a reset link. Open the link to choose a new password — no password is ever sent by email.') }}
+      </div>
+      <form method="post" action="{{ url_for('auth_routes.forgot_send_link', patrol=patrol, user_id=scout.id) }}">
+        <button class="btn primary" type="submit" style="width:100%">
+          ✉️ {{ L('寄出重設連結到', 'Email a reset link to') }} {{ masked_email }}
+        </button>
+      </form>
+      <p class="small muted" style="margin:.5rem 0 0">
+        {{ L('連結 {n} 分鐘內有效，而且只可以用一次。'.replace('{n}', minutes|string),
+             'The link works for ' ~ minutes ~ ' minutes and only once.') }}
+      </p>
+
+    {% elif has_email %}
+      <div class="alert info">
+        {{ L('領袖還未設定寄信的信箱，所以暫時未能寄出電郵。請輸入你第一次登入時填寫的電郵，即時設定新密碼。',
+             'The unit mailbox is not set up yet, so no email can go out. Type the email you gave at your first sign-in and set a new password here and now.') }}
+      </div>
+      <form method="post" action="{{ url_for('auth_routes.forgot_reset', patrol=patrol, user_id=scout.id) }}">
+        <label class="field">
+          <span>{{ L('你的電郵', 'Your email') }}</span>
+          <input type="email" name="email" required autofocus autocomplete="email"
+                 placeholder="{{ L('例如：scout@example.com', 'e.g. scout@example.com') }}">
+        </label>
+        <label class="field">
+          <span>{{ L('新密碼（最少 6 個字）', 'New password (at least 6 characters)') }}</span>
+          <input type="password" name="password" required minlength="6" autocomplete="new-password">
+        </label>
+        <label class="field">
+          <span>{{ L('再輸入一次新密碼', 'Type the new password again') }}</span>
+          <input type="password" name="confirm" required minlength="6" autocomplete="new-password">
+        </label>
+        <button class="btn primary" type="submit" style="width:100%">{{ L('設定新密碼', 'Set the new password') }}</button>
+      </form>
+
+    {% else %}
+      <div class="alert info">
+        {{ L('你的帳號還未有電郵，所以未能自行重設。請按下面的按鈕通知領袖，由領袖為你重設。',
+             'There is no email on your account yet, so you cannot reset it yourself. Tap below to ask a leader to reset it for you.') }}
+      </div>
+      <form method="post" action="{{ url_for('auth_routes.forgot_request') }}">
+        <input type="hidden" name="patrol" value="{{ patrol }}">
+        <input type="hidden" name="user_id" value="{{ scout.id }}">
+        <button class="btn primary" type="submit" style="width:100%">{{ L('通知領袖重設密碼', 'Ask a leader to reset it') }}</button>
+      </form>
+    {% endif %}
+
+    {% if has_email and mail_ready %}
+      <div class="divider"></div>
+      <details class="mini-details">
+        <summary>{{ L('收不到電郵？', 'No email arriving?') }}</summary>
+        <p class="small muted" style="margin:.5rem 0">
+          {{ L('先看看垃圾郵件箱。仍然收不到的話，可以直接用電郵即時設定新密碼 —— 這個方法無須等電郵。',
+               'Check the spam folder first. If it still does not arrive, you can set a new password with your email straight away — no email needed.') }}
+        </p>
+        <form method="post" action="{{ url_for('auth_routes.forgot_reset', patrol=patrol, user_id=scout.id) }}">
+          <label class="field">
+            <span>{{ L('你的電郵', 'Your email') }}</span>
+            <input type="email" name="email" required autocomplete="email">
+          </label>
+          <label class="field">
+            <span>{{ L('新密碼（最少 6 個字）', 'New password (at least 6 characters)') }}</span>
+            <input type="password" name="password" required minlength="6" autocomplete="new-password">
+          </label>
+          <label class="field">
+            <span>{{ L('再輸入一次新密碼', 'Type the new password again') }}</span>
+            <input type="password" name="confirm" required minlength="6" autocomplete="new-password">
+          </label>
+          <button class="btn" type="submit" style="width:100%">{{ L('即時設定新密碼', 'Set a new password now') }}</button>
+        </form>
+      </details>
+    {% endif %}
+
+    <a class="link-btn" href="{{ url_for('auth_routes.scout_password', patrol=patrol, user_id=scout.id) }}">
+      {{ L('返回輸入密碼', 'Back to the password page') }}
+    </a>
+  </div>
+</div>
+{% endblock %}
