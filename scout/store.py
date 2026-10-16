@@ -59,6 +59,10 @@ class Store:
         store.driver.ensure_schema()
         if config["seed_demo"] and store.needs_setup():
             store.seed_demo()
+        else:
+            # 正式部署：空資料庫第一次連上時建立獎章目錄（只建立一次，
+            # 之後任何部署、任何重啟都不會改動已有的資料）
+            store.ensure_catalog()
         return store
 
     # --- pass-throughs ------------------------------------------------------
@@ -187,22 +191,18 @@ class Store:
             self.save_setting("unit_name_zh", unit)
         return leader
 
-    # --- demo seed ----------------------------------------------------------
-    def seed_demo(self) -> None:
-        """Placeholder content so every screen is visible on first run."""
-        now = now_iso()
-        hashed, salt = hash_password(DEMO_PASSWORDS["leader"])
-        leader = self.insert("users", {
-            "role": "leader", "username": "leader1", "password_hash": hashed, "password_salt": salt,
-            "display_name_zh": "陳領袖", "display_name_en": "Leader Chan", "email": "",
-            "scout_no": "", "section": "leader", "patrol": "", "unit": "Sample Scout Group",
-            "avatar": "🧭", "status": "active", "must_change_password": False,
-            "show_on_leaderboard": False, "created_at": now, "created_by": "seed",
-        })
-        self.stats_for(leader["id"])
+    # --- the platform's own content -----------------------------------------
+    def ensure_catalog(self) -> bool:
+        """建立獎章與任務目錄 —— 只在完全沒有獎章時執行一次。
 
+        正式上線第一次連上（空試算表）就會跑，把會員章、其餘四個獎章及 11 個
+        項目建立好；之後每次部署、每次重啟都不會再寫，所以領袖改過的標題、
+        題目、獎章設定都不會被新版本覆蓋。回傳 True 代表這次真的建立了內容。
+        """
+        if self.list("badges"):
+            return False
+        now = now_iso()
         badge_ids: list[str] = []
-        task_rows: list[dict] = []
         # 完成指南: the 11 items in the unit's own words (content/member-badge/guide.json)
         guide = member_badge_guide()
         item4 = item4_questions()
@@ -236,7 +236,23 @@ class Store:
                     "config_json": config,
                     "status": "published", "created_at": now, "updated_at": now,
                 })
-                task_rows.append(row)
+        return True
+
+    # --- demo seed ----------------------------------------------------------
+    def seed_demo(self) -> None:
+        """Placeholder content so every screen is visible on first run."""
+        now = now_iso()
+        self.ensure_catalog()                     # 示範部署一樣要有正式目錄
+        hashed, salt = hash_password(DEMO_PASSWORDS["leader"])
+        leader = self.insert("users", {
+            "role": "leader", "username": "leader1", "password_hash": hashed, "password_salt": salt,
+            "display_name_zh": "陳領袖", "display_name_en": "Leader Chan", "email": "",
+            "scout_no": "", "section": "leader", "patrol": "", "unit": "Sample Scout Group",
+            "avatar": "🧭", "status": "active", "must_change_password": False,
+            "show_on_leaderboard": False, "created_at": now, "created_by": "seed",
+        })
+        self.stats_for(leader["id"])
+        task_rows: list[dict] = [row for row in self.list("tasks") if row.get("code")]
 
         # A handful of scouts, each somewhere inside the FIRST award (會員章):
         # the tasks they have finished, and one that may be waiting for a leader.
@@ -329,8 +345,8 @@ class Store:
             # Use the very same rule as real gameplay: the Membership Badge
             # cannot be seeded as earned while games 2–5 are placeholders.
             from .engine import check_badge_completion
-            for badge_id in badge_ids:
-                check_badge_completion(self, user=scout, badge=self.get("badges", badge_id))
+            for badge in self.list("badges"):        # 目錄已建立（可能早於這次示範）
+                check_badge_completion(self, user=scout, badge=badge)
             self.rebuild_stats(scout["id"])
 
         for order, idea in enumerate(SEED_SUGGESTIONS, start=1):
