@@ -112,6 +112,22 @@ class LocalDriver:
             self._persist(collection)
             return dict(record)
 
+    def append_many(self, collection: str, records: list[dict]) -> list[dict]:
+        """Add several rows with a single file write."""
+        prepared: list[dict] = []
+        with self._lock:
+            rows = self._read(collection)
+            field = key_field(collection)
+            for record in records:
+                row = dict(record)
+                if not row.get(field):
+                    row[field] = new_id()
+                prepared.append(row)
+            if prepared:
+                rows.extend(prepared)
+                self._persist(collection)
+        return [dict(row) for row in prepared]
+
     def update(self, collection: str, key: Any, patch: dict) -> dict | None:
         with self._lock:
             rows = self._read(collection)

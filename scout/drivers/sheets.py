@@ -107,15 +107,17 @@ class SheetsDriver:
                 method="POST",
                 body={"requests": [{"addSheet": {"properties": {"title": name}}} for name in missing]},
             )
-        for collection in COLLECTION_ORDER:
-            if collection in missing:
+        if missing:
+            data = []
+            for collection in missing:              # 一次請求寫好所有標題列
                 headers = self._headers(collection)
                 rng = f"{collection}!A1:{_column_letter(len(headers))}1"
-                self._api(
-                    f"{SHEETS_API}/{self.spreadsheet_id}/values/{rng}?valueInputOption=RAW",
-                    method="PUT",
-                    body={"values": [headers]},
-                )
+                data.append({"range": rng, "values": [headers]})
+            self._api(
+                f"{SHEETS_API}/{self.spreadsheet_id}/values:batchUpdate",
+                method="POST",
+                body={"valueInputOption": "RAW", "data": data},
+            )
         self._tabs_checked = True
 
     # --- value marshalling --------------------------------------------------
@@ -157,16 +159,19 @@ class SheetsDriver:
         sheet_headers = [str(h) for h in (values[0] if values else headers)] or headers
         rows: list[dict] = []
         index_by_id: dict[str, int] = {}
+        last_row = 1                                   # the header row
         key = key_field(collection)
         for offset, raw in enumerate(values[1:], start=2):
             if not any(str(cell).strip() for cell in raw):
                 continue
+            last_row = max(last_row, offset)
             padded = list(raw) + [""] * (len(sheet_headers) - len(raw))
             row = {field: self._from_cell(field, padded[i] if i < len(padded) else "")
                    for i, field in enumerate(sheet_headers)}
             rows.append(row)
             index_by_id[str(row.get(key))] = offset
-        entry = {"rows": rows, "row_index": index_by_id, "headers": sheet_headers, "ts": time.time()}
+        entry = {"rows": rows, "row_index": index_by_id, "headers": sheet_headers,
+                 "last_row": last_row, "ts": time.time()}
         self._cache[collection] = entry
         return entry
 
@@ -199,9 +204,39 @@ class SheetsDriver:
         record = dict(record)
         if not record.get(key):
             record[key] = new_id()
-        row_number = len(entry["rows"]) + 2
+        row_number = entry.get("last_row", len(entry["rows"]) + 1) + 1
         self._write_row(collection, row_number, record, headers)
         return dict(record)
+
+    def append_many(self, collection: str, records: list[dict]) -> list[dict]:
+        """Add several rows in one request — used when a fresh Sheet is set up.
+
+        One GET for the headers, one PUT for the whole block: a first boot costs
+        two calls per table instead of two per row, which is what keeps it
+        inside a serverless function's time limit.
+        """
+        records = [dict(record) for record in records]
+        if not records:
+            return []
+        self.ensure_schema()
+        entry = self._fetch(collection, force=True)
+        headers = entry["headers"]
+        key = key_field(collection)
+        for record in records:
+            if not record.get(key):
+                record[key] = new_id()
+        start = entry.get("last_row", len(entry["rows"]) + 1) + 1
+        end = start + len(records) - 1
+        values = [[self._to_cell(field, record.get(field, "")) for field in headers]
+                  for record in records]
+        rng = f"{collection}!A{start}:{_column_letter(len(headers))}{end}"
+        self._api(
+            f"{SHEETS_API}/{self.spreadsheet_id}/values/{rng}?valueInputOption=RAW",
+            method="PUT",
+            body={"values": values},
+        )
+        self._cache.pop(collection, None)
+        return records
 
     def update(self, collection: str, key: Any, patch: dict) -> dict | None:
         entry = self._fetch(collection, force=True)
