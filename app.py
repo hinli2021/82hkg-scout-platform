@@ -214,6 +214,8 @@ def create_app(config: dict | None = None) -> Flask:
             "demo": bool(store.config.get("demo_login") or store.config.get("seed_demo")),
             "counts": counts,
             "setup_ready": counts.get("badges", 0) >= 5 and counts.get("tasks", 0) >= 11,
+            # 連不上試算表時的「人話」原因（不含金鑰、不含電郵），方便遠端診斷
+            "storage_reason": storage_advice(store.config.get("storage_error", ""))[0][:160],
         }
         # 人在瀏覽器打開（Accept 明確寫了 text/html）就給他一張看得懂的頁；
         # curl／檢查腳本（Accept: */* 或沒有 Accept）仍然拿到 JSON。
