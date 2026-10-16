@@ -4518,5 +4518,25 @@
     "detail_json": "{}",
     "created_at": "2026-10-16T00:58:14.424Z",
     "id": "ee09e739d3ab7cce"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T01:01:20.176Z",
+    "id": "663dba726a850498"
+  },
+  {
+    "actor_id": "d36d1c007798c14e",
+    "actor_role": "leader",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "d36d1c007798c14e",
+    "detail_json": "{}",
+    "created_at": "2026-10-16T01:01:23.975Z",
+    "id": "d63e344874e2435f"
   }
 ]
