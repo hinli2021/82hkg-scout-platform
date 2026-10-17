@@ -1407,6 +1407,24 @@ POST /badges/<id>/start   開始冒險（fetch → JSON{ok, trail, credited}；�
 - 內建遊戲（M04、M05）與會員章本身**現在不能刪除**：要換走某一區的遊戲，請在該區改派另一項任務。
 - 還原後按 F5 重新載入，第 1、2 區就會恢復原狀；已在該遊戲完成的童軍仍然是「已完成」。
 
+---
+
+### 壁畫與遊戲插圖，放在哪裡？（改圖改字不用碰試算表）
+
+山洞的壁畫、教學牌與遊戲插圖，全部住在程式碼的 `content/member-badge/cave.json`
+（文字）與 `static/img/quest/cave/`（圖片），**更新版本就會生效，不會動到試算表**。
+
+| 想改 | 改哪裡 |
+|---|---|
+| 壁畫上的字（導言、時間線、資料欄、記憶提示） | `content/member-badge/cave.json` 的 `groups[n].wall` |
+| 壁畫圖片 | 換掉 `static/img/quest/cave/wall-*.jpg`（同名即可） |
+| 題目、選項、正確答案 | 領袖後台 → 🕯️ 編輯題目與答案（寫入試算表的 `tasks` 分頁） |
+| 遊戲內的按鈕文字 | `content/member-badge/cave.json` 的 `labels` |
+
+2026-10-17 的例子：旅巾由綠色改為紫色、兩邊綠紅條紋 —— 換了 `wall-group.jpg`、
+改了壁畫三的文字，丙14 的選項與種子答案也一併更新（種子只在**首次建立**時寫入，
+所以領袖已在平台改過的答案不會被覆蓋）。
+
 相關文件：`docs/02-google-sheets-setup.md`（試算表接線）、`docs/05-vercel.md`（部署與上線清單）。
 
 ---
