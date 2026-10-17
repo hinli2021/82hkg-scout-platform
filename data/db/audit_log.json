@@ -4778,5 +4778,35 @@
     "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
     "created_at": "2026-10-16T09:37:35.975Z",
     "id": "01fb7b66a08874da"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T00:35:39.814Z",
+    "id": "8be821f96d368062"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "bridge_submit",
+    "entity": "tasks",
+    "entity_id": "ed68ce480ff3cd75",
+    "detail_json": "{\"status\": \"completed\", \"stages\": 3}",
+    "created_at": "2026-10-17T00:36:26.930Z",
+    "id": "242ba2219520eba8"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T00:37:10.881Z",
+    "id": "75bbaa8371198a6c"
   }
 ]
