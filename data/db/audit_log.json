@@ -4878,5 +4878,15 @@
     "detail_json": "{\"status\": \"completed\", \"score\": 78}",
     "created_at": "2026-10-17T08:50:24.053Z",
     "id": "2710ff334505c471"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T09:06:58.957Z",
+    "id": "2a39e32dac596ba7"
   }
 ]
