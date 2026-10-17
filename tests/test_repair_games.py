@@ -176,10 +176,11 @@ def test_the_repair_card_is_on_the_content_page(monkeypatch):
     page = client.get("/leader/content").get_data(as_text=True)
     assert "修復遊戲與缺少的項目" in page
     assert "還原內建遊戲（石室、渡口）" in page
-    assert "還原所有內建項目" in page
+    assert "還原所有缺少的內建項目" in page
     assert 'name="scope" value="games"' in page and 'name="scope" value="all"' in page
     assert "repair-games" in page
-    assert "兩個內建遊戲都齊全" in page, "齊全時應該顯示 ✓ 而不是警告"
+    assert "全部內建項目齊全" in page, "齊全時應該顯示 ✓ 而不是警告"
+    assert "17 / 17" in page, "要顯示內建項目對照"
 
 
 def test_the_card_warns_while_the_bridge_is_missing(monkeypatch):
@@ -198,6 +199,7 @@ def test_the_card_warns_while_the_bridge_is_missing(monkeypatch):
     page = client.get("/leader/content").get_data(as_text=True)
     assert "有東西需要還原" in page
     assert "M05" in page and "第 2 區未接好" in page
+    assert "16 / 17" in page, "要寫出少了幾項"
 
 
 def test_games_scope_does_not_resurrect_other_awards_tasks_but_all_scope_does(monkeypatch):
