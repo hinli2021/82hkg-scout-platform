@@ -211,7 +211,6 @@
   </div>
 
   <div>
-    {% set trouble = games_missing or areas_unset or games_empty %}
 {% set trouble = missing_rows or areas_unset or games_empty %}
 <div class="card" data-repair-games style="margin-bottom:1rem">
   <h3 style="margin-top:0">🔧 {{ L('修復遊戲與缺少的項目', 'Repair games and missing items') }}</h3>
@@ -219,8 +218,19 @@
     {{ L('內建項目對照：', 'Built-in items:') }}
     <strong>{{ builtin_present }} / {{ builtin_total }}</strong>
     {{ L('項任務在線', 'tasks present') }}
+    {% if retired_rows %}
+      <span class="muted">· {{ L('你已刪除', 'you deleted') }} {{ retired_rows | length }}
+        {{ L('項（不計入）', 'on purpose (not counted)') }}</span>
+    {% endif %}
     <span class="muted">· {{ L('試算表內任務總數', 'rows in the tasks tab') }} {{ tasks_online }}</span>
   </p>
+  {% if retired_rows %}
+    <p class="small muted" style="margin:0 0 .5rem">
+      {{ L('已刪除：', 'Deleted on purpose:') }}
+      {% for row in retired_rows %}{{ row.code }}{% if not loop.last %}、{% endif %}{% endfor %}
+      —— {{ L('不會催促還原；要一次帶回全部，用下面的「↺」。', 'nothing here asks you to restore them. “↺” below brings them all back at once.') }}
+    </p>
+  {% endif %}
   {% if repair_notice %}
     <div class="alert ok" data-repair-notice style="margin:.4rem 0">
       <strong>✓ {{ L('還原完成', 'Restored') }}</strong> — {{ L(repair_notice[0], repair_notice[1]) }}
