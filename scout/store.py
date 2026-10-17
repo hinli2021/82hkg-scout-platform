@@ -232,6 +232,31 @@ class Store:
             return writer(collection, records)
         return [self.driver.insert(collection, row) for row in records]
 
+    def restore_codes(self, codes) -> list[str]:
+        """清走「已刪除」記號，讓內建項目可以再被補回。回傳真正清走的代碼。"""
+        wanted = {str(code) for code in codes if str(code or "").strip()}
+        current = [str(item) for item in (self.settings().get("catalog_removed") or [])]
+        kept = [code for code in current if code not in wanted]
+        cleared = [code for code in current if code in wanted]
+        if cleared:
+            self.save_setting("catalog_removed", kept)
+        return cleared
+
+    def orphan_task_ids(self, badge_id: str = "") -> list[str]:
+        """童軍進度仍然指着、但任務列已不存在的 id。
+
+        刪除後重建時沿用這些 id，童軍已完成的記錄才不會消失。
+        """
+        known = {str(row.get("id")) for row in self.list("tasks")}
+        found: list[str] = []
+        for row in self.list("progress_records"):
+            if badge_id and str(row.get("badge_id")) != str(badge_id):
+                continue
+            task_id = str(row.get("task_id") or "")
+            if task_id and task_id not in known and task_id not in found:
+                found.append(task_id)
+        return found
+
     def remember_removed(self, code: str) -> None:
         """領袖刪除的目錄項目要記住 —— 部署新版本時不可自動重建。"""
         code = str(code or "").strip()
@@ -419,7 +444,7 @@ class Store:
                 self.update("tasks", row["id"], {"badge_id": target["id"]})
         return merged
 
-    def ensure_catalog(self) -> bool:
+    def ensure_catalog(self, preferred_ids: dict[str, str] | None = None) -> bool:
         """建立缺少的獎章與任務 —— 只新增，永不改寫已有的列。
 
         第一次連上空試算表時建立全部；之後每次啟動只補上「程式有、試算表沒有」
@@ -481,7 +506,9 @@ class Store:
                     config["questions"] = item4
                     config["quiz_title"] = item4_meta().get("title_zh", "")
                     config["per_question"] = item4_meta().get("per_question", 2)
+                preferred = str((preferred_ids or {}).get(code) or "")
                 new_tasks.append({
+                    **({"id": preferred} if preferred else {}),
                     "badge_id": badge["id"], "order_index": order, "code": code,
                     "title_zh": task["title_zh"], "title_en": task["title_en"],
                     "instruction_zh": task["instruction_zh"], "instruction_en": task["instruction_en"],

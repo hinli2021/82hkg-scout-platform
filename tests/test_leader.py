@@ -295,9 +295,15 @@ def test_badges_can_be_reordered(leader_client, store):
 
 
 def test_delete_badge_takes_its_tasks(leader_client, store):
-    badge = store.list("badges")[0]
+    # 會員章（SC-01）是整個系統的根，不能刪除（見 tests/test_repair_games.py）；
+    # 這裡驗證其他獎章刪除時會連同任務一起走
+    badge = next(row for row in store.list("badges") if row.get("code") != "SC-01")
+    # 其他獎章一開始沒有任務，先放一個進去，才能驗證刪獎章會連任務一起走
+    made = store.insert("tasks", {"badge_id": badge["id"], "title_zh": "臨時任務", "title_en": "Temp",
+                                  "type": "checklist", "points": 5, "status": "draft",
+                                  "order_index": 1, "config_json": {}})
     task_ids = [t["id"] for t in store.list("tasks") if t["badge_id"] == badge["id"]]
-    assert task_ids
+    assert task_ids and made["id"] in task_ids
     leader_client.post(f"/leader/content/badges/{badge['id']}/delete")
     assert store.get("badges", badge["id"]) is None
     assert all(store.get("tasks", task_id) is None for task_id in task_ids)
