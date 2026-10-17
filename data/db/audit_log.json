@@ -4808,5 +4808,75 @@
     "detail_json": "{}",
     "created_at": "2026-10-17T00:37:10.881Z",
     "id": "75bbaa8371198a6c"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T08:45:44.785Z",
+    "id": "2c56119345238861"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T08:45:55.026Z",
+    "id": "8643c49cb3c4d599"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T08:46:10.531Z",
+    "id": "fe0659f016d00d15"
+  },
+  {
+    "actor_id": "f7335c95310527a9",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "f7335c95310527a9",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T08:46:28.397Z",
+    "id": "31a39be5f96c74be"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T08:48:46.025Z",
+    "id": "792a4353ea258b27"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T08:48:46.097Z",
+    "id": "82f734760dc680a3"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-17T08:50:24.053Z",
+    "id": "2710ff334505c471"
   }
 ]
