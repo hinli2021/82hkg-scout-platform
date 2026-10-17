@@ -272,11 +272,11 @@
         "title_zh": "壁畫三：三隻小隊動物",
         "title_en": "Wall three — three patrol animals",
         "lead_zh": [
-          "牆上畫着三隻動物：老虎、水獺、海鷗 —— 牠們圍着一條綠色的旅巾，巾上繡着童軍的百合花。",
+          "牆上畫着三隻動物：老虎、水獺、海鷗 —— 牠們圍着一條紫色的旅巾，巾的兩邊各有一條綠色和一條紅色的條紋，巾上繡着童軍的百合花。",
           "這一幅寫的是我們自己的資料：本旅、我們的區、我們的領袖、我們的顏色。"
         ],
         "lead_en": [
-          "Three animals are painted here: a tiger, an otter and a sea-gull, gathered round a green scarf with the fleur-de-lis on it.",
+          "Three animals are painted here: a tiger, an otter and a sea-gull, gathered round a purple scarf edged with green and red stripes, the fleur-de-lis on it.",
           "This wall is about us: our group, our district, our leaders and our colours."
         ],
         "timeline": [
@@ -327,8 +327,8 @@
           {
             "label_zh": "旅巾與童軍紀錄簿",
             "label_en": "Scarf and record book",
-            "value_zh": "兩樣都是綠色",
-            "value_en": "both are green"
+            "value_zh": "旅巾：紫色，兩邊各有綠、紅條紋；童軍紀錄簿：綠色",
+            "value_en": "scarf: purple with green and red stripes; record book: green"
           },
           {
             "label_zh": "本旅的支部",
@@ -337,8 +337,8 @@
             "value_en": "three"
           }
         ],
-        "note_zh": "這一幅不用死記年份，記着「三隻動物、一條綠巾、筲箕灣區、十月一日」就夠了。",
-        "note_en": "No years to remember here: three animals, one green scarf, Shao Kei Wan District, and the first of October."
+        "note_zh": "這一幅不用死記年份，記着「三隻動物、一條紫巾（綠、紅條紋）、一本綠色的紀錄簿、筲箕灣區、十月一日」就夠了。",
+        "note_en": "No years to remember here: three animals, one purple scarf with green and red stripes, a green record book, Shao Kei Wan District, and the first of October."
       },
       "questions": [
         "丙1",
