@@ -10,6 +10,22 @@ storage and includes a one-file offline walkthrough.
 
 ---
 
+## 文件：一份合訂本 + 一個打包 / the docs, compiled and packed
+
+全部說明文件（README、LAUNCH、DEMO、docs/01–06）已合併成單一檔案
+**`docs/ALL-DOCS.md`** —— 有目錄、可整份閱讀或列印。改過任何一份之後：
+
+    python3 tools/compile_docs.py      # 重新合併 → docs/ALL-DOCS.md
+
+要把整個平台（程式、內容、文件、截圖、原稿）收成一個檔案保存或交收：
+
+    python3 tools/pack_release.py      # → ../deliverables/82hkg-platform-<日期>.zip
+
+打包不含 `.git`（歷史在 GitHub）、離線示範 HTML（可用 `tools/offline_demo.py`
+重新產生）與執行時資料；包內有 `MANIFEST.txt` 逐項列出內容。
+
+---
+
 ## 離線示範 / the offline demo — `demo-preview.html`
 
 One file, no server, no cookies: **13 screens**, from camp login and the
