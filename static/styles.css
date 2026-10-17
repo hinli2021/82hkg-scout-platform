@@ -2137,6 +2137,7 @@ body.is-game main { padding-top: 6px; }
 
 /* ── the score ─────────────────────────────────────────────────────────── */
 .cave-score { color: #fff; font-size: clamp(1.8rem, 5vw, 2.6rem); margin: .3rem 0 .1rem; }
+.cave-attempts { color: #cfe3cf; font-size: .92rem; margin: 0 0 .45rem; }
 .cave-verdict { font-weight: 800; margin: .1rem 0 .4rem; font-size: 1rem; }
 .cave-verdict.is-pass { color: #9fe89b; }
 .cave-verdict.is-fail { color: #ffb4a4; }

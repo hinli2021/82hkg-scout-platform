@@ -97,6 +97,9 @@
         deadsSeen: 0, pending: null, result: null, finishing: false,
         // this stretch only: wrong turns taken, and questions of it answered
         fails: 0, stagePassed: 0, back: null, backs: 0,
+        // the whole run: every graded tap (right or wrong), so a scout who
+        // spent the first stretch guessing still ends with a lower percentage
+        tries: 0, wrongs: 0,
       };
       window.__caveState = state;                     // for the browser checks
     }
@@ -292,10 +295,21 @@
 
     function resultHtml() {
       var r = state.result || {};
-      var score = r.score == null ? localScore().score : r.score;
+      var local = localScore();
+      var score = r.score == null ? local.score : r.score;
+      var right = r.right == null ? local.right_count : r.right;
+      var answered = r.total == null ? local.answered : r.total;
+      var tries = r.tries == null ? local.tries : r.tries;
+      var accuracy = r.accuracy == null ? local.accuracy : r.accuracy;
+      var wrongTaps = r.wrong == null ? Math.max(0, tries - answered) : r.wrong;
       var wrong = localReview();
       var html = exitNarrativeHtml() +
-        '<h2 class="cave-score">' + esc(fill(pick(L.result_score_zh, L.result_score_en), { score: score })) + '</h2>' +
+        '<h2 class="cave-score">' +
+          esc(fill(pick(L.result_score_zh, L.result_score_en),
+                   { score: score, pct: score, right: right, total: answered })) + '</h2>' +
+        '<p class="cave-attempts">' +
+          esc(fill(pick(L.result_attempts_zh, L.result_attempts_en),
+                   { tries: tries, wrong: Math.max(0, wrongTaps), accuracy: accuracy })) + '</p>' +
         '<p class="cave-verdict is-pass">' + esc(pick(L.pass_zh, L.pass_en)) + '</p>' +
         '<p class="cave-line">' + esc(pick(L.pass_note_zh, L.pass_note_en)) + '</p>';
       if (r.offline) html += '<p class="cave-line small">' + esc(isEn()
@@ -356,7 +370,15 @@
 
     function localScore() {
       var right = localReview(true);
-      return { score: Math.round(right / totalQuestions * 100), right: right };
+      var answered = totalQuestions;
+      var tries = Math.max(answered, (state && state.tries) || 0);
+      var wrongs = Math.min((state && state.wrongs) || 0, Math.max(0, tries - answered));
+      var rightTaps = Math.max(tries - wrongs, answered);
+      return {
+        score: Math.round(right / totalQuestions * 100), right: right,
+        right_count: right, answered: answered, tries: rightTaps + wrongs,
+        accuracy: (rightTaps + wrongs) ? Math.round(rightTaps / (rightTaps + wrongs) * 100) : 100,
+      };
     }
 
     /* the missed questions, in the order they were asked: the first attempt is
@@ -484,6 +506,8 @@
       var option = q.options.filter(function (o) { return o.key === key; })[0];
       if (!option) return;
       var first = !state.first[q.id];
+      state.tries += 1;
+      if (!option.ok) state.wrongs += 1;
       if (first) {
         var key_option = q.options.filter(function (o) { return o.ok; })[0] || {};
         state.first[q.id] = {
@@ -551,6 +575,8 @@
       show('submitting');
       var body = new URLSearchParams();
       if (cfg.run_key) body.append('run_key', cfg.run_key);
+      body.append('wrong', String(state.wrongs || 0));
+      body.append('tries', String(state.tries || 0));
       cfg.groups.forEach(function (group) {
         group.questions.forEach(function (q) {
           body.append('q' + q.bank, String(run.first[q.id].idx));
@@ -558,8 +584,13 @@
       });
       var done = function (payload) {
         if (state !== run) return;  // the player left or began a new run
+        var here = localScore();
         state.result = {
-          score: payload ? payload.score : localScore().score,
+          score: payload ? payload.score : here.score,
+          right: payload && payload.detail ? payload.detail.correct : here.right_count,
+          total: payload && payload.detail ? payload.detail.total : here.answered,
+          tries: payload && payload.detail && payload.detail.tries ? payload.detail.tries : here.tries,
+          accuracy: payload && payload.detail ? payload.detail.accuracy : here.accuracy,
           passed: true,
           review: [],
           offline: !payload,

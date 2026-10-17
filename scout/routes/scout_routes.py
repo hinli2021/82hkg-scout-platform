@@ -481,9 +481,22 @@ def cave_submit(task_id: str):
                     "Finish all 50 cave questions before completing the game.")
 
     correct = sum(int(given) == answer for given, answer in zip(answers, expected))
+    # The cave reports every graded tap: how many in all, and how many were
+    # wrong (a wrong turn, a retry after a dead end, or a stretch that had to
+    # start again). Those extra taps lower the *accuracy* — a scout who guessed
+    # their way through the first stretch ends with a visibly lower figure —
+    # but never the mark: the mark stays the first-try percentage, which is
+    # what the progress record has always held.
+    wrong_taps = min(max(as_int_or(request.form.get("wrong"), 0), 0), 500)
+    tries = min(max(as_int_or(request.form.get("tries"), 0), len(expected) + wrong_taps), 1000)
+    right_taps = max(tries - wrong_taps, len(expected))
+    tries = right_taps + wrong_taps
     graded = {"correct": correct, "total": len(expected),
-              "score": round(correct / len(expected) * 100)}
-    detail = {"correct": graded["correct"], "total": graded["total"], "score": graded["score"]}
+              "score": round(correct / len(expected) * 100),
+              "tries": tries,
+              "accuracy": round(right_taps / tries * 100) if tries else 100}
+    detail = {"correct": graded["correct"], "total": graded["total"], "score": graded["score"],
+              "tries": graded["tries"], "wrong": wrong_taps, "accuracy": graded["accuracy"]}
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
     already_done = any(r.get("status") == "completed" for r in mine)

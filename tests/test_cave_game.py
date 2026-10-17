@@ -382,3 +382,43 @@ def test_offline_router_guards_pane_exits_and_keeps_badge_progress():
     assert "var game2Cleared = false" in offline
     assert "document.addEventListener('bridge:result'" in offline
     assert "'2 / 5 個遊戲'" in offline
+
+
+def test_repeated_wrong_turns_lower_the_percentage_but_not_the_mark(app, store, new_scout):
+    """領袖的要求：起初答錯很多次，百分比要反映出來。
+
+    兩件事分開算：
+      · 成績（分數欄）＝ 第一次作答就答對的百分比，仍然是 80；
+      · 準確率 ＝ 每一次作答中答對的比例；20 次錯摸會把它拉低。
+    """
+    task = paper_task(store)
+    answers = {f"q{i}": str(key if i % 5 else (key + 1) % len(q["options"]))
+               for i, (q, key) in enumerate(zip(bank()["questions"], answer_key()))}
+    payload = new_scout.post(f"/tasks/{task['id']}/cave-submit",
+                             data={**answers, "wrong": "20", "tries": "70"}).get_json()
+    assert payload["score"] == 80, payload            # 標記不受重試影響
+    assert payload["detail"]["tries"] == 70
+    assert payload["detail"]["accuracy"] == round(50 / 70 * 100)   # 71%
+    assert payload["detail"]["accuracy"] < payload["score"], "錯摸要反映在準確率上"
+
+    record = next(r for r in store.list("progress_records")
+                  if r["user_id"] == new_scout.id and r["task_id"] == task["id"])
+    assert record["score"] == 80, "進度記錄仍然保存第一次作答的分數"
+
+
+def test_a_clean_run_reports_full_accuracy(app, store, new_scout):
+    task = paper_task(store)
+    answers = {f"q{i}": str(key) for i, key in enumerate(answer_key())}
+    payload = new_scout.post(f"/tasks/{task['id']}/cave-submit", data=answers).get_json()
+    assert payload["score"] == 100
+    assert payload["detail"]["accuracy"] == 100 and payload["detail"]["tries"] == 50
+
+
+def test_a_nonsense_wrong_count_cannot_break_the_result(app, store, new_scout):
+    task = paper_task(store)
+    answers = {f"q{i}": str(key) for i, key in enumerate(answer_key())}
+    for wrong in ("-9", "abc", "99999"):
+        payload = new_scout.post(f"/tasks/{task['id']}/cave-submit",
+                                 data={**answers, "wrong": wrong}).get_json()
+        assert payload["ok"] and 50 <= payload["detail"]["tries"] <= 1000
+        assert 0 <= payload["detail"]["accuracy"] <= 100
