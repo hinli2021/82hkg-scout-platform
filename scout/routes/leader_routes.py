@@ -19,12 +19,12 @@ from flask import Blueprint, Response, abort, flash, g, redirect, render_templat
 
 from .. import mailer
 from ..auth import create_reset_token, leader_required, public_user, reset_password as clear_password
-from ..content import cave_adventure
+from ..content import cave_adventure, item4_meta, item4_questions, member_badge_guide
 from ..engine import (
     as_json, award_task_completion, check_badge_completion, leaderboard, progress_for,
     public_badge, public_task, write_ledger,
 )
-from ..schema import DEFAULT_SETTINGS, PATROL_LABELS, TASK_TYPES, patrol_label
+from ..schema import SEED_BADGES, DEFAULT_SETTINGS, PATROL_LABELS, TASK_TYPES, patrol_label
 from ..util import generate_password, hash_password, new_id, now_iso, parse_time, slug, to_bool
 from .helpers import audit, checkbox, fail, field_list, ok, parse_csv, sanitize, store, to_csv, wants_json
 
@@ -150,7 +150,56 @@ def _content_context() -> dict:
 @leader_routes.get("/leader/content")
 @leader_required
 def content():
-    return render_template("leader/content.html", **_content_context())
+    context = _content_context()
+    st = store()
+    removed_codes = [str(code) for code in (st.settings().get("catalog_removed") or [])]
+    present = {str(row.get("code")) for row in st.list("tasks")}
+    member = next((row for row in context["badges"] if row.get("code") == "SC-01"), None) or {}
+    areas = member.get("_game_areas") or []
+    context["builtin_games"] = BUILTIN_GAMES
+    context["games_empty"] = [code for code in sorted(BUILTIN_GAMES)
+                              if (row := next((t for t in st.list("tasks") if t.get("code") == code), None))
+                              and _empty_builtin_content(code, row)]
+    context["removed_codes"] = removed_codes
+    context["removed_other"] = [code for code in removed_codes if code not in BUILTIN_GAMES]
+    context["games_missing"] = [code for code in BUILTIN_GAMES if code not in present]
+    def _area_game(n: int) -> dict:
+        return dict(((areas[n - 1] if len(areas) >= n else {}) or {}).get("game") or {})
+
+    context["areas_unset"] = [spec["area"] for code, spec in BUILTIN_GAMES.items()
+                              if not (_area_game(spec["area"]).get("ready")
+                                      and _area_game(spec["area"]).get("task_code") == code)]
+    names = {1: ("山洞的石室", "the cave"), 2: ("渡口的過橋遊戲", "the crossing game")}
+    context["areas_unset_names"] = [names.get(n, (str(n), str(n)))[0] for n in context["areas_unset"]]
+
+    area_names = {1: ("第 1 區（石室）", "area 1 (the cave)"), 2: ("第 2 區（渡口）", "area 2 (the crossing)")}
+    restored = [code for code in (request.args.get("restored") or "").split(",") if code]
+    rewired = [code for code in (request.args.get("rewired") or "").split(",") if code]
+    kept = [code for code in (request.args.get("kept") or "").split(",") if code]
+    if request.args.get("repair"):
+        parts_zh, parts_en = [], []
+        if restored:
+            parts_zh.append("補回 " + "、".join(restored))
+            parts_en.append("restored " + ", ".join(restored))
+        if rewired:
+            parts_zh.append("重新接上 " + "、".join(area_names.get(BUILTIN_GAMES[c]["area"], (c, c))[0]
+                                                 for c in rewired if c in BUILTIN_GAMES))
+            parts_en.append("re-wired " + ", ".join(area_names.get(BUILTIN_GAMES[c]["area"], (c, c))[1]
+                                                    for c in rewired if c in BUILTIN_GAMES))
+        refilled = [code for code in (request.args.get("refilled") or "").split(",") if code]
+        if refilled:
+            parts_zh.append("填回 " + "、".join(refilled) + " 的內容（題目／設定）")
+            parts_en.append("refilled the content of " + ", ".join(refilled))
+        if kept:
+            parts_zh.append("沿用了舊記錄的 id（" + "、".join(kept) + "），童軍進度保留")
+            parts_en.append("reused the old ids (" + ", ".join(kept) + "), so scouts keep their progress")
+        unknown = request.args.get("unknown") or ""
+        if unknown and unknown != "0":
+            parts_zh.append(f"另有 {unknown} 筆舊記錄可對上多於一項，未自動套用")
+            parts_en.append(f"{unknown} old record(s) matched more than one item and were left alone")
+        context["repair_notice"] = ("；".join(parts_zh) or "沒有缺少的項目，一切照舊",
+                                    "；".join(parts_en) or "nothing was missing — nothing changed")
+    return render_template("leader/content.html", **context)
 
 
 @leader_routes.post("/leader/content/badges")
@@ -289,6 +338,10 @@ def configure_area_game(badge_id: str, area_n: int):
 @leader_required
 def delete_badge(badge_id: str):
     st = store()
+    if (st.get("badges", badge_id) or {}).get("code") == "SC-01":
+        return fail(409, "member_badge",
+                    "會員章是整個進度系統的根，不能刪除。",
+                    "The Membership Badge is the root of the scheme and cannot be deleted.")
     badge = st.get("badges", badge_id) or {}
     for task in [t for t in st.list("tasks") if t.get("badge_id") == badge_id]:
         st.remember_removed(task.get("code"))          # 不要在新版本重新出現
@@ -606,6 +659,10 @@ def delete_task(task_id: str):
     task = st.get("tasks", task_id)
     if not task:
         abort(404)
+    if str(task.get("code") or "") in BUILTIN_GAMES:
+        return fail(409, "builtin_game",
+                    "這是內建遊戲（石室／渡口），不能刪除。要換走這一區的遊戲，請在區域設定改派另一項任務。",
+                    "This built-in game cannot be deleted — assign another task to the location instead.")
     badge = st.get("badges", task.get("badge_id"))
     areas = ((as_json((badge or {}).get("guide_json"), {}) or {}).get("quest") or {}).get("areas") or []
     if any((a.get("game") or {}).get("ready")
@@ -1180,6 +1237,194 @@ def setup_checks(st) -> dict:
         "counts": {"badges": len(badges), "tasks": len(tasks),
                    "leaders": len(leaders), "scouts": len(scouts)},
     }
+
+
+# ══ 內建項目：石室、渡口與其他獎章（誤刪後可還原）═════════════════════════
+
+BUILTIN_GAMES = {"M04": {"area": 1, "kind": "cave"}, "M05": {"area": 2, "kind": "bridge"}}
+
+
+def _builtin_specs() -> dict[str, dict]:
+    """內建項目的代碼 → 它應該有的形狀（用來認出童軍舊記錄屬於哪一項）。"""
+    specs: dict[str, dict] = {}
+    for badge in SEED_BADGES:
+        badge_code = str(badge["code"])
+        specs[badge_code] = {"badge": True, "badge_code": badge_code}
+        for task in badge["tasks"]:
+            config = task.get("config_json") or {}
+            if config.get("kind") == "bridge":
+                shape, size = "bridge", 3                    # 三個階段：stage1…3
+            elif config.get("bank") == "member-badge/item4":
+                shape, size = "list", len(item4_questions() or [])   # 洞裡的 50 題
+            elif config.get("questions"):
+                shape, size = "list", len(config["questions"] or [])
+            else:
+                shape, size = "", 0                          # 未玩過就沒有答案可對
+            specs[str(task["code"])] = {"badge": False, "badge_code": badge_code,
+                                        "shape": shape, "size": size}
+    return specs
+
+
+def _empty_builtin_content(code: str, task: dict) -> bool:
+    """這一項內建遊戲的「內容」還在不在？（任務列在，但題目／設定被清空）"""
+    config = as_json(task.get("config_json"), {}) or {}
+    if code == "M04":
+        return not (config.get("questions") or [])
+    if code == "M05":
+        return str(config.get("kind") or "") != "bridge"
+    return False
+
+
+def _refill_builtin_content(code: str) -> dict:
+    """填回內建遊戲被清空的設定 —— 只在內容真的空了才用（見 repair_games）。"""
+    seed = next((task for badge in SEED_BADGES for task in badge["tasks"]
+                 if str(task["code"]) == code), {})
+    config = dict(seed.get("config_json") or {})
+    if code == "M04":
+        config["questions"] = item4_questions() or []
+        config["quiz_title"] = item4_meta().get("title_zh", "")
+        config["per_question"] = item4_meta().get("per_question", 2)
+        config.setdefault("bank", "member-badge/item4")
+    return config
+
+
+def _describe_answers(value) -> tuple[str, int]:
+    """一份存起來的答案長甚麼樣：渡口存 stage1…3，石室／測驗存答案清單。"""
+    if isinstance(value, dict):
+        stages = [key for key in value if str(key).startswith("stage")]
+        return ("bridge", len(stages)) if len(stages) >= 2 else ("dict", len(value))
+    if isinstance(value, list):
+        return "list", len(value)
+    return "", 0
+
+
+def _plan_reuse(records, orphans, missing, specs, badge_ids):
+    """舊記錄的 id → 應該還原到哪一項：只在答案形狀對得上、而且沒有第二個可能時才用。"""
+    plan: dict[str, str] = {}
+    drawn: set[str] = set()
+    unknown: list[str] = []
+    for task_id in orphans:
+        rows = [row for row in records if str(row.get("task_id")) == task_id]
+        badge_id = str((rows[0] if rows else {}).get("badge_id") or "")
+        shape, size = "", 0
+        for row in rows:
+            shape, size = _describe_answers(as_json(row.get("answers_json"), None))
+            if shape:
+                break
+        options: list[str] = []
+        for code in missing:
+            spec = specs.get(code) or {}
+            if spec.get("badge"):
+                continue                                     # 獎章本身，不是任務
+            owned = badge_ids.get(str(spec.get("badge_code") or ""))
+            if badge_id and owned and str(owned) != badge_id:
+                continue                                     # 記錄屬於別的獎章
+            want, want_size = str(spec.get("shape") or ""), int(spec.get("size") or 0)
+            if want == "bridge" and shape != "bridge":
+                continue
+            if want == "list" and shape != "list":
+                continue
+            if want and want_size and size != want_size:
+                continue
+            options.append(code)
+        if len(options) == 1 and options[0] not in drawn:
+            plan[task_id] = options[0]
+            drawn.add(options[0])
+        elif len(options) > 1:
+            unknown.append(task_id)                          # 有幾個可能 → 不猜
+    return {code: task_id for task_id, code in plan.items()}, unknown
+
+
+@leader_routes.post("/leader/content/repair-games")
+@leader_required
+def repair_games():
+    """還原誤刪的內建遊戲（石室、渡口）；`scope=all` 亦還原其他獎章的示範任務。
+
+    只會補回缺少的內容：清走「已刪除」記號、重建缺少的列（沿用舊記錄指着的 id，
+    已在該遊戲完成的童軍因此保留進度）、重新接好第 1／2 區的遊戲。
+    領袖自己建立的內容、以及自己改過的區域安排，一律不動。
+    """
+    st = store()
+    badge = next((row for row in st.list("badges") if row.get("code") == "SC-01"), None)
+    if not badge:
+        return fail(404, "no_member_badge", "找不到會員章", "The Membership Badge is missing")
+
+    specs = _builtin_specs()
+    scope = "all" if (request.form.get("scope") or "").strip() == "all" else "games"
+    codes = sorted(specs) if scope == "all" else sorted(BUILTIN_GAMES)
+    tasks_before = {str(row.get("code")) for row in st.list("tasks")}
+    missing = [code for code in codes if code not in tasks_before]
+
+    records = st.list("progress_records")
+    badge_ids = {str(row.get("code")): str(row.get("id"))
+                 for row in st.list("badges") if row.get("code") in specs}
+    preferred, unknown = _plan_reuse(records, st.orphan_task_ids(), missing, specs, badge_ids)
+
+    cleared = st.restore_codes(codes)
+    st.settle_catalog()
+    st.ensure_catalog(preferred_ids=preferred)
+    tasks = {str(row.get("code")): row for row in st.list("tasks")}
+
+    refilled: list[str] = []
+    for code in sorted(BUILTIN_GAMES):
+        task = tasks.get(code)
+        if task and _empty_builtin_content(code, task):
+            st.update("tasks", task["id"], {"config_json": _refill_builtin_content(code)})
+            refilled.append(code)
+
+    # 重新接好第 1／2 區：只處理「空的」或「本來就是這個遊戲」的區域
+    guide = copy.deepcopy(as_json(badge.get("guide_json"), {}) or {})
+    areas = (guide.get("quest") or {}).get("areas") or []
+    defaults = ((member_badge_guide().get("quest") or {}).get("areas") or [])
+    rewired: list[str] = []
+    for code, spec in BUILTIN_GAMES.items():
+        index = spec["area"] - 1
+        if index >= len(areas) or not tasks.get(code):
+            continue
+        area = areas[index]
+        game = dict(area.get("game") or {})
+        claimed = str(game.get("task_code") or "")
+        if game.get("ready") and claimed and claimed != code:
+            continue                                          # 領袖自己換了遊戲 → 不碰
+        before = (bool(game.get("ready")), claimed, str(game.get("kind") or ""))
+        fallback = ((defaults[index] if index < len(defaults) else {}).get("game") or {})
+        for lang in ("zh", "en"):
+            game.setdefault(f"name_{lang}", "")
+            game.setdefault(f"blurb_{lang}", "")
+            if not str(game.get(f"name_{lang}") or "").strip():
+                game[f"name_{lang}"] = fallback.get(f"name_{lang}", "")
+            if not str(game.get(f"blurb_{lang}") or "").strip():
+                game[f"blurb_{lang}"] = fallback.get(f"blurb_{lang}", "")
+        game.update(n=spec["area"], kind=spec["kind"], ready=True, task_code=code)
+        area["game"] = game
+        if spec["area"] == 2:
+            area["hint_zh"] = game.get("blurb_zh") or ""
+            area["hint_en"] = game.get("blurb_en") or ""
+        if before != (True, code, spec["kind"]):
+            rewired.append(code)                              # 真的有改動才回報
+
+    if rewired:
+        st.update("badges", badge["id"], {"guide_json": guide})
+
+    restored = [code for code in missing if code in tasks]
+    audit(g.user, "repair_games", "badges", badge["id"],
+          {"scope": scope, "cleared": cleared, "restored": restored, "rewired": rewired,
+           "refilled": refilled, "reused": sorted(preferred)})
+
+    query = {"repair": scope}
+    if restored:
+        query["restored"] = ",".join(restored)
+    if rewired:
+        query["rewired"] = ",".join(rewired)
+    if refilled:
+        query["refilled"] = ",".join(refilled)
+    if preferred:
+        query["kept"] = ",".join(sorted(preferred))
+    if unknown:
+        query["unknown"] = str(len(unknown))
+    if wants_json():
+        return ok(message_zh="已還原缺少的項目。", message_en="Missing items restored.")
+    return redirect(url_for("leader_routes.content", **query))
 
 
 # ══ settings ═══════════════════════════════════════════════════════════════
