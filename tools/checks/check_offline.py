@@ -247,7 +247,10 @@ with sync_playwright() as pw:
     page.locator("#pane-cave .cave-verdict.is-pass").wait_for()
     assert page.locator("#pane-cave [data-cave-go='submit']").count() == 0
     score = page.locator("#pane-cave .cave-score").inner_text()
-    assert wrong_count >= 11 and f"{100 - 2 * wrong_count} / 100" in score and 100 - 2 * wrong_count < 80
+    expected = 100 - 2 * wrong_count
+    assert wrong_count >= 11 and f"{expected}%" in score and expected < 80, score
+    attempts = page.locator("#pane-cave .cave-attempts").inner_text()
+    assert "答錯" in attempts and "第一次作答" in attempts, attempts
     assert page.locator("#pane-cave .cave-review-row").count() == wrong_count
     print("  automatically cleared at exit:", score,
           "|", page.locator("#pane-cave .cave-verdict").inner_text(),

@@ -240,10 +240,16 @@ def main():
         assert wrong_total >= 11 and page.locator(".cave-review-row").count() == wrong_total
         expected = 100 - 2 * wrong_total
         score = page.locator(".cave-score").inner_text()
-        assert f"{expected} / 100" in score and expected < 80, score
+        # 成績改為百分比：第一次作答答對的比率，加上全程作答的準確率
+        assert f"{expected}%" in score and expected < 80, score
+        attempts = page.locator(".cave-attempts").inner_text()
+        assert "答錯" in attempts and "次" in attempts, attempts
+        counted = int(attempts.split("其中")[1].split("次答錯")[0].strip())
+        assert counted >= wrong_total, attempts      # 每一次錯摸（含重試）都數得到
+        assert "第一次作答" in attempts, attempts
         print("exit and automatic result:", card()[:90], "| art:", art())
         shot("cave-exit.png")
-        print("  score shown:", score)
+        print("  percentage shown:", score, "|", attempts)
         words_below_the_picture('result')
         print("  verdict:", page.locator(".cave-verdict").inner_text(),
               "| review rows:", wrong_total)

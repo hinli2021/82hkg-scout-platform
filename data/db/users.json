@@ -142,8 +142,8 @@
   {
     "role": "scout",
     "username": "scout07",
-    "password_hash": "384ee193b41a42031f0c2aa6088ba79b1f76d4b6a8b801e157ee8f332a1aa8c77587ad0444ba2e40e9ed18160543706178430cec9738b986f038b2aa26f04c63",
-    "password_salt": "abefd3620e24a2637d760ce952b7f5d4",
+    "password_hash": "90d2aebe48e45f624d0da14c206eeb8c4a33a123b797674d8b8482ee21b209b3e8bdcc29cb8728e0eb9618e54bd392c280e3b91581548d7a3b2f77afa18139d3",
+    "password_salt": "7abf8769d0738e7ac933484eb8fb9a7d",
     "display_name_zh": "吳卓穎",
     "display_name_en": "Ng Cheuk Wing",
     "email": "scout07@example.com",

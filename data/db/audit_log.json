@@ -4888,5 +4888,95 @@
     "detail_json": "{}",
     "created_at": "2026-10-17T09:06:58.957Z",
     "id": "2a39e32dac596ba7"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T09:21:47.340Z",
+    "id": "a2a1bb88dbc040c7"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T09:21:47.411Z",
+    "id": "34dba44078132018"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-17T09:23:24.795Z",
+    "id": "082477a5200e6a0c"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T09:24:49.518Z",
+    "id": "1dc5f57a001d4d62"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T09:24:49.587Z",
+    "id": "211a4e7305934c88"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-17T09:26:27.111Z",
+    "id": "4d106441ad33eb0e"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "sign_in",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T09:26:32.702Z",
+    "id": "1d17eef563d5cc1a"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "first_time_password",
+    "entity": "users",
+    "entity_id": "a040549c5fef559f",
+    "detail_json": "{}",
+    "created_at": "2026-10-17T09:26:32.763Z",
+    "id": "2295bc5ade3ff4d0"
+  },
+  {
+    "actor_id": "a040549c5fef559f",
+    "actor_role": "scout",
+    "action": "cave_submit",
+    "entity": "tasks",
+    "entity_id": "d5823436ff751d52",
+    "detail_json": "{\"status\": \"completed\", \"score\": 78}",
+    "created_at": "2026-10-17T09:28:09.416Z",
+    "id": "d09dca958e742ac0"
   }
 ]
