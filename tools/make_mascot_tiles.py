@@ -19,7 +19,7 @@ import pathlib
 from PIL import Image, ImageOps
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SOURCE = ROOT / "static/img/mascots/_source/scene-master.png"
+SOURCE = ROOT / "static/img/mascots/_source/scene-master.webp"
 OUT = ROOT / "static/img/mascots"
 TILE = (620, 775)                    # 4:5, the shape the cards use
 
