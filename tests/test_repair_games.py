@@ -253,3 +253,29 @@ def test_a_game_row_that_was_emptied_gets_its_content_back(monkeypatch):
     client.post("/leader/content/repair-games", data={"scope": "games"})
     assert (task_by_code(store, "M04")["config_json"] or {}).get("questions") == edited, \
         "有內容的題目不可以被覆蓋"
+
+
+def test_tasks_the_leader_deleted_on_purpose_are_not_reported_as_missing(monkeypatch):
+    """領袖手動刪了幾項不用的任務：修復卡不應催他還原。"""
+    fake = FakeGoogle()
+    store = boot(fake, monkeypatch)
+    client = leader_client(store)
+    for code in ("M07", "M08", "M09"):
+        task = task_by_code(store, code)
+        client.post(f"/leader/content/tasks/{task['id']}/delete")
+    page = client.get("/leader/content").get_data(as_text=True)
+    assert "有東西需要還原" not in page, "故意刪除的項目不應觸發警告"
+    assert "全部內建項目齊全" in page
+    assert "你已刪除" in page and "M07" in page and "M09" in page
+    assert "14 / 14" in page, "分母不計故意刪除的三項"
+
+
+def test_a_row_edited_straight_out_of_the_sheet_is_still_reported(monkeypatch):
+    """直接在試算表刪掉（沒有記號）—— 這種才要提示。"""
+    fake = FakeGoogle()
+    store = boot(fake, monkeypatch)
+    client = leader_client(store)
+    task = task_by_code(store, "M08")
+    store.remove("tasks", task["id"])          # 不呼叫 remember_removed
+    page = client.get("/leader/content").get_data(as_text=True)
+    assert "有東西需要還原" in page and "M08" in page

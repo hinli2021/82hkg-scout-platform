@@ -174,14 +174,33 @@ def content():
         for task in badge["tasks"]:
             builtin_rows.append({"code": str(task["code"]), "title_zh": task["title_zh"],
                                  "kind": "task", "present": str(task["code"]) in present_by_code})
+    removed = {str(code) for code in removed_codes}
+    for row in builtin_rows:
+        # online  → it is there
+        # removed → the leader deleted it on purpose (a tombstone explains it)
+        # missing → gone without a trace, or a built-in game a location needs
+        if row["present"]:
+            state = "online"
+        elif row["code"] in BUILTIN_GAMES:
+            state = "missing"          # 石室／渡口：有區域指着它，刪了就是問題
+        elif row["code"] in removed:
+            state = "removed"
+        else:
+            state = "missing"          # 直接在試算表刪掉，沒有記號
+        row["state"] = state
     context["builtin_rows"] = builtin_rows
-    context["builtin_total"] = sum(1 for row in builtin_rows if row["kind"] == "task")
+    context["builtin_total"] = sum(1 for row in builtin_rows
+                                   if row["kind"] == "task" and row["state"] != "removed")
     context["builtin_present"] = sum(1 for row in builtin_rows
-                                     if row["kind"] == "task" and row["present"])
-    context["missing_rows"] = [row for row in builtin_rows if not row["present"]]
+                                     if row["kind"] == "task" and row["state"] == "online")
+    context["missing_rows"] = [row for row in builtin_rows if row["state"] == "missing"]
+    context["retired_rows"] = [row for row in builtin_rows
+                               if row["state"] == "removed" and row["kind"] == "task"]
+    context["retired_codes"] = [row["code"] for row in context["retired_rows"]]
     context["tasks_online"] = len(task_rows)
     context["removed_codes"] = removed_codes
-    context["removed_other"] = [code for code in removed_codes if code not in BUILTIN_GAMES]
+    context["removed_other"] = [code for code in removed_codes
+                                if code not in BUILTIN_GAMES and code not in present]
     context["games_missing"] = [code for code in BUILTIN_GAMES if code not in present]
     def _area_game(n: int) -> dict:
         return dict(((areas[n - 1] if len(areas) >= n else {}) or {}).get("game") or {})
