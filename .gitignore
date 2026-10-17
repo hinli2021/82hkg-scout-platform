@@ -16,6 +16,7 @@ data/uploads/*
 # 介面截圖：PNG 存到 GitHub 的 screenshots 分支（用 API 上載，不佔本機空間）；
 # 本機只保留最新幾張，檢查腳本可隨時重拍。
 docs/screens/*.png
+docs/screens/*.webp
 
 # Vercel 建置時產生的靜態輸出（public/index.html 例外，它是首頁）
 public/static/

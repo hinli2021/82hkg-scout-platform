@@ -160,6 +160,26 @@ def content():
     context["games_empty"] = [code for code in sorted(BUILTIN_GAMES)
                               if (row := next((t for t in st.list("tasks") if t.get("code") == code), None))
                               and _empty_builtin_content(code, row)]
+
+    # 完整對照：程式內建的每一項，現在在不在（不理「已刪除」記號，直接在試算表刪的也認得）
+    badge_codes = {str(row.get("code")) for row in st.list("badges")}
+    task_rows = st.list("tasks")
+    present_by_code = {str(row.get("code")): row for row in task_rows if row.get("code")}
+    builtin_rows: list[dict] = []
+    for badge in SEED_BADGES:
+        if str(badge["code"]) not in badge_codes:
+            builtin_rows.append({"code": str(badge["code"]), "title_zh": badge["title_zh"],
+                                 "kind": "badge", "present": False})
+            continue
+        for task in badge["tasks"]:
+            builtin_rows.append({"code": str(task["code"]), "title_zh": task["title_zh"],
+                                 "kind": "task", "present": str(task["code"]) in present_by_code})
+    context["builtin_rows"] = builtin_rows
+    context["builtin_total"] = sum(1 for row in builtin_rows if row["kind"] == "task")
+    context["builtin_present"] = sum(1 for row in builtin_rows
+                                     if row["kind"] == "task" and row["present"])
+    context["missing_rows"] = [row for row in builtin_rows if not row["present"]]
+    context["tasks_online"] = len(task_rows)
     context["removed_codes"] = removed_codes
     context["removed_other"] = [code for code in removed_codes if code not in BUILTIN_GAMES]
     context["games_missing"] = [code for code in BUILTIN_GAMES if code not in present]

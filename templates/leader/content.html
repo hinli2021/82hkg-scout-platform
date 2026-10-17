@@ -212,46 +212,53 @@
 
   <div>
     {% set trouble = games_missing or areas_unset or games_empty %}
+{% set trouble = missing_rows or areas_unset or games_empty %}
 <div class="card" data-repair-games style="margin-bottom:1rem">
   <h3 style="margin-top:0">🔧 {{ L('修復遊戲與缺少的項目', 'Repair games and missing items') }}</h3>
+  <p class="small" style="margin:.2rem 0 .3rem">
+    {{ L('內建項目對照：', 'Built-in items:') }}
+    <strong>{{ builtin_present }} / {{ builtin_total }}</strong>
+    {{ L('項任務在線', 'tasks present') }}
+    <span class="muted">· {{ L('試算表內任務總數', 'rows in the tasks tab') }} {{ tasks_online }}</span>
+  </p>
   {% if repair_notice %}
     <div class="alert ok" data-repair-notice style="margin:.4rem 0">
       <strong>✓ {{ L('還原完成', 'Restored') }}</strong> — {{ L(repair_notice[0], repair_notice[1]) }}
     </div>
   {% endif %}
   {% if trouble %}
-    <p class="small" style="margin:.2rem 0;color:#a15c00">
+    <p class="small" style="margin:.2rem 0 .2rem;color:#a15c00">
       <strong>⚠️ {{ L('有東西需要還原：', 'Needs restoring:') }}</strong>
-      {% if games_missing %}{{ L('缺少任務', 'missing task') }} {{ games_missing | join('、') }}{% endif %}
-      {% if games_missing and areas_unset %} · {% endif %}
-      {% if areas_unset %}{{ L('第', 'area') }} {{ areas_unset | join('、') }} {{ L('區未接好（', ' not wired up (') }}{{ areas_unset_names | join('、') }}{{ L('）', ')') }}{% endif %}
-      {% if (games_missing or areas_unset) and games_empty %} · {% endif %}
-      {% if games_empty %}{{ games_empty | join('、') }} {{ L('的內容被清空了（題目／設定）', '’s content is empty (questions/settings)') }}{% endif %}
     </p>
+    <ul class="small" style="margin:0 0 .5rem 1.1rem;color:#a15c00">
+      {% for row in missing_rows %}
+        <li>{{ L('缺少', 'missing') }} <strong>{{ row.code }}</strong> {{ row.title_zh if row.kind == 'task' else L('（整個獎章）', '(whole award)') }}</li>
+      {% endfor %}
+      {% if games_empty %}
+        <li>{{ games_empty | join('、') }} {{ L('的內容被清空了（題目／設定）', '’s content is empty (questions/settings)') }}</li>
+      {% endif %}
+      {% if areas_unset %}
+        <li>{{ L('第', 'area') }} {{ areas_unset | join('、') }} {{ L('區未接好（', ' not wired up (') }}{{ areas_unset_names | join('、') }}{{ L('）', ')') }}</li>
+      {% endif %}
+    </ul>
   {% else %}
     <p class="small" style="margin:.2rem 0;color:#3f9142">
-      ✓ {{ L('兩個內建遊戲都齊全，第 1、2 區也接好了。', 'Both built-in games are present and areas 1–2 are wired up.') }}
+      ✓ {{ L('全部內建項目齊全，第 1、2 區也接好了。', 'Every built-in item is present and areas 1–2 are wired up.') }}
     </p>
   {% endif %}
   <p class="small muted" style="margin:.3rem 0 .6rem">
-    {{ L('誤刪了石室（第 4 項）或渡口（第 5 項）的遊戲，或把它的題目清空了，按一下即可補回，童軍已完成的記錄會保留（重建時沿用舊記錄的 id）。領袖自己建立的內容、自己改過的區域安排，一律不會被覆蓋；只有真的空了的欄位才會填回。',
-         'Deleted the cave (item 4) or the crossing (item 5) by mistake? One press puts it back and the scouts’ completed records are kept (rebuilt rows reuse the id their records point to). Your own content and your own wiring of a location are never overwritten.') }}
+    {{ L('誤刪了遊戲或任何內建項目，按一下即可補回，童軍已完成的記錄會保留（重建時沿用舊記錄的 id）。領袖自己建立的內容、自己改過的區域安排，一律不會被覆蓋；只有真的空了的欄位才會填回。',
+         'Deleted a game or any built-in item by mistake? One press puts it back and the scouts’ completed records are kept (rebuilt rows reuse the id their records point to). Your own content and your own wiring of a location are never overwritten; only fields that are truly empty get filled in.') }}
   </p>
   <form method="post" action="{{ url_for('leader_routes.repair_games') }}" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
     <input type="hidden" name="scope" value="games">
     <button class="btn primary" type="submit">🔧 {{ L('還原內建遊戲（石室、渡口）', 'Restore the built-in games') }}</button>
   </form>
   <form method="post" action="{{ url_for('leader_routes.repair_games') }}" style="margin-top:.5rem"
-        data-confirm="{{ L('同時還原其他獎章的示範任務（M01…、T-…）？你自己建立的內容不受影響。', 'Also restore the other awards’ sample tasks (M01…, T-…)? Your own content is untouched.') }}">
+        data-confirm="{{ L('把上面列出的缺少項目全部補回？你自己建立的內容不受影響。', 'Restore every missing item listed above? Your own content is untouched.') }}">
     <input type="hidden" name="scope" value="all">
-    <button class="btn" type="submit">↺ {{ L('還原所有內建項目（包括其他獎章的任務）', 'Restore all built-in items (including other awards’ tasks)') }}</button>
+    <button class="btn" type="submit">↺ {{ L('還原所有缺少的內建項目', 'Restore all missing built-in items') }}</button>
   </form>
-  {% if removed_other %}
-    <p class="small muted" style="margin:.5rem 0 0">
-      {{ L('另有你刪除過的內建項目，不會自動回來（上面的「還原所有內建項目」可一次帶回）：', 'Other built-in items you deleted stay away on their own — “Restore all built-in items” brings them back:') }}
-      {{ removed_other | join('、') }}
-    </p>
-  {% endif %}
 </div>
 
 <div class="section-title"><h2>➕ {{ L('新增獎章', 'Add an award') }}</h2></div>
