@@ -354,6 +354,34 @@
     var beginBtn = box.querySelector('[data-intro-begin]');
     var idx = 0;
 
+    /* the ink adapts to the picture: measure the band the note sits on and
+       turn the words to lantern light whenever the scene behind is dark */
+    var noteTheme = function (slide) {
+      if (slide._noteThemeDone) return;
+      slide._noteThemeDone = true;
+      var img = slide.querySelector('.quest-slide-art img');
+      if (!img) return;                       /* the map card sits on paper */
+      var apply = function () {
+        try {
+          var c = document.createElement('canvas');
+          c.width = 64; c.height = 24;
+          var ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, img.naturalHeight * .62, img.naturalWidth,
+                        img.naturalHeight * .38, 0, 0, 64, 24);
+          var d = ctx.getImageData(0, 0, 64, 24).data, lum = 0;
+          for (var i = 0; i < d.length; i += 4) {
+            lum += .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2];
+          }
+          if (lum / (d.length / 4) / 255 < .45) slide.classList.add('is-note-dark');
+        } catch (err) { /* untainted pictures only; ink stays as it is */ }
+      };
+      if (img.complete && img.naturalWidth) apply();
+      else img.addEventListener('load', apply, { once: true });
+    };
+    slides.forEach(function (s) {             /* measured early, no flash */
+      if (window.requestIdleCallback) window.requestIdleCallback(function () { noteTheme(s); });
+      else setTimeout(function () { noteTheme(s); }, 250);
+    });
     var show = function (n) {
       idx = Math.max(0, Math.min(slides.length - 1, n));
       slides.forEach(function (s, i) {

@@ -264,6 +264,7 @@ def test_the_offline_how_to_play_page_still_plays():
     assert 'data-quest-intro' in intro and intro.count('data-slide="') == 9
     assert 'map-canvas-story' in intro and 'story-stops' in intro
     assert 'data-intro-skip' in intro and 'data-quest-page' in intro
+    assert 'is-note-dark' in intro                    # the ink adapts to each picture
     assert intro.count('<li class="stage-chip') == 5
     first = intro[intro.index('class="stage-chip stage-chip-first'):]
     first = first[:first.index('</li>')]

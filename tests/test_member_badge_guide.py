@@ -271,6 +271,7 @@ def test_a_first_time_scout_is_told_the_story_in_pictures(new_scout, store):
     assert 'aria-modal' not in page
     assert 'map-canvas-story' in page and 'story-stops' in page
     assert 'data-slide-dot="9"' in page              # …and every card has its dot
+    assert 'is-note-dark' in page                     # the ink adapts to each picture
     assert 'data-intro-skip' in page and '跳過' in page
     assert 'data-intro-begin' in page and '出發' in page
     assert page.count('data-journey-play') == 1       # the intro button is its own thing

@@ -2601,6 +2601,24 @@ body.is-game main { padding-top: 6px; }
   margin: 0; font-size: clamp(.84rem, 1.95vh, .99rem);
   line-height: 1.55; color: #4c3c1c; font-weight: 600;
 }
+/* a soft cream halo keeps the ink readable over busy pictures */
+.quest-slide-title { text-shadow: 0 1px 8px rgba(255, 252, 240, .8); }
+.quest-slide-text { text-shadow: 0 1px 6px rgba(255, 252, 240, .75); }
+
+/* …and when the picture behind the note is dark (measured at runtime), the
+   words turn to lantern light on a smoked glass note (2026-10-18) */
+.quest-slide.is-note-dark .quest-slide-cap {
+  background: linear-gradient(180deg, rgba(16, 24, 18, .3), rgba(16, 24, 18, .38));
+  border-color: rgba(255, 246, 221, .5);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .45),
+              inset 0 0 0 4px rgba(255, 246, 221, .12),
+              inset 0 0 0 5.5px rgba(217, 164, 65, .42);
+}
+.quest-slide.is-note-dark .quest-slide-title { color: #fdf7e4; text-shadow: 0 1px 10px rgba(0, 0, 0, .5); }
+.quest-slide.is-note-dark .quest-slide-text { color: #f2ecd8; text-shadow: 0 1px 10px rgba(0, 0, 0, .5); }
+.quest-slide.is-note-dark .quest-slide-kicker { color: #e7bd6a; }
+.quest-slide.is-note-dark .quest-slide-kicker::before,
+.quest-slide.is-note-dark .quest-slide-kicker::after { background: linear-gradient(90deg, transparent, #d9a441); }
 /* the treasure-map card: the real chart laid on the page, route numbered,
    with the story in a parchment note on the open sea below it */
 .quest-slide.is-map { background: linear-gradient(180deg, transparent 77%, #f4e6c3 77%); }
