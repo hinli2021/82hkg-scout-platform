@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "mkdir -p public/static && cp -r static/. public/static/ && ( python3 -m venv /tmp/vb && /tmp/vb/bin/pip install -q -r requirements.txt && /tmp/vb/bin/python tools/offline_demo.py && /tmp/vb/bin/python tools/bridge_preview.py && cp demo-preview.html bridge-preview.html public/ || true )",
+  "buildCommand": "mkdir -p public/static && cp -r static/. public/static/ && cp demo-preview.html bridge-preview.html login-preview.html welcome-preview.html public/ 2>/dev/null || true",
   "outputDirectory": "public",
   "functions": {
     "api/index.py": {
