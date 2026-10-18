@@ -28,6 +28,10 @@ storage and includes a one-file offline walkthrough.
 
 ## 離線示範 / the offline demo — `demo-preview.html`
 
+> 產生方式：`python3 tools/offline_demo.py`（單檔 13MB+，**不入 git**；
+> Vercel 部署時會在 build 步驟重新產生並放到網站根目錄，網址不變）。
+> 遊戲 2 單檔版：`python3 tools/bridge_preview.py`。
+
 One file, no server, no cookies: **13 screens**, from camp login and the
 leader-code card to the scout's home, the single「你被困住了！」island page,
 and **game 1 in location 1**. A name without a password opens the first-time

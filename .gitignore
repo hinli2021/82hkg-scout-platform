@@ -13,10 +13,10 @@ data/db/*.tmp
 data/uploads/*
 !data/uploads/.gitkeep
 
-# 介面截圖：PNG 存到 GitHub 的 screenshots 分支（用 API 上載，不佔本機空間）；
-# 本機只保留最新幾張，檢查腳本可隨時重拍。
+# 介面截圖：永不進版控（檢查腳本可隨時重拍）。
 docs/screens/*.png
 docs/screens/*.webp
+docs/screens/*.jpg
 
 # Vercel 建置時產生的靜態輸出（public/index.html 例外，它是首頁）
 public/static/
@@ -32,9 +32,11 @@ data/db/sessions.json
 .env
 *.pem
 
-# 離線試玩檔由工具重新產生（如要保存可自行移除這幾行）--------------------
-# demo-preview.html
-# bridge-preview.html
-# login-preview.html
-# welcome-preview.html
+# 離線試玩檔由工具重新產生（本機跑 tools/offline_demo.py 等；Vercel 部署時
+# 也會在 build 步驟重新產生並放到 public/），不入版控——單檔 13MB+，每次
+# 重建都會把 GitHub 儲存空間撐大（2026-10-18 起移出版控）。
+demo-preview.html
+bridge-preview.html
+login-preview.html
+welcome-preview.html
 backups/

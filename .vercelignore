@@ -3,8 +3,10 @@
 
 docs/
 tests/
-tools/
 uploads/
+
+# 母圖只用於本機重製吉祥物貼圖，部署不需要
+static/img/mascots/_source/
 data/uploads/
 data/db/sessions.json
 
