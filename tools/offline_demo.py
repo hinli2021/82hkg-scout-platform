@@ -169,16 +169,23 @@ panes.append(("cave", "遊戲 1 · 童軍歷史山洞", body_of(cave_page)))
 
 # ── game 2: 迷霧渡口 — the bridge the scout builds plank by plank ──────────
 # Same treatment as the cave: no endpoint in the offline copy, so the game
-# checks the planks itself and reports a win to the router below.
+# checks the planks itself — and the leader's 考核 code is checked here too
+# (the live page never ships the code to the browser; the offline file has no
+# server, so it carries the same code and the same two halves of the game).
 bridge_task = next((t for t in store.list("tasks")
                     if t["badge_id"] == membership["id"] and t.get("code") == "M05"), None)
 if bridge_task is None:
     print("offline bridge: M05 is missing from this database; the demo skips game 2")
 
+from scout.routes.scout_routes import _bridge_assess_code   # noqa: E402
+BRIDGE_CODE = _bridge_assess_code(store)
+
 def clear_bridge_submit(match: re.Match) -> str:
     config = json.loads(html.unescape(match.group(2)))
     config["submit_url"] = ""
+    config["code_url"] = ""
     config.pop("run_key", None)
+    config.setdefault("assess", {})["code"] = BRIDGE_CODE
     return match.group(1) + html.escape(json.dumps(config, ensure_ascii=False), quote=True) + match.group(3)
 
 if bridge_task is not None:
@@ -277,6 +284,7 @@ router = """
   var trail = [];
   var game1Cleared = false;
   var game2Cleared = false;
+  var bridgeCrossed = false;
   var setupPending = false;
   var setupComplete = false;
   var scoutPanes = { home: 1, badges: 1, history: 1, 'quest-intro': 1, guide: 1,
@@ -314,7 +322,13 @@ router = """
     /* This one file reuses each game instance, so a replay door has to send the
        game back to its entrance — the live pages do it by loading the URL again. */
     if (id !== shown && id === 'cave') window.CaveGame.restart();
-    if (id !== shown && id === 'bridge') window.BridgeGame.restart();
+    if (id !== shown && id === 'bridge') {
+      /* a crossing already laid (still waiting on the leader's code) re-opens
+         on the assess card, so the code can be typed after a wander; only a
+         cleared or fresh crossing starts again at the river bank */
+      if (bridgeCrossed && !game2Cleared) window.BridgeGame.assess();
+      else window.BridgeGame.restart();
+    }
     panes.forEach(function (p) { p.hidden = p !== target; });
     target.querySelectorAll('.pane-inner').forEach(function (n) { n.hidden = false; });
     shown = id;
@@ -352,17 +366,12 @@ router = """
       var second = pane.querySelector('.stage-chip[data-stage="2"]');
       if (first) {
         first.classList.add('is-done');
-        first.classList.remove('is-here');
         var state = first.querySelector('[data-game-state]');
         if (state) state.textContent = '✔ 已完成';
         var me = first.querySelector('.stage-chip-me');
         if (me && second) second.querySelector('.stage-chip-card').appendChild(me);
       }
-      if (second) {
-        second.classList.add('is-here');
-        var card = second.querySelector('.stage-chip-card');
-        if (card) card.setAttribute('aria-current', 'step');
-      }
+      moveNow(pane, 1, 2);
       var beacon = pane.querySelector('.story-beacon-meter .small');
       if (beacon) beacon.textContent = beacon.textContent.replace(/0\\s*\\/\\s*5/g, '1 / 5');
       var bar = pane.querySelector('.story-beacon-bar span');
@@ -386,8 +395,64 @@ router = """
     if (tile) tile.textContent = '1 / 5 個遊戲';
   });
 
-  // The bridge is the second game: clear area 2, stand the scout on area 3,
-  // and move both counters one step on. Game 3 waits for its leader, as ever.
+  // The light follows the walk: the hero card (eyebrow + glow) stands on the
+  // scout's own next stop, so when a game clears it moves on with the mascot.
+  function moveNow(pane, fromN, toN) {
+    var from = pane.querySelector('.stage-chip[data-stage="' + fromN + '"]');
+    var to = pane.querySelector('.stage-chip[data-stage="' + toN + '"]');
+    if (from) {
+      from.classList.remove('is-here');
+      var oldBrow = from.querySelector('.stage-chip-eyebrow');
+      if (oldBrow) oldBrow.remove();
+      var fromCard = from.querySelector('.stage-chip-card');
+      if (fromCard) fromCard.removeAttribute('aria-current');
+    }
+    if (to && !to.classList.contains('is-done')) {
+      to.classList.add('is-here');
+      var card = to.querySelector('.stage-chip-card');
+      if (card) card.setAttribute('aria-current', 'step');
+      if (!to.querySelector('.stage-chip-eyebrow')) {
+        var content = to.querySelector('.stage-chip-content');
+        var brow = document.createElement('span');
+        brow.className = 'stage-chip-eyebrow';
+        brow.textContent = '▶ 下一站 · 你在這裡';
+        if (content) content.insertBefore(brow, content.firstChild);
+      }
+    }
+  }
+
+  // The crossing is laid, but game 2 is two halves: the chip now reads
+  // 「已過橋 · 找領袖考核」 (not done), the scout stands on area 3 — the walk may
+  // carry on — and the counters stay where they were until the leader's code
+  // is typed into the assess card. Game 3 waits for its leader, as ever.
+  document.addEventListener('bridge:crossed', function (event) {
+    if (!event.detail || event.detail.cleared || game2Cleared) return;
+    bridgeCrossed = true;
+    var pane = document.getElementById('pane-quest-intro');
+    if (pane) {
+      var second = pane.querySelector('.stage-chip[data-stage="2"]');
+      var third = pane.querySelector('.stage-chip[data-stage="3"]');
+      if (second) {
+        var crossedState = second.querySelector('[data-game-state]');
+        if (crossedState) crossedState.textContent = '🧭 已過橋 · 找領袖考核';
+        var me = second.querySelector('.stage-chip-me');
+        if (me && third) third.querySelector('.stage-chip-card').appendChild(me);
+      }
+      moveNow(pane, 2, 3);
+      var play = pane.querySelector('[data-journey-play]');
+      if (play) play.remove();          // game 3 is not built yet: nothing to press
+      var lead = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
+      if (lead) lead.remove();
+      var wait = pane.querySelector('[data-journey-wait]');
+      if (wait) {
+        wait.hidden = false;
+        wait.textContent = wait.textContent.replace('遊戲 2', '遊戲 3');
+      }
+    }
+  });
+
+  // The code is in: game 2 really is cleared. Clear area 2, stand the scout on
+  // area 3, and move both counters one step on.
   document.addEventListener('bridge:result', function (event) {
     if (!event.detail || !event.detail.cleared || game2Cleared) return;
     game2Cleared = true;
@@ -398,6 +463,8 @@ router = """
       if (second) {
         second.classList.add('is-done');
         second.classList.remove('is-here');
+        var doneBrow = second.querySelector('.stage-chip-eyebrow');
+        if (doneBrow) doneBrow.remove();
         var state = second.querySelector('[data-game-state]');
         if (state) state.textContent = '✔ 已完成';
         var me = second.querySelector('.stage-chip-me');
@@ -648,8 +715,11 @@ def switch_off_forms(markup: str) -> str:
 
     def handle(match: re.Match) -> str:
         block = match.group(0)
-        if any(key in block for key in ("data-leadercode", "data-demo", "data-offline-setup")):
+        if any(key in block for key in ("data-leadercode", "data-demo", "data-offline-setup",
+                                        "data-bridge-code")):
             # keep it, and make sure its submit buttons still submit
+            # (data-bridge-code is game 2's assess card: the code is checked
+            #  locally in this file, so its form must stay a real form)
             block = re.sub(r'(<button\b[^>]*?)\s+type="button"\s+data-dead="1"',
                            lambda m: m.group(1) + ' type="submit"', block)
             block = block.replace(' data-dead="1"', '') if "data-demo" in block else block

@@ -59,9 +59,11 @@ def main():
         print("door 1 · 主頁 tile →", first.replace(BASE, ""))
         print("        heading:", heading, "| launch pad:", launch,
               "| maps:", page.locator(".map-canvas").count(),
-              "| in-place game info:", page.locator(".stage-chip-first .stage-chip-desc").count())
+              "| description on the map (want 0):", page.locator(".stage-chip-desc").count())
         assert heading == "你被困住了！" and launch == 1
-        assert page.locator(".stage-chip-first .stage-chip-desc").is_visible()
+        assert page.locator(".stage-chip-desc").count() == 0, \
+            "the map shows no game description — it is read inside the game"
+        assert page.locator(".stage-chip-first [data-game-state]").is_visible()
         assert page.locator(".stage-chip").count() == 5
         assert page.locator(".stage-radio, .stage-panel, [data-quest-start]").count() == 0
         assert page.locator("[data-journey-play]").count() == 1

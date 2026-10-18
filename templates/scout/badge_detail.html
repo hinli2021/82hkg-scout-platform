@@ -46,11 +46,19 @@
          'The ' ~ guide_items | length ~ ' syllabus items are reference material. Earn the Membership Badge by clearing the five area games. Game 1 (the cave) covers item 4; no separate paper is needed.') }}
   </p>
 
+  {# 遊戲 2 的考核代碼：過了橋但未輸入代碼之前，第 5 項未算完成。代碼由
+     領袖在考核（背誦＋講解規律）通過後交給童軍；在這裡或遊戲內輸入都可以。 #}
+  {% if request.args.get('assess') == 'wrong' %}
+    <div class="alert warn">🔑 {{ L('代碼不對。請向領袖再問一次，或檢查有沒有打錯字。', 'That code does not match. Ask your leader again, or check your typing.') }}</div>
+  {% elif request.args.get('assess') == 'ok' %}
+    <div class="alert ok">✓ {{ L('代碼正確 — 遊戲 2 通關，第 5 項完成！', 'The code is right — game 2 cleared, and item 5 with it!') }}</div>
+  {% endif %}
+
   <div class="guide-list">
     {% for item in guide_items %}
       {% set task = badge.tasks[loop.index0] if loop.index0 < (badge.tasks | length) else None %}
       {% set done = task and task.status == 'completed' %}
-      <div class="guide-item {{ 'done' if done else '' }}" data-guide-item="{{ item.n }}">
+      <div class="guide-item {{ 'done' if done else '' }}"{% if task and task.code %} id="task-{{ task.code }}"{% endif %} data-guide-item="{{ item.n }}">
         <span class="guide-num">{{ item.n }}</span>
         <div class="guide-body">
           <div class="guide-head">
@@ -77,7 +85,13 @@
               {% if task.code == 'M04' and badge.is_game_badge %}
                 <span class="chip light">50 {{ L('題 · 全部完成即通關', 'questions · finish them all to clear the game') }}</span>
               {% elif task.code == 'M05' and badge.is_game_badge %}
-                <span class="chip light">{{ L('三關木板 · 全部鋪好即通關', 'three stages · lay every plank to clear') }}</span>
+                {% if task.status == 'crossed' %}
+                  <span class="chip warn">🧭 {{ L('已過橋 · 找領袖考核', 'Crossed · see a leader') }}</span>
+                {% elif task.status == 'completed' %}
+                  <span class="chip ok">🧭 {{ L('考核通過 · 已完成', 'Check passed · done') }}</span>
+                {% else %}
+                  <span class="chip light">{{ L('三關木板 · 過橋後找領袖考核', 'three stages · then a leader’s check') }}</span>
+                {% endif %}
               {% elif task.type == 'quiz' %}
                 <span class="chip light">{{ (task.config_json.get('questions') or []) | length }} {{ L('題', 'questions') }} · {{ task.pass_score }}{{ L(' 分合格', ' to pass') }}</span>
               {% endif %}
@@ -89,6 +103,16 @@
                 {# the crossing is item 5's game, exactly as the cave is item 4's #}
                 <a class="btn {{ '' if task.status == 'completed' else 'primary' }} small"
                    href="{{ url_for('scout_routes.task_bridge', task_id=task.id) }}">🎮 {{ L('再走渡口', 'Cross again') if task.status == 'completed' else L('進入渡口遊戲', 'Play the crossing') }}</a>
+                {% if task.status == 'crossed' and not badge.locked %}
+                  {# 過了橋：代碼在這裡輸入，不用重玩三關 #}
+                  <form class="row" method="post" style="gap:.35rem; margin:0"
+                        action="{{ url_for('scout_routes.bridge_code', task_id=task.id) }}">
+                    <input name="code" type="text" required autocomplete="off" maxlength="24"
+                           style="width:9.5rem" aria-label="{{ L('領袖代碼', 'The leader’s code') }}"
+                           placeholder="{{ L('領袖代碼', 'Leader’s code') }}">
+                    <button class="btn primary small" type="submit">🔑 {{ L('輸入代碼', 'Enter code') }}</button>
+                  </form>
+                {% endif %}
               {% elif task.status != 'completed' and not badge.locked %}
                 <a class="btn primary small" href="{{ url_for('scout_routes.task_player', task_id=task.id) }}">{{ L('繼續', 'Go') if task.status == 'rejected' else L('查看', 'View') }}</a>
               {% elif task.status == 'completed' %}

@@ -567,7 +567,8 @@ def test_leader_can_bind_a_new_game_to_an_empty_area(leader_client, scout_client
     area3 = scout_page[scout_page.index('data-stage="3"'):]
     area3 = area3[:area3.index('</li>')]
     assert '雲霧小徑' in area3 and '尋路挑戰' in area3
-    assert '一個由領袖提供的遊戲。' in area3
+    # the blurb is saved with the area but no longer shown on the map
+    assert '一個由領袖提供的遊戲。' not in area3
     assert f'/tasks/{game["id"]}' not in scout_page, 'the next game waits until game 1 clears'
 
     cave = next(t for t in store.list('tasks') if t.get('code') == 'M04')

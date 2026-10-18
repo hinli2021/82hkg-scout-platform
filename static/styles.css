@@ -2231,7 +2231,7 @@ body.is-game main { padding-top: 6px; }
 .stage-map-direct .stage-chip:nth-child(3) { --x: 50%; --y: 39%; }
 .stage-map-direct .stage-chip:nth-child(4) { --x: 73%; --y: 25%; }
 .stage-map-direct .stage-chip:nth-child(5) { --x: 76%; --y: 60%; }
-.stage-map-direct .stage-chip-first {
+.stage-map-direct .stage-chip-first.is-here {
   left: 2.5%; top: 18%; transform: none;
   width: 36%; min-width: 265px; max-width: 340px; z-index: 4;
 }
@@ -2242,7 +2242,7 @@ body.is-game main { padding-top: 6px; }
   background: linear-gradient(170deg, #fffdf5, #fff3d8);
   color: #4a3517; box-shadow: 0 7px 18px rgba(96, 66, 24, .18);
 }
-.stage-map-direct .stage-chip-first .stage-chip-card {
+.stage-map-direct .stage-chip-first.is-here .stage-chip-card {
   display: grid; grid-template-columns: 2.35rem minmax(0, 1fr);
   align-items: start; column-gap: .7rem; text-align: left; padding: .85rem .9rem;
   border: 2px solid var(--brass); border-radius: 18px;
@@ -2256,26 +2256,40 @@ body.is-game main { padding-top: 6px; }
   color: #875c1d; line-height: 1.3;
 }
 .stage-map-direct .stage-chip-name { font-size: .88rem; line-height: 1.35; max-width: none; text-align: inherit; }
-.stage-map-direct .stage-chip-first .stage-chip-name { font-size: 1.04rem; color: #16482e; }
+.stage-map-direct .stage-chip-first.is-here .stage-chip-name { font-size: 1.04rem; color: #16482e; }
 .stage-map-direct .stage-chip-game { font-size: .76rem; font-weight: 800; line-height: 1.4; color: #925f1b; }
-.stage-map-direct .stage-chip-first .stage-chip-game { font-size: .88rem; color: #174b32; }
-.stage-map-direct .stage-chip-desc {
-  font-size: .78rem; line-height: 1.45; color: #68583b; text-align: left;
-  overflow-wrap: anywhere;
-}
+.stage-map-direct .stage-chip-first.is-here .stage-chip-game { font-size: .88rem; color: #174b32; }
 .stage-map-direct .stage-chip-state {
   display: inline-block; margin-top: .2rem; font-size: .69rem; font-weight: 800;
   line-height: 1.3; color: #806a44;
 }
-.stage-map-direct .stage-chip-first .stage-chip-state {
+.stage-map-direct .stage-chip-first.is-here .stage-chip-state {
   width: fit-content; padding: .2rem .5rem; border-radius: 999px;
   color: #205736; background: #e5f2e6; border: 1px solid #accbb0;
 }
 .stage-map-direct .stage-chip.is-done .stage-chip-state { color: #22623c; }
-.stage-map-direct .stage-chip:not(.stage-chip-first) .stage-chip-card { max-width: 155px; min-width: 128px; }
-.stage-map-direct .stage-chip:not(.stage-chip-first) .stage-chip-desc {
-  max-width: 150px; font-size: .7rem; line-height: 1.3;
+.stage-map-direct .stage-chip:not(.is-here) .stage-chip-card { max-width: 155px; min-width: 128px; }
+/* ── the light follows the walk: the scout's next stop is the one card that
+   glows, first or not — and a stop already cleared steps back into the trail.
+   The first stop keeps its big corner card only while it is still the stop. ── */
+.stage-map-direct .stage-chip.is-here:not(.stage-chip-first) { z-index: 4; }
+.stage-map-direct .stage-chip.is-here:not(.stage-chip-first) .stage-chip-card {
+  min-width: 150px;
+  border: 2px solid var(--brass); border-radius: 16px;
+  background: linear-gradient(150deg, #fffdf6, #fff3d7 80%, #f3e2b7);
+  box-shadow: 0 16px 30px rgba(92, 59, 20, .3), 0 0 0 4px rgba(255, 249, 227, .75);
+  animation: now-pulse 2.4s ease-in-out infinite;
 }
+@keyframes now-pulse {
+  0%, 100% { box-shadow: 0 16px 30px rgba(92, 59, 20, .3), 0 0 0 3px rgba(198, 138, 40, .3); }
+  50%      { box-shadow: 0 16px 30px rgba(92, 59, 20, .3), 0 0 0 10px rgba(198, 138, 40, .12); }
+}
+.stage-map-direct .stage-chip.is-here:not(.stage-chip-first) .stage-chip-eyebrow { color: #174b32; }
+.stage-map-direct .stage-chip.is-here:not(.stage-chip-first) .stage-chip-state {
+  width: fit-content; padding: .2rem .5rem; border-radius: 999px;
+  color: #205736; background: #e5f2e6; border: 1px solid #accbb0;
+}
+.stage-map-direct .stage-chip.is-done:not(.is-here) .stage-chip-card { opacity: .88; }
 .stage-map-direct .stage-chip.is-here .stage-chip-card { border-color: #a16a24; }
 .stage-map-direct .stage-chip-me { right: -.55rem; bottom: -.55rem; }
 .story-launch [hidden] { display: none !important; }
@@ -2299,12 +2313,11 @@ body.is-game main { padding-top: 6px; }
     position: static; width: 100%; max-width: none; min-width: 0;
     left: auto; top: auto; transform: none;
   }
-  .stage-map-direct .stage-chip:not(.stage-chip-first) .stage-chip-card {
+  .stage-map-direct .stage-chip:not(.is-here) .stage-chip-card {
     flex-direction: row; gap: .7rem; text-align: left; width: 100%; max-width: none;
     padding: .5rem .7rem;
   }
-  .stage-map-direct .stage-chip:not(.stage-chip-first) .stage-chip-desc { max-width: none; }
-  .stage-map-direct .stage-chip-first .stage-chip-card { width: 100%; }
+  .stage-map-direct .stage-chip-first.is-here .stage-chip-card { width: 100%; }
   .stage-map-direct .stage-chip-me { position: absolute; margin-left: 0; }
   .story-launch [data-journey-play] { width: 100%; }
 }
@@ -2407,6 +2420,26 @@ body.is-game main { padding-top: 6px; }
 .bridge-plank.is-wrong { background: linear-gradient(180deg, #d98a7c, #b1553f); border-color: #7a2f20; color: #2b0f08; }
 .bridge-plank:focus-visible { outline: 3px solid #ffe4a8; outline-offset: 2px; }
 .bridge-submitting { display: block; margin-top: .4rem; color: #ffe4a8; font-size: .86rem; }
+
+/* ── the assess card: the leader's 考核 code ends game 2 ─────────────────── */
+.bridge-assess-point { color: #e8dcc8; }
+.bridge-assess-point::before { content: '— '; color: #ffe4a8; }
+.bridge-code { margin: .55rem 0 .2rem; display: flex; flex-direction: column; gap: .35rem; }
+.bridge-code-label {
+  font-size: .78rem; font-weight: 800; letter-spacing: .04em; color: #ffe4a8;
+}
+.bridge-code-row { display: flex; gap: .45rem; flex-wrap: wrap; }
+.bridge-code-row input {
+  flex: 1 1 8.5rem; min-width: 0; font: inherit; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: .5rem .65rem; border-radius: .5rem;
+  border: 1px solid rgba(255, 255, 255, .28);
+  background: rgba(0, 0, 0, .32); color: #f4ecd9;
+}
+.bridge-code-row input::placeholder { letter-spacing: normal; text-transform: none; color: rgba(255, 255, 255, .38); }
+.bridge-code-row input:focus-visible { outline: 3px solid #ffe4a8; outline-offset: 2px; }
+.bridge-code-note { margin: .15rem 0 0; font-size: .84rem; color: #d9e6d9; }
+.bridge-code-note.is-bad { color: #ffb1a3; }
 
 @media (max-width: 640px) {
   .bridge-line { flex-direction: column; gap: .2rem; }

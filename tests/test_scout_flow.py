@@ -437,7 +437,8 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
             answer = {f"q{i}": str(q['answer']) for i, q in enumerate(config['questions'])}
             assert new_scout.post(f"/tasks/{task['id']}/cave-submit", data=answer).get_json()['passed']
         elif task['code'] == 'M05':
-            # game 2 is played, not signed off: lay every plank of every stage
+            # game 2 has two halves: lay every plank of every stage (that
+            # crosses the river), then bring the leader's 考核 code
             river = (pathlib.Path(__file__).resolve().parent.parent / 'content'
                      / 'member-badge' / 'river.json')
             bridge = json.loads(river.read_text(encoding='utf-8'))
@@ -446,7 +447,10 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
                 data[f'stage{n}'] = [plank['key'] for plank in stage['planks']]
             # the keys here are the canonical ones, in order
             result = new_scout.post(f"/tasks/{task['id']}/bridge-submit", data=data).get_json()
-            assert result['passed'], result
+            assert result['status'] == 'crossed', result
+            code = new_scout.post(f"/tasks/{task['id']}/bridge-code",
+                                  data={'code': '82BP'}).get_json()
+            assert code['passed'] and code['status'] == 'completed', code
         elif task['type'] == 'checklist':
             new_scout.post(f"/tasks/{task['id']}/submit",
                            data={f"item{i}": '1' for i in range(len(config['items']))})

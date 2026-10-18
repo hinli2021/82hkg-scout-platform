@@ -90,6 +90,7 @@
 
 {% macro status_pill(status) %}
   {% if status == 'completed' %}<span class="chip ok">✓ {{ L('已完成', 'Done') }}</span>
+  {% elif status == 'crossed' %}<span class="chip warn">🧭 {{ L('已過橋 · 找領袖考核', 'Crossed · see a leader') }}</span>
   {% elif status == 'pending' %}<span class="chip warn">⏳ {{ L('待核實', 'Waiting') }}</span>
   {% elif status == 'rejected' %}<span class="chip danger">↩ {{ L('可重做', 'Redo') }}</span>
   {% else %}<span class="chip light">○ {{ L('未開始', 'To do') }}</span>{% endif %}

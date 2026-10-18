@@ -374,7 +374,43 @@ with sync_playwright() as pw:
         page.wait_for_timeout(220)
         print(f"  stage {index} laid ({len(stage['planks'])} planks)")
     page.locator("#pane-bridge [data-bridge-scene='result']").wait_for()
-    assert "第 5 項已完成" in page.locator("#pane-bridge [data-bridge-card]").inner_text()
+    # ── the first half: the assess card, not the tick ──────────────────────
+    card = page.locator("#pane-bridge [data-bridge-card]")
+    assert "請找領袖考核" in card.inner_text(), card.inner_text()[:120]
+    assert "背誦" in card.inner_text() and "講解" in card.inner_text(), \
+        "the check is named: recite, and explain how the Law is lived"
+    assert page.locator("#pane-bridge [data-bridge-code-input]").count() == 1, \
+        "the code box is waiting for the leader's word"
+    page.screenshot(path=os.path.join(SHOTS, "offline-bridge-assess.png"), full_page=False)
+    # the map chip knows the two halves: crossed, standing on area 3, still 1/5
+    page.evaluate("window.OFFLINE_DEMO.go('quest-intro')"); page.wait_for_timeout(300)
+    chip2 = page.locator("#pane-quest-intro .stage-chip[data-stage='2']").inner_text()
+    assert "已過橋 · 找領袖考核" in chip2, chip2
+    assert page.locator("#pane-quest-intro .stage-chip.is-here[data-stage='3']").count() == 1, \
+        "the walk has moved on to area 3 while the code waits"
+    assert page.locator("#pane-quest-intro .stage-chip[data-stage='2'].is-done").count() == 0, \
+        "a crossing without the code is not a cleared game"
+    meter_mid = page.locator("#pane-quest-intro .story-beacon-meter").inner_text()
+    assert "1 / 5 個遊戲已完成" in meter_mid, meter_mid
+    print("  crossed, code waiting:", meter_mid.replace("\n", " "))
+    # wandering away and back re-opens the assess card, not the river bank
+    page.evaluate("window.OFFLINE_DEMO.go('bridge')"); page.wait_for_timeout(300)
+    assert page.get_attribute("#pane-bridge [data-bridge]", "data-bridge-scene") == "result"
+    assert page.locator("#pane-bridge [data-bridge-code-input]").count() == 1, \
+        "no planks need re-laying to reach the code box"
+    # ── the second half: the code ──────────────────────────────────────────
+    page.fill("#pane-bridge [data-bridge-code-input]", "9999")
+    page.click("#pane-bridge [data-bridge-code] button[type='submit']")
+    page.wait_for_selector("#pane-bridge [data-bridge-code-note].is-bad")
+    assert "代碼不對" in page.locator("#pane-bridge [data-bridge-code-note]").inner_text()
+    page.screenshot(path=os.path.join(SHOTS, "offline-bridge-code-wrong.png"), full_page=False)
+    page.fill("#pane-bridge [data-bridge-code-input]", " 82bp ")
+    page.click("#pane-bridge [data-bridge-code] button[type='submit']")
+    page.wait_for_function(
+        "() => { var c = document.querySelector('#pane-bridge [data-bridge-card]');"
+        "        return c && c.innerText.indexOf('第 5 項完成') >= 0; }")
+    card_text = card.inner_text()
+    assert "考核通過" in card_text and "遊戲 2 通關" in card_text, card_text[:120]
     assert page.locator("#pane-bridge [data-bridge-link='badge']").count() >= 1
     back = page.locator("#pane-bridge [data-bridge-card] a[data-nav='quest-intro']")
     assert back.count() == 1, "the win offers the badge, and offline that is the map pane"

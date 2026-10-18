@@ -242,8 +242,10 @@ def test_first_location_is_readable_in_place_with_one_direct_start(new_scout, st
     first = page[page.index('class="stage-chip stage-chip-first'):]
     first = first[:first.index('</li>')]
     assert '叢林深處' in first and '童軍歷史山洞' in first
-    assert '四段壁畫' in first and '五十題' in first, 'the actual game information lives on the marker'
-    assert 'data-game-state' in first and 'class="stage-chip-desc"' in first
+    # the map carries no description (2026-10-18): place, game and state only —
+    # what the game is about is read inside the game itself
+    assert 'stage-chip-desc' not in first and '四段壁畫' not in first
+    assert 'data-game-state' in first
     assert 'stage-radio' not in page and 'stage-panel' not in page
     assert page.count('data-journey-play') == 1
     launch = page[page.index('class="story-launch" data-journey-launch'):].split('</div>', 1)[0]

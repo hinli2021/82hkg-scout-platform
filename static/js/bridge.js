@@ -2,8 +2,14 @@
    Three stages across a river: 銘言 (two characters), 誓詞 (four lines), 規律
    (seven points). Each stage opens with a teaching card; closing it hands the
    scout a pile of planks to lay in order. A board laid too early slips into the
-   river, the teaching card is shown again and that plank is laid once more. All
-   three stages laid and the crossing holds — which is what clears the item.
+   river, the teaching card is shown again and that plank is laid once more.
+
+   Game 2 has two halves. Laying all three stages crosses the river — the
+   server files the crossing and the scout is sent to the leader for the 考核:
+   recite the motto, Promise and Law, and say how the Law is lived day to day.
+   The leader then hands over a code, and typing it in (here, or on the badge
+   page) is what clears the item. A scout who has crossed but not coded may
+   walk on to game 3; re-opening the crossing starts on the assess card.
 
    The same shape as cave.js on purpose: one browser-side state machine, the
    route hands over every word and picture, so the identical game plays inside
@@ -64,6 +70,7 @@
 
     var state = {
       scene: 'intro',          /* intro · teach · build · built · crossed · result */
+      ticked: false,           /* the code has been accepted in this session */
       stage: 0,
       laid: [],                // planks already on the bridge, this stage
       pool: [],                // planks still lying on the bank
@@ -371,7 +378,11 @@
 
       var url = cfg.submit_url;
       if (!url) {                      // self-contained offline preview: it already
-        window.setTimeout(result, 260); // knows every plank was right — no server
+        window.setTimeout(function () { // knows every plank was right — no server
+          state.busy = false;          // the card ahead must stay clickable
+          if (state.ticked) { result(); return; }
+          assess();
+        }, 260);
         return;
       }
       var body = new FormData();
@@ -386,8 +397,14 @@
         })
         .then(function (answer) {
           state.busy = false;
-          if (answer.data && answer.data.ok) { result(); return; }
-          saveProblem((answer.data && (answer.data.message_zh || answer.data.message_en)) || '');
+          if (answer.data && answer.data.ok) {
+            /* the crossing is on file. An item already finished before this
+               replay shows its tick; a fresh crossing waits on the leader */
+            if (answer.data.status === 'completed') { result(); return; }
+            assess();
+            return;
+          }
+          saveProblem(answer.data ? pick(answer.data.message_zh, answer.data.message_en) : '');
         })
         .catch(function () { state.busy = false; saveProblem(''); });
     }
@@ -395,6 +412,112 @@
     function note(text) {
       var live = card && card.querySelector('.bridge-submitting');
       if (live) live.textContent = text;
+    }
+
+    /* ── the assess card: the crossing is laid, the leader's word is next ──── */
+
+    function assessHtml() {
+      var a = cfg.assess || {};
+      var points = toLines(isEn() ? (a.points_en || a.points_zh) : a.points_zh)
+        .map(function (text) {
+          return '<p class="cave-line small bridge-assess-point">' + esc(text) + '</p>';
+        }).join('');
+      var next = cfg.next_game;
+      var nextBtn = '';
+      if (next && next.url) {
+        nextBtn = '<a class="btn ghost" href="' + esc(next.url) + '">' +
+          esc(pick(a.go_next_zh, a.go_next_en) || '') + '</a>';
+      }
+      return kicker(pick(a.kicker_zh, a.kicker_en), 'good') +
+        '<h1 class="cave-title">' + esc(pick(a.title_zh, a.title_en)) + '</h1>' +
+        '<p class="cave-line small">' + esc(pick(a.lead_zh, a.lead_en)) + '</p>' +
+        points +
+        '<p class="cave-line small">' + esc(pick(a.after_zh, a.after_en)) + '</p>' +
+        '<form class="bridge-code" data-bridge-code action="" method="post" ' +
+              'autocomplete="off">' +
+          '<label class="bridge-code-label" for="bridge-code-input">' +
+            esc(pick(a.code_label_zh, a.code_label_en)) + '</label>' +
+          '<span class="bridge-code-row">' +
+            '<input id="bridge-code-input" data-bridge-code-input type="text" ' +
+                   'inputmode="latin" maxlength="24" ' +
+                   'placeholder="' + esc(pick(a.code_placeholder_zh, a.code_placeholder_en)) + '">' +
+            '<button class="btn primary" type="submit">' +
+              esc(pick(a.code_button_zh, a.code_button_en)) + '</button>' +
+          '</span>' +
+          '<p class="bridge-code-note" data-bridge-code-note hidden></p>' +
+        '</form>' +
+        '<div class="cave-actions cave-actions-split">' +
+          '<button class="btn ghost" type="button" data-bridge-go="restart">' +
+            esc(pick((cfg.crossed || {}).again_zh, (cfg.crossed || {}).again_en)) + '</button>' +
+          nextBtn +
+        '</div>';
+    }
+
+    function assess() {
+      /* the crossing is saved; from here the game may be left any time */
+      document.dispatchEvent(new CustomEvent('bridge:crossed', { detail: { cleared: false } }));
+      var crossed = cfg.crossed || {};
+      setArt(crossed.image || 'crossed');
+      var badgeLink = root.querySelector('[data-bridge-link="badge"]');
+      var refs = Array.prototype.map.call(root.querySelectorAll('[data-bridge-link="ref"]'),
+                                          function (node) { return node.outerHTML; }).join('');
+      say(assessHtml() + (refs ? '<div class="row wrap" style="gap:.4rem; margin:.15rem 0 .35rem">' + refs + '</div>' : '') +
+          (badgeLink ? '<div class="cave-actions">' + badgeLink.outerHTML + '</div>' : ''));
+      state.scene = 'result';
+      mark('result');
+      paintProgress();
+    }
+
+    function codeNote(text, bad) {
+      if (!card) return;
+      var slot = card.querySelector('[data-bridge-code-note]');
+      if (!slot) return;
+      slot.textContent = text || '';
+      slot.classList.toggle('is-bad', !!bad);
+      slot.hidden = !text;
+    }
+
+    function submitCode(form) {
+      if (state.busy) return;
+      var input = form.querySelector('[data-bridge-code-input]');
+      var given = (input && input.value || '').trim();
+      if (!given) { codeNote(pick('請輸入領袖給你的代碼。', 'Type the code your leader gave you.'), true); return; }
+      var a = cfg.assess || {};
+      state.busy = true;
+      codeNote(pick(a.code_checking_zh, a.code_checking_en), false);
+      var normalise = function (value) {
+        return String(value == null ? '' : value).normalize('NFKC').replace(/\s+/g, '').toUpperCase();
+      };
+      var url = cfg.code_url;
+      if (!url) {
+        /* the offline demo file has no server: it carries the code itself and
+           checks it here, so the demo teaches the same two halves as the live
+           game (the live page never ships the code to the browser) */
+        window.setTimeout(function () {
+          state.busy = false;
+          if (normalise(given) === normalise((a || {}).code)) { result(); return; }
+          codeNote(pick(a.code_wrong_zh, a.code_wrong_en), true);
+        }, 300);
+        return;
+      }
+      var body = new FormData();
+      body.append('code', given);
+      fetch(url, { method: 'POST', body: body, credentials: 'same-origin',
+                   headers: { 'X-Requested-With': 'fetch' } })
+        .then(function (response) {
+          return response.json().catch(function () { return { ok: false }; })
+            .then(function (data) { return { status: response.status, data: data }; });
+        })
+        .then(function (answer) {
+          state.busy = false;
+          if (answer.data && answer.data.ok) { result(); return; }
+          codeNote(pick((answer.data && answer.data.message_zh) || a.code_wrong_zh,
+                        (answer.data && answer.data.message_en) || a.code_wrong_en), true);
+        })
+        .catch(function () {
+          state.busy = false;
+          codeNote(pick('核對不到代碼，請再試一次。', 'Could not check the code — please try again.'), true);
+        });
     }
 
     function saveProblem(message) {
@@ -410,6 +533,7 @@
 
     function result() {
       var crossed = cfg.crossed || {};
+      state.ticked = true;
       document.dispatchEvent(new CustomEvent('bridge:result', { detail: { cleared: true } }));
       var badgeLink = root.querySelector('[data-bridge-link="badge"]');
       /* the task's own revision links, offered while the words are still fresh */
@@ -506,6 +630,9 @@
       state.pool = shuffled((cfg.stages[0].planks) || []);
       show('intro');
     };
+    /* the offline demo's router: a crossing already laid re-opens here, not
+       on the river bank, so the code can be typed at any time afterwards */
+    root.__bridgeAssess = function () { assess(); };
 
     if (!window.OFFLINE_DEMO) {
       document.addEventListener('click', function (event) {
@@ -544,8 +671,19 @@
       if (where === 'restart') { reset(); startStage(0); return; }
     });
 
+    /* the leader's 考核 code: the last plank of game 2 */
+    root.addEventListener('submit', function (event) {
+      var form = event.target.closest('[data-bridge-code]');
+      if (!form) return;
+      event.preventDefault();
+      submitCode(form);
+    });
+
     state.pool = shuffled((cfg.stages[0].planks) || []);
-    show('intro');
+    /* a crossing that is already on file opens on the assess card, so the code
+       can be typed without laying the planks a second time */
+    if (cfg.crossed_now && !cfg.completed_now) { assess(); }
+    else { show('intro'); }
   }
 
   function mountAll(scope) {
@@ -556,6 +694,10 @@
   window.BridgeGame = {
     mount: mountOne,
     mountAll: mountAll,
+    assess: function () {
+      var root = document.querySelector('[data-bridge]');
+      if (root && root.__bridgeAssess) root.__bridgeAssess();
+    },
     requestExit: function (callback) {
       var root = document.querySelector('[data-bridge]');
       if (root && root.__requestBridgeExit) root.__requestBridgeExit(callback);

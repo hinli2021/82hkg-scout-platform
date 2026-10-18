@@ -34,15 +34,26 @@
     </div>
     <div class="cave-card-wrap">
       <div class="cave-card" data-bridge-card aria-live="polite">
-        <span class="cave-kicker">{{ L(adventure.intro.kicker_zh, adventure.intro.kicker_en) }}</span>
-        <h1 class="cave-title">{{ L(adventure.intro.title_zh, adventure.intro.title_en) }}</h1>
-        {% for para in (adventure.intro.paras_zh if lang != 'en' else adventure.intro.paras_en) %}
-          <p class="cave-line">{{ para }}</p>
-        {% endfor %}
-        <div class="cave-actions">
-          <button class="btn primary big" type="button" data-bridge-go="teach" data-cheer="🔥,✨">
-            {{ L(adventure.intro.action_zh, adventure.intro.action_en) }}</button>
-        </div>
+        {% if crossed_now %}
+          {# 過了橋但未輸入領袖代碼：一開啟就站在考核卡（下面那句不會出現）。
+             這裡先放考核卡的開頭，遊戲程式載入後會補上代碼輸入框。 #}
+          <span class="cave-kicker">{{ L(adventure.assess.kicker_zh, adventure.assess.kicker_en) }}</span>
+          <h1 class="cave-title">{{ L(adventure.assess.title_zh, adventure.assess.title_en) }}</h1>
+          <p class="cave-line small">{{ L(adventure.assess.lead_zh, adventure.assess.lead_en) }}</p>
+          <noscript>
+            <p class="cave-line small">{{ L('這個畫面需要 JavaScript 才能輸入代碼；請在會員章頁面（第 5 項）輸入。', 'This screen needs JavaScript for the code; enter it on the badge page, item 5.') }}</p>
+          </noscript>
+        {% else %}
+          <span class="cave-kicker">{{ L(adventure.intro.kicker_zh, adventure.intro.kicker_en) }}</span>
+          <h1 class="cave-title">{{ L(adventure.intro.title_zh, adventure.intro.title_en) }}</h1>
+          {% for para in (adventure.intro.paras_zh if lang != 'en' else adventure.intro.paras_en) %}
+            <p class="cave-line">{{ para }}</p>
+          {% endfor %}
+          <div class="cave-actions">
+            <button class="btn primary big" type="button" data-bridge-go="teach" data-cheer="🔥,✨">
+              {{ L(adventure.intro.action_zh, adventure.intro.action_en) }}</button>
+          </div>
+        {% endif %}
       </div>
     </div>
     {# 向下捲動: shown while the panel still has more words below its edge #}

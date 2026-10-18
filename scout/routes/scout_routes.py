@@ -9,6 +9,7 @@ redirect.
 from __future__ import annotations
 
 import json
+import unicodedata
 
 from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for
 from itsdangerous import BadSignature, URLSafeTimedSerializer
@@ -247,7 +248,9 @@ def _journey_next(user: dict, task: dict) -> dict | None:
 
     This is the map's own rule — walk the five areas in order and offer the first
     one whose game is built and not yet cleared — so the button at the cave mouth
-    says exactly what the treasure map says next.
+    says exactly what the treasure map says next. A crossing that is laid but
+    still waiting on the leader's code counts as played: the walk moves on to
+    game 3, and the code can be typed in any time afterwards.
     """
     st = store()
     badge = st.get("badges", task.get("badge_id"))
@@ -258,7 +261,8 @@ def _journey_next(user: dict, task: dict) -> dict | None:
     if not areas:
         return None
     done = {row.get("task_id") for row in st.list("progress_records")
-            if row.get("user_id") == user["id"] and row.get("status") == "completed"}
+            if row.get("user_id") == user["id"]
+            and row.get("status") in ("completed", "crossed")}
     tasks = [t for t in st.list("tasks") if t.get("badge_id") == badge["id"]]
     for area in areas:
         game = area.get("game") or {}
@@ -533,8 +537,11 @@ def task_bridge(task_id: str):
     Like the cave, the whole thing runs in the browser (so it also plays inside
     the offline demo file) from the content in `content/member-badge/river.json`.
     The route hands over the three teaching cards, their planks and every line of
-    text; the order the planks were laid in is not a score — finishing all three
-    stages clears the item, and `POST /tasks/<id>/bridge-submit` files it.
+    text. Finishing all three stages crosses the river, but the crossing is only
+    the first half of game 2: the scout then sees the leader for the 考核
+    (recite the motto, Promise and Law, and say how the Law is lived), and brings
+    back the leader's code. `POST /tasks/<id>/bridge-submit` files the crossing;
+    `POST /tasks/<id>/bridge-code` files the completion.
     """
     st = store()
     task = st.get("tasks", task_id)
@@ -553,13 +560,29 @@ def task_bridge(task_id: str):
     if not stages:
         abort(404)
 
+    # where this scout stands: a crossing already laid (waiting on the code), or
+    # the item already finished. The game opens straight onto the assess card in
+    # the first case, so the code can be typed without laying the planks again.
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    completed_now = any(r.get("status") == "completed" for r in mine)
+    crossed_now = not completed_now and any(r.get("status") == "crossed" for r in mine)
+    onward = _journey_next(g.user, task)
+
     scenes = {
         **adventure,
         "stages": stages,
         "labels": adventure.get("labels") or {},
+        "assess": adventure.get("assess") or {},
         "submit_url": url_for("scout_routes.bridge_submit", task_id=task_id),
+        "code_url": url_for("scout_routes.bridge_code", task_id=task_id),
         "badge_url": url_for("scout_routes.badge_detail", badge_id=task["badge_id"]),
         "plank_total": sum(len(stage["planks"]) for stage in stages),
+        "crossed_now": crossed_now,
+        "completed_now": completed_now,
+        "next_game": ({"name_zh": onward["name_zh"], "name_en": onward["name_en"],
+                       "url": _game_url(onward["task"], onward["kind"])}
+                      if onward else None),
     }
     config = context["task"].get("config_json") or {}
     config = json.loads(config) if isinstance(config, str) else config
@@ -569,6 +592,7 @@ def task_bridge(task_id: str):
         adventure=scenes, scene_json=json.dumps(scenes, ensure_ascii=False),
         art_names=river_images(adventure),
         badge_url=scenes["badge_url"],
+        crossed_now=crossed_now,
         # the item's own revision links (promise, Law, the leader's sheet)
         links=[row for row in (config.get("links") or []) if row.get("url")],
     )
@@ -577,7 +601,12 @@ def task_bridge(task_id: str):
 @scout_routes.post("/tasks/<task_id>/bridge-submit")
 @scout_required
 def bridge_submit(task_id: str):
-    """Laying every stage clears game 2 (and item 5); a partial crossing cannot."""
+    """Laying every stage crosses the river — but a crossing is not the item yet.
+
+    The record goes in as `crossed`: the words are proven in order, and the scout
+    is sent to the leader for the 考核 (recite, and explain how the Law is lived).
+    Item 5 is cleared only when the leader's code arrives at bridge-code below.
+    """
     st = store()
     task = st.get("tasks", task_id)
     context = _task_context(g.user, task_id) if task else None
@@ -612,31 +641,107 @@ def bridge_submit(task_id: str):
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
     already_done = any(r.get("status") == "completed" for r in mine)
-    if not already_done:
-        progress = progress_for(st, g.user["id"])
-        badge = next((b for b in progress["badges"] if b["id"] == task.get("badge_id")), None)
-        decorated = next((t for t in (badge or {}).get("tasks", []) if t["id"] == task_id), None)
-        record = st.insert("progress_records", {
+    already_crossed = any(r.get("status") == "crossed" for r in mine)
+    if not already_done and not already_crossed:
+        st.insert("progress_records", {
             "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
-            "attempt_no": len(mine) + 1, "status": "completed",
-            "score": 100, "leader_comment": "",
+            "attempt_no": len(mine) + 1, "status": "crossed", "score": None,
+            "leader_comment": "",
             "answers_json": json.dumps(
                 {f"stage{stage['n']}": request.form.getlist(f"stage{stage['n']}")
                  for stage in stages}, ensure_ascii=False),
             "checklist_json": None, "evidence_url": "", "reflection_text": "",
             "points_awarded": 0, "submitted_at": now_iso(),
-            "decided_at": now_iso(), "decided_by": "auto",
+            "decided_at": "", "decided_by": "",
         })
-        if decorated:
-            award_task_completion(st, user=g.user, task=decorated, badge=badge,
-                                  record=record, awarded_by="auto")
-            touch_streak(st, g.user["id"])
         audit(g.user, "bridge_submit", "tasks", task_id,
-              {"status": "completed", "stages": len(stages)})
-    return ok(passed=True, status="completed", already_done=already_done,
-              detail={"stages": len(stages)},
-              message_zh="橋鋪好了，遊戲 2 通關！第 5 項已完成。",
-              message_en="The crossing holds — game 2 cleared, and item 5 with it.")
+              {"status": "crossed", "stages": len(stages)})
+    return ok(passed=already_done, status="completed" if already_done else "crossed",
+              already_done=already_done, detail={"stages": len(stages)},
+              message_zh="橋鋪好了！請找領袖考核：背誦銘言、誓詞、規律，並講出日常生活怎樣實行；考核後輸入領袖代碼，第 5 項就完成。",
+              message_en="The bridge holds! Now see your leader: recite the motto, the Promise and the Law, say how you live them, then enter the leader's code to finish item 5.")
+
+
+def _bridge_assess_code(st) -> str:
+    """The leader's word that finishes game 2 — given by hand after the 考核.
+
+    Default 82BP. A `bridge_assess_code` row in settings can change it (the
+    leader edits the settings sheet); the comparison ignores case, spaces and
+    full-width typing, so ８２ｂｐ works just as well as 82BP.
+    """
+    raw = (st.settings().get("bridge_assess_code") or "82BP")
+    return unicodedata.normalize("NFKC", str(raw)).replace(" ", "").upper().strip()
+
+
+def _bridge_code_normalise(value: str) -> str:
+    return unicodedata.normalize("NFKC", str(value or "")).replace(" ", "").upper().strip()
+
+
+@scout_routes.post("/tasks/<task_id>/bridge-code")
+@scout_required
+def bridge_code(task_id: str):
+    """領袖考核後的代碼 — the second half of game 2.
+
+    The crossing (bridge-submit) proves the words can be laid in order; this
+    proves a leader heard the scout recite them and explain how the Law is
+    lived. The code only counts once the crossing is on file — a code alone
+    cannot skip the bridge — and only the right code completes the item.
+    """
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["bridge_ready"] or task.get("status") != "published":
+        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
+    if context["badge"].get("locked"):
+        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
+    assess = (river_adventure().get("assess") or {})
+
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    if any(r.get("status") == "completed" for r in mine):
+        return ok(passed=True, status="completed", already_done=True,
+                  message_zh="第 5 項已完成，不用再輸入代碼。",
+                  message_en="Item 5 is already complete — no code needed.")
+    crossed = next((r for r in mine if r.get("status") == "crossed"), None)
+    if crossed is None:
+        return fail(400, "bridge_not_crossed",
+                    "請先完成渡口遊戲（鋪好三關木板），再找領袖考核。",
+                    "Finish the crossing first — lay all three stages — then see your leader.")
+
+    given = _bridge_code_normalise(request.form.get("code"))
+    if given != _bridge_assess_code(st):
+        audit(g.user, "bridge_code_wrong", "tasks", task_id, {})
+        zh = assess.get("code_wrong_zh") or "代碼不對。請向領袖再問一次。"
+        en = assess.get("code_wrong_en") or "That code does not match. Ask your leader again."
+        if wants_json():
+            return fail(400, "bridge_code_wrong", zh, en)
+        return redirect(url_for("scout_routes.badge_requirements",
+                                badge_id=task["badge_id"], assess="wrong"))
+
+    progress = progress_for(st, g.user["id"])
+    badge = next((b for b in progress["badges"] if b["id"] == task.get("badge_id")), None)
+    decorated = next((t for t in (badge or {}).get("tasks", []) if t["id"] == task_id), None)
+    record = st.insert("progress_records", {
+        "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
+        "attempt_no": len(mine) + 1, "status": "completed", "score": 100,
+        "leader_comment": "領袖考核通過：已背誦銘言、誓詞、規律，並講解日常生活怎樣實行。",
+        "answers_json": crossed.get("answers_json"),
+        "checklist_json": None, "evidence_url": "", "reflection_text": "",
+        "points_awarded": 0, "submitted_at": now_iso(),
+        "decided_at": now_iso(), "decided_by": "leader-code",
+    })
+    if decorated:
+        award_task_completion(st, user=g.user, task=decorated, badge=badge,
+                              record=record, awarded_by="leader-code")
+        touch_streak(st, g.user["id"])
+    audit(g.user, "bridge_code", "tasks", task_id, {"status": "completed"})
+    if wants_json():
+        return ok(passed=True, status="completed", already_done=False,
+                  detail={"code": True},
+                  message_zh="✓ 代碼正確 — 遊戲 2 通關，第 5 項完成！",
+                  message_en="✓ The code is right — game 2 cleared, and item 5 with it!")
+    return redirect(url_for("scout_routes.badge_requirements",
+                            badge_id=task["badge_id"], assess="ok"))
 
 
 @scout_routes.post("/tasks/<task_id>/submit")
@@ -665,8 +770,9 @@ def submit(task_id: str):
         return fail(403, "play_the_cave", "第 4 項請在第一個區域完成山洞遊戲，不需要另做試卷。",
                     "Play the cave in area one to finish item 4; no separate paper is needed.")
     if _is_badge_bridge_task(task, badge):
-        return fail(403, "play_the_bridge", "第 5 項請在第二個區域完成渡口遊戲，不需要另做考核。",
-                    "Cross the river in area two to finish item 5; no separate test is needed.")
+        return fail(403, "play_the_bridge",
+                    "第 5 項請在第二個區域完成渡口遊戲：過橋後找領袖考核（背誦及講解規律），輸入領袖代碼即完成。",
+                    "Cross the river in area two to finish item 5: after the crossing, see your leader and enter the leader's code.")
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == user["id"] and r.get("task_id") == task_id]

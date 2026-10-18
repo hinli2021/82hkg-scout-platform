@@ -263,7 +263,8 @@ def test_the_offline_how_to_play_page_still_plays():
     first = intro[intro.index('class="stage-chip stage-chip-first'):]
     first = first[:first.index('</li>')]
     assert '叢林深處' in first and '童軍歷史山洞' in first
-    assert '四段壁畫' in first and '五十題' in first
+    # no description on the map (2026-10-18): the game itself tells the story
+    assert '四段壁畫' not in first and 'stage-chip-desc' not in first
     assert 'stage-panel' not in intro and 'stage-radio' not in intro
     assert intro.count('data-journey-play') == 1 and 'data-nav="cave"' in intro
     assert '<style>' in page and page.count('<style>') == 1

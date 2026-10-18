@@ -82,17 +82,15 @@
     "image": "crossed",
     "kicker_zh": "遊戲 2 · 過橋了",
     "kicker_en": "Game 2 · across",
-    "pass_title_zh": "橋鋪好了，你走到對岸",
     "title_zh": "腳下的木板一塊塊接上",
-    "pass_title_en": "The bridge is finished — you are across",
     "title_en": "Board by board, the crossing holds",
     "paras_zh": [
       "最後一塊木板扣好，整條橋在霧裡穩穩地橫過河面。你一步一步走過去，腳下的木板沒有再動。",
-      "銘言的兩個字、誓詞的四句、規律的七條，你都排對了次序。第 5 項的要求，就是明白並接納這三樣。"
+      "銘言的兩個字、誓詞的四句、規律的七條，你都排對了次序。不過第 5 項還未完成 —— 領袖在對岸等你，要聽你親口講一次。"
     ],
     "paras_en": [
       "The last board locks in and the whole crossing holds steady over the water. You walk across, and nothing under your feet shifts.",
-      "The motto's two characters, the Promise's four lines and the Law's seven points are all in the right order — that is what item 5 asks: to understand and accept them."
+      "The motto's two characters, the Promise's four lines and the Law's seven points are all in the right order. But item 5 is not finished yet — your leader is waiting on the far bank to hear you say them."
     ],
     "action_zh": "走進霧裡，繼續行程",
     "action_en": "Walk on into the mist",
@@ -100,8 +98,10 @@
     "badge_en": "Back to the badge",
     "pass_zh": "遊戲 2 通關 ✓",
     "pass_en": "Game 2 cleared ✓",
-    "pass_note_zh": "第 5 項已完成。領袖會在宣誓時聽你親自講出誓詞、規律和銘言，這一關就是你最好的預備。",
-    "pass_note_en": "Item 5 is complete. Your leader will hear you say the Promise, Law and motto when you are invested — this crossing is your practice.",
+    "pass_title_zh": "考核通過，第 5 項完成",
+    "pass_title_en": "The check is passed — item 5 is yours",
+    "pass_note_zh": "你在領袖面前背誦了銘言、誓詞、規律，也講了日常生活怎樣實行。宣誓那天，這三樣你會再講一次。",
+    "pass_note_en": "You have said the motto, the Promise and the Law to your leader, and told how you live the Law each day. You will say them once more at your investiture.",
     "save_error_zh": "未能記錄過橋",
     "save_error_en": "Could not record your crossing",
     "save_retry_zh": "你的次序仍在這個畫面，請再試一次。未成功儲存前不要離開。",
@@ -112,6 +112,36 @@
     "again_en": "Cross the river again",
     "submitting_zh": "正在記錄過橋…",
     "submitting_en": "Saving your crossing…"
+  },
+  "assess": {
+    "kicker_zh": "遊戲 2 · 還差一步",
+    "kicker_en": "Game 2 · one step more",
+    "title_zh": "橋過了，請找領袖考核",
+    "title_en": "Across the river — now see your leader",
+    "lead_zh": "第 5 項要在領袖面前考核，準備好這兩樣：",
+    "lead_en": "Item 5 is checked face to face with a leader. Be ready for two things:",
+    "points_zh": [
+      "背誦：銘言、誓詞、規律 —— 次序和字句都要對。",
+      "講解：你在日常生活裡，怎樣實行童軍規律。"
+    ],
+    "points_en": [
+      "Recite: the motto, the Promise and the Law — in order, word for word.",
+      "Explain: how you keep the Scout Law in your daily life."
+    ],
+    "after_zh": "考核通過，領袖會給你一個代碼；在下面輸入，遊戲 2 才算完成。想先繼續行程也可以 —— 去玩遊戲 3，代碼遲些輸入。",
+    "after_en": "Pass the check and your leader gives you a code — type it in below to finish game 2. Or walk on first: game 3 is open, and the code can wait.",
+    "code_label_zh": "領袖代碼",
+    "code_label_en": "The leader's code",
+    "code_placeholder_zh": "領袖給你的代碼",
+    "code_placeholder_en": "The code your leader gave you",
+    "code_button_zh": "輸入代碼，完成遊戲 2",
+    "code_button_en": "Enter the code — finish game 2",
+    "code_checking_zh": "正在核對代碼…",
+    "code_checking_en": "Checking the code…",
+    "code_wrong_zh": "代碼不對。請向領袖再問一次，或檢查有沒有打錯字。",
+    "code_wrong_en": "That code does not match. Ask your leader again, or check your typing.",
+    "go_next_zh": "先去玩遊戲 3",
+    "go_next_en": "Play game 3 first"
   },
   "labels": {
     "home_zh": "主頁",
