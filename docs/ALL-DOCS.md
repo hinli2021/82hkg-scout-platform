@@ -64,6 +64,10 @@ storage and includes a one-file offline walkthrough.
 
 ### 離線示範 / the offline demo — `demo-preview.html`
 
+> 產生方式：`python3 tools/offline_demo.py`（單檔 13MB+，**不入 git**；
+> Vercel 部署時會在 build 步驟重新產生並放到網站根目錄，網址不變）。
+> 遊戲 2 單檔版：`python3 tools/bridge_preview.py`。
+
 One file, no server, no cookies: **13 screens**, from camp login and the
 leader-code card to the scout's home, the single「你被困住了！」island page,
 and **game 1 in location 1**. A name without a password opens the first-time
@@ -1478,7 +1482,7 @@ POST /badges/<id>/start   開始冒險（fetch → JSON{ok, trail, credited}；�
 
 ---
 
-### 尋寶圖改成真正的島嶼場景（2026-10-18 起）
+### 尋寶圖改成真正的島嶼場景（2026-10-18 起；同日固定比例）
 
 地圖不再只是一張紙加插圖，而是**畫出了一座島**：四周是海，島上有一條河由北灣流向南海，
 五個地點沿島劃成一圈，地形跟地名相配——
@@ -1501,6 +1505,16 @@ POST /badges/<id>/start   開始冒險（fetch → JSON{ok, trail, credited}；�
   完成 2 個遊戲（亮卡到第 3 站）——卡與卡、卡與塗鴉之間均無重疊。
 
 ---
+
+### 尋寶圖固定比例＋故事便條半透明（2026-10-18 起）
+
+- **地圖不再隨視窗拉寬**：桌面版尋寶圖高度固定 455px、寬度上限 910px
+  （剛好 2:1）。視窗再寬，地圖都保持 910×455 不變，置中放在紙底上，
+  不會再變成一條過寬的長條。已於 851–1440px 六種視窗 × 新手/完成兩站
+  兩種狀態實測：五張站卡、沙灘標籤與全部塗鴉零重疊。
+- 開場故事卡 3 的尋寶圖同樣以 2:1 置中顯示（手機直向維持原有填滿）。
+- **故事便條半透明**：羊皮紙便條改為約 7 成透明＋ 4.5px 背景模糊
+  （`backdrop-filter`），童軍可以清楚看見背後的插畫，文字仍清晰可讀。
 
 ### 手機版五站對齊（2026-10-18 起）
 

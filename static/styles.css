@@ -2561,12 +2561,14 @@ body.is-game main { padding-top: 6px; }
 .quest-slide-cap {                          /* the story rides on the picture */
   position: absolute; left: 50%; bottom: .85rem; transform: translateX(-50%);
   z-index: 2; width: min(92%, 42rem);
-  padding: .68rem 1.15rem .78rem; text-align: center; color: #4a3a1c;
-  background: linear-gradient(180deg, rgba(255, 252, 242, .97), rgba(250, 241, 219, .95));
+  padding: .68rem 1.15rem .78rem; text-align: center; color: #3a2c12;
+  background: linear-gradient(180deg, rgba(255, 252, 242, .34), rgba(250, 241, 219, .27));
+  -webkit-backdrop-filter: blur(4.5px);
+  backdrop-filter: blur(4.5px);
   border: 1px solid rgba(146, 104, 48, .55); border-radius: 12px;
-  box-shadow: 0 12px 28px rgba(20, 14, 4, .38),
-              inset 0 0 0 4px rgba(255, 252, 242, .7),
-              inset 0 0 0 5.5px rgba(146, 104, 48, .35);
+  box-shadow: 0 12px 28px rgba(20, 14, 4, .32),
+              inset 0 0 0 4px rgba(255, 252, 242, .5),
+              inset 0 0 0 5.5px rgba(146, 104, 48, .32);
 }
 .quest-slide-emblem {
   display: block; width: 96px; height: 96px;
@@ -2597,7 +2599,7 @@ body.is-game main { padding-top: 6px; }
 }
 .quest-slide-text {
   margin: 0; font-size: clamp(.84rem, 1.95vh, .99rem);
-  line-height: 1.55; color: #5d4a28;
+  line-height: 1.55; color: #4c3c1c; font-weight: 600;
 }
 /* the treasure-map card: the real chart laid on the page, route numbered,
    with the story in a parchment note on the open sea below it */
@@ -2676,4 +2678,24 @@ body.is-game main { padding-top: 6px; }
 .quest-replay {
   margin-left: auto; color: #7b5c26; font-size: .85rem;
   text-decoration: underline dotted; text-underline-offset: .2em;
+}
+
+/* ══ the chart keeps its shape (2026-10-18, same day) ═══════════════════════
+   The treasure map is a fixed 2 : 1 chart, centred on its paper mat: the
+   window may be any width, the island no longer stretches with it — and the
+   story's map card shows the same shape. */
+@media (min-width: 851px) {
+  .stage-map-direct .map-canvas {
+    /* the chart never grows past 2:1 (910 × 455): wider windows just see
+       more paper mat around the same island, never a stretched one */
+    max-width: 910px;
+    margin-inline: auto;
+  }
+  .quest-story .map-canvas {
+    inset: auto; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    height: 100%;
+    aspect-ratio: 2 / 1;
+    max-width: 100%;
+  }
 }
