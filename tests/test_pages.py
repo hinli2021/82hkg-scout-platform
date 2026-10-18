@@ -175,7 +175,7 @@ def test_the_offline_demo_can_actually_sign_somebody_in():
     panes = re.findall(r'id="pane-([\w-]+)"', page)
     assert panes == ["scene", "names-Tiger", "names-Otter", "names-Seagull",
                      "leader-code", "setup", "home", "badges", "history", "quest-intro",
-                     "guide", "cave", "bridge", "leader"], panes
+                     "quest-map", "guide", "cave", "bridge", "leader"], panes
     assert 'id="pane-bridge"' in page and 'window.BridgeGame' in page
     assert "data-nav=\"names-Otter\"" in page          # the animals are doors
     assert page.count('data-nav="home"') >= 3            # the names are doors
@@ -254,11 +254,16 @@ def test_the_offline_how_to_play_page_still_plays():
     if not demo.exists():
         pytest.skip("demo-preview.html not built — run tools/offline_demo.py")
     page = demo.read_text()
-    intro = page[page.index('id="pane-quest-intro"'):page.index('id="pane-guide"')]
+    intro = page[page.index('id="pane-quest-intro"'):page.index('id="pane-quest-map"')]
+    route = page[page.index('id="pane-quest-map"'):page.index('id="pane-guide"')]
 
+    # the first visit: the story told in eight picture cards over the island page
     assert "你被困住了" in intro
     assert intro.count('class="story-step"') == 3
     assert "data:image/jpeg;base64," in intro    # the island, inlined
+    assert 'data-quest-intro' in intro and intro.count('data-slide="') == 9
+    assert 'map-canvas-story' in intro and 'story-stops' in intro
+    assert 'data-intro-skip' in intro and 'data-quest-page' in intro
     assert intro.count('<li class="stage-chip') == 5
     first = intro[intro.index('class="stage-chip stage-chip-first'):]
     first = first[:first.index('</li>')]
@@ -267,6 +272,12 @@ def test_the_offline_how_to_play_page_still_plays():
     assert '四段壁畫' not in first and 'stage-chip-desc' not in first
     assert 'stage-panel' not in intro and 'stage-radio' not in intro
     assert intro.count('data-journey-play') == 1 and 'data-nav="cave"' in intro
+    # every visit after the story: the escape route only, no description up top
+    assert "你被困住了" not in route and '"story-hero"' not in route
+    assert 'data-quest-intro' not in route and 'class="story-step"' not in route
+    assert "你的逃生路線" in route and route.count('<li class="stage-chip') == 5
+    assert "0 / 5 個遊戲已完成" in route and 'data-intro-replay' in route
+    assert route.count('data-journey-play') == 1 and 'data-nav="cave"' in route
     assert '<style>' in page and page.count('<style>') == 1
 
 
@@ -281,7 +292,7 @@ def test_the_offline_demo_carries_the_cave_without_a_paper():
         pytest.skip("build demo-preview.html first")
     page = demo.read_text()
     cave = page[page.index('id="pane-cave"'):page.index('id="pane-leader"')]
-    intro = page[page.index('id="pane-quest-intro"'):page.index('id="pane-guide"')]
+    intro = page[page.index('id="pane-quest-intro"'):page.index('id="pane-quest-map"')]
     first = intro[intro.index('class="stage-chip stage-chip-first'):]
     first = first[:first.index('</li>')]
     assert '童軍歷史山洞' in first and 'class="stage-items"' not in first
@@ -310,7 +321,8 @@ def test_the_offline_demo_carries_the_whole_adventure():
         import pytest
         pytest.skip("build demo-preview.html first")
     page = demo.read_text()
-    intro = page[page.index('id="pane-quest-intro"'):page.index('id="pane-guide"')]
+    intro = page[page.index('id="pane-quest-intro"'):page.index('id="pane-quest-map"')]
+    route = page[page.index('id="pane-quest-map"'):page.index('id="pane-guide"')]
     assert '你被困住了' in intro
     assert intro.count('class="story-step"') == 3
     assert intro.count('<li class="stage-chip') == 5
@@ -320,6 +332,7 @@ def test_the_offline_demo_carries_the_whole_adventure():
     assert 'data-quest-start' not in intro and '划出去' not in page
     assert 'id="pane-quest-trail"' not in page and 'id="pane-paper"' not in page
     assert '0 / 5 個遊戲已完成' in intro, 'opening the badge awards nothing'
+    assert '0 / 5 個遊戲已完成' in route, 'the story hands over to the route, awarding nothing'
     assert 'trail-card' not in intro and 'quest-board' not in intro
     home = page[page.index('id="pane-home"'):page.index('id="pane-badges"')]
     assert 'class="badge-tile next" data-nav="quest-intro"' in home
@@ -328,7 +341,7 @@ def test_the_offline_demo_carries_the_whole_adventure():
     assert 'forms.gle/M4vtu6GwsMd5do1J8' not in guide
     assert '不需要另外做試卷' in guide and 'data-nav="cave"' in guide
     assert 'forms.gle/NmdM72WapUpbajFHA' in guide
-    for pane in ('quest-intro', 'guide', 'cave', 'badges', 'history'):
+    for pane in ('quest-intro', 'quest-map', 'guide', 'cave', 'badges', 'history'):
         chunk = page[page.index(f'id="pane-{pane}"'):]
         chunk = chunk[:chunk.index('class="pane"', 10)]
         assert 'data-nav="home"' in chunk

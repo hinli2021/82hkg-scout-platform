@@ -21,6 +21,7 @@ from ..engine import (
     evaluate_submission, game_areas, points_summary, progress_for,
     stage_list, touch_streak,
 )
+from ..content import member_badge_guide
 from ..schema import TASK_TYPES, patrol_label
 from ..util import now_iso
 from .helpers import audit, fail, ok, store, wants_json
@@ -148,12 +149,22 @@ def badge_detail(badge_id: str):
         return render_template("scout/badge_detail.html", **context)
     context["guide"] = guide
     context["stages"] = stage_list(st, user=g.user, badge=badge)
-    context["quest"] = guide["quest"]
+    # The quest the page reads is the leader's stored guide, with the shipped
+    # content file filling any newer key (the intro slides, 2026-10-18) the
+    # stored copy does not carry yet — a leader's own wording always wins.
+    context["quest"] = {**((member_badge_guide().get("quest") or {})),
+                        **(guide.get("quest") or {})}
     # The voyage starts without awarding a hidden task: the audit entry marks
     # the cast-off, and the game progress places the scout on the treasure map.
     context["started"] = (_quest_started(st, g.user["id"], badge_id)
                           or any(stage["game_done"] for stage in context["stages"])
                           or request.args.get("started") == "1")
+    # A first-time scout is told the story as a click-through picture intro;
+    # once the quest has begun (or the story is replayed) the page opens
+    # straight on the escape route. `?intro=1` replays the pictures.
+    context["intro"] = ((not context["started"])
+                        or request.args.get("intro") == "1")
+    context["intro_slides"] = context["quest"].get("intro_slides") or []
     return render_template("scout/badge_intro.html", **context)
 
 

@@ -54,19 +54,33 @@ def main():
         page.wait_for_load_state("networkidle")
         page.wait_for_timeout(500)
         first = page.url
+        # a first-time scout is told the story: eight picture cards over the
+        # island page, one button at a time, nothing to scroll (2026-10-18)
+        print("door 1 · 主頁 tile →", first.replace(BASE, ""))
+        assert page.locator("[data-quest-intro]").count() == 1
+        assert page.locator("[data-quest-intro] [data-slide]").count() == 9
+        assert page.locator(".map-canvas-story").count() == 1  # the real map shows the route
+        assert page.locator(".topbar").first.is_visible(), \
+            "the story sits in the page: the top bar stays the way out"
+        assert page.locator(".quest-page").is_hidden(), "the tale covers the page beneath it"
+        page.screenshot(path=str(SHOTS / "scout-first-story.png"), full_page=False)
+        page.click("[data-intro-skip]")                        # …and leaving it
+        page.wait_for_load_state("networkidle")
+        page.wait_for_timeout(400)
         heading = page.locator("h1").first.inner_text().strip()
         launch = page.locator(".story-launch").count()
-        print("door 1 · 主頁 tile →", first.replace(BASE, ""))
-        print("        heading:", heading, "| launch pad:", launch,
+        print("        after the story → heading:", heading, "| launch pad:", launch,
               "| maps:", page.locator(".map-canvas").count(),
               "| description on the map (want 0):", page.locator(".stage-chip-desc").count())
-        assert heading == "你被困住了！" and launch == 1
+        assert page.locator(".story-hero").count() == 0, "the story is told once, in pictures"
+        assert heading == "會員章大冒險" and launch == 1
         assert page.locator(".stage-chip-desc").count() == 0, \
             "the map shows no game description — it is read inside the game"
         assert page.locator(".stage-chip-first [data-game-state]").is_visible()
         assert page.locator(".stage-chip").count() == 5
         assert page.locator(".stage-radio, .stage-panel, [data-quest-start]").count() == 0
         assert page.locator("[data-journey-play]").count() == 1
+        assert page.locator("[data-intro-replay]").count() == 1
         assert page.locator("a[href*='/requirements']").count() == 0
         assert "童軍綱要參考" not in page.locator("body").inner_text()
         page.screenshot(path=str(SHOTS / "scout-new-from-badges.png"), full_page=True)

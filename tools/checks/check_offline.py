@@ -105,17 +105,52 @@ with sync_playwright() as pw:
           "| map canvas:", page.locator("#pane-quest-intro .map-canvas").count(),
           "| raft:", page.locator("#pane-quest-intro .story-raft").count())
 
-    # The first location itself explains the game: no selecting pins, cast-off
-    # form, or extra Play button. The one bottom CTA goes straight into the cave.
-    first = page.locator("#pane-quest-intro .stage-chip-first")
+    # The first visit is the opening story: eight picture cards, one button at
+    # a time, nothing to scroll — the escape route itself is the third card.
+    assert page.locator("#pane-quest-intro [data-quest-intro]").count() == 1
+    assert page.locator("#pane-quest-intro [data-slide]").count() == 9
+    assert page.locator("#pane-quest-intro .map-canvas-story").count() == 1
+    assert page.locator("#pane-quest-intro .story-stops li").count() == 5
+    assert page.locator("#pane-quest-intro .quest-dot").count() == 9
+    assert page.locator("#pane-quest-intro a[data-nav='home']").first.is_visible(), \
+        "the story sits in the page: the top bar stays the way out"
+    print("  opening story:", page.locator("#pane-quest-intro [data-slide]").count(), "picture cards")
+    page.screenshot(path=os.path.join(SHOTS, "offline-story-card.png"), full_page=False)
+    page.click("#pane-quest-intro [data-intro-next]"); page.wait_for_timeout(150)
+    assert page.locator("#pane-quest-intro [data-slide='2']").is_visible()
+    page.click("#pane-quest-intro [data-slide-dot='5']"); page.wait_for_timeout(150)
+    assert page.locator("#pane-quest-intro [data-slide='5']").is_visible()
+    page.click("#pane-quest-intro [data-intro-skip]"); page.wait_for_timeout(400)
+    assert shown() == ["quest-map"], shown()
+    print("  after the story:", shown()[0], "| headline:",
+          page.locator("#pane-quest-map .quest-back-title").inner_text())
+    assert page.locator("#pane-quest-map .story-hero").count() == 0
+    assert page.locator("#pane-quest-map .quest-slide").count() == 0
+    assert "0 / 5 個遊戲已完成" in page.locator("#pane-quest-map").inner_text()
+
+    # The escape route, once the story is told: no description up top, the map
+    # with its five stops, and one button straight into the cave.
+    first = page.locator("#pane-quest-map .stage-chip-first")
     print("  first location:", first.inner_text().replace("\n", " | ")[:130])
     assert first.is_visible() and "童軍歷史山洞" in first.inner_text()
-    assert "四段壁畫" in first.inner_text() and "五十題" in first.inner_text()
-    assert page.locator("#pane-quest-intro .stage-radio, #pane-quest-intro .stage-panel").count() == 0
-    assert page.locator("#pane-quest-intro [data-journey-play]").count() == 1
-    assert page.locator("#pane-quest-intro [data-quest-start]").count() == 0
-    assert "划出去" not in page.locator("#pane-quest-intro").inner_text()
+    assert "四段壁畫" not in first.inner_text() and "stage-chip-desc" not in first.inner_text()
+    assert page.locator("#pane-quest-map .stage-radio, #pane-quest-map .stage-panel").count() == 0
+    assert page.locator("#pane-quest-map [data-journey-play]").count() == 1
+    assert page.locator("#pane-quest-map [data-quest-start]").count() == 0
+    assert "划出去" not in page.locator("#pane-quest-map").inner_text()
     page.screenshot(path=os.path.join(SHOTS, "offline-story.png"), full_page=False)
+
+    # 重看故事 replays the cards from the first; leaving them again opens the
+    # route — and so does every later door to the badge.
+    page.click("#pane-quest-map [data-intro-replay]"); page.wait_for_timeout(400)
+    assert shown() == ["quest-intro"], shown()
+    assert page.locator("#pane-quest-intro [data-slide='1']").is_visible()
+    page.click("#pane-quest-intro [data-intro-skip]"); page.wait_for_timeout(400)
+    assert shown() == ["quest-map"], shown()
+    page.evaluate("window.OFFLINE_DEMO.go('badges')"); page.wait_for_timeout(150)
+    page.click("#pane-badges [data-nav='quest-intro']"); page.wait_for_timeout(350)
+    assert shown() == ["quest-map"], "a door after the story opens on the route"
+    page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(150)
 
     # The syllabus has no entry on the game page, but its old reference
     # content remains available (the live server still supports direct URLs).
@@ -125,9 +160,9 @@ with sync_playwright() as pw:
     print("preserved reference:", page.locator("#pane-guide .guide-item").count(), "items")
     assert page.locator("#pane-guide .guide-item[data-guide-item='4'] a[data-nav='cave']").count() == 1
     assert page.locator("#pane-paper, #pane-review, #pane-quest-trail").count() == 0
-    page.evaluate("window.OFFLINE_DEMO.go('quest-intro')"); page.wait_for_timeout(150)
+    page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(150)
 
-    page.click("#pane-quest-intro [data-journey-play]"); page.wait_for_timeout(400)
+    page.click("#pane-quest-map [data-journey-play]"); page.wait_for_timeout(400)
     assert shown() == ['cave']
     config = json.loads(H.unescape(page.get_attribute("#pane-cave #cave-root", "data-cave-config")))
     total = sum(len(g["questions"]) for g in config["groups"])
@@ -272,18 +307,18 @@ with sync_playwright() as pw:
         "mid-crossing exits must still warn"
     page.click("[data-bridge-leave]"); page.wait_for_timeout(300)
     assert shown() == ["home"], shown()
-    page.evaluate("window.OFFLINE_DEMO.go('quest-intro')"); page.wait_for_timeout(250)
-    print("  回到會員章 →", shown(), "|", page.locator("#pane-quest-intro .story-beacon-meter").inner_text().replace("\n", " "))
-    assert shown() == ['quest-intro']
-    assert "1 / 5 個遊戲已完成" in page.locator("#pane-quest-intro .story-beacon-meter").inner_text()
-    assert page.locator("#pane-quest-intro .stage-chip-first.is-done").count() == 1
-    assert page.locator("#pane-quest-intro .stage-chip.is-here[data-stage='2']").count() == 1
+    page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(250)
+    print("  回到會員章 →", shown(), "|", page.locator("#pane-quest-map .quest-progress").inner_text().replace("\n", " "))
+    assert shown() == ['quest-map']
+    assert "1 / 5 個遊戲已完成" in page.locator("#pane-quest-map .quest-progress").inner_text()
+    assert page.locator("#pane-quest-map .stage-chip-first.is-done").count() == 1
+    assert page.locator("#pane-quest-map .stage-chip.is-here[data-stage='2']").count() == 1
     # …and the one button now opens the crossing, not a waiting notice
-    assert page.locator("#pane-quest-intro [data-journey-play]").count() == 1
-    assert page.locator("#pane-quest-intro [data-journey-play]").get_attribute("data-nav") == "bridge"
-    assert page.locator("#pane-quest-intro [data-journey-wait]").is_hidden()
+    assert page.locator("#pane-quest-map [data-journey-play]").count() == 1
+    assert page.locator("#pane-quest-map [data-journey-play]").get_attribute("data-nav") == "bridge"
+    assert page.locator("#pane-quest-map [data-journey-wait]").is_hidden()
     # …and location 1 keeps its own small door back into the cave
-    replay = page.locator("#pane-quest-intro [data-stage='1'] .stage-chip-replay")
+    replay = page.locator("#pane-quest-map [data-stage='1'] .stage-chip-replay")
     assert replay.count() == 1 and replay.inner_text().strip().endswith("再玩一次")
     print("  location 1:", replay.inner_text().strip(), "→",
           replay.get_attribute("data-nav"))
@@ -291,16 +326,16 @@ with sync_playwright() as pw:
     assert shown() == ["cave"] and page.evaluate("window.__caveState.scene") == "intro"
     print("  location 1's door opens the cave again at its entrance")
     # a re-opened cave is a fresh run, so going back out still asks first
-    page.evaluate("window.OFFLINE_DEMO.go('quest-intro')"); page.wait_for_timeout(300)
+    page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
     assert page.locator(".cave-exit-overlay").is_visible(), \
         "leaving a fresh replay still warns"
     page.click("[data-cave-leave]"); page.wait_for_timeout(300)
-    assert shown() == ["quest-intro"], shown()
+    assert shown() == ["quest-map"], shown()
 
     # ── game 2: 迷霧渡口, the same walk with planks instead of questions ─────
     bridge = json.loads((pathlib.Path(ROOT) / "content" / "member-badge"
                          / "river.json").read_text(encoding="utf-8"))
-    page.click("#pane-quest-intro [data-journey-play]"); page.wait_for_timeout(400)
+    page.click("#pane-quest-map [data-journey-play]"); page.wait_for_timeout(400)
     assert shown() == ["bridge"], shown()
     bridge_cfg = json.loads(H.unescape(page.get_attribute("#pane-bridge [data-bridge]",
                                                            "data-bridge-config")))
@@ -383,14 +418,14 @@ with sync_playwright() as pw:
         "the code box is waiting for the leader's word"
     page.screenshot(path=os.path.join(SHOTS, "offline-bridge-assess.png"), full_page=False)
     # the map chip knows the two halves: crossed, standing on area 3, still 1/5
-    page.evaluate("window.OFFLINE_DEMO.go('quest-intro')"); page.wait_for_timeout(300)
-    chip2 = page.locator("#pane-quest-intro .stage-chip[data-stage='2']").inner_text()
+    page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
+    chip2 = page.locator("#pane-quest-map .stage-chip[data-stage='2']").inner_text()
     assert "已過橋 · 找領袖考核" in chip2, chip2
-    assert page.locator("#pane-quest-intro .stage-chip.is-here[data-stage='3']").count() == 1, \
+    assert page.locator("#pane-quest-map .stage-chip.is-here[data-stage='3']").count() == 1, \
         "the walk has moved on to area 3 while the code waits"
-    assert page.locator("#pane-quest-intro .stage-chip[data-stage='2'].is-done").count() == 0, \
+    assert page.locator("#pane-quest-map .stage-chip[data-stage='2'].is-done").count() == 0, \
         "a crossing without the code is not a cleared game"
-    meter_mid = page.locator("#pane-quest-intro .story-beacon-meter").inner_text()
+    meter_mid = page.locator("#pane-quest-map .quest-progress").inner_text()
     assert "1 / 5 個遊戲已完成" in meter_mid, meter_mid
     print("  crossed, code waiting:", meter_mid.replace("\n", " "))
     # wandering away and back re-opens the assess card, not the river bank
@@ -419,32 +454,32 @@ with sync_playwright() as pw:
     # the crossing is laid: no 'you will restart' warning on the way out
     assert page.locator("[data-bridge-leave]").is_hidden(), \
         "a finished crossing leaves without a warning"
-    assert shown() == ["quest-intro"], shown()
-    meter = page.locator("#pane-quest-intro .story-beacon-meter").inner_text()
+    assert shown() == ["quest-map"], shown()
+    meter = page.locator("#pane-quest-map .quest-progress").inner_text()
     assert "2 / 5 個遊戲已完成" in meter, meter
-    assert page.locator("#pane-quest-intro .stage-chip[data-stage='2'].is-done").count() == 1
-    assert page.locator("#pane-quest-intro .stage-chip.is-here[data-stage='3']").count() == 1
-    assert page.locator("#pane-quest-intro [data-journey-play]").count() == 0
-    assert "遊戲 3" in page.locator("#pane-quest-intro [data-journey-wait]").inner_text()
+    assert page.locator("#pane-quest-map .stage-chip[data-stage='2'].is-done").count() == 1
+    assert page.locator("#pane-quest-map .stage-chip.is-here[data-stage='3']").count() == 1
+    assert page.locator("#pane-quest-map [data-journey-play]").count() == 0
+    assert "遊戲 3" in page.locator("#pane-quest-map [data-journey-wait]").inner_text()
     print("  after the crossing:", meter.replace("\n", " "),
-          "| next:", page.locator("#pane-quest-intro [data-journey-wait]").inner_text().strip())
-    replay2 = page.locator("#pane-quest-intro [data-stage='2'] .stage-chip-replay")
+          "| next:", page.locator("#pane-quest-map [data-journey-wait]").inner_text().strip())
+    replay2 = page.locator("#pane-quest-map [data-stage='2'] .stage-chip-replay")
     assert replay2.count() == 1, "a cleared crossing keeps its own door too"
     replay2.click(); page.wait_for_timeout(300)
     assert shown() == ["bridge"]
     assert page.get_attribute("#pane-bridge [data-bridge]", "data-bridge-scene") == "intro"
     print("  location 2's door re-opens the crossing from its first stage")
-    page.evaluate("window.OFFLINE_DEMO.go('quest-intro')"); page.wait_for_timeout(300)
+    page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
     assert page.locator("[data-bridge-leave]").is_visible(), \
         "a fresh replay of the crossing warns as well"
     page.click("[data-bridge-leave]"); page.wait_for_timeout(300)
-    assert shown() == ["quest-intro"], shown()
+    assert shown() == ["quest-map"], shown()
     page.evaluate("window.OFFLINE_DEMO.go('home')"); page.wait_for_timeout(200)
     tile = page.locator("#pane-home [data-badge-meter]").first
     assert "2 / 5" in tile.inner_text()
     print("  home tile:", tile.inner_text().replace("\n", " "))
 
-    for pane in ("quest-intro", "guide", "cave", "bridge", "badges", "history"):
+    for pane in ("quest-map", "guide", "cave", "bridge", "badges", "history"):
         page.evaluate(f"window.OFFLINE_DEMO.go('{pane}')")
         page.wait_for_timeout(150)
         link = page.locator(f"#pane-{pane} a[data-nav='home']").first

@@ -8,7 +8,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ L('童軍進度平台', 'Scout Progress Platform') }}{% endblock %} · {{ L(settings.unit_name_zh, settings.unit_name_en) }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ asset_v('styles.css') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/brand/favicon.png') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/brand/favicon.png') }}">
   <script>window.__scoutSoundDefault = {{ 'true' if settings.ui_sound else 'false' }};</script>
@@ -99,11 +99,11 @@
 {% endblock %}
 
 <div id="fx-root"></div>
-<script src="{{ url_for('static', filename='js/effects.js') }}"></script>
+<script src="{{ url_for('static', filename='js/effects.js') }}?v={{ asset_v('js/effects.js') }}"></script>
 {% if user and user.role == 'leader' %}
-  <script src="{{ url_for('static', filename='js/leader.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/leader.js') }}?v={{ asset_v('js/leader.js') }}"></script>
 {% else %}
-  <script src="{{ url_for('static', filename='js/scout.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/scout.js') }}?v={{ asset_v('js/scout.js') }}"></script>
 {% endif %}
 {% block scripts %}{% endblock %}
 </body>

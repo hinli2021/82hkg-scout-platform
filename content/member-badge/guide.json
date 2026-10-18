@@ -465,6 +465,107 @@
   ],
   "game_rule_zh": "每個區域各有一個遊戲；五個遊戲全部完成，才可以考取會員章。",
   "game_rule_en": "Every area holds one game. All five must be cleared before the badge is awarded.",
-  "award_rule": "five_games"
+  "award_rule": "five_games",
+  "intro_slides": [
+   {
+    "img": "img/quest/intro/shipwreck.jpg",
+    "kicker_zh": "起點",
+    "kicker_en": "THE BEGINNING",
+    "title_zh": "船撞上礁石",
+    "title_en": "The boat hits the reef",
+    "text_zh": "大露營的旅途上，風暴突然來襲，船撞上了礁石。巨浪把你沖上一個陌生的荒島。",
+    "text_en": "On the way to camp a storm strikes and the boat runs onto the reef. The waves wash you ashore on a strange island.",
+    "alt_zh": "暴風雨中，船撞上礁石",
+    "alt_en": "A boat broken on the rocks in a storm"
+   },
+   {
+    "img": "img/mascots/quest-island.jpg",
+    "kicker_zh": "荒島",
+    "kicker_en": "THE ISLAND",
+    "title_zh": "你被困住了！",
+    "title_en": "You are stranded!",
+    "text_zh": "你獨自醒來，四周都是叢林，海浪聲從遠處傳來。口袋裏只剩一個指南針，和一張濕透的地圖。",
+    "text_en": "You wake up alone. Jungle all around, the sea somewhere behind it. All you have is a compass and a soaked map.",
+    "alt_zh": "叢林環繞的荒島",
+    "alt_en": "The island, ringed by jungle"
+   },
+   {
+    "kind": "map",
+    "kicker_zh": "逃生路線",
+    "kicker_en": "THE ESCAPE ROUTE",
+    "title_zh": "五個地點，五個遊戲",
+    "title_en": "Five places, five games",
+    "text_zh": "地圖上的虛線穿過五個地點，一直通到海邊的木筏。每個地點各有一個遊戲要完成——五個全部玩過，才可以離開。",
+    "text_en": "The dashed line runs through five places and ends at the raft on the shore. Each place holds one game — clear all five to leave the island."
+   },
+   {
+    "img": "img/quest/cave/entrance.jpg",
+    "kicker_zh": "第 1 站 · 遊戲 1",
+    "kicker_en": "STOP 1 · GAME 1",
+    "title_zh": "叢林深處",
+    "title_en": "Deep in the jungle",
+    "text_zh": "走進叢林盡頭的山洞，讀懂石壁上的壁畫，找出童軍歷史的線索。",
+    "text_en": "Enter the cave at the end of the jungle, read the paintings on the rock walls, and find the clues to Scouting history.",
+    "alt_zh": "叢林中的山洞入口",
+    "alt_en": "The cave entrance in the jungle"
+   },
+   {
+    "img": "img/quest/bridge/bank.jpg",
+    "kicker_zh": "第 2 站 · 遊戲 2",
+    "kicker_en": "STOP 2 · GAME 2",
+    "title_zh": "迷霧小徑",
+    "title_en": "The misty trail",
+    "text_zh": "霧中有河，河上無橋。把正確的木板放到橋架上鋪出一條路，再找領袖考核，換取渡河代碼。",
+    "text_en": "A river runs in the mist, and there is no bridge. Lay the right planks across the frame, then find a leader for the crossing code.",
+    "alt_zh": "迷霧河岸",
+    "alt_en": "The misty river bank"
+   },
+   {
+    "img": "img/quest/intro/ridge.jpg",
+    "kicker_zh": "第 3 站 · 遊戲 3",
+    "kicker_en": "STOP 3 · GAME 3",
+    "title_zh": "石壁山嶺",
+    "title_en": "The rocky ridge",
+    "text_zh": "翻過東面的石壁山嶺，站上山脊俯瞰整個島。這裡的遊戲正在準備，等你來挑戰。",
+    "text_en": "Climb the rocky ridge in the east and look out over the whole island from the crest. The game here is being made ready for you.",
+    "alt_zh": "山脊上的松樹與石壁",
+    "alt_en": "Pines and cliffs on the ridge"
+   },
+   {
+    "img": "img/quest/intro/valley.jpg",
+    "kicker_zh": "第 4 站 · 遊戲 4",
+    "kicker_en": "STOP 4 · GAME 4",
+    "title_zh": "溪谷旗桿",
+    "title_en": "The valley flagpole",
+    "text_zh": "沿溪流走進南面的谷裏，旗桿就立在營地中央。這裡的遊戲也在準備之中。",
+    "text_en": "Follow the stream down into the southern valley, where the flagpole stands over the camp. Its game is on the way too.",
+    "alt_zh": "溪谷營地與旗桿",
+    "alt_en": "The stream, the camp and the flagpole"
+   },
+   {
+    "img": "img/quest/intro/bluff-raft.jpg",
+    "kicker_zh": "第 5 站",
+    "kicker_en": "STOP 5",
+    "title_zh": "臨海山崗",
+    "title_en": "The seaward bluff",
+    "text_zh": "走上西南面的山崗，崖下就是沙灘——你的木筏正在那裏等你。",
+    "text_en": "Climb the seaward bluff in the south-west; the beach is right below — your raft is waiting there.",
+    "alt_zh": "山崗下的沙灘與木筏",
+    "alt_en": "The beach and the raft below the bluff"
+   },
+   {
+    "kind": "goal",
+    "img": "img/quest/intro/sail-away.jpg",
+    "emblem": "img/membership.webp",
+    "kicker_zh": "目標",
+    "kicker_en": "THE GOAL",
+    "title_zh": "五個遊戲 · 會員章",
+    "title_en": "Five games · the Membership Badge",
+    "text_zh": "五個遊戲全部完成，你就考獲會員章，可以乘木筏離開荒島。現在，從第 1 站出發！",
+    "text_en": "Clear all five games to earn the Membership Badge and sail away on the raft. Now — set off for stop 1!",
+    "alt_zh": "乘木筏離開荒島",
+    "alt_en": "Sailing away from the island"
+   }
+  ]
  }
 }

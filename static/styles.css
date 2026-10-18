@@ -1550,13 +1550,14 @@ a.q-dot:hover { background: var(--brass-light); }
   border: 1px dashed rgba(146, 104, 48, .38); pointer-events: none;
 }
 .map-canvas { position: relative; height: 340px; }
+.map-island { position: absolute; inset: 0; width: 100%; height: 100%; }
 .map-trail { position: absolute; inset: 0; width: 100%; height: 100%; }
 .map-trail-dash {
   fill: none; stroke: #a9793c; stroke-width: 2.8px; stroke-linecap: round;
   stroke-dasharray: 9 7; opacity: .72; vector-effect: non-scaling-stroke;
 }
 .map-plate {
-  position: absolute; left: 3.2%; top: 4%; transform: rotate(-2.4deg);
+  position: absolute; right: 2.6%; bottom: 3.4%; transform: rotate(-2.4deg);
   padding: .18rem .6rem; border-radius: 4px;
   font-size: .82rem; font-weight: 800; letter-spacing: .12em; color: #8a5a1f;
   background: rgba(255, 252, 240, .6);
@@ -1568,13 +1569,25 @@ a.q-dot:hover { background: var(--brass-light); }
   animation: map-sway 7s ease-in-out infinite;
 }
 @keyframes map-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(7deg); } }
-.map-palm { position: absolute; left: 1.6%; bottom: 3%; width: 46px; height: 46px; opacity: .85; }
-.map-mount { position: absolute; left: 36%; top: 15%; width: 58px; height: 38px; opacity: .8; }
-.map-waves { position: absolute; right: 15%; bottom: 7%; width: 62px; height: 20px; }
+.map-palm { position: absolute; left: 44%; top: 92.5%; width: 46px; height: 46px; opacity: .85; }
+.map-bridge { position: absolute; left: 43%; top: 36%; width: 40px; height: 20px; opacity: .9; }
+.map-flag { position: absolute; left: 60%; top: 38%; width: 22px; height: 36px; opacity: .9; }
+.map-mount { position: absolute; left: 78%; top: 66%; width: 58px; height: 38px; opacity: .8; }
+.map-waves { position: absolute; left: .5%; top: 76%; width: 62px; height: 20px; }
 .map-sea {
-  position: absolute; right: 8.5%; bottom: 2.5%; font-size: .72rem; font-weight: 700;
+  position: absolute; left: .8%; top: 71%; font-size: .72rem; font-weight: 700;
   color: #3f6f8a; letter-spacing: .08em; opacity: .85;
 }
+/* ── more of the island, drawn in the same ink (2026-10-18): the empty
+   corners get a sun, seagulls, a camp and pines — the chart breathes evenly.
+   The second flock sits where the first-stop card is while game 1 waits;
+   it shows once the walk moves on. ── */
+.map-sun { position: absolute; left: 63%; top: 2%; width: 42px; height: 42px; opacity: .8; }
+.map-birds { position: absolute; left: 92%; top: 70%; width: 56px; height: 24px; opacity: .7; }
+.map-birds-2 { left: 5%; top: 47%; width: 44px; height: 19px; }
+.map-tent { position: absolute; left: 35%; top: 50%; width: 46px; height: 40px; opacity: .85; }
+.map-fire { position: absolute; left: 40%; top: 52%; width: 30px; height: 28px; opacity: .85; }
+.map-tree { position: absolute; left: 27%; top: 7%; width: 44px; height: 40px; opacity: .8; }
 .map-beach {
   position: absolute; left: 88.5%; top: 64%; transform: translate(-50%, -50%);
   display: flex; flex-direction: column; align-items: center; gap: .06rem;
@@ -2225,15 +2238,21 @@ body.is-game main { padding-top: 6px; }
 /* ── the five-location map: read the first game right on its marker ──────
    No selection or extra Play buttons. Scouts follow the one CTA underneath. */
 .stage-map-direct .map-canvas { height: 455px; }
-.stage-map-direct .map-beach { left: 91%; top: 83%; }
+.stage-map-direct .map-beach { left: 11%; top: 87%; }
 .stage-map-direct .stage-chip { z-index: 2; }
-.stage-map-direct .stage-chip:nth-child(2) { --x: 50%; --y: 76%; }
-.stage-map-direct .stage-chip:nth-child(3) { --x: 50%; --y: 39%; }
-.stage-map-direct .stage-chip:nth-child(4) { --x: 73%; --y: 25%; }
-.stage-map-direct .stage-chip:nth-child(5) { --x: 76%; --y: 60%; }
+/* one ring round the island (2026-10-18): the walk starts deep in the
+   jungle (NW), crosses the misty river in the north, goes over the rocky
+   ridge (E), down to the valley flagpole (S) and out to the seaward bluff
+   (SW) — the raft waits on the shore right beside the fifth stop. The hop
+   between stops is ~35% of the chart all the way round. */
+.stage-map-direct .stage-chip:nth-child(1) { --x: 14%; --y: 22%; }
+.stage-map-direct .stage-chip:nth-child(2) { --x: 50%; --y: 18%; }
+.stage-map-direct .stage-chip:nth-child(3) { --x: 79%; --y: 30%; }
+.stage-map-direct .stage-chip:nth-child(4) { --x: 65%; --y: 65%; }
+.stage-map-direct .stage-chip:nth-child(5) { --x: 30%; --y: 76%; }
 .stage-map-direct .stage-chip-first.is-here {
-  left: 2.5%; top: 18%; transform: none;
-  width: 36%; min-width: 265px; max-width: 340px; z-index: 4;
+  left: 1.8%; top: 17%; transform: none;
+  width: 35%; min-width: 255px; max-width: 340px; z-index: 4;
 }
 .stage-map-direct .stage-chip-card {
   position: relative; display: flex; align-items: center; flex-direction: column;
@@ -2306,15 +2325,22 @@ body.is-game main { padding-top: 6px; }
   .stage-map-direct .map-trail, .stage-map-direct .map-compass,
   .stage-map-direct .map-palm, .stage-map-direct .map-mount,
   .stage-map-direct .map-waves, .stage-map-direct .map-sea,
-  .stage-map-direct .map-plate, .stage-map-direct .map-beach { display: none; }
+  .stage-map-direct .map-plate, .stage-map-direct .map-beach,
+  .stage-map-direct .map-sun, .stage-map-direct .map-birds,
+  .stage-map-direct .map-tent, .stage-map-direct .map-fire,
+  .stage-map-direct .map-tree, .stage-map-direct .map-island,
+  .stage-map-direct .map-bridge, .stage-map-direct .map-flag { display: none; }
   .stage-map-direct .stage-chips { position: static; display: flex; flex-direction: column; gap: .6rem; }
   .stage-map-direct .stage-chip, .stage-map-direct .stage-chip:nth-child(n),
   .stage-map-direct .stage-chip-first {
     position: static; width: 100%; max-width: none; min-width: 0;
     left: auto; top: auto; transform: none;
   }
+  /* all five stops are the same full-width row on a narrow screen — the next
+     one is set apart by its gold light, not by a different shape (2026-10-18) */
+  .stage-map-direct .stage-chip .stage-chip-card,
   .stage-map-direct .stage-chip:not(.is-here) .stage-chip-card {
-    flex-direction: row; gap: .7rem; text-align: left; width: 100%; max-width: none;
+    flex-direction: row; gap: .7rem; text-align: left; width: 100%; max-width: none; min-width: 0;
     padding: .5rem .7rem;
   }
   .stage-map-direct .stage-chip-first.is-here .stage-chip-card { width: 100%; }
@@ -2460,3 +2486,194 @@ body.is-game main { padding-top: 6px; }
 }
 .stage-chip-replay:hover { background: rgba(47, 91, 63, .18); }
 .stage-chip.is-done .stage-chip-replay { color: #2f5b3f; }
+
+/* ══ 荒島逃生 · the opening story (2026-10-18, remade same day) ═════════════
+   A first-time scout is told the escape in eight picture cards, laid INSIDE
+   the page — the top bar's shortcuts stay within reach as the way out. Each
+   card is a picture with the story riding on it in a parchment note; the
+   whole story fits the screen, one button at a time. The third card is the
+   treasure map itself, the five stops numbered along the dashed route. */
+.quest-story { margin: .45rem 0 0; }
+.quest-story[hidden] { display: none; }
+.quest-story [hidden] { display: none !important; }
+.quest-story-frame {
+  position: relative;
+  display: flex; flex-direction: column;
+  height: calc(100vh - 216px);
+  height: calc(100dvh - 216px);
+  min-height: 480px; max-height: 800px;
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid rgba(146, 104, 48, .55);
+  background:
+    radial-gradient(130% 95% at 8% 4%, rgba(255, 253, 244, .55), transparent 62%),
+    radial-gradient(65% 55% at 95% 88%, rgba(120, 178, 184, .3), transparent 72%),
+    repeating-linear-gradient(93deg, rgba(146, 104, 48, .05) 0 2px, transparent 2px 8px),
+    linear-gradient(165deg, #f8ebcd, #f1ddb4 46%, #e7ce9c);
+  box-shadow: 0 24px 48px rgba(58, 40, 12, .22);
+}
+.quest-story-frame::before {              /* the inner ink frame, like the chart */
+  content: ""; position: absolute; inset: 7px; z-index: 6;
+  border: 1.5px solid rgba(146, 104, 48, .38); border-radius: 12px;
+  pointer-events: none;
+}
+.quest-story-head {
+  position: relative; z-index: 7;
+  display: flex; align-items: center; gap: .8rem;
+  padding: .62rem 1.15rem .3rem;
+}
+.quest-story-brand {
+  display: inline-flex; align-items: center; gap: .45rem;
+  font-size: .72rem; font-weight: 800; letter-spacing: .18em;
+  color: #8a5a1f; white-space: nowrap;
+}
+.quest-story-rose { width: 17px; height: 17px; color: #a9793c; flex: 0 0 auto; }
+.quest-story-pages {
+  margin-left: auto;
+  font-size: .74rem; font-weight: 800; color: #7b5c26;
+  padding: .12rem .62rem; border-radius: 999px;
+  border: 1px solid rgba(146, 104, 48, .45);
+  background: rgba(255, 252, 240, .55);
+}
+.quest-story-skip {
+  font-size: .8rem; color: #7b5c26; white-space: nowrap;
+  text-decoration: underline dotted; text-underline-offset: .2em;
+}
+.quest-story-stage {
+  position: relative; flex: 1 1 auto; min-height: 0;
+  margin: .35rem 1.05rem .3rem;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(146, 104, 48, .45), 0 14px 30px rgba(58, 40, 12, .18);
+  background: #22392c;
+}
+.quest-slide { position: absolute; inset: 0; margin: 0; }
+.quest-slide.is-on { animation: story-card-in .5s cubic-bezier(.2, .8, .25, 1); }
+@keyframes story-card-in {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+.quest-slide-art { position: absolute; inset: 0; }
+.quest-slide-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.quest-slide-shade {                       /* keeps the parchment note legible */
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(16, 26, 20, .16), transparent 26%,
+              transparent 44%, rgba(16, 24, 18, .66) 100%);
+}
+.quest-slide-cap {                          /* the story rides on the picture */
+  position: absolute; left: 50%; bottom: .85rem; transform: translateX(-50%);
+  z-index: 2; width: min(92%, 42rem);
+  padding: .68rem 1.15rem .78rem; text-align: center; color: #4a3a1c;
+  background: linear-gradient(180deg, rgba(255, 252, 242, .97), rgba(250, 241, 219, .95));
+  border: 1px solid rgba(146, 104, 48, .55); border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(20, 14, 4, .38),
+              inset 0 0 0 4px rgba(255, 252, 242, .7),
+              inset 0 0 0 5.5px rgba(146, 104, 48, .35);
+}
+.quest-slide-emblem {
+  display: block; width: 96px; height: 96px;
+  margin: -80px auto .3rem; padding: 7px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fffdf4, #f2e2ba);
+  border: 2px solid rgba(146, 104, 48, .7);
+  box-shadow: 0 12px 26px rgba(20, 14, 4, .4),
+              0 0 0 5px rgba(255, 252, 242, .8);
+}
+.quest-slide-emblem img {
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: 999px; display: block;
+}
+.quest-slide-kicker {
+  display: inline-flex; align-items: center; gap: .55rem;
+  font-size: .66rem; font-weight: 800; letter-spacing: .22em;
+  color: #a9793c; white-space: nowrap;
+}
+.quest-slide-kicker::before, .quest-slide-kicker::after {
+  content: ""; width: 1.7rem; height: 1.5px;
+  background: linear-gradient(90deg, transparent, #c9a25f);
+}
+.quest-slide-kicker::after { transform: scaleX(-1); }
+.quest-slide-title {
+  display: block; margin: .18rem 0 .22rem;
+  font-size: clamp(1.05rem, 2.7vh, 1.5rem); color: #3c2f12;
+}
+.quest-slide-text {
+  margin: 0; font-size: clamp(.84rem, 1.95vh, .99rem);
+  line-height: 1.55; color: #5d4a28;
+}
+/* the treasure-map card: the real chart laid on the page, route numbered,
+   with the story in a parchment note on the open sea below it */
+.quest-slide.is-map { background: linear-gradient(180deg, transparent 77%, #f4e6c3 77%); }
+.quest-slide.is-map .quest-slide-art { bottom: 23%; }
+.quest-story .map-canvas {
+  position: absolute; inset: 0; height: auto; padding: 0; background: transparent;
+}
+.quest-story .map-canvas::before { content: none; }
+.quest-story .map-island, .quest-story .map-trail,
+.quest-story .map-compass, .quest-story .map-palm, .quest-story .map-mount,
+.quest-story .map-waves, .quest-story .map-sea, .quest-story .map-plate,
+.quest-story .map-sun, .quest-story .map-birds, .quest-story .map-tent,
+.quest-story .map-fire, .quest-story .map-tree, .quest-story .map-bridge,
+.quest-story .map-flag, .quest-story .map-beach { display: block; }
+.quest-story .map-beach { display: flex; }
+.story-stops { position: absolute; inset: 0; list-style: none; margin: 0; padding: 0; }
+.story-stops li {
+  position: absolute; transform: translate(-50%, -50%);
+  display: grid; place-items: center;
+  min-width: 1.9rem; height: 1.9rem; padding: 0 .2rem;
+  border-radius: 999px;
+  background: #fff8e6; border: 2px solid #a9793c;
+  color: #6b4c1e; font-weight: 800; font-size: .95rem;
+  box-shadow: 0 3px 8px rgba(58, 40, 12, .3);
+}
+.story-stops .is-start { background: #c2492f; border-color: #8c2f1c; color: #fff8e6; }
+.story-stop-tag {
+  position: absolute; top: -1.5rem; left: 50%; transform: translateX(-50%);
+  font-size: .58rem; font-weight: 800; letter-spacing: .12em; color: #8c2f1c;
+  background: rgba(255, 248, 230, .92); border: 1px solid rgba(140, 47, 28, .5);
+  padding: .05rem .42rem; border-radius: 999px; white-space: nowrap;
+}
+.quest-story-nav {
+  position: relative; z-index: 7;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .8rem; padding: .55rem 1.15rem .8rem;
+}
+.quest-story-nav .btn { min-width: 8.6rem; justify-content: center; }
+.quest-intro-dots { display: flex; gap: .42rem; }
+.quest-dot {
+  width: 9px; height: 9px; border-radius: 999px; padding: 0; cursor: pointer;
+  border: 1px solid rgba(146, 104, 48, .6); background: transparent;
+}
+.quest-dot.is-on { background: #a9793c; border-color: #a9793c; }
+@media (max-width: 540px) {
+  .quest-story-frame { height: calc(100vh - 224px); height: calc(100dvh - 224px); min-height: 430px; }
+  .quest-story-head { padding: .5rem .8rem .25rem; gap: .5rem; }
+  .quest-story-brand { font-size: .62rem; letter-spacing: .1em; }
+  .quest-story-stage { margin: .3rem .8rem .25rem; }
+  .quest-story-nav { flex-wrap: wrap; justify-content: center; row-gap: .5rem; padding: .5rem .8rem .7rem; }
+  .quest-story-nav .btn { flex: 1 1 100%; min-width: 0; }
+  .quest-slide-cap { width: 94%; padding: .55rem .8rem .65rem; bottom: .6rem; }
+  .story-stops li { min-width: 1.6rem; height: 1.6rem; font-size: .85rem; }
+  .quest-slide-emblem { width: 76px; height: 76px; margin: -62px auto .24rem; }
+}
+
+/* ── the returning scout's page: no story up top, just where they stand ──── */
+.quest-back {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: .35rem 1rem; margin: .25rem 0 .7rem;
+}
+.quest-back-title { font-size: 1.4rem; margin: 0; color: #16482e; }
+.quest-progress {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .85rem;
+  margin: 0; font-size: .85rem; font-weight: 700; color: #5d4a28;
+}
+.quest-progress-bar {
+  width: 8.5rem; height: .5rem; border-radius: 999px;
+  background: rgba(146, 104, 48, .18); overflow: hidden;
+}
+.quest-progress-bar > span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #7fa06a, #4e7d5b);
+}
+.quest-replay {
+  margin-left: auto; color: #7b5c26; font-size: .85rem;
+  text-decoration: underline dotted; text-underline-offset: .2em;
+}

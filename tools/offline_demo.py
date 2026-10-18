@@ -150,6 +150,14 @@ panes.append(("history", "我的紀錄 · history", body_of(fetch(f"/history?sid
 panes.append(("quest-intro", "會員章 · 玩法（你被困住了！）",
               body_of(fetch(f"/badges/{membership['id']}?sid={sid}"))))
 
+# The first visit ends at the story's 出發 button, which writes the same
+# start_quest mark the old cast-off did (via the real endpoint). Every visit
+# after that opens straight on the escape route — no story up top.
+client.post(f"/badges/{membership['id']}/start?sid={sid}",
+            headers={"X-Requested-With": "fetch"})
+panes.append(("quest-map", "會員章 · 你的逃生路線",
+              body_of(fetch(f"/badges/{membership['id']}?sid={sid}"))))
+
 panes.append(("guide", "會員章 · 綱要參考",
               body_of(fetch(f"/badges/{membership['id']}/requirements?sid={sid}"))))
 
@@ -287,8 +295,8 @@ router = """
   var bridgeCrossed = false;
   var setupPending = false;
   var setupComplete = false;
-  var scoutPanes = { home: 1, badges: 1, history: 1, 'quest-intro': 1, guide: 1,
-                     cave: 1, bridge: 1 };
+  var scoutPanes = { home: 1, badges: 1, history: 1, 'quest-intro': 1, 'quest-map': 1,
+                     guide: 1, cave: 1, bridge: 1 };
 
   /* A cleared location keeps a small door of its own: the live map does the same,
      so the offline file must not be the only place without a way back in. */
@@ -311,6 +319,9 @@ router = """
       else setupPending = true;
     }
     if (setupPending && !setupComplete && scoutPanes[id]) id = 'setup';
+    if (id === 'quest-intro' && window.QUEST_INTRO && window.QUEST_INTRO.dismissed) {
+      id = 'quest-map';      // the story has been seen: open on the route
+    }
     var target = document.getElementById('pane-' + id);
     if (!target) return;
     var game = leavingGame(id) && !exitApproved ? shownGame() : null;
@@ -360,7 +371,7 @@ router = """
   document.addEventListener('cave:result', function (event) {
     if (!event.detail || !event.detail.passed || game1Cleared) return;
     game1Cleared = true;
-    var pane = document.getElementById('pane-quest-intro');
+    var pane = document.getElementById('pane-quest-map');
     if (pane) {
       var first = pane.querySelector('.stage-chip[data-stage="1"]');
       var second = pane.querySelector('.stage-chip[data-stage="2"]');
@@ -372,9 +383,11 @@ router = """
         if (me && second) second.querySelector('.stage-chip-card').appendChild(me);
       }
       moveNow(pane, 1, 2);
-      var beacon = pane.querySelector('.story-beacon-meter .small');
-      if (beacon) beacon.textContent = beacon.textContent.replace(/0\\s*\\/\\s*5/g, '1 / 5');
-      var bar = pane.querySelector('.story-beacon-bar span');
+      var areas = pane.querySelector('[data-areas-count]');
+      if (areas) areas.textContent = '1 / 5 個區域已走過';
+      var games = pane.querySelector('[data-games-count]');
+      if (games) games.textContent = '1 / 5 個遊戲已完成';
+      var bar = pane.querySelector('[data-quest-bar] > span');
       if (bar) bar.style.width = '20%';
       var raft = pane.querySelector('.story-raft-meter');
       if (raft) raft.textContent = '1 / 5';
@@ -428,7 +441,7 @@ router = """
   document.addEventListener('bridge:crossed', function (event) {
     if (!event.detail || event.detail.cleared || game2Cleared) return;
     bridgeCrossed = true;
-    var pane = document.getElementById('pane-quest-intro');
+    var pane = document.getElementById('pane-quest-map');
     if (pane) {
       var second = pane.querySelector('.stage-chip[data-stage="2"]');
       var third = pane.querySelector('.stage-chip[data-stage="3"]');
@@ -456,7 +469,7 @@ router = """
   document.addEventListener('bridge:result', function (event) {
     if (!event.detail || !event.detail.cleared || game2Cleared) return;
     game2Cleared = true;
-    var pane = document.getElementById('pane-quest-intro');
+    var pane = document.getElementById('pane-quest-map');
     if (pane) {
       var second = pane.querySelector('.stage-chip[data-stage="2"]');
       var third = pane.querySelector('.stage-chip[data-stage="3"]');
@@ -475,9 +488,11 @@ router = """
         var card = third.querySelector('.stage-chip-card');
         if (card) card.setAttribute('aria-current', 'step');
       }
-      var beacon = pane.querySelector('.story-beacon-meter .small');
-      if (beacon) beacon.textContent = beacon.textContent.replace(/1\\s*\\/\\s*5/g, '2 / 5');
-      var bar = pane.querySelector('.story-beacon-bar span');
+      var areas = pane.querySelector('[data-areas-count]');
+      if (areas) areas.textContent = '2 / 5 個區域已走過';
+      var games = pane.querySelector('[data-games-count]');
+      if (games) games.textContent = '2 / 5 個遊戲已完成';
+      var bar = pane.querySelector('[data-quest-bar] > span');
       if (bar) bar.style.width = '40%';
       var raft = pane.querySelector('.story-raft-meter');
       if (raft) raft.textContent = '2 / 5';

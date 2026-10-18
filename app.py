@@ -93,10 +93,21 @@ def create_app(config: dict | None = None) -> Flask:
     def inject_globals():
         lang = request.cookies.get("scout_lang", "zh")
         lang = "en" if lang == "en" else "zh"
+        def asset_v(filename: str) -> str:
+            # Static assets carry their mtime in the URL (?v=). A changed file
+            # becomes a brand-new address, so no browser or proxy can keep
+            # handing out an old stylesheet or script after an update.
+            try:
+                mtime = os.stat(os.path.join(app.static_folder, filename)).st_mtime
+                return str(int(mtime))
+            except OSError:
+                return "0"
+
         return {
             "lang": lang,
             "L": lambda zh, en="": (en or zh) if lang == "en" else (zh or en),
             "settings": store.settings_cached(),
+            "asset_v": asset_v,
             # Templates never see password columns — only the public view.
             "user": public_user(g.get("user")),
             "raw_user": g.get("user"),

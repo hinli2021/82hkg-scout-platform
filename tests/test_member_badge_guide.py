@@ -258,6 +258,47 @@ def test_first_location_is_readable_in_place_with_one_direct_start(new_scout, st
     assert 'class="stage-items"' not in page, 'syllabus remains on its own reference page'
 
 
+def test_a_first_time_scout_is_told_the_story_in_pictures(new_scout, store):
+    """Nine picture cards inside the island page — click through, no scrolling:
+       the escape-route map is one of the cards, and the last card sets off
+       for stop 1 (leader's ask, 2026-10-18)."""
+    badge = member_badge(store)
+    page = new_scout.get(f"/badges/{badge['id']}").get_data(as_text=True)
+    assert 'data-quest-intro' in page and 'data-quest-page' in page
+    assert page.count('data-slide="') == 9
+    # the story sits inside the page (top bar stays the way out), and the
+    # third card is the real treasure map with the route numbered
+    assert 'aria-modal' not in page
+    assert 'map-canvas-story' in page and 'story-stops' in page
+    assert 'data-slide-dot="9"' in page              # …and every card has its dot
+    assert 'data-intro-skip' in page and '跳過' in page
+    assert 'data-intro-begin' in page and '出發' in page
+    assert page.count('data-journey-play') == 1       # the intro button is its own thing
+    cave = next(t for t in tasks_of(store, badge) if t['code'] == 'M04')
+    assert f'/tasks/{cave["id"]}/cave' in page[page.index('data-intro-begin'):]
+    # the story lives in the shipped content file, so every existing badge gets it
+    slides = json.loads((pathlib.Path(__file__).resolve().parent.parent / "content"
+                         / "member-badge" / "guide.json").read_text())["quest"]["intro_slides"]
+    assert len(slides) == 9
+
+
+def test_dismissing_the_story_opens_the_escape_route_from_then_on(new_scout, store):
+    """Skip or 出發 writes the old cast-off mark; from then on the badge page
+       opens on the escape route only — no island hero, no story beats."""
+    badge = member_badge(store)
+    new_scout.post(f"/badges/{badge['id']}/start",
+                   headers={"X-Requested-With": "fetch"})
+    page = new_scout.get(f"/badges/{badge['id']}").get_data(as_text=True)
+    assert 'data-quest-intro' not in page             # the pictures do not come back
+    assert '"story-hero"' not in page and 'class="story-step"' not in page
+    assert "你被困住了" not in page
+    assert "你的逃生路線" in page and page.count('<li class="stage-chip') == 5
+    assert "0 / 5 個遊戲已完成" in page                 # the counts moved to the slim header
+    assert 'data-intro-replay' in page                # …and the story can be rewatched
+    replay = new_scout.get(f"/badges/{badge['id']}?intro=1").get_data(as_text=True)
+    assert 'data-quest-intro' in replay and 'data-started="1"' in replay
+
+
 def test_the_story_is_drawn_in_the_same_hand_as_the_sign_in_page(new_scout, store):
     """Same world, same palette: the island art sits with the camp artwork."""
     badge = member_badge(store)
@@ -284,7 +325,10 @@ def test_legacy_start_route_credits_no_other_task(app, store):
                    for r in store.list("progress_records"))
     page = client.get(f"/badges/{badge['id']}?started=1").get_data(as_text=True)
     assert "冒險開始" in page and "童軍歷史山洞" in page
-    assert "quest-opening" in page and "你被困住了" in page
+    assert "quest-opening" in page
+    # the story has been told: the page opens straight on the escape route
+    assert "你被困住了" not in page and '"story-hero"' not in page
+    assert "你的逃生路線" in page and page.count('<li class="stage-chip') == 5
     assert page.count('data-journey-play') == 1 and '划出去' not in page
 
 
@@ -310,7 +354,10 @@ def test_a_cave_cleared_scout_lands_on_the_same_page(app, store):
     client = app.test_client()
     client.post(f"/login/scout/{scout['patrol']}/{scout['id']}", data={"password": "scout1234"})
     page = client.get(f"/badges/{badge['id']}").get_data(as_text=True)
-    assert "你被困住了" in page and page.count('<li class="stage-chip') == 5
+    # a started scout opens on the escape route, not the story (2026-10-18)
+    assert "你被困住了" not in page and '"story-hero"' not in page
+    assert "你的逃生路線" in page and page.count('<li class="stage-chip') == 5
+    assert "1 / 5 個遊戲已完成" in page
     first = page[page.index('class="stage-chip stage-chip-first'):]
     first = first[:first.index('</li>')]
     assert 'is-done' in first and '童軍歷史山洞' in first and '✔ 已完成' in first
