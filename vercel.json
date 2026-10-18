@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "(python3 -m venv /tmp/vb && /tmp/vb/bin/pip install -q -r requirements.txt && /tmp/vb/bin/python tools/offline_demo.py && /tmp/vb/bin/python tools/bridge_preview.py) || ((python3 -m pip install -q --break-system-packages -r requirements.txt || python3 -m pip install -q -r requirements.txt) && python3 tools/offline_demo.py && python3 tools/bridge_preview.py) || echo offline previews skipped this build; mkdir -p public/static && cp -r static/. public/static/ && (cp demo-preview.html bridge-preview.html public/ 2>/dev/null || true)",
+  "buildCommand": "mkdir -p public/static && cp -r static/. public/static/ && ( python3 -m venv /tmp/vb && /tmp/vb/bin/pip install -q -r requirements.txt && /tmp/vb/bin/python tools/offline_demo.py && /tmp/vb/bin/python tools/bridge_preview.py && cp demo-preview.html bridge-preview.html public/ || true )",
   "outputDirectory": "public",
   "functions": {
     "api/index.py": {
