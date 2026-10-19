@@ -572,7 +572,9 @@
             "why_zh": "手冊：每名童軍相距 750 毫米（30 英吋）。",
             "why_en": "Manual: scouts stand 750 mm (30 in) apart."
           },
-          "figure": "img/quest/drill/signs/sign-line.jpg"
+          "figure": "img/quest/drill/signs/sign-line.jpg",
+          "leader_zh": "直線正前方中央，正對中央的童軍",
+          "leader_en": "Front and centre of the line, facing the centre scout"
         },
         {
           "id": "sign-line-tall",
@@ -609,7 +611,9 @@
             "why_zh": "手冊：最高的童軍面對司令，其他依高矮次序排在其右（左）方。",
             "why_en": "Manual: the tallest scout faces the commander, the rest follow in height order."
           },
-          "figure": "img/quest/drill/signs/sign-line-tall.jpg"
+          "figure": "img/quest/drill/signs/sign-line-tall.jpg",
+          "leader_zh": "最高童軍的正前方，正對最高童軍",
+          "leader_en": "Directly in front of the tallest scout, facing them"
         },
         {
           "id": "sign-columns",
@@ -646,7 +650,9 @@
             "why_zh": "手冊：直行時小隊長在最前方，副小隊長在最後方。",
             "why_en": "Manual: patrol leaders lead each column, assistants bring up the rear."
           },
-          "figure": "img/quest/drill/signs/sign-columns.jpg"
+          "figure": "img/quest/drill/signs/sign-columns.jpg",
+          "leader_zh": "所有直行的正前方中央，面向各小隊長",
+          "leader_en": "Front and centre of all the columns, facing the patrol leaders"
         },
         {
           "id": "sign-open-order",
@@ -683,7 +689,9 @@
             "why_zh": "闊橫排讓各排之間有空間，方便領袖檢查與講解。",
             "why_en": "Open order makes room between ranks for inspection and instruction."
           },
-          "figure": "img/quest/drill/signs/sign-open-order.jpg"
+          "figure": "img/quest/drill/signs/sign-open-order.jpg",
+          "leader_zh": "第一橫排正前方中央",
+          "leader_en": "Front and centre of the first rank"
         },
         {
           "id": "sign-close-order",
@@ -720,7 +728,9 @@
             "why_zh": "窄橫排即各排靠攏：排間由 1500 毫米收窄至 750 毫米。",
             "why_en": "Close order brings the ranks together: 1500 mm narrows to 750 mm."
           },
-          "figure": "img/quest/drill/signs/sign-close-order.jpg"
+          "figure": "img/quest/drill/signs/sign-close-order.jpg",
+          "leader_zh": "第一橫排正前方中央",
+          "leader_en": "Front and centre of the first rank"
         },
         {
           "id": "sign-horseshoe",
@@ -757,7 +767,9 @@
             "why_zh": "馬蹄鐵形開口向司令，方便講解與溝通。",
             "why_en": "The horse shoe opens towards the commander."
           },
-          "figure": "img/quest/drill/signs/sign-horseshoe.jpg"
+          "figure": "img/quest/drill/signs/sign-horseshoe.jpg",
+          "leader_zh": "U 形開口正前方中央，開口向著領袖",
+          "leader_en": "Front and centre of the U opening, with the opening towards the leader"
         },
         {
           "id": "sign-open-square",
@@ -794,7 +806,9 @@
             "why_zh": "兩者都是留有開口的圍攏隊形，方便司令講解。",
             "why_en": "Both are enclosed shapes with an opening for the commander."
           },
-          "figure": "img/quest/drill/signs/sign-open-square.jpg"
+          "figure": "img/quest/drill/signs/sign-open-square.jpg",
+          "leader_zh": "正方形缺口正前方中央，缺口向著領袖",
+          "leader_en": "Front and centre of the square’s opening, with the opening towards the leader"
         }
       ]
     },
@@ -957,6 +971,10 @@
     "flip_formation_en": "Formation",
     "flip_sign_zh": "手號",
     "flip_sign_en": "The sign",
+    "flip_leader_zh": "領袖位置",
+    "flip_leader_en": "Leader’s position",
+    "flip_leader_note_zh": "卡背圖中綠色 ▼ 是領袖（司令員）的位置；隊形排在領袖面前 2250 毫米（90 吋）。",
+    "flip_leader_note_en": "On each card back, the green ▼ marks the leader (commander); the formation stands 2250 mm (90 in) in front of them.",
     "flip_hint_zh": "點擊翻卡",
     "flip_hint_en": "Tap to flip",
     "remember_zh": "記住：",

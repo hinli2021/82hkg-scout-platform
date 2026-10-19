@@ -2658,6 +2658,22 @@ body.is-game main { padding-top: 6px; }
   border: 1px solid rgba(217, 164, 65, .45);
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, .5), 0 0 10px rgba(0, 0, 0, .35);
 }
+/* the teaching diagram on the card back is the big one: the whole formation
+   plus the green leader marker, large enough to read at a glance */
+.drill-flip-back .drill-form-art.is-detailed {
+  width: min(7.6rem, 62%); height: auto; aspect-ratio: 1 / 1; flex: 0 0 auto;
+  padding: .45rem; border-radius: 22px;
+}
+.drill-form-art .drill-form-leader {
+  fill: #55d66d; stroke: #0d3b1e; stroke-width: .8; stroke-linejoin: round;
+}
+.drill-leader-tri { color: #55d66d; font-size: .78em; }
+.drill-flip-leader {
+  display: block; max-width: 94%; text-align: center;
+  font-size: .8rem; line-height: 1.45; color: #dff3dc;
+}
+.drill-flip-leader b { color: #b8f0b2; }
+.drill-flip-leader-note { color: #cfe8cf; }
 .drill-flip-sign {
   font-size: .74rem; line-height: 1.5; color: #d9e6d9; text-align: center; overflow: hidden;
 }
@@ -2711,12 +2727,13 @@ body.is-game main { padding-top: 6px; }
   transform: translateY(-2px);
 }
 .drill-form-name { font-size: .82rem; font-weight: 800; text-align: center; line-height: 1.3; }
-.drill-form-art { width: 2rem; height: 2rem; display: block; }
+.drill-form-art { width: 2.35rem; height: 2.35rem; display: block; }
 .drill-form-art circle { fill: #ffe4a8; }
 .drill-review-form {
   display: flex; align-items: center; gap: .6rem; justify-content: center; margin: .35rem 0;
 }
 .drill-review-form .drill-form-art { width: 2.4rem; height: 2.4rem; }
+.drill-review-form .drill-form-art.is-detailed { width: 4.6rem; height: 4.6rem; }
 .drill-review-form .drill-form-name { font-size: 1.05rem; color: #ffe4a8; }
 
 @media (max-width: 640px) {
@@ -2732,6 +2749,29 @@ body.is-game main { padding-top: 6px; }
     grid-auto-rows: minmax(0, 1fr); gap: .45rem;
   }
   .drill.drill-flip-full .drill-flip { max-width: none; }
+  /* a phone card is too short for the big diagram plus both lines of text:
+     keep the diagram square and let the back itself scroll a little */
+  .drill-flip-back {
+    gap: .16rem; padding: .42rem .4rem; justify-content: flex-start;
+    overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  }
+  .drill-flip-back > * { flex: 0 0 auto; }
+  .drill-flip-back .drill-flip-label { display: none; }
+  .drill-flip-back .drill-form-art.is-detailed { width: min(3.45rem, 58%); padding: .22rem; }
+  .drill-flip-name { font-size: .94rem; line-height: 1.15; }
+  .drill-flip-leader, .drill-flip-sign { font-size: .65rem; line-height: 1.32; }
+  .drill-review-form .drill-form-art.is-detailed { width: 4rem; height: 4rem; }
+}
+@media (max-height: 620px) and (min-width: 701px) {
+  .drill-flip-back {
+    gap: .18rem; padding: .45rem .55rem; justify-content: flex-start;
+    overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  }
+  .drill-flip-back > * { flex: 0 0 auto; }
+  .drill-flip-back .drill-flip-label { display: none; }
+  .drill-flip-back .drill-form-art.is-detailed { width: min(4.1rem, 52%); padding: .3rem; }
+  .drill-flip-back .drill-flip-name { font-size: 1rem; line-height: 1.15; }
+  .drill-flip-leader, .drill-flip-sign { font-size: .7rem; line-height: 1.35; }
 }
 @media (max-height: 620px) and (min-width: 701px) {
   .drill.drill-flip-full .drill-flip-grid { grid-auto-rows: minmax(0, 1fr); }

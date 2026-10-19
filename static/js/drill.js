@@ -54,9 +54,12 @@
     return out;
   }
 
-  /* the little formation diagrams on the square buttons — seven dots-and-
-     spaces pictures, one to a sign, drawn inline so no asset is fetched */
-  function formationSvg(id) {
+  /* The formation diagrams — seven dots-and-spaces pictures, one to a sign,
+     drawn inline so no asset is fetched. The detailed version (the flip-card
+     backs and the review) adds the manual's green ▼ for where the leader /
+     commander stands: front-and-centre for most formations, and directly in
+     front of the tallest scout for the height-ordered line. */
+  function formationSvg(id, detailed) {
     var dot = function (x, y, r) {
       return '<circle cx="' + x + '" cy="' + y + '" r="' + (r || 3.1) + '"/>';
     };
@@ -64,7 +67,9 @@
     var arts = {
       'sign-line': function () { return row(18, [6, 12, 18, 24, 30]); },
       'sign-line-tall': function () {
-        return dot(6, 18, 4.4) + dot(12, 18, 3.8) + dot(18, 18, 3.1) + dot(24, 18, 2.5) + dot(30, 18, 1.9);
+        /* smallest to tallest, as in the manual's diagram — the leader faces
+           the tallest scout at the right-hand end */
+        return dot(6, 18, 1.9) + dot(12, 18, 2.5) + dot(18, 18, 3.1) + dot(24, 18, 3.8) + dot(30, 18, 4.4);
       },
       'sign-columns': function () {
         return row(8, [14, 22]) + row(18, [14, 22]) + row(28, [14, 22]);
@@ -78,8 +83,18 @@
         return dot(8, 7) + dot(8, 16) + dot(8, 25) + dot(15, 25) + dot(22, 25) + dot(29, 25) + dot(29, 16) + dot(29, 7);
       }
     };
-    return '<svg class="drill-form-art" viewBox="0 0 36 36" aria-hidden="true" focusable="false">' +
-           (arts[id] || arts['sign-line'])() + '</svg>';
+    var body = (arts[id] || arts['sign-line'])();
+    if (!detailed) {
+      return '<svg class="drill-form-art" viewBox="0 0 36 36" aria-hidden="true" focusable="false">' +
+             body + '</svg>';
+    }
+    /* in the 36-unit drawing the leader stands above the formation: centre
+       (x=18) for most signs, above the tallest scout (x=30) for line-tall */
+    var leaderX = (id === 'sign-line-tall' ? 30 : 18) + 6;
+    var leader = '<polygon class="drill-form-leader" points="' +
+      (leaderX - 4.2) + ',0.8 ' + (leaderX + 4.2) + ',0.8 ' + leaderX + ',7.2"/>';
+    return '<svg class="drill-form-art is-detailed" viewBox="0 0 48 48" aria-hidden="true" focusable="false">' +
+           leader + '<g transform="translate(6 9)">' + body + '</g></svg>';
   }
 
   function mountOne(root) {
@@ -242,6 +257,10 @@
 
     /* ── the flip cards: this stage's new signs, big and clear ────────────── */
 
+    function leaderText(m) {
+      return pick(m.leader_zh, m.leader_en);
+    }
+
     function signFaceText(m) {
       /* the first point names the sign itself: 手號：兩手握拳… → the card */
       var points = (isEn() ? (m.points_en || m.points_zh) : (m.points_zh || m.points_en)) || [];
@@ -268,7 +287,9 @@
             '<div class="drill-flip-face drill-flip-back">' +
               '<span class="drill-flip-label">' + esc(pick(L.flip_formation_zh, L.flip_formation_en)) + '</span>' +
               '<strong class="drill-flip-name">' + esc(pick(m.title_zh, m.title_en)) + '</strong>' +
-              formationSvg(m.id) +
+              formationSvg(m.id, true) +
+              (leaderText(m) ? '<span class="drill-flip-leader"><span class="drill-leader-tri" aria-hidden="true">▼</span> <b>' +
+                esc(pick(L.flip_leader_zh, L.flip_leader_en)) + '</b>：' + esc(leaderText(m)) + '</span>' : '') +
               '<span class="drill-flip-sign"><b>' + esc(pick(L.flip_sign_zh, L.flip_sign_en)) + '</b> ' +
                 esc(signFaceText(m)) + '</span>' +
             '</div>' +
@@ -281,6 +302,9 @@
         : '';
       return kicker(fill(pick(L.flip_kicker_zh, L.flip_kicker_en), { stage: state.stage + 1 })) +
         '<p class="cave-line small">' + esc(pick(L.flip_lead_zh, L.flip_lead_en)) + '</p>' +
+        (pick(L.flip_leader_note_zh, L.flip_leader_note_en)
+          ? '<p class="cave-line small drill-flip-leader-note"><span class="drill-leader-tri" aria-hidden="true">▼</span> ' +
+            esc(pick(L.flip_leader_note_zh, L.flip_leader_note_en)) + '</p>' : '') +
         '<div class="drill-flip-grid">' + cards + '</div>' +
         knownNote +
         '<div class="cave-actions"><button class="btn primary big" type="button" data-drill-go="start-stage" data-cheer="🪨">' +
@@ -428,7 +452,7 @@
           '<div class="drill-review-form">' +
             (m.figure ? '<img class="drill-review-fig" src="' + esc(artUrl(m.figure)) + '"' +
                          ' alt="' + esc(pick(m.title_zh, m.title_en)) + '">' : '') +
-            formationSvg(m.id) +
+            formationSvg(m.id, true) +
             '<span class="drill-form-name">' + esc(pick(m.title_zh, m.title_en)) + '</span>' +
           '</div>' +
           '<ol class="drill-points">' + points.map(function (text) {

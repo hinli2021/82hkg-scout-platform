@@ -166,7 +166,32 @@ def main():
         back = first.inner_text()
         check('隊形' in back and '手號' in back,
               'the back names the formation and describes the sign')
+        check('領袖位置' in back and '正前方中央' in back,
+              'the back tells the scout where the leader stands')
+        check(page.locator('[data-drill-flip] .drill-form-art.is-detailed').count() == len(STAGES[0]),
+              'every card back carries the detailed formation diagram')
+        check(page.locator('[data-drill-flip] .drill-form-leader').count() == len(STAGES[0]),
+              'every detailed diagram marks the leader with the green triangle')
+        icon_box = first.locator('.drill-form-art.is-detailed').bounding_box()
+        check(bool(icon_box) and icon_box['width'] >= 100,
+              f"the card-back formation icon is large ({round(icon_box['width']) if icon_box else 0}px wide)")
+        check('綠色 ▼' in page.inner_text('[data-drill-card]'),
+              'the flip page explains the green leader marker')
         shoot(page, 'drill-flip.png')
+        for width, height, minimum in ((390, 700, 55), (1000, 550, 65)):
+            page.set_viewport_size({'width': width, 'height': height})
+            page.wait_for_timeout(300)
+            compact = page.evaluate("""() => {
+              const svg = document.querySelector('[data-drill-flip].is-flipped .drill-form-art.is-detailed');
+              if (!svg) return null;
+              const r = svg.getBoundingClientRect();
+              return {width: r.width, height: r.height};
+            }""")
+            check(bool(compact and compact['width'] >= minimum
+                       and abs(compact['width'] - compact['height']) <= 2),
+                  f'the card-back diagram stays square in a {width}×{height} window')
+        page.set_viewport_size({'width': 1180, 'height': 940})
+        page.wait_for_timeout(300)
         first.click()                                        # …and back again
         page.wait_for_timeout(600)
         check('is-flipped' not in (first.get_attribute('class') or ''),
