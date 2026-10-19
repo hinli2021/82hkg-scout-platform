@@ -19,7 +19,8 @@ from flask import Blueprint, Response, abort, flash, g, redirect, render_templat
 
 from .. import mailer
 from ..auth import create_reset_token, leader_required, public_user, reset_password as clear_password
-from ..content import cave_adventure, item4_meta, item4_questions, member_badge_guide
+from ..content import (cave_adventure, drill_manual, item4_meta, item4_questions,
+                       member_badge_guide)
 from ..engine import (
     as_json, award_task_completion, check_badge_completion, leaderboard, progress_for,
     public_badge, public_task, write_ledger,
@@ -208,10 +209,12 @@ def content():
     context["areas_unset"] = [spec["area"] for code, spec in BUILTIN_GAMES.items()
                               if not (_area_game(spec["area"]).get("ready")
                                       and _area_game(spec["area"]).get("task_code") == code)]
-    names = {1: ("山洞的石室", "the cave"), 2: ("渡口的過橋遊戲", "the crossing game")}
+    names = {1: ("山洞的石室", "the cave"), 2: ("渡口的過橋遊戲", "the crossing game"),
+             3: ("山嶺的步操訓練場", "the drill ground")}
     context["areas_unset_names"] = [names.get(n, (str(n), str(n)))[0] for n in context["areas_unset"]]
 
-    area_names = {1: ("第 1 區（石室）", "area 1 (the cave)"), 2: ("第 2 區（渡口）", "area 2 (the crossing)")}
+    area_names = {1: ("第 1 區（石室）", "area 1 (the cave)"), 2: ("第 2 區（渡口）", "area 2 (the crossing)"),
+                  3: ("第 3 區（訓練場）", "area 3 (the drill ground)")}
     restored = [code for code in (request.args.get("restored") or "").split(",") if code]
     rewired = [code for code in (request.args.get("rewired") or "").split(",") if code]
     kept = [code for code in (request.args.get("kept") or "").split(",") if code]
@@ -229,6 +232,10 @@ def content():
         if refilled:
             parts_zh.append("填回 " + "、".join(refilled) + " 的內容（題目／設定）")
             parts_en.append("refilled the content of " + ", ".join(refilled))
+        upgraded = [code for code in (request.args.get("upgraded") or "").split(",") if code]
+        if upgraded:
+            parts_zh.append("把 " + "、".join(upgraded) + " 由舊簽收任務升級成遊戲")
+            parts_en.append("upgraded " + ", ".join(upgraded) + " from the old sign-off task into its game")
         if kept:
             parts_zh.append("沿用了舊記錄的 id（" + "、".join(kept) + "），童軍進度保留")
             parts_en.append("reused the old ids (" + ", ".join(kept) + "), so scouts keep their progress")
@@ -700,7 +707,7 @@ def delete_task(task_id: str):
         abort(404)
     if str(task.get("code") or "") in BUILTIN_GAMES:
         return fail(409, "builtin_game",
-                    "這是內建遊戲（石室／渡口），不能刪除。要換走這一區的遊戲，請在區域設定改派另一項任務。",
+                    "這是內建遊戲（石室／渡口／訓練場），不能刪除。要換走這一區的遊戲，請在區域設定改派另一項任務。",
                     "This built-in game cannot be deleted — assign another task to the location instead.")
     badge = st.get("badges", task.get("badge_id"))
     areas = ((as_json((badge or {}).get("guide_json"), {}) or {}).get("quest") or {}).get("areas") or []
@@ -1280,7 +1287,19 @@ def setup_checks(st) -> dict:
 
 # ══ 內建項目：石室、渡口與其他獎章（誤刪後可還原）═════════════════════════
 
-BUILTIN_GAMES = {"M04": {"area": 1, "kind": "cave"}, "M05": {"area": 2, "kind": "bridge"}}
+BUILTIN_GAMES = {"M04": {"area": 1, "kind": "cave"},
+                 "M05": {"area": 2, "kind": "bridge"},
+                 "M06": {"area": 3, "kind": "drill"}}
+
+# 舊安裝的第 6 項曾是「簽收任務」（宣誓禮儀與中式隊列）。升級成遊戲 3
+# （步操訓練場）時，只有仍是這段預設文字的說明會被換成新的玩法說明；
+# 領袖自己改過的標題或說明會原封不動。
+LEGACY_M06_SIGNOFF = {
+    "title_zh": "第 6 項：宣誓禮儀與中式隊列",
+    "title_en": "Item 6 — investiture customs and drill",
+    "instruction_zh": "認識宣誓時應有之童軍禮儀，以及中式隊列之基本動作。考核動作：salute；alert／stand-at-ease；right turn／left turn／about turn；pace forward／backward／left／right march；dressing right dress；mark time；by the front quick march。",
+    "instruction_en": "Know the Scout customs for the investiture ceremony and the basic movements of Chinese-style drill. Show: salute; alert / stand-at-ease; right turn / left turn / about turn; pace forward / backward / left / right march; dressing right dress; mark time; by the front quick march.",
+}
 
 
 def _builtin_specs() -> dict[str, dict]:
@@ -1293,6 +1312,9 @@ def _builtin_specs() -> dict[str, dict]:
             config = task.get("config_json") or {}
             if config.get("kind") == "bridge":
                 shape, size = "bridge", 3                    # 三個階段：stage1…3
+            elif config.get("kind") == "drill":
+                shape, size = "drill", sum(len(s.get("moves") or [])
+                                           for s in (drill_manual().get("sections") or []))
             elif config.get("bank") == "member-badge/item4":
                 shape, size = "list", len(item4_questions() or [])   # 洞裡的 50 題
             elif config.get("questions"):
@@ -1311,6 +1333,8 @@ def _empty_builtin_content(code: str, task: dict) -> bool:
         return not (config.get("questions") or [])
     if code == "M05":
         return str(config.get("kind") or "") != "bridge"
+    if code == "M06":
+        return str(config.get("kind") or "") != "drill"
     return False
 
 
@@ -1377,11 +1401,12 @@ def _plan_reuse(records, orphans, missing, specs, badge_ids):
 @leader_routes.post("/leader/content/repair-games")
 @leader_required
 def repair_games():
-    """還原誤刪的內建遊戲（石室、渡口）；`scope=all` 亦還原其他獎章的示範任務。
+    """還原誤刪的內建遊戲（石室、渡口、訓練場）；`scope=all` 亦還原其他獎章的示範任務。
 
     只會補回缺少的內容：清走「已刪除」記號、重建缺少的列（沿用舊記錄指着的 id，
-    已在該遊戲完成的童軍因此保留進度）、重新接好第 1／2 區的遊戲。
-    領袖自己建立的內容、以及自己改過的區域安排，一律不動。
+    已在該遊戲完成的童軍因此保留進度）、把仍是舊簽收形狀的第 6 項升級成遊戲 3、
+    重新接好第 1 至第 3 區的遊戲。領袖自己建立的內容、以及自己改過的區域安排，
+    一律不動。
     """
     st = store()
     badge = next((row for row in st.list("badges") if row.get("code") == "SC-01"), None)
@@ -1405,16 +1430,35 @@ def repair_games():
     tasks = {str(row.get("code")): row for row in st.list("tasks")}
 
     refilled: list[str] = []
+    # 舊安裝的第 6 項原是「簽收任務」：先升級成遊戲 3 的形狀（quiz），標題與
+    # 說明只在仍是預設簽收文字時才換成新的玩法說明——領袖改過的一字不動。
+    upgraded: list[str] = []
+    m06 = tasks.get("M06")
+    if m06 and str(m06.get("type") or "") != "quiz":
+        patch = {"type": "quiz", "pass_score": 0}
+        canonical = next((t for t in SEED_BADGES[0]["tasks"] if t["code"] == "M06"), {})
+        for key in ("title_zh", "title_en", "instruction_zh", "instruction_en"):
+            if m06.get(key) == LEGACY_M06_SIGNOFF.get(key) and canonical.get(key):
+                patch[key] = canonical[key]
+        st.update("tasks", m06["id"], patch)
+        tasks["M06"] = st.get("tasks", m06["id"]) or {**m06, **patch}
+        upgraded.append("M06")
     for code in sorted(BUILTIN_GAMES):
         task = tasks.get(code)
         if task and _empty_builtin_content(code, task):
             st.update("tasks", task["id"], {"config_json": _refill_builtin_content(code)})
             refilled.append(code)
 
-    # 重新接好第 1／2 區：只處理「空的」或「本來就是這個遊戲」的區域
+    # 重新接好第 1 至第 3 區：只處理「空的」或「本來就是這個遊戲」的區域
     guide = copy.deepcopy(as_json(badge.get("guide_json"), {}) or {})
     areas = (guide.get("quest") or {}).get("areas") or []
     defaults = ((member_badge_guide().get("quest") or {}).get("areas") or [])
+    # 「即將推出」的佔位文字不算領袖的措辭：接上遊戲時換成真正的名稱與簡介
+    placeholders = {
+        "name_zh": "即將推出", "name_en": "Coming soon",
+        "blurb_zh": "這一區的遊戲正在製作，等待領袖加入。",
+        "blurb_en": "This area’s game is being built. Your leader will add it later.",
+    }
     rewired: list[str] = []
     for code, spec in BUILTIN_GAMES.items():
         index = spec["area"] - 1
@@ -1427,18 +1471,21 @@ def repair_games():
             continue                                          # 領袖自己換了遊戲 → 不碰
         before = (bool(game.get("ready")), claimed, str(game.get("kind") or ""))
         fallback = ((defaults[index] if index < len(defaults) else {}).get("game") or {})
-        for lang in ("zh", "en"):
-            game.setdefault(f"name_{lang}", "")
-            game.setdefault(f"blurb_{lang}", "")
-            if not str(game.get(f"name_{lang}") or "").strip():
-                game[f"name_{lang}"] = fallback.get(f"name_{lang}", "")
-            if not str(game.get(f"blurb_{lang}") or "").strip():
-                game[f"blurb_{lang}"] = fallback.get(f"blurb_{lang}", "")
+        for field in ("name_zh", "name_en", "blurb_zh", "blurb_en"):
+            game.setdefault(field, "")
+            current = str(game.get(field) or "").strip()
+            if not current or current == placeholders.get(field):
+                game[field] = fallback.get(field, "")
         game.update(n=spec["area"], kind=spec["kind"], ready=True, task_code=code)
         area["game"] = game
         if spec["area"] == 2:
             area["hint_zh"] = game.get("blurb_zh") or ""
             area["hint_en"] = game.get("blurb_en") or ""
+        if spec["area"] == 3:
+            # 第 3 區的提示仍是出廠預設時，換成訓練場的新提示；領袖改過則不碰
+            if area.get("hint_zh") == "攀過石壁：考驗你的誓詞與規律，也要考你的隊列動作。":
+                area["hint_zh"] = (defaults[index] or {}).get("hint_zh", "")
+                area["hint_en"] = (defaults[index] or {}).get("hint_en", "")
         if before != (True, code, spec["kind"]):
             rewired.append(code)                              # 真的有改動才回報
 
@@ -1448,7 +1495,7 @@ def repair_games():
     restored = [code for code in missing if code in tasks]
     audit(g.user, "repair_games", "badges", badge["id"],
           {"scope": scope, "cleared": cleared, "restored": restored, "rewired": rewired,
-           "refilled": refilled, "reused": sorted(preferred)})
+           "refilled": refilled, "upgraded": upgraded, "reused": sorted(preferred)})
 
     query = {"repair": scope}
     if restored:
@@ -1457,6 +1504,8 @@ def repair_games():
         query["rewired"] = ",".join(rewired)
     if refilled:
         query["refilled"] = ",".join(refilled)
+    if upgraded:
+        query["upgraded"] = ",".join(upgraded)
     if preferred:
         query["kept"] = ",".join(sorted(preferred))
     if unknown:

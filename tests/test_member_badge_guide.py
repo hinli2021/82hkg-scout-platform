@@ -368,7 +368,7 @@ def test_a_cave_cleared_scout_lands_on_the_same_page(app, store):
     assert "1 / 5 個遊戲已完成" in page
     third = page[page.index('data-stage="3"'):]
     third = third[:third.index('</li>')]
-    assert '等待領袖加入' in third                # areas 3–5 are still to be built
+    assert '步操訓練場' in third and '等你開始' in third   # game 3 is built and waiting
     assert 'quest-board' not in page
 
 
@@ -380,7 +380,7 @@ def test_the_badge_is_five_games_one_per_area(scout_client, store):
     assert page.count('class="stage-chip-game"') == 5
     assert all(f"🎮 遊戲 {n}" in page for n in range(1, 6))
     assert "五個遊戲全部完成" in page
-    assert page.count('即將推出') == 3          # games 3–5 wait for the leader
+    assert page.count('即將推出') == 2          # games 4–5 wait for the leader
     assert page.count('data-journey-play') == 1  # …and only the next one is offered
     assert 'stage-picker' not in page and 'stage-panel' not in page
     assert '個遊戲已完成' in page
@@ -407,7 +407,7 @@ def test_a_cleared_game_says_so(scout_client, store):
 
     page = scout_client.get(f"/badges/{badge['id']}").get_data(as_text=True)
     assert "1 / 5 個遊戲已完成" in page
-    assert page.count("即將推出") == 3, "the three games still to be made"
+    assert page.count("即將推出") == 2, "the two games still to be made"
     assert page.count('data-journey-play') == 1, "the next game is the only offer on the page"
     bridge = next(t for t in tasks_of(store, badge) if t["code"] == "M05")
     launch = page[page.index('data-journey-play'):]

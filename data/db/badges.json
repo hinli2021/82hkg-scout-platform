@@ -1,584 +1,583 @@
 [
- {
-  "section": "scout",
-  "order_index": 1,
-  "code": "SC-01",
-  "title_zh": "會員章",
-  "title_en": "Membership Badge",
-  "subtitle_zh": "進度性獎章 1 / 5",
-  "subtitle_en": "Progressive award 1 of 5",
-  "desc_zh": "荒島上的五個區域，各有一個遊戲。完成全部五個遊戲，就能考獲會員章。",
-  "desc_en": "There is one game in each of the island's five areas. Clear all five to earn the Membership Badge.",
-  "emoji": "🌱",
-  "image_url": "/img/badges/membership.webp",
-  "color": "#3f9142",
-  "points_reward": 50,
-  "prerequisite_badge_ids": [],
-  "guide_json": {
-   "_note": "會員章完成指南 — 官方 11 項（香港童軍訓練綱要）＋ 本旅的完成要求、考核方法與資源連結。領袖可自行修改此檔內容。另加 quest 區塊：每個關卡的遊戲名稱、提示，以及遊玩說明文字（可自行修改）。",
-   "source_zh": "香港童軍訓練綱要 · 會員章（11 項）",
-   "source_en": "HKSAR Scout Training Scheme · Membership Badge (11 items)",
-   "items": [
-    {
-     "n": 1,
-     "title_zh": "與你的小隊長商議有關加入童軍團之安排。",
-     "title_en": "Discuss the arrangements for joining the Scout Troop with your patrol leader.",
-     "req_zh": [
-      "加入童軍團"
-     ],
-     "req_en": [
-      "Join the Scout Troop"
-     ],
-     "method": "leader",
-     "method_note_zh": "加入即可；由領袖確認",
-     "method_note_en": "Joining is the requirement — a leader confirms it",
-     "links": [],
-     "stage_zh": "童軍初體驗",
-     "stage_en": "Meet the Scouts",
-     "stage_icon": "🎒",
-     "stage_hint_zh": "你已在簡介會認識童軍運動 — 本關自動完成！",
-     "stage_hint_en": "You already met the Scouts at the briefing — this stage is done for you."
-    },
-    {
-     "n": 2,
-     "title_zh": "加入一小隊及從小隊活動中認識隊中其他成員。",
-     "title_en": "Join a patrol and get to know the other members through patrol activities.",
-     "req_zh": [
-      "認識小隊成員",
-      "了解小隊職位",
-      "了解小隊成員電話號碼（隊長／聯絡）"
-     ],
-     "req_en": [
-      "Know the members of your patrol",
-      "Know the patrol jobs",
-      "Know your patrol's phone numbers (leader / contact)"
-     ],
-     "method": "leader",
-     "method_note_zh": "領袖考核",
-     "method_note_en": "Checked by a leader",
-     "links": [],
-     "stage_zh": "小隊集結",
-     "stage_en": "Join your patrol",
-     "stage_icon": "🤝",
-     "stage_hint_zh": "加入小隊，認識你的隊長、隊友及他們的電話。",
-     "stage_hint_en": "Join a patrol: know your leader, your teammates and their numbers."
-    },
-    {
-     "n": 3,
-     "title_zh": "最少參加六次團集會／活動，其中一次應在戶外舉行。",
-     "title_en": "Take part in at least six troop meetings or activities, one of them outdoors.",
-     "req_zh": [
-      "參加五次室內集會／活動",
-      "參加一次戶外集會／活動"
-     ],
-     "req_en": [
-      "Attend five indoor meetings / activities",
-      "Attend one outdoor activity"
-     ],
-     "method": "event",
-     "method_note_zh": "出席紀錄",
-     "method_note_en": "Attendance",
-     "links": [],
-     "stage_zh": "集會紀錄",
-     "stage_en": "Meeting trail",
-     "stage_icon": "⛺",
-     "stage_hint_zh": "出席六次集會／活動，其中一次在戶外舉行。",
-     "stage_hint_en": "Six meetings or activities, one of them outdoors."
-    },
-    {
-     "n": 4,
-     "title_zh": "對世界及香港童軍運動之發展有普遍的認識。",
-     "title_en": "Have a general knowledge of the development of the Scout Movement worldwide and in Hong Kong.",
-     "req_zh": [
-      "在第一個區域完成「童軍歷史山洞」遊戲：閱讀四面壁畫，逐組完成全部 50 題。走到洞口即自動通關，不設合格分數；成績只供回顧。",
-      "完成山洞遊戲便完成第 4 項，不需要另外作答試卷。"
-     ],
-     "req_en": [
-      "In area one, clear The Cave of Scouting History: read four wall paintings and finish all 50 questions in groups. Reaching the exit automatically clears the game, whatever your score; the score is for review.",
-      "Clearing the cave completes item 4. There is no separate paper to sit."
-     ],
-     "method": "self",
-     "method_note_zh": "完成山洞後自動記錄通關及成績",
-     "method_note_en": "The cave records completion and score automatically",
-     "links": [
-      {
-       "label_zh": "溫習資源",
-       "label_en": "Study resources",
-       "url": "https://drive.google.com/drive/folders/18XAKwwF-ECWkcO6NLd1L1Hw8lomZBCEb?usp=sharing"
-      }
-     ],
-     "stage_zh": "童軍歷史山洞",
-     "stage_en": "The Cave of Scouting History",
-     "stage_icon": "🕯️",
-     "stage_hint_zh": "看完四段壁畫，在石室完成全部 50 題即通關；分數只供回顧，無須另做試卷。",
-     "stage_hint_en": "Read four wall paintings and finish all 50 chamber questions to clear the game; the score is for review. No separate paper."
-    },
-    {
-     "n": 5,
-     "title_zh": "明瞭及接納童軍誓詞、規律和銘言。",
-     "title_en": "Understand and accept the Scout Promise, Law and Motto.",
-     "req_zh": [
-      "背誦童軍誓詞、規律和銘言",
-      "了解並解釋童軍規律"
-     ],
-     "req_en": [
-      "Recite the Scout Promise, Law and Motto",
-      "Understand and explain the Scout Law"
-     ],
-     "method": "leader",
-     "method_note_zh": "領袖考核",
-     "method_note_en": "Checked by a leader",
-     "links": [],
-     "stage_zh": "誓詞密碼",
-     "stage_en": "Promise code",
-     "stage_icon": "🔑",
-     "stage_hint_zh": "背熟誓詞、規律、銘言，並要解釋規律。",
-     "stage_hint_en": "Learn the Promise, Law and Motto by heart — and explain the Law."
-    },
-    {
-     "n": 6,
-     "title_zh": "認識你在宣誓時應有之童軍禮儀，以及中式隊列之基本動作。",
-     "title_en": "Know the Scout customs for the investiture ceremony and the basic movements of Chinese-style drill.",
-     "req_zh": [
-      "步操：salute",
-      "alert / stand-at-ease",
-      "right turn / left turn / about turn",
-      "pace forward / backward / left / right march",
-      "dressing — right dress",
-      "mark time",
-      "by the front quick march"
-     ],
-     "req_en": [
-      "Drill: salute",
-      "alert / stand-at-ease",
-      "right turn / left turn / about turn",
-      "pace forward / backward / left / right march",
-      "dressing — right dress",
-      "mark time",
-      "by the front quick march"
-     ],
-     "method": "leader",
-     "method_note_zh": "領袖考核",
-     "method_note_en": "Checked by a leader",
-     "links": [
-      {
-       "label_zh": "步操示範資源",
-       "label_en": "Drill reference",
-       "url": "https://drive.google.com/drive/folders/1o7CruXDWSruWb10vEhxfPO_yNiWi93-d?usp=sharing"
-      }
-     ],
-     "stage_zh": "步操操練",
-     "stage_en": "Drill field",
-     "stage_icon": "🥁",
-     "stage_hint_zh": "敬禮、轉身、步操 — 考核你的中式隊列。",
-     "stage_hint_en": "Salute, turns and marching — the Chinese drill movements."
-    },
-    {
-     "n": 7,
-     "title_zh": "能辨認中華人民共和國國旗和國徽；並能說明其含意。",
-     "title_en": "Recognise the national flag and emblem of the People's Republic of China and explain their meaning.",
-     "req_zh": [
-      "完成「第 7 至 10 項試卷」，合格分數為 24 分／30 分",
-      "能認出國旗、國徽並說出含意"
-     ],
-     "req_en": [
-      "Complete the Items 7–10 paper — pass mark 24 / 30",
-      "Recognise the national flag and emblem and explain their meaning"
-     ],
-     "method": "self",
-     "method_note_zh": "自行考核 — 第 7 至 10 項共用同一份試卷",
-     "method_note_en": "Self-check — items 7–10 share one paper",
-     "links": [
-      {
-       "label_zh": "第 7 至 10 項試卷（Google Form）",
-       "label_en": "Items 7–10 paper (Google Form)",
-       "url": "https://forms.gle/NmdM72WapUpbajFHA"
-      },
-      {
-       "label_zh": "溫習資源",
-       "label_en": "Study resources",
-       "url": "https://drive.google.com/drive/folders/1LtM4RykgGrrITxZRwWHeN-pWHnxKBKTY?usp=drive_link"
-      }
-     ],
-     "stage_zh": "國旗關",
-     "stage_en": "National flag",
-     "stage_icon": "🇨🇳",
-     "stage_hint_zh": "認識國旗與國徽，並能說明其含意。",
-     "stage_hint_en": "Know the national flag and emblem, and what they mean."
-    },
-    {
-     "n": 8,
-     "title_zh": "能辨認香港特別行政區區旗和區徽；並能說明其含意。",
-     "title_en": "Recognise the regional flag and emblem of the Hong Kong SAR and explain their meaning.",
-     "req_zh": [
-      "由「第 7 至 10 項試卷」考核",
-      "能認出區旗、區徽並說出含意"
-     ],
-     "req_en": [
-      "Covered by the Items 7–10 paper",
-      "Recognise the regional flag and emblem and explain their meaning"
-     ],
-     "method": "self",
-     "method_note_zh": "自行考核",
-     "method_note_en": "Self-check",
-     "links": [
-      {
-       "label_zh": "第 7 至 10 項試卷（Google Form）",
-       "label_en": "Items 7–10 paper (Google Form)",
-       "url": "https://forms.gle/NmdM72WapUpbajFHA"
-      }
-     ],
-     "stage_zh": "區旗關",
-     "stage_en": "Regional flag",
-     "stage_icon": "🇭🇰",
-     "stage_hint_zh": "認識區旗與區徽，並能說明其含意。",
-     "stage_hint_en": "Know the regional flag and emblem, and what they mean."
-    },
-    {
-     "n": 9,
-     "title_zh": "認識在國歌奏唱和升掛國旗、區旗時應有之禮儀，以及升國旗的基本程序。",
-     "title_en": "Know the proper etiquette when the national anthem is played and the flags are raised, and the basic flag-raising procedure.",
-     "req_zh": [
-      "由「第 7 至 10 項試卷」考核",
-      "示範國歌奏唱及升旗時應有的禮儀"
-     ],
-     "req_en": [
-      "Covered by the Items 7–10 paper",
-      "Show the correct etiquette for the anthem and flag-raising"
-     ],
-     "method": "self",
-     "method_note_zh": "自行考核",
-     "method_note_en": "Self-check",
-     "links": [],
-     "stage_zh": "升旗禮儀",
-     "stage_en": "Flag ceremony",
-     "stage_icon": "🎏",
-     "stage_hint_zh": "國歌奏唱與升旗時，你應該怎樣做？",
-     "stage_hint_en": "What to do when the anthem plays and the flags go up."
-    },
-    {
-     "n": 10,
-     "title_zh": "明瞭設立國歌的用意，並能背唱之。",
-     "title_en": "Understand the purpose of the national anthem and be able to sing it from memory.",
-     "req_zh": [
-      "由「第 7 至 10 項試卷」考核",
-      "能背唱國歌"
-     ],
-     "req_en": [
-      "Covered by the Items 7–10 paper",
-      "Sing the national anthem from memory"
-     ],
-     "method": "self",
-     "method_note_zh": "自行考核",
-     "method_note_en": "Self-check",
-     "links": [],
-     "stage_zh": "國歌關",
-     "stage_en": "Sing the anthem",
-     "stage_icon": "🎵",
-     "stage_hint_zh": "明瞭國歌的用意，並能背唱。",
-     "stage_hint_en": "Understand the anthem and sing it from memory."
-    },
-    {
-     "n": 11,
-     "title_zh": "認識常見兒童侵害情況、預防方法及處理方法。",
-     "title_en": "Know common situations of child abuse, how to prevent them and how to handle them.",
-     "req_zh": [
-      "認識常見兒童侵害情況",
-      "知道預防方法",
-      "知道遇到時如何處理及求助"
-     ],
-     "req_en": [
-      "Know the common situations",
-      "Know how to prevent them",
-      "Know how to respond and where to get help"
-     ],
-     "method": "leader",
-     "method_note_zh": "領袖講解後討論",
-     "method_note_en": "Leader-led session and discussion",
-     "links": [],
-     "stage_zh": "保護自己",
-     "stage_en": "Stay safe",
-     "stage_icon": "🛡️",
-     "stage_hint_zh": "認識兒童侵害、預防方法及求助方法。",
-     "stage_hint_en": "Know the risks, how to prevent them and who to ask for help."
-    }
-   ],
-   "quest": {
-    "title_zh": "會員章大冒險",
-    "title_en": "The Membership Badge Adventure",
-    "tagline_zh": "五個區域，各有一個遊戲；五個遊戲全部完成，即可考取會員章。",
-    "tagline_en": "Five areas, one game each. Clear all five games and the badge is yours.",
-    "start_zh": "開始歷險 · 進入遊戲 1",
-    "start_en": "Start your journey · Enter game 1",
-    "first_stage_note_zh": "按下開始按鈕，直接進入第一區的童軍歷史山洞。",
-    "first_stage_note_en": "Press the start button to go straight into the cave in location 1.",
-    "credited_title_zh": "冒險開始！",
-    "credited_body_zh": "你已划到叢林深處。第一個區域只有童軍歷史山洞；完成遊戲，就可以繼續尋找通往沙灘的路。",
-    "credited_body_en": "You have reached the jungle. The first area holds only The Cave of Scouting History. Clear it to keep going toward the beach.",
-    "story_title_zh": "你被困住了！",
-    "story_title_en": "You are stranded!",
-    "story_lead_zh": "童軍大露營途中，船撞上礁石。醒來的時候，你發現自己獨自流落在一個荒島上。",
-    "story_lead_en": "On the way to camp the boat hit the reef. You wake up alone on an island.",
-    "beats_zh": [
-     {
-      "icon": "⛺",
-      "title": "在荒島醒來",
-      "text": "四周都是叢林，海浪聲從遠處傳來。你的口袋裡只有一個指南針，以及一張濕透的地圖。"
-     },
-     {
-      "icon": "🧭",
-      "title": "走過五個區域",
-      "text": "地圖上有一條小徑，穿過五個區域一直通到海邊。每個區域各有一個遊戲，五個遊戲全部玩過才算走完這一程。"
-     },
-     {
-      "icon": "🏖️",
-      "title": "沙灘上的木筏",
-      "text": "走到沙灘，你會找到一條木筏。五個區域的遊戲全部完成，木筏便可下水，載你離開荒島，考獲會員章。"
-     }
-    ],
-    "beats_en": [
-     {
-      "icon": "⛺",
-      "title": "You wake up ashore",
-      "text": "Jungle all around, the sea somewhere behind it. All you have is a compass and a soaked map."
-     },
-     {
-      "icon": "🧭",
-      "title": "Five areas to cross",
-      "text": "One path runs through five areas to the shore. Each area holds its own game, and all five must be cleared before the island lets you go."
-     },
-     {
-      "icon": "🏖️",
-      "title": "The raft on the beach",
-      "text": "At the beach you find a raft. Clear the game in each of the five areas, then set sail off the island and earn the Membership Badge."
-     }
-    ],
-    "trail_title_zh": "你的逃生路線",
-    "trail_title_en": "Your escape route",
-    "trail_lead_zh": "第一區的山洞遊戲已直接標示在地圖上，毋須先點選區域。看完資料後，按頁底的按鈕直接開始遊戲。五個遊戲全部完成，才可以乘木筏離開。",
-    "trail_lead_en": "The cave game is shown right on location 1. No need to pick a location: read the details and use the single button below to start playing. Clear all five games to reach the raft.",
-    "trail_last_zh": "沙灘上的木筏",
-    "trail_last_en": "The raft on the beach",
-    "trail_last_note_zh": "五個區域各有一個遊戲。五個遊戲全部完成後，便可到達沙灘，乘木筏離開。",
-    "trail_last_note_en": "One game in each of five areas. Clear all five to reach the beach and escape on the raft.",
-    "kicker_zh": "荒島逃生",
-    "kicker_en": "Island escape",
-    "start_note_zh": "從第一區的山洞遊戲開始，完成五個遊戲便可到達沙灘。",
-    "start_note_en": "Start with the cave in location 1, then clear all five games to reach the beach.",
-    "route_zh": "五個區域 → 沙灘 → 木筏",
-    "route_en": "Five areas → the beach → the raft",
-    "goal_zh": "走過五個區域，到達沙灘，造好木筏",
-    "goal_en": "Cross all five areas, reach the beach, build the raft",
-    "credited_title_en": "The adventure begins!",
-    "areas": [
-     {
-      "n": 1,
-      "icon": "🌿",
-      "name_zh": "叢林深處",
-      "name_en": "Deep in the jungle",
-      "hint_zh": "從叢林開始探險。閱讀山洞裡的壁畫，走過石室，找出童軍歷史的線索。",
-      "hint_en": "Begin in the jungle. Read the cave walls and find the clues to Scouting history in the stone chambers.",
-      "items": [],
-      "game": {
-       "n": 1,
-       "kind": "cave",
-       "ready": true,
-       "name_zh": "童軍歷史山洞",
-       "name_en": "The Cave of Scouting History",
-       "blurb_zh": "四段壁畫、五十題。壁畫先交代那一組題目要用的資料，之後在石室逐題作答；答錯會走入死路，死路會再講一次那段歷史。",
-       "blurb_en": "Four wall paintings and fifty questions. Each wall teaches everything its questions need, then you answer in the chamber — a wrong turn walks you into a dead end where the history is retold.",
-       "task_code": "M04"
-      }
-     },
-     {
-      "n": 2,
-      "icon": "🧭",
-      "name_zh": "迷霧小徑",
-      "name_en": "The misty trail",
-      "hint_zh": "霧裡有一條河，水聲很響。把木板按次序鋪成橋，就可以走到對岸。",
-      "hint_en": "A river runs loud in the mist. Lay the planks in order to build a crossing.",
+  {
+    "section": "scout",
+    "order_index": 1,
+    "code": "SC-01",
+    "title_zh": "會員章",
+    "title_en": "Membership Badge",
+    "subtitle_zh": "進度性獎章 1 / 5",
+    "subtitle_en": "Progressive award 1 of 5",
+    "desc_zh": "荒島上的五個區域，各有一個遊戲。完成全部五個遊戲，就能考獲會員章。",
+    "desc_en": "There is one game in each of the island's five areas. Clear all five to earn the Membership Badge.",
+    "emoji": "🌱",
+    "image_url": "/img/badges/membership.webp",
+    "color": "#3f9142",
+    "points_reward": 50,
+    "prerequisite_badge_ids": [],
+    "guide_json": {
+      "_note": "會員章完成指南 — 官方 11 項（香港童軍訓練綱要）＋ 本旅的完成要求、考核方法與資源連結。領袖可自行修改此檔內容。另加 quest 區塊：每個關卡的遊戲名稱、提示，以及遊玩說明文字（可自行修改）。",
+      "source_zh": "香港童軍訓練綱要 · 會員章（11 項）",
+      "source_en": "HKSAR Scout Training Scheme · Membership Badge (11 items)",
       "items": [
-       3
+        {
+          "n": 1,
+          "title_zh": "與你的小隊長商議有關加入童軍團之安排。",
+          "title_en": "Discuss the arrangements for joining the Scout Troop with your patrol leader.",
+          "req_zh": [
+            "加入童軍團"
+          ],
+          "req_en": [
+            "Join the Scout Troop"
+          ],
+          "method": "leader",
+          "method_note_zh": "加入即可；由領袖確認",
+          "method_note_en": "Joining is the requirement — a leader confirms it",
+          "links": [],
+          "stage_zh": "童軍初體驗",
+          "stage_en": "Meet the Scouts",
+          "stage_icon": "🎒",
+          "stage_hint_zh": "你已在簡介會認識童軍運動 — 本關自動完成！",
+          "stage_hint_en": "You already met the Scouts at the briefing — this stage is done for you."
+        },
+        {
+          "n": 2,
+          "title_zh": "加入一小隊及從小隊活動中認識隊中其他成員。",
+          "title_en": "Join a patrol and get to know the other members through patrol activities.",
+          "req_zh": [
+            "認識小隊成員",
+            "了解小隊職位",
+            "了解小隊成員電話號碼（隊長／聯絡）"
+          ],
+          "req_en": [
+            "Know the members of your patrol",
+            "Know the patrol jobs",
+            "Know your patrol's phone numbers (leader / contact)"
+          ],
+          "method": "leader",
+          "method_note_zh": "領袖考核",
+          "method_note_en": "Checked by a leader",
+          "links": [],
+          "stage_zh": "小隊集結",
+          "stage_en": "Join your patrol",
+          "stage_icon": "🤝",
+          "stage_hint_zh": "加入小隊，認識你的隊長、隊友及他們的電話。",
+          "stage_hint_en": "Join a patrol: know your leader, your teammates and their numbers."
+        },
+        {
+          "n": 3,
+          "title_zh": "最少參加六次團集會／活動，其中一次應在戶外舉行。",
+          "title_en": "Take part in at least six troop meetings or activities, one of them outdoors.",
+          "req_zh": [
+            "參加五次室內集會／活動",
+            "參加一次戶外集會／活動"
+          ],
+          "req_en": [
+            "Attend five indoor meetings / activities",
+            "Attend one outdoor activity"
+          ],
+          "method": "event",
+          "method_note_zh": "出席紀錄",
+          "method_note_en": "Attendance",
+          "links": [],
+          "stage_zh": "集會紀錄",
+          "stage_en": "Meeting trail",
+          "stage_icon": "⛺",
+          "stage_hint_zh": "出席六次集會／活動，其中一次在戶外舉行。",
+          "stage_hint_en": "Six meetings or activities, one of them outdoors."
+        },
+        {
+          "n": 4,
+          "title_zh": "對世界及香港童軍運動之發展有普遍的認識。",
+          "title_en": "Have a general knowledge of the development of the Scout Movement worldwide and in Hong Kong.",
+          "req_zh": [
+            "在第一個區域完成「童軍歷史山洞」遊戲：閱讀四面壁畫，逐組完成全部 50 題。走到洞口即自動通關，不設合格分數；成績只供回顧。",
+            "完成山洞遊戲便完成第 4 項，不需要另外作答試卷。"
+          ],
+          "req_en": [
+            "In area one, clear The Cave of Scouting History: read four wall paintings and finish all 50 questions in groups. Reaching the exit automatically clears the game, whatever your score; the score is for review.",
+            "Clearing the cave completes item 4. There is no separate paper to sit."
+          ],
+          "method": "self",
+          "method_note_zh": "完成山洞後自動記錄通關及成績",
+          "method_note_en": "The cave records completion and score automatically",
+          "links": [
+            {
+              "label_zh": "溫習資源",
+              "label_en": "Study resources",
+              "url": "https://drive.google.com/drive/folders/18XAKwwF-ECWkcO6NLd1L1Hw8lomZBCEb?usp=sharing"
+            }
+          ],
+          "stage_zh": "童軍歷史山洞",
+          "stage_en": "The Cave of Scouting History",
+          "stage_icon": "🕯️",
+          "stage_hint_zh": "看完四段壁畫，在石室完成全部 50 題即通關；分數只供回顧，無須另做試卷。",
+          "stage_hint_en": "Read four wall paintings and finish all 50 chamber questions to clear the game; the score is for review. No separate paper."
+        },
+        {
+          "n": 5,
+          "title_zh": "明瞭及接納童軍誓詞、規律和銘言。",
+          "title_en": "Understand and accept the Scout Promise, Law and Motto.",
+          "req_zh": [
+            "背誦童軍誓詞、規律和銘言",
+            "了解並解釋童軍規律"
+          ],
+          "req_en": [
+            "Recite the Scout Promise, Law and Motto",
+            "Understand and explain the Scout Law"
+          ],
+          "method": "leader",
+          "method_note_zh": "領袖考核",
+          "method_note_en": "Checked by a leader",
+          "links": [],
+          "stage_zh": "誓詞密碼",
+          "stage_en": "Promise code",
+          "stage_icon": "🔑",
+          "stage_hint_zh": "背熟誓詞、規律、銘言，並要解釋規律。",
+          "stage_hint_en": "Learn the Promise, Law and Motto by heart — and explain the Law."
+        },
+        {
+          "n": 6,
+          "title_zh": "認識你在宣誓時應有之童軍禮儀，以及中式隊列之基本動作。",
+          "title_en": "Know the Scout customs for the investiture ceremony and the basic movements of Chinese-style drill.",
+          "req_zh": [
+            "步操：salute",
+            "alert / stand-at-ease",
+            "right turn / left turn / about turn",
+            "pace forward / backward / left / right march",
+            "dressing — right dress",
+            "mark time",
+            "by the front quick march"
+          ],
+          "req_en": [
+            "Drill: salute",
+            "alert / stand-at-ease",
+            "right turn / left turn / about turn",
+            "pace forward / backward / left / right march",
+            "dressing — right dress",
+            "mark time",
+            "by the front quick march"
+          ],
+          "method": "leader",
+          "method_note_zh": "領袖考核",
+          "method_note_en": "Checked by a leader",
+          "links": [
+            {
+              "label_zh": "步操示範資源",
+              "label_en": "Drill reference",
+              "url": "https://drive.google.com/drive/folders/1o7CruXDWSruWb10vEhxfPO_yNiWi93-d?usp=sharing"
+            }
+          ],
+          "stage_zh": "步操操練",
+          "stage_en": "Drill field",
+          "stage_icon": "🥁",
+          "stage_hint_zh": "敬禮、轉身、步操 — 考核你的中式隊列。",
+          "stage_hint_en": "Salute, turns and marching — the Chinese drill movements."
+        },
+        {
+          "n": 7,
+          "title_zh": "能辨認中華人民共和國國旗和國徽；並能說明其含意。",
+          "title_en": "Recognise the national flag and emblem of the People's Republic of China and explain their meaning.",
+          "req_zh": [
+            "完成「第 7 至 10 項試卷」，合格分數為 24 分／30 分",
+            "能認出國旗、國徽並說出含意"
+          ],
+          "req_en": [
+            "Complete the Items 7–10 paper — pass mark 24 / 30",
+            "Recognise the national flag and emblem and explain their meaning"
+          ],
+          "method": "self",
+          "method_note_zh": "自行考核 — 第 7 至 10 項共用同一份試卷",
+          "method_note_en": "Self-check — items 7–10 share one paper",
+          "links": [
+            {
+              "label_zh": "第 7 至 10 項試卷（Google Form）",
+              "label_en": "Items 7–10 paper (Google Form)",
+              "url": "https://forms.gle/NmdM72WapUpbajFHA"
+            },
+            {
+              "label_zh": "溫習資源",
+              "label_en": "Study resources",
+              "url": "https://drive.google.com/drive/folders/1LtM4RykgGrrITxZRwWHeN-pWHnxKBKTY?usp=drive_link"
+            }
+          ],
+          "stage_zh": "國旗關",
+          "stage_en": "National flag",
+          "stage_icon": "🇨🇳",
+          "stage_hint_zh": "認識國旗與國徽，並能說明其含意。",
+          "stage_hint_en": "Know the national flag and emblem, and what they mean."
+        },
+        {
+          "n": 8,
+          "title_zh": "能辨認香港特別行政區區旗和區徽；並能說明其含意。",
+          "title_en": "Recognise the regional flag and emblem of the Hong Kong SAR and explain their meaning.",
+          "req_zh": [
+            "由「第 7 至 10 項試卷」考核",
+            "能認出區旗、區徽並說出含意"
+          ],
+          "req_en": [
+            "Covered by the Items 7–10 paper",
+            "Recognise the regional flag and emblem and explain their meaning"
+          ],
+          "method": "self",
+          "method_note_zh": "自行考核",
+          "method_note_en": "Self-check",
+          "links": [
+            {
+              "label_zh": "第 7 至 10 項試卷（Google Form）",
+              "label_en": "Items 7–10 paper (Google Form)",
+              "url": "https://forms.gle/NmdM72WapUpbajFHA"
+            }
+          ],
+          "stage_zh": "區旗關",
+          "stage_en": "Regional flag",
+          "stage_icon": "🇭🇰",
+          "stage_hint_zh": "認識區旗與區徽，並能說明其含意。",
+          "stage_hint_en": "Know the regional flag and emblem, and what they mean."
+        },
+        {
+          "n": 9,
+          "title_zh": "認識在國歌奏唱和升掛國旗、區旗時應有之禮儀，以及升國旗的基本程序。",
+          "title_en": "Know the proper etiquette when the national anthem is played and the flags are raised, and the basic flag-raising procedure.",
+          "req_zh": [
+            "由「第 7 至 10 項試卷」考核",
+            "示範國歌奏唱及升旗時應有的禮儀"
+          ],
+          "req_en": [
+            "Covered by the Items 7–10 paper",
+            "Show the correct etiquette for the anthem and flag-raising"
+          ],
+          "method": "self",
+          "method_note_zh": "自行考核",
+          "method_note_en": "Self-check",
+          "links": [],
+          "stage_zh": "升旗禮儀",
+          "stage_en": "Flag ceremony",
+          "stage_icon": "🎏",
+          "stage_hint_zh": "國歌奏唱與升旗時，你應該怎樣做？",
+          "stage_hint_en": "What to do when the anthem plays and the flags go up."
+        },
+        {
+          "n": 10,
+          "title_zh": "明瞭設立國歌的用意，並能背唱之。",
+          "title_en": "Understand the purpose of the national anthem and be able to sing it from memory.",
+          "req_zh": [
+            "由「第 7 至 10 項試卷」考核",
+            "能背唱國歌"
+          ],
+          "req_en": [
+            "Covered by the Items 7–10 paper",
+            "Sing the national anthem from memory"
+          ],
+          "method": "self",
+          "method_note_zh": "自行考核",
+          "method_note_en": "Self-check",
+          "links": [],
+          "stage_zh": "國歌關",
+          "stage_en": "Sing the anthem",
+          "stage_icon": "🎵",
+          "stage_hint_zh": "明瞭國歌的用意，並能背唱。",
+          "stage_hint_en": "Understand the anthem and sing it from memory."
+        },
+        {
+          "n": 11,
+          "title_zh": "認識常見兒童侵害情況、預防方法及處理方法。",
+          "title_en": "Know common situations of child abuse, how to prevent them and how to handle them.",
+          "req_zh": [
+            "認識常見兒童侵害情況",
+            "知道預防方法",
+            "知道遇到時如何處理及求助"
+          ],
+          "req_en": [
+            "Know the common situations",
+            "Know how to prevent them",
+            "Know how to respond and where to get help"
+          ],
+          "method": "leader",
+          "method_note_zh": "領袖講解後討論",
+          "method_note_en": "Leader-led session and discussion",
+          "links": [],
+          "stage_zh": "保護自己",
+          "stage_en": "Stay safe",
+          "stage_icon": "🛡️",
+          "stage_hint_zh": "認識兒童侵害、預防方法及求助方法。",
+          "stage_hint_en": "Know the risks, how to prevent them and who to ask for help."
+        }
       ],
-      "game": {
-       "n": 2,
-       "kind": "bridge",
-       "ready": true,
-       "name_zh": "迷霧渡口",
-       "name_en": "The misty crossing",
-       "blurb_zh": "三關：銘言（最易）→ 誓詞 → 規律。每一關先讀教學牌，再把木板按次序鋪上橋；放錯了，木板會滑到河裡，教學牌會再講一次。",
-       "blurb_en": "Three stages: the motto (easiest) → the Promise → the Law. Read the teaching card, then lay the planks in order — a wrong board slips into the river and the card teaches it again.",
-       "task_code": "M05"
+      "quest": {
+        "title_zh": "會員章大冒險",
+        "title_en": "The Membership Badge Adventure",
+        "tagline_zh": "五個區域，各有一個遊戲；五個遊戲全部完成，即可考取會員章。",
+        "tagline_en": "Five areas, one game each. Clear all five games and the badge is yours.",
+        "start_zh": "開始歷險 · 進入遊戲 1",
+        "start_en": "Start your journey · Enter game 1",
+        "first_stage_note_zh": "按下開始按鈕，直接進入第一區的童軍歷史山洞。",
+        "first_stage_note_en": "Press the start button to go straight into the cave in location 1.",
+        "credited_title_zh": "冒險開始！",
+        "credited_body_zh": "你已划到叢林深處。第一個區域只有童軍歷史山洞；完成遊戲，就可以繼續尋找通往沙灘的路。",
+        "credited_body_en": "You have reached the jungle. The first area holds only The Cave of Scouting History. Clear it to keep going toward the beach.",
+        "story_title_zh": "你被困住了！",
+        "story_title_en": "You are stranded!",
+        "story_lead_zh": "童軍大露營途中，船撞上礁石。醒來的時候，你發現自己獨自流落在一個荒島上。",
+        "story_lead_en": "On the way to camp the boat hit the reef. You wake up alone on an island.",
+        "beats_zh": [
+          {
+            "icon": "⛺",
+            "title": "在荒島醒來",
+            "text": "四周都是叢林，海浪聲從遠處傳來。你的口袋裡只有一個指南針，以及一張濕透的地圖。"
+          },
+          {
+            "icon": "🧭",
+            "title": "走過五個區域",
+            "text": "地圖上有一條小徑，穿過五個區域一直通到海邊。每個區域各有一個遊戲，五個遊戲全部玩過才算走完這一程。"
+          },
+          {
+            "icon": "🏖️",
+            "title": "沙灘上的木筏",
+            "text": "走到沙灘，你會找到一條木筏。五個區域的遊戲全部完成，木筏便可下水，載你離開荒島，考獲會員章。"
+          }
+        ],
+        "beats_en": [
+          {
+            "icon": "⛺",
+            "title": "You wake up ashore",
+            "text": "Jungle all around, the sea somewhere behind it. All you have is a compass and a soaked map."
+          },
+          {
+            "icon": "🧭",
+            "title": "Five areas to cross",
+            "text": "One path runs through five areas to the shore. Each area holds its own game, and all five must be cleared before the island lets you go."
+          },
+          {
+            "icon": "🏖️",
+            "title": "The raft on the beach",
+            "text": "At the beach you find a raft. Clear the game in each of the five areas, then set sail off the island and earn the Membership Badge."
+          }
+        ],
+        "trail_title_zh": "你的逃生路線",
+        "trail_title_en": "Your escape route",
+        "trail_lead_zh": "第一區的山洞遊戲已直接標示在地圖上，毋須先點選區域。看完資料後，按頁底的按鈕直接開始遊戲。五個遊戲全部完成，才可以乘木筏離開。",
+        "trail_lead_en": "The cave game is shown right on location 1. No need to pick a location: read the details and use the single button below to start playing. Clear all five games to reach the raft.",
+        "trail_last_zh": "沙灘上的木筏",
+        "trail_last_en": "The raft on the beach",
+        "trail_last_note_zh": "五個區域各有一個遊戲。五個遊戲全部完成後，便可到達沙灘，乘木筏離開。",
+        "trail_last_note_en": "One game in each of five areas. Clear all five to reach the beach and escape on the raft.",
+        "kicker_zh": "荒島逃生",
+        "kicker_en": "Island escape",
+        "start_note_zh": "從第一區的山洞遊戲開始，完成五個遊戲便可到達沙灘。",
+        "start_note_en": "Start with the cave in location 1, then clear all five games to reach the beach.",
+        "route_zh": "五個區域 → 沙灘 → 木筏",
+        "route_en": "Five areas → the beach → the raft",
+        "goal_zh": "走過五個區域，到達沙灘，造好木筏",
+        "goal_en": "Cross all five areas, reach the beach, build the raft",
+        "credited_title_en": "The adventure begins!",
+        "areas": [
+          {
+            "n": 1,
+            "icon": "🌿",
+            "name_zh": "叢林深處",
+            "name_en": "Deep in the jungle",
+            "hint_zh": "從叢林開始探險。閱讀山洞裡的壁畫，走過石室，找出童軍歷史的線索。",
+            "hint_en": "Begin in the jungle. Read the cave walls and find the clues to Scouting history in the stone chambers.",
+            "items": [],
+            "game": {
+              "n": 1,
+              "kind": "cave",
+              "ready": true,
+              "name_zh": "童軍歷史山洞",
+              "name_en": "The Cave of Scouting History",
+              "blurb_zh": "四段壁畫、五十題。壁畫先交代那一組題目要用的資料，之後在石室逐題作答；答錯會走入死路，死路會再講一次那段歷史。",
+              "blurb_en": "Four wall paintings and fifty questions. Each wall teaches everything its questions need, then you answer in the chamber — a wrong turn walks you into a dead end where the history is retold.",
+              "task_code": "M04"
+            }
+          },
+          {
+            "n": 2,
+            "icon": "🧭",
+            "name_zh": "迷霧小徑",
+            "name_en": "The misty trail",
+            "hint_zh": "霧裡有一條河，水聲很響。把木板按次序鋪成橋，就可以走到對岸。",
+            "hint_en": "A river runs loud in the mist. Lay the planks in order to build a crossing.",
+            "items": [
+              3
+            ],
+            "game": {
+              "n": 2,
+              "kind": "bridge",
+              "ready": true,
+              "name_zh": "迷霧渡口",
+              "name_en": "The misty crossing",
+              "blurb_zh": "三關：銘言（最易）→ 誓詞 → 規律。每一關先讀教學牌，再把木板按次序鋪上橋；放錯了，木板會滑到河裡，教學牌會再講一次。",
+              "blurb_en": "Three stages: the motto (easiest) → the Promise → the Law. Read the teaching card, then lay the planks in order — a wrong board slips into the river and the card teaches it again.",
+              "task_code": "M05"
+            }
+          },
+          {
+            "n": 3,
+            "icon": "⛰️",
+            "name_zh": "石壁山嶺",
+            "name_en": "The rocky ridge",
+            "hint_zh": "攀上山脊：閱兵場上翻開《步操手冊》，逐個動作學會，再找領袖親身考核。",
+            "hint_en": "Climb to the crest: the parade ground opens the drill manual, movement by movement, then a leader assesses you in person.",
+            "items": [
+              5
+            ],
+            "game": {
+              "n": 3,
+              "kind": "drill",
+              "ready": true,
+              "task_code": "M06",
+              "name_zh": "步操訓練場",
+              "name_en": "The drill ground",
+              "blurb_zh": "七章手冊：基本姿勢、轉法、敬禮、移步、快步、七類集隊手號、看齊。逐個動作看手冊圖學要領，答對自查題；全部通過後找領袖親身考核，輸入領袖代碼完成遊戲 3。",
+              "blurb_en": "Seven chapters: positions, turns, the salute, paces, quick time, the seven fall-in hand signs and the right dress. Learn each movement from the manual's own pages, answer the self-checks, then perform them for a leader and bring back the code to finish game 3."
+            }
+          },
+          {
+            "n": 4,
+            "icon": "🏞️",
+            "name_zh": "溪谷旗桿",
+            "name_en": "The valley flagpole",
+            "hint_zh": "溪邊豎著旗桿。國旗、區旗與升旗禮儀，都在這裡考。",
+            "hint_en": "A flagpole by the stream. The flags and the flag ceremony are tested here.",
+            "items": [
+              7,
+              8,
+              9
+            ],
+            "game": {
+              "n": 4,
+              "kind": "",
+              "ready": false,
+              "name_zh": "即將推出",
+              "name_en": "Coming soon",
+              "blurb_zh": "內容待領袖提供。",
+              "blurb_en": "The leader will add this game later.",
+              "task_code": ""
+            }
+          },
+          {
+            "n": 5,
+            "icon": "🌊",
+            "name_zh": "臨海山崗",
+            "name_en": "The seaward bluff",
+            "hint_zh": "海風近了。唱好國歌，學懂保護自己，沙灘就在前面。",
+            "hint_en": "Sea air. Sing the anthem, learn to keep yourself safe — the beach is ahead.",
+            "items": [
+              10,
+              11
+            ],
+            "game": {
+              "n": 5,
+              "kind": "",
+              "ready": false,
+              "name_zh": "即將推出",
+              "name_en": "Coming soon",
+              "blurb_zh": "這一區的遊戲正在製作，等待領袖加入。",
+              "blurb_en": "This area’s game is being built. Your leader will add it later.",
+              "task_code": ""
+            }
+          }
+        ],
+        "game_rule_zh": "每個區域各有一個遊戲；五個遊戲全部完成，才可以考取會員章。",
+        "game_rule_en": "Every area holds one game. All five must be cleared before the badge is awarded.",
+        "award_rule": "five_games"
       }
-     },
-     {
-      "n": 3,
-      "icon": "⛰️",
-      "name_zh": "石壁山嶺",
-      "name_en": "The rocky ridge",
-      "hint_zh": "攀過石壁：考驗你的誓詞與規律，也要考你的隊列動作。",
-      "hint_en": "Climb the rock wall: your Promise and Law, and your drill.",
-      "items": [
-       5,
-       6
-      ],
-      "game": {
-       "n": 3,
-       "kind": "",
-       "ready": false,
-       "name_zh": "即將推出",
-       "name_en": "Coming soon",
-       "blurb_zh": "這一區的遊戲正在製作，等待領袖加入。",
-       "blurb_en": "This area’s game is being built. Your leader will add it later.",
-       "task_code": ""
-      }
-     },
-     {
-      "n": 4,
-      "icon": "🏞️",
-      "name_zh": "溪谷旗桿",
-      "name_en": "The valley flagpole",
-      "hint_zh": "溪邊豎著旗桿。國旗、區旗與升旗禮儀，都在這裡考。",
-      "hint_en": "A flagpole by the stream. The flags and the flag ceremony are tested here.",
-      "items": [
-       7,
-       8,
-       9
-      ],
-      "game": {
-       "n": 4,
-       "kind": "",
-       "ready": false,
-       "name_zh": "即將推出",
-       "name_en": "Coming soon",
-       "blurb_zh": "內容待領袖提供。",
-       "blurb_en": "The leader will add this game later.",
-       "task_code": ""
-      }
-     },
-     {
-      "n": 5,
-      "icon": "🌊",
-      "name_zh": "臨海山崗",
-      "name_en": "The seaward bluff",
-      "hint_zh": "海風近了。唱好國歌，學懂保護自己，沙灘就在前面。",
-      "hint_en": "Sea air. Sing the anthem, learn to keep yourself safe — the beach is ahead.",
-      "items": [
-       10,
-       11
-      ],
-      "game": {
-       "n": 5,
-       "kind": "",
-       "ready": false,
-       "name_zh": "即將推出",
-       "name_en": "Coming soon",
-       "blurb_zh": "這一區的遊戲正在製作，等待領袖加入。",
-       "blurb_en": "This area’s game is being built. Your leader will add it later.",
-       "task_code": ""
-      }
-     }
-    ],
-    "game_rule_zh": "每個區域各有一個遊戲；五個遊戲全部完成，才可以考取會員章。",
-    "game_rule_en": "Every area holds one game. All five must be cleared before the badge is awarded.",
-    "award_rule": "five_games"
-   }
+    },
+    "status": "published",
+    "created_at": "2026-10-15T00:29:43.253Z",
+    "updated_at": "2026-10-15T00:29:43.253Z",
+    "id": "c41dd03dbfd5e5b9"
   },
-  "status": "published",
-  "created_at": "2026-10-15T00:29:43.253Z",
-  "updated_at": "2026-10-15T00:29:43.253Z",
-  "id": "c41dd03dbfd5e5b9"
- },
- {
-  "section": "scout",
-  "order_index": 2,
-  "code": "SC-02",
-  "title_zh": "童軍探索獎章",
-  "title_en": "Scout Pathfinder Award",
-  "subtitle_zh": "進度性獎章 2 / 5",
-  "subtitle_en": "Progressive award 2 of 5",
-  "desc_zh": "完成會員章之後開啟。任務由領袖在後台加入（現時未有內容）。",
-  "desc_en": "Opens once the Membership Badge is earned. Tasks come from the leader console (empty for now).",
-  "emoji": "🧭",
-  "image_url": "/img/badges/pathfinder.webp",
-  "color": "#2f6f9f",
-  "points_reward": 100,
-  "prerequisite_badge_ids": [
-   "c41dd03dbfd5e5b9"
-  ],
-  "guide_json": null,
-  "status": "published",
-  "created_at": "2026-10-15T00:29:43.253Z",
-  "updated_at": "2026-10-15T00:29:43.253Z",
-  "id": "66a3c949825d7ee3"
- },
- {
-  "section": "scout",
-  "order_index": 3,
-  "code": "SC-03",
-  "title_zh": "童軍標準獎章",
-  "title_en": "Scout Standard Award",
-  "subtitle_zh": "進度性獎章 3 / 5",
-  "subtitle_en": "Progressive award 3 of 5",
-  "desc_zh": "技能與戶外活動（示例內容）。需要先完成童軍探索獎章。",
-  "desc_en": "Skills and outdoor activity (sample content). Requires the Pathfinder Award first.",
-  "emoji": "⛺",
-  "image_url": "/img/badges/standard.webp",
-  "color": "#2f6f9f",
-  "points_reward": 80,
-  "prerequisite_badge_ids": [
-   "66a3c949825d7ee3"
-  ],
-  "guide_json": null,
-  "status": "published",
-  "created_at": "2026-10-15T00:29:43.253Z",
-  "updated_at": "2026-10-15T00:29:43.253Z",
-  "id": "9e800d41fdd69631"
- },
- {
-  "section": "scout",
-  "order_index": 4,
-  "code": "SC-04",
-  "title_zh": "童軍高級獎章",
-  "title_en": "Scout Advanced Award",
-  "subtitle_zh": "進度性獎章 4 / 5",
-  "subtitle_en": "Progressive award 4 of 5",
-  "desc_zh": "服務與領導（示例內容）。需要先完成童軍標準獎章。",
-  "desc_en": "Service and leadership (sample content). Requires the Standard Award first.",
-  "emoji": "🏅",
-  "image_url": "/img/badges/advanced.webp",
-  "color": "#b07d2b",
-  "points_reward": 120,
-  "prerequisite_badge_ids": [
-   "9e800d41fdd69631"
-  ],
-  "guide_json": null,
-  "status": "published",
-  "created_at": "2026-10-15T00:29:43.253Z",
-  "updated_at": "2026-10-15T00:29:43.253Z",
-  "id": "b7dc4886ef56e78e"
- },
- {
-  "section": "scout",
-  "order_index": 5,
-  "code": "SC-05",
-  "title_zh": "總領袖獎章",
-  "title_en": "Chief Scout's Award",
-  "subtitle_zh": "進度性獎章 5 / 5",
-  "subtitle_en": "Progressive award 5 of 5",
-  "desc_zh": "童軍支部的最高獎章。任務由領袖在後台加入（現時未有內容）。",
-  "desc_en": "The highest award in the Scout section. Tasks come from the leader console (empty for now).",
-  "emoji": "👑",
-  "image_url": "/img/badges/chief-scout.webp",
-  "color": "#7d4b8f",
-  "points_reward": 250,
-  "prerequisite_badge_ids": [
-   "b7dc4886ef56e78e"
-  ],
-  "guide_json": null,
-  "status": "published",
-  "created_at": "2026-10-15T00:29:43.253Z",
-  "updated_at": "2026-10-15T00:29:43.253Z",
-  "id": "36b57420ed1bbc53"
- }
+  {
+    "section": "scout",
+    "order_index": 2,
+    "code": "SC-02",
+    "title_zh": "童軍探索獎章",
+    "title_en": "Scout Pathfinder Award",
+    "subtitle_zh": "進度性獎章 2 / 5",
+    "subtitle_en": "Progressive award 2 of 5",
+    "desc_zh": "完成會員章之後開啟。任務由領袖在後台加入（現時未有內容）。",
+    "desc_en": "Opens once the Membership Badge is earned. Tasks come from the leader console (empty for now).",
+    "emoji": "🧭",
+    "image_url": "/img/badges/pathfinder.webp",
+    "color": "#2f6f9f",
+    "points_reward": 100,
+    "prerequisite_badge_ids": [
+      "c41dd03dbfd5e5b9"
+    ],
+    "guide_json": null,
+    "status": "published",
+    "created_at": "2026-10-15T00:29:43.253Z",
+    "updated_at": "2026-10-15T00:29:43.253Z",
+    "id": "66a3c949825d7ee3"
+  },
+  {
+    "section": "scout",
+    "order_index": 3,
+    "code": "SC-03",
+    "title_zh": "童軍標準獎章",
+    "title_en": "Scout Standard Award",
+    "subtitle_zh": "進度性獎章 3 / 5",
+    "subtitle_en": "Progressive award 3 of 5",
+    "desc_zh": "技能與戶外活動（示例內容）。需要先完成童軍探索獎章。",
+    "desc_en": "Skills and outdoor activity (sample content). Requires the Pathfinder Award first.",
+    "emoji": "⛺",
+    "image_url": "/img/badges/standard.webp",
+    "color": "#2f6f9f",
+    "points_reward": 80,
+    "prerequisite_badge_ids": [
+      "66a3c949825d7ee3"
+    ],
+    "guide_json": null,
+    "status": "published",
+    "created_at": "2026-10-15T00:29:43.253Z",
+    "updated_at": "2026-10-15T00:29:43.253Z",
+    "id": "9e800d41fdd69631"
+  },
+  {
+    "section": "scout",
+    "order_index": 4,
+    "code": "SC-04",
+    "title_zh": "童軍高級獎章",
+    "title_en": "Scout Advanced Award",
+    "subtitle_zh": "進度性獎章 4 / 5",
+    "subtitle_en": "Progressive award 4 of 5",
+    "desc_zh": "服務與領導（示例內容）。需要先完成童軍標準獎章。",
+    "desc_en": "Service and leadership (sample content). Requires the Standard Award first.",
+    "emoji": "🏅",
+    "image_url": "/img/badges/advanced.webp",
+    "color": "#b07d2b",
+    "points_reward": 120,
+    "prerequisite_badge_ids": [
+      "9e800d41fdd69631"
+    ],
+    "guide_json": null,
+    "status": "published",
+    "created_at": "2026-10-15T00:29:43.253Z",
+    "updated_at": "2026-10-15T00:29:43.253Z",
+    "id": "b7dc4886ef56e78e"
+  },
+  {
+    "section": "scout",
+    "order_index": 5,
+    "code": "SC-05",
+    "title_zh": "總領袖獎章",
+    "title_en": "Chief Scout's Award",
+    "subtitle_zh": "進度性獎章 5 / 5",
+    "subtitle_en": "Progressive award 5 of 5",
+    "desc_zh": "童軍支部的最高獎章。任務由領袖在後台加入（現時未有內容）。",
+    "desc_en": "The highest award in the Scout section. Tasks come from the leader console (empty for now).",
+    "emoji": "👑",
+    "image_url": "/img/badges/chief-scout.webp",
+    "color": "#7d4b8f",
+    "points_reward": 250,
+    "prerequisite_badge_ids": [
+      "b7dc4886ef56e78e"
+    ],
+    "guide_json": null,
+    "status": "published",
+    "created_at": "2026-10-15T00:29:43.253Z",
+    "updated_at": "2026-10-15T00:29:43.253Z",
+    "id": "36b57420ed1bbc53"
+  }
 ]

@@ -175,7 +175,7 @@ def test_the_repair_card_is_on_the_content_page(monkeypatch):
     client = leader_client(store)
     page = client.get("/leader/content").get_data(as_text=True)
     assert "修復遊戲與缺少的項目" in page
-    assert "還原內建遊戲（石室、渡口）" in page
+    assert "還原內建遊戲（石室、渡口、訓練場）" in page
     assert "還原所有缺少的內建項目" in page
     assert 'name="scope" value="games"' in page and 'name="scope" value="all"' in page
     assert "repair-games" in page

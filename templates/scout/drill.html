@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{# the game takes the height of the window: the site chrome steps aside #}
+{% block body_attrs %}class="is-game"{% endblock %}
+
+{% block title %}{{ L(manual.title_zh, manual.title_en) }}{% endblock %}
+
+{# ── 步操訓練場 — the third game of 會員章 (第 6 項：隊列基本動作). The same
+      picture-window shape as the cave and the crossing: full-bleed artwork of
+      the ridge, one dark glass card, and the leader's own《步操手冊》pages
+      standing in the frame. Seven chapters — positions, turns, the salute,
+      paces, quick time, the seven fall-in hand signs, the right dress — each
+      movement read, then checked with one question. Everything lives in
+      static/js/drill.js, so the game also plays inside the offline demo
+      file. ── #}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L(badge.title_zh, badge.title_en) }}</a><span class="breadcrumb-arrow">›</span>
+  {{ L('遊戲 3：步操訓練場', 'Game 3 — the drill ground') }}
+</div>
+
+<section class="cave drill" id="drill-root" data-drill
+         data-drill-config="{{ scene_json | forceescape }}">
+  <div class="cave-stage">
+    <div class="cave-picture">
+      {% set first_art = art_names[0] %}
+      {% set first_path = (manual.images or {}).get(first_art, first_art) %}
+      <img class="cave-art-backdrop" data-drill-art-backdrop="{{ first_art }}" alt="" aria-hidden="true"
+           src="{{ url_for('static', filename=first_path) }}">
+      <img class="cave-art" data-drill-art="{{ first_art }}"
+           src="{{ url_for('static', filename=first_path) }}" alt="">
+      <div class="cave-shade" aria-hidden="true"></div>
+      <header class="cave-hud">
+        <a class="cave-hud-link" href="{{ url_for('scout_routes.home') }}">🏠 {{ L('主頁', 'Home') }}</a>
+        <span class="cave-hud-mid" data-drill-progress>{{ L('步操訓練場', 'The drill ground') }}</span>
+        <a class="cave-hud-link" href="{{ badge_url }}">🎖 {{ L('會員章', 'Badge') }}</a>
+      </header>
+    </div>
+    <div class="cave-card-wrap">
+      <div class="cave-card" data-drill-card aria-live="polite">
+        {% if studied_now %}
+          {# 手冊已讀完但未輸入領袖代碼：一開啟就站在考核卡（下面那句不會出現）。
+             這裡先放考核卡的開頭，遊戲程式載入後會補上代碼輸入框。 #}
+          <span class="cave-kicker cave-kicker-good">{{ L(manual.assess.kicker_zh, manual.assess.kicker_en) }}</span>
+          <h1 class="cave-title">{{ L(manual.assess.title_zh, manual.assess.title_en) }}</h1>
+          <p class="cave-line small">{{ L(manual.assess.lead_zh, manual.assess.lead_en) }}</p>
+          <noscript>
+            <p class="cave-line small">{{ L('這個畫面需要 JavaScript 才能輸入代碼；請在會員章頁面（第 6 項）輸入。', 'This screen needs JavaScript for the code; enter it on the badge page, item 6.') }}</p>
+          </noscript>
+        {% else %}
+          <span class="cave-kicker">{{ L(manual.intro.kicker_zh, manual.intro.kicker_en) }}</span>
+          <h1 class="cave-title">{{ L(manual.intro.title_zh, manual.intro.title_en) }}</h1>
+          {% for para in (manual.intro.paras_zh if lang != 'en' else manual.intro.paras_en) %}
+            <p class="cave-line">{{ para }}</p>
+          {% endfor %}
+          <p class="cave-line small">{{ L(manual.intro.hint_zh, manual.intro.hint_en) }}</p>
+          <div class="cave-actions">
+            <button class="btn primary big" type="button" data-drill-go="start" data-cheer="🔥,✨">
+              {{ L(manual.intro.action_zh, manual.intro.action_en) }}</button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {# 向下捲動: shown while the panel still has more words below its edge #}
+    <div class="cave-more" data-drill-more hidden>
+      <span class="cave-more-chip">▾ {{ L('向下捲動', 'Scroll down') }}</span>
+    </div>
+  </div>
+
+  {# the one real link in the game, kept here so the script can clone it: live it
+     is 會員章's URL, offline the builder turns it into a pane hop #}
+  <div hidden aria-hidden="true">
+    <a data-drill-link="badge" href="{{ badge_url }}">🎖 {{ L('回到會員章', 'Back to the badge') }}</a>
+    {% for link in links or [] %}
+      <a data-drill-link="ref" href="{{ link.url }}" target="_blank" rel="noopener">🔗 {{ L(link.label_zh, link.label_en) }}</a>
+    {% endfor %}
+  </div>
+
+  {# every page of the manual and the ridge painting, so nothing is fetched
+     mid-game; the game swaps them into the frame by name #}
+  <div class="cave-sources" hidden aria-hidden="true">
+    {% for name in art_names if name != first_art %}
+      <img data-drill-art="{{ name }}" src="{{ url_for('static', filename=(manual.images or {}).get(name, name)) }}" alt="">
+    {% endfor %}
+  </div>
+
+  <noscript>
+    <p class="small muted">{{ L('訓練場遊戲需要開啟 JavaScript。請開啟後再試，或請領袖協助。', 'The drill ground needs JavaScript. Enable it and try again, or ask your leader for help.') }}</p>
+  </noscript>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/drill.js') }}?v={{ asset_v('js/drill.js') }}"></script>
+{% endblock %}

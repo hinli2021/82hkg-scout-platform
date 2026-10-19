@@ -116,6 +116,53 @@ def river_adventure() -> dict:
     return {**adventure, "stages": stages}
 
 
+def drill_manual() -> dict:
+    """第 6 項的步操訓練場（the drill game），or {} when it is not set up.
+
+    Seven chapters of the leader's 《步操手冊》 — positions, turns, the salute,
+    paces, quick time, the seven fall-in hand signs and the right dress — each
+    movement carrying its manual page, its points and one self-check question.
+    Everything a leader may rewrite lives in `drill.json`; the game only knows
+    how to turn the pages. Finishing every check sends the scout to a leader
+    for the 考核 in person, and the leader's code completes the item.
+    """
+    manual = _read_json(os.path.join(MEMBER_BADGE_DIR, "drill.json")) or {}
+    sections = []
+    for section in (manual.get("sections") or []):
+        if not isinstance(section, dict):
+            continue
+        moves = [m for m in (section.get("moves") or [])
+                 if isinstance(m, dict) and (m.get("check") or {}).get("q_zh")
+                 and (m.get("check") or {}).get("options_zh")]
+        if moves:
+            sections.append({**section, "moves": moves})
+    if not sections:
+        return {}
+    return {**manual, "sections": sections}
+
+
+def drill_images(manual: dict) -> list[str]:
+    """Every picture the drill ground can show, in the order first needed.
+
+    The chapter pages are the manual's own scans (portrait A5); the ridge
+    painting stands behind the intro, the assess card and every movement that
+    carries no manual page of its own (the right dress).
+    """
+    art = manual.get("images") or {}
+    names: list[str] = []
+
+    def take(name):
+        if name and name not in names:
+            names.append(name)
+
+    take((manual.get("intro") or {}).get("image") or art.get("ridge"))
+    for section in manual.get("sections") or []:
+        for move in section.get("moves") or []:
+            for key in ("img", "img2", "img3", "figure"):
+                take(move.get(key))
+    return names
+
+
 def river_images(adventure: dict) -> list[str]:
     """Every picture the crossing can show, in the order it is first needed."""
     art = adventure.get("images") or {}

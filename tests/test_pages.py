@@ -175,8 +175,9 @@ def test_the_offline_demo_can_actually_sign_somebody_in():
     panes = re.findall(r'id="pane-([\w-]+)"', page)
     assert panes == ["scene", "names-Tiger", "names-Otter", "names-Seagull",
                      "leader-code", "setup", "home", "badges", "history", "quest-intro",
-                     "quest-map", "guide", "cave", "bridge", "leader"], panes
+                     "quest-map", "guide", "cave", "bridge", "drill", "leader"], panes
     assert 'id="pane-bridge"' in page and 'window.BridgeGame' in page
+    assert 'id="pane-drill"' in page and 'window.DrillGame' in page
     assert "data-nav=\"names-Otter\"" in page          # the animals are doors
     assert page.count('data-nav="home"') >= 3            # the names are doors
     # 領袖登入 leads to the code card, never straight into the console

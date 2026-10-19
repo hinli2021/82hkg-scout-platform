@@ -22,6 +22,7 @@
                 {% if item.kind == 'badge' %}{{ item.emoji or '🎖' }}
                 {% elif item.status == 'completed' %}✅
                 {% elif item.status == 'crossed' %}🧭
+                {% elif item.status == 'studied' %}🥁
                 {% elif item.status == 'pending' %}⏳
                 {% else %}↩{% endif %}
               </span>
@@ -36,6 +37,7 @@
                     {{ L(item.badge_zh, item.badge_en) }}
                     {% if item.score %} · {{ L('得分', 'score') }} {{ item.score }}%{% endif %}
                     {% if item.status == 'crossed' %} · {{ L('已過橋，等領袖考核', 'crossed — waiting on the leader’s check') }}{% endif %}
+                    {% if item.status == 'studied' %} · {{ L('手冊已學完，等領袖考核', 'manual learned — waiting on the leader’s check') }}{% endif %}
                     {% if item.attempt_no and item.attempt_no > 1 %} · {{ L('第', 'attempt') }} {{ item.attempt_no }}{% endif %}
                   {% endif %}
                   {% if item.comment %}<div>{{ L('領袖評語：', 'Leader: ') }}{{ item.comment }}</div>{% endif %}

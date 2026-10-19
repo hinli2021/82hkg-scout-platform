@@ -12,7 +12,9 @@
                 if next_stage.game_kind == 'cave'
                 else (url_for('scout_routes.task_bridge', task_id=next_stage.game_task.id)
                       if next_stage.game_kind == 'bridge'
-                      else url_for('scout_routes.task_player', task_id=next_stage.game_task.id)) %}
+                      else (url_for('scout_routes.task_drill', task_id=next_stage.game_task.id)
+                            if next_stage.game_kind == 'drill'
+                            else url_for('scout_routes.task_player', task_id=next_stage.game_task.id))) %}
 {% else %}
   {% set play = None %}
 {% endif %}
@@ -155,14 +157,16 @@
                     <span class="stage-chip-state" data-game-state>
                       {% if stage.done %}✔ {{ L('已完成', 'Cleared') }}
                       {% elif stage.crossed %}🧭 {{ L('已過橋 · 找領袖考核', 'Crossed · see a leader') }}
+                      {% elif stage.studied %}🥁 {{ L('已學完 · 找領袖考核', 'Learned · see a leader') }}
                       {% elif not stage.game_ready %}🔒 {{ L('等待領袖加入', 'Waiting for your leader') }}
                       {% elif stage.pending %}⏳ {{ L('等領袖核實', 'With a leader') }}
                       {% else %}{{ L('等你開始', 'Ready to play') }}{% endif %}
                     </span>
-                    {# A crossing that is laid but still waiting on the leader's
-                       考核 code: the walk has moved on to the next game, and the
-                       code itself is typed on the badge page (or in the game). #}
-                    {% if stage.crossed and stage.game_ready and stage.game_task and not badge.locked %}
+                    {# A crossing that is laid, or a manual that is studied, but
+                       still waiting on the leader's 考核 code: the walk has moved
+                       on to the next game, and the code itself is typed on the
+                       badge page (or in the game). #}
+                    {% if (stage.crossed or stage.studied) and stage.game_ready and stage.game_task and not badge.locked %}
                       <a class="stage-chip-replay" data-code="stage-{{ stage.n }}"
                          href="{{ url_for('scout_routes.badge_requirements', badge_id=badge.id) }}#task-{{ stage.game_task.code }}">
                         🔑 {{ L('輸入領袖代碼', 'Enter the leader’s code') }}
@@ -177,7 +181,9 @@
                                   if stage.game_kind == 'cave'
                                   else (url_for('scout_routes.task_bridge', task_id=stage.game_task.id)
                                         if stage.game_kind == 'bridge'
-                                        else url_for('scout_routes.task_player', task_id=stage.game_task.id)) }}">
+                                        else (url_for('scout_routes.task_drill', task_id=stage.game_task.id)
+                                              if stage.game_kind == 'drill'
+                                              else url_for('scout_routes.task_player', task_id=stage.game_task.id))) }}">
                         🎮 {{ L('再玩一次', 'Play again') }}
                       </a>
                     {% endif %}

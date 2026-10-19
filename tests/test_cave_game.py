@@ -373,15 +373,19 @@ def test_every_cave_exit_warns_that_reentry_starts_over(cave_page):
 def test_offline_router_guards_pane_exits_and_keeps_badge_progress():
     """Offline pane switches cannot skip the warning or resume old answers."""
     offline = (ROOT / 'tools' / 'offline_demo.py').read_text()
-    # both games are guarded: whatever game is on screen asks before it goes
+    # every game is guarded: whatever game is on screen asks before it goes
     assert "(shown === 'cave' && id !== 'cave') || (shown === 'bridge' && id !== 'bridge')" in offline
+    assert "(shown === 'drill' && id !== 'drill')" in offline
+    assert "if (shown === 'drill') return window.DrillGame;" in offline
     assert 'game.requestExit(function () { go(id, true); })' in offline
-    assert "return shown === 'cave' ? window.CaveGame : window.BridgeGame;" in offline
     assert "trail[trail.length - 1]" in offline, 'canceling Escape keeps history'
     assert "var game1Cleared = false" in offline
     assert "var game2Cleared = false" in offline
+    assert "var game3Cleared = false" in offline
     assert "document.addEventListener('bridge:result'" in offline
+    assert "document.addEventListener('drill:result'" in offline
     assert "'2 / 5 個遊戲'" in offline
+    assert "'3 / 5 個遊戲'" in offline
 
 
 def test_repeated_wrong_turns_lower_the_percentage_but_not_the_mark(app, store, new_scout):

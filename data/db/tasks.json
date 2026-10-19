@@ -994,11 +994,11 @@
     "badge_id": "c41dd03dbfd5e5b9",
     "order_index": 6,
     "code": "M06",
-    "title_zh": "第 6 項：宣誓禮儀與中式隊列",
-    "title_en": "Item 6 — investiture customs and drill",
-    "instruction_zh": "認識宣誓時應有之童軍禮儀，以及中式隊列之基本動作。考核動作：salute；alert／stand-at-ease；right turn／left turn／about turn；pace forward／backward／left／right march；dressing right dress；mark time；by the front quick march。",
-    "instruction_en": "Know the Scout customs for the investiture ceremony and the basic movements of Chinese-style drill. Show: salute; alert / stand-at-ease; right turn / left turn / about turn; pace forward / backward / left / right march; dressing right dress; mark time; by the front quick march.",
-    "type": "signoff",
+    "title_zh": "第 6 項：步操訓練場（遊戲 3）",
+    "title_en": "Item 6 — the drill ground (game 3)",
+    "instruction_zh": "認識宣誓時應有之童軍禮儀，以及隊列之基本動作。第三個區域只有這一個遊戲：在閱兵場翻開《步操手冊》，七章逐章學會——基本姿勢、轉法、敬禮、移步、快步、七類集隊手號、看齊（right dress），每個動作答對自查題。全部通過後找領袖親身做出動作考核；考核通過，輸入領袖代碼即完成第 6 項。",
+    "instruction_en": "Know the Scout customs for the investiture ceremony and the basic drill movements. The third area's only game: open the drill manual on the parade ground and learn its seven chapters — positions, turns, the salute, paces, quick time, the seven fall-in hand signs and the right dress — answering a self-check for each movement. Then perform the movements for a leader; the leader's code completes item 6.",
+    "type": "quiz",
     "points": 15,
     "pass_score": 0,
     "config_json": {
@@ -1008,7 +1008,8 @@
           "label_en": "Drill reference",
           "url": "https://drive.google.com/drive/folders/1o7CruXDWSruWb10vEhxfPO_yNiWi93-d?usp=sharing"
         }
-      ]
+      ],
+      "kind": "drill"
     },
     "status": "published",
     "created_at": "2026-10-15T00:29:43.253Z",

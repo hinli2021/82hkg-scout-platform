@@ -161,6 +161,87 @@ def ensure_bridge(st: Store, badge: dict, blueprint: dict) -> tuple[bool, bool]:
     return guide_changed, task_changed
 
 
+# ── game 3: the drill ground in area 3 ────────────────────────────────────
+# 步操訓練場 (M06) is bound to the third area. Existing installs know item 6
+# as a sign-off task (宣誓禮儀與中式隊列); the migration brings that task up
+# to the game's shape, replacing only text that is still the shipped default.
+DRILL_CODE = "M06"
+
+LEGACY_M06_SIGNOFF = {
+    "title_zh": "第 6 項：宣誓禮儀與中式隊列",
+    "title_en": "Item 6 — investiture customs and drill",
+    "instruction_zh": "認識宣誓時應有之童軍禮儀，以及中式隊列之基本動作。考核動作：salute；alert／stand-at-ease；right turn／left turn／about turn；pace forward／backward／left／right march；dressing right dress；mark time；by the front quick march。",
+    "instruction_en": "Know the Scout customs for the investiture ceremony and the basic movements of Chinese-style drill. Show: salute; alert / stand-at-ease; right turn / left turn / about turn; pace forward / backward / left / right march; dressing right dress; mark time; by the front quick march.",
+}
+
+
+def ensure_drill(st: Store, badge: dict, blueprint: dict) -> tuple[bool, bool]:
+    """Returns (guide_changed, task_changed). Never touches leader edits."""
+    guide_changed = task_changed = False
+
+    canonical = next((t for t in SEED_BADGES[0]["tasks"] if t["code"] == DRILL_CODE), None)
+    if canonical is None:
+        return False, False
+    area = (blueprint["areas"][2] if len(blueprint["areas"]) > 2 else {})
+
+    task = next((t for t in st.list("tasks")
+                 if t.get("badge_id") == badge["id"] and t.get("code") == DRILL_CODE), None)
+    if task is None:
+        config = dict(canonical.get("config_json", {}))
+        task = st.insert("tasks", {
+            "badge_id": badge["id"], "order_index": 6, "code": DRILL_CODE,
+            "title_zh": canonical["title_zh"], "title_en": canonical["title_en"],
+            "instruction_zh": canonical["instruction_zh"],
+            "instruction_en": canonical["instruction_en"],
+            "type": canonical["type"], "points": canonical["points"],
+            "pass_score": canonical.get("pass_score", 0), "config_json": config,
+            "status": "published", "created_at": now_iso(), "updated_at": now_iso(),
+        })
+        task_changed = True
+    else:
+        # The item used to be a sign-off task: raise it to the game's shape.
+        # Type and kind are structural; titles and instructions are replaced
+        # only when they still carry the shipped sign-off wording.
+        config = as_json(task.get("config_json"), {})
+        patch = {}
+        if str(task.get("type") or "") != canonical["type"]:
+            patch["type"] = canonical["type"]
+            patch["pass_score"] = canonical.get("pass_score", 0)
+        if not config.get("kind"):
+            config["kind"] = "drill"
+            patch["config_json"] = config
+        for key in ("title_zh", "title_en", "instruction_zh", "instruction_en"):
+            if task.get(key) == LEGACY_M06_SIGNOFF.get(key) and canonical.get(key):
+                patch[key] = canonical[key]
+        if patch:
+            st.update("tasks", task["id"], patch)
+            task_changed = True
+
+    # Re-read the row: the caller may have written the new layout already.
+    fresh = st.get("badges", badge["id"]) or {}
+    old = as_json(fresh.get("guide_json"), {})
+    quest = old.setdefault("quest", {})
+    areas = quest.get("areas") or []
+    if len(areas) == 5:
+        current = areas[2].get("game") or {}
+        if current.get("ready") and current.get("task_code") and current.get("task_code") != DRILL_CODE:
+            return guide_changed, task_changed       # 領袖自己換了遊戲 → 不碰
+        if current.get("task_code") != DRILL_CODE or not current.get("ready"):
+            areas[2]["game"] = copy.deepcopy(area.get("game") or {})
+            areas[2]["game"]["task_code"] = DRILL_CODE
+            areas[2]["game"]["ready"] = True
+            areas[2]["game"]["kind"] = "drill"
+            areas[2]["game"]["n"] = 3
+            if area.get("hint_zh"):
+                areas[2]["hint_zh"] = area["hint_zh"]
+            if area.get("hint_en"):
+                areas[2]["hint_en"] = area["hint_en"]
+            areas[2]["items"] = [n for n in areas[2].get("items", []) if n != 6]
+            st.update("badges", badge["id"], {"guide_json": old})
+            guide_changed = True
+    return guide_changed, task_changed
+
+
 def main() -> None:
     st = Store.from_env()
     badge = next((b for b in st.list("badges") if b.get("code") == "SC-01"), None)
@@ -188,12 +269,15 @@ def main() -> None:
         if task_patch:
             st.update("tasks", task["id"], task_patch)
         bridge_guide, bridge_task = ensure_bridge(st, badge, source["quest"])
+        drill_guide, drill_task = ensure_drill(st, badge, source["quest"])
         if story_changed:
             print("SC-01 journey copy updated for the one-button start; scout records preserved")
         elif cave_changed or task_patch:
             print("SC-01 cave completion rule updated; scout records preserved")
         if bridge_guide or bridge_task:
             print("SC-01 gained game 2, the bridge in area 2; scout records preserved")
+        if drill_guide or drill_task:
+            print("SC-01 gained game 3, the drill ground in area 3; scout records preserved")
         if not (story_changed or cave_changed or task_patch or bridge_guide or bridge_task):
             print("SC-01 already uses the completion-based cave; nothing changed")
         return
@@ -261,9 +345,10 @@ def main() -> None:
         cfg.pop("start_credited", None)
         st.update("tasks", item1["id"], {"config_json": cfg})
     bridge_guide, bridge_task = ensure_bridge(st, badge, blueprint)
+    drill_guide, drill_task = ensure_drill(st, badge, blueprint)
     print("SC-01 updated: cave = game 1 in area 1; old paper removed; "
-          "game 2 (the bridge) sits in area 2; games 3–5 still await the leader. "
-          "No scout records were deleted.")
+          "game 2 (the bridge) sits in area 2; game 3 (the drill ground) sits in "
+          "area 3; games 4–5 still await the leader. No scout records were deleted.")
 
 
 if __name__ == "__main__":

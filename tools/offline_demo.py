@@ -202,6 +202,31 @@ if bridge_task is not None:
                          bridge_page, count=1, flags=re.S)
     panes.append(("bridge", "遊戲 2 · 迷霧渡口", body_of(bridge_page)))
 
+# ── game 3: 步操訓練場 — the manual the scout reads chapter by chapter ────
+# Same treatment again: no endpoint offline, the checks are answered in the
+# browser and the leader's 考核 code is carried in the file (the live page
+# never ships it) — the demo keeps the same two halves of the game.
+drill_task = next((t for t in store.list("tasks")
+                   if t["badge_id"] == membership["id"] and t.get("code") == "M06"), None)
+if drill_task is None:
+    print("offline drill: M06 is missing from this database; the demo skips game 3")
+
+from scout.routes.scout_routes import _drill_assess_code   # noqa: E402
+DRILL_CODE = _drill_assess_code(store)
+
+def clear_drill_submit(match: re.Match) -> str:
+    config = json.loads(html.unescape(match.group(2)))
+    config["submit_url"] = ""
+    config["code_url"] = ""
+    config.setdefault("assess", {})["code"] = DRILL_CODE
+    return match.group(1) + html.escape(json.dumps(config, ensure_ascii=False), quote=True) + match.group(3)
+
+if drill_task is not None:
+    drill_page = fetch(f"/tasks/{drill_task['id']}/drill?sid={sid}")
+    drill_page = re.sub(r'(data-drill-config=")(.*?)(")', clear_drill_submit,
+                        drill_page, count=1, flags=re.S)
+    panes.append(("drill", "遊戲 3 · 步操訓練場", body_of(drill_page)))
+
 panes.append(("leader", "Leader", body_of(session_html("/login/demo/demo1"))))
 
 # the leaders' door is NOT free: the offline copy of the card asks for the code
@@ -270,6 +295,7 @@ fx = (ROOT / "static/js/effects.js").read_text()
 login_js = (ROOT / "static/js/login.js").read_text()
 cave_js = (ROOT / "static/js/cave.js").read_text()        # 第 4 項: the cave walks itself
 bridge_js = (ROOT / "static/js/bridge.js").read_text()    # 第 5 項: the planks of 迷霧渡口
+drill_js = (ROOT / "static/js/drill.js").read_text()      # 第 6 項: the manual of 步操訓練場
 
 # the login script: instead of leaving the page, it switches pane
 login_js = login_js.replace(
@@ -292,11 +318,13 @@ router = """
   var trail = [];
   var game1Cleared = false;
   var game2Cleared = false;
+  var game3Cleared = false;
   var bridgeCrossed = false;
+  var drillStudied = false;
   var setupPending = false;
   var setupComplete = false;
   var scoutPanes = { home: 1, badges: 1, history: 1, 'quest-intro': 1, 'quest-map': 1,
-                     guide: 1, cave: 1, bridge: 1 };
+                     guide: 1, cave: 1, bridge: 1, drill: 1 };
 
   /* A cleared location keeps a small door of its own: the live map does the same,
      so the offline file must not be the only place without a way back in. */
@@ -340,6 +368,12 @@ router = """
       if (bridgeCrossed && !game2Cleared) window.BridgeGame.assess();
       else window.BridgeGame.restart();
     }
+    if (id !== shown && id === 'drill') {
+      /* a manual already studied (still waiting on the leader's code) re-opens
+         on the assess card; a fresh visit starts at the parade ground gate */
+      if (drillStudied && !game3Cleared) window.DrillGame.assess();
+      else window.DrillGame.restart();
+    }
     panes.forEach(function (p) { p.hidden = p !== target; });
     target.querySelectorAll('.pane-inner').forEach(function (n) { n.hidden = false; });
     shown = id;
@@ -350,10 +384,14 @@ router = """
 
   // Leaving a game still asks first — whichever game is on the screen.
   function shownGame() {
-    return shown === 'cave' ? window.CaveGame : window.BridgeGame;
+    if (shown === 'cave') return window.CaveGame;
+    if (shown === 'bridge') return window.BridgeGame;
+    if (shown === 'drill') return window.DrillGame;
+    return null;
   }
   function leavingGame(id) {
-    return (shown === 'cave' && id !== 'cave') || (shown === 'bridge' && id !== 'bridge');
+    return (shown === 'cave' && id !== 'cave') || (shown === 'bridge' && id !== 'bridge')
+        || (shown === 'drill' && id !== 'drill');
   }
 
   function back() {
@@ -436,8 +474,8 @@ router = """
 
   // The crossing is laid, but game 2 is two halves: the chip now reads
   // 「已過橋 · 找領袖考核」 (not done), the scout stands on area 3 — the walk may
-  // carry on — and the counters stay where they were until the leader's code
-  // is typed into the assess card. Game 3 waits for its leader, as ever.
+  // carry on to the drill ground — and the counters stay where they were until
+  // the leader's code is typed into the assess card.
   document.addEventListener('bridge:crossed', function (event) {
     if (!event.detail || event.detail.cleared || game2Cleared) return;
     bridgeCrossed = true;
@@ -453,14 +491,14 @@ router = """
       }
       moveNow(pane, 2, 3);
       var play = pane.querySelector('[data-journey-play]');
-      if (play) play.remove();          // game 3 is not built yet: nothing to press
-      var lead = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
-      if (lead) lead.remove();
-      var wait = pane.querySelector('[data-journey-wait]');
-      if (wait) {
-        wait.hidden = false;
-        wait.textContent = wait.textContent.replace('遊戲 2', '遊戲 3');
+      if (play) {
+        // the next game is the drill ground: the one button now points at it
+        play.setAttribute('data-nav', 'drill');
+        play.removeAttribute('href');
+        play.textContent = '🎮 繼續歷險 · 進入遊戲 3';
       }
+      var lead = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
+      if (lead) lead.textContent = '直接進入「步操訓練場」。';
     }
   });
 
@@ -498,17 +536,85 @@ router = """
       if (raft) raft.textContent = '2 / 5';
       replayDoor(second, 'bridge', '再玩一次');
       var play = pane.querySelector('[data-journey-play]');
-      if (play) play.remove();          // games 3–5 are not built yet: nothing to press
-      var launch = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
-      if (launch) launch.remove();
-      var wait = pane.querySelector('[data-journey-wait]');
-      if (wait) {
-        wait.hidden = false;
-        wait.textContent = wait.textContent.replace('遊戲 2', '遊戲 3');
+      if (play) {
+        // game 3, the drill ground, is next: the one button carries on to it
+        play.setAttribute('data-nav', 'drill');
+        play.removeAttribute('href');
+        play.textContent = '🎮 繼續歷險 · 進入遊戲 3';
       }
+      var launch = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
+      if (launch) launch.textContent = '直接進入「步操訓練場」。';
     }
     var tile = document.querySelector('#pane-home [data-badge-meter]');
     if (tile) tile.textContent = '2 / 5 個遊戲';
+  });
+
+  // The manual is studied, but game 3 is two halves too: the chip reads
+  // 「已學完 · 找領袖考核」 (not done), the scout stands on area 4, and the
+  // counters wait for the leader's code. Game 4 is not built yet, so the one
+  // button goes and the lock note returns — now naming game 4.
+  document.addEventListener('drill:studied', function (event) {
+    if (!event.detail || event.detail.cleared || game3Cleared) return;
+    drillStudied = true;
+    var pane = document.getElementById('pane-quest-map');
+    if (pane) {
+      var third = pane.querySelector('.stage-chip[data-stage="3"]');
+      var fourth = pane.querySelector('.stage-chip[data-stage="4"]');
+      if (third) {
+        var studiedState = third.querySelector('[data-game-state]');
+        if (studiedState) studiedState.textContent = '🥁 已學完 · 找領袖考核';
+        var me = third.querySelector('.stage-chip-me');
+        if (me && fourth) fourth.querySelector('.stage-chip-card').appendChild(me);
+      }
+      moveNow(pane, 3, 4);
+      var play = pane.querySelector('[data-journey-play]');
+      if (play) play.remove();          // games 4–5 are not built yet: nothing to press
+      var lead = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
+      if (lead) lead.remove();
+      var wait = pane.querySelector('[data-journey-wait]');
+      if (wait) {
+        wait.hidden = false;
+        wait.textContent = wait.textContent.replace('遊戲 2', '遊戲 4');
+      }
+    }
+  });
+
+  // The code is in: game 3 really is cleared. Clear area 3, stand the scout on
+  // area 4, and move both counters one step on.
+  document.addEventListener('drill:result', function (event) {
+    if (!event.detail || !event.detail.cleared || game3Cleared) return;
+    game3Cleared = true;
+    var pane = document.getElementById('pane-quest-map');
+    if (pane) {
+      var third = pane.querySelector('.stage-chip[data-stage="3"]');
+      var fourth = pane.querySelector('.stage-chip[data-stage="4"]');
+      if (third) {
+        third.classList.add('is-done');
+        third.classList.remove('is-here');
+        var doneBrow = third.querySelector('.stage-chip-eyebrow');
+        if (doneBrow) doneBrow.remove();
+        var state = third.querySelector('[data-game-state]');
+        if (state) state.textContent = '✔ 已完成';
+        var me = third.querySelector('.stage-chip-me');
+        if (me && fourth) fourth.querySelector('.stage-chip-card').appendChild(me);
+      }
+      if (fourth) {
+        fourth.classList.add('is-here');
+        var card = fourth.querySelector('.stage-chip-card');
+        if (card) card.setAttribute('aria-current', 'step');
+      }
+      var areas = pane.querySelector('[data-areas-count]');
+      if (areas) areas.textContent = '3 / 5 個區域已走過';
+      var games = pane.querySelector('[data-games-count]');
+      if (games) games.textContent = '3 / 5 個遊戲已完成';
+      var bar = pane.querySelector('[data-quest-bar] > span');
+      if (bar) bar.style.width = '60%';
+      var raft = pane.querySelector('.story-raft-meter');
+      if (raft) raft.textContent = '3 / 5';
+      replayDoor(third, 'drill', '再翻一次手冊');
+    }
+    var tile = document.querySelector('#pane-home [data-badge-meter]');
+    if (tile) tile.textContent = '3 / 5 個遊戲';
   });
 
   // the two demo accounts on the leaders' card: one tap each
@@ -673,6 +779,8 @@ parts.append("\n</script>\n<script>\n")
 parts.append(cave_js)
 parts.append("\n</script>\n<script>\n")
 parts.append(bridge_js)
+parts.append("\n</script>\n<script>\n")
+parts.append(drill_js)
 parts.append("\n</script>\n</body>\n</html>\n")
 
 html = "".join(parts).replace("{BUILD}", BUILD)
@@ -717,6 +825,8 @@ def link(match: re.Match) -> str:
         return tag.replace(f'href="{href}"', 'data-nav="cave"')     # ✨ game 1
     if bridge_task is not None and href.startswith(f"/tasks/{bridge_task['id']}"):
         return tag.replace(f'href="{href}"', 'data-nav="bridge"')   # ✨ game 2
+    if drill_task is not None and href.startswith(f"/tasks/{drill_task['id']}"):
+        return tag.replace(f'href="{href}"', 'data-nav="drill"')    # ✨ game 3
     return tag.replace(f'href="{href}"', 'href="#" data-dead="1"')
 
 
@@ -731,10 +841,11 @@ def switch_off_forms(markup: str) -> str:
     def handle(match: re.Match) -> str:
         block = match.group(0)
         if any(key in block for key in ("data-leadercode", "data-demo", "data-offline-setup",
-                                        "data-bridge-code")):
+                                        "data-bridge-code", "data-drill-code")):
             # keep it, and make sure its submit buttons still submit
-            # (data-bridge-code is game 2's assess card: the code is checked
-            #  locally in this file, so its form must stay a real form)
+            # (data-bridge-code / data-drill-code are the assess cards of
+            #  games 2 and 3: the codes are checked locally in this file, so
+            #  those forms must stay real forms)
             block = re.sub(r'(<button\b[^>]*?)\s+type="button"\s+data-dead="1"',
                            lambda m: m.group(1) + ' type="submit"', block)
             block = block.replace(' data-dead="1"', '') if "data-demo" in block else block

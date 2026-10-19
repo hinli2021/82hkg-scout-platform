@@ -47,7 +47,10 @@ def test_existing_demo_upgrade_is_idempotent_and_preserves_progress(store, data_
     second_area = updated['quest']['areas'][1]['game']
     assert second_area['task_code'] == 'M05' and second_area['ready']
     assert second_area['kind'] == 'bridge'
-    assert all(not a['game']['ready'] for a in updated['quest']['areas'][2:])
+    third_area = updated['quest']['areas'][2]['game']
+    assert third_area['task_code'] == 'M06' and third_area['ready']
+    assert third_area['kind'] == 'drill'
+    assert all(not a['game']['ready'] for a in updated['quest']['areas'][3:])
     changed = store.get('tasks', cave['id'])
     assert changed['title_zh'] == '第 4 項：童軍歷史山洞（遊戲 1）'
     assert len(engine.as_json(changed['config_json'], {})['questions']) == 50
@@ -56,6 +59,67 @@ def test_existing_demo_upgrade_is_idempotent_and_preserves_progress(store, data_
                             capture_output=True, text=True, check=True)
     assert 'nothing changed' in second.stdout
     assert counts_before == {name: len(store.list(name)) for name in counts_before}
+
+
+def test_old_signoff_item_six_becomes_the_drill_game(store, data_dir):
+    """A pre-drill install knows item 6 as a sign-off task; the migration
+    raises it to game 3 (步操訓練場) and wires area 3, keeping leader text."""
+    badge = next(b for b in store.list('badges') if b.get('code') == 'SC-01')
+    guide = engine.as_json(badge['guide_json'], {})
+    # the former shape: area 3 held no game, item 6 was listed as a syllabus row
+    guide['quest']['areas'][2]['items'] = [5, 6]
+    guide['quest']['areas'][2]['game'] = {'n': 3, 'kind': '', 'ready': False,
+                                          'name_zh': '即將推出', 'name_en': 'Coming soon',
+                                          'blurb_zh': '這一區的遊戲正在製作，等待領袖加入。',
+                                          'blurb_en': 'This area’s game is being built. '
+                                                      'Your leader will add it later.',
+                                          'task_code': ''}
+    store.update('badges', badge['id'], {'guide_json': guide})
+    m06 = next(t for t in store.list('tasks') if t.get('code') == 'M06')
+    store.update('tasks', m06['id'], {
+        'title_zh': '第 6 項：宣誓禮儀與中式隊列',
+        'title_en': 'Item 6 — investiture customs and drill',
+        'instruction_zh': ('認識宣誓時應有之童軍禮儀，以及中式隊列之基本動作。考核動作：salute；'
+                           'alert／stand-at-ease；right turn／left turn／about turn；pace '
+                           'forward／backward／left／right march；dressing right dress；mark '
+                           'time；by the front quick march。'),
+        'instruction_en': ('Know the Scout customs for the investiture ceremony and the '
+                           'basic movements of Chinese-style drill. Show: salute; alert / '
+                           'stand-at-ease; right turn / left turn / about turn; pace '
+                           'forward / backward / left / right march; dressing right dress; '
+                           'mark time; by the front quick march.'),
+        'type': 'signoff',
+        'config_json': {'links': [{'label_zh': '步操示範資源', 'label_en': 'Drill reference',
+                                   'url': 'https://example.org/drill'}]},
+    })
+    counts = {name: len(store.list(name)) for name in
+              ('users', 'progress_records', 'points_ledger', 'badge_awards')}
+    env = {**os.environ, 'DATA_DIR': data_dir, 'SEED_DEMO': 'false',
+           'DATA_DRIVER': 'local'}
+    script = ROOT / 'tools' / 'migrate_member_five_games.py'
+    result = subprocess.run([sys.executable, str(script)], cwd=ROOT, env=env,
+                            capture_output=True, text=True, check=True)
+    assert 'gained game 3, the drill ground' in result.stdout
+
+    task = store.get('tasks', m06['id'])
+    assert task['type'] == 'quiz' and task['pass_score'] == 0
+    assert task['title_zh'] == '第 6 項：步操訓練場（遊戲 3）'
+    config = engine.as_json(task['config_json'], {})
+    assert config['kind'] == 'drill'
+    assert any(row.get('url') == 'https://example.org/drill'
+               for row in config.get('links', [])), \
+        'the leader’s own drill link survives the upgrade'
+
+    updated = engine.as_json(store.get('badges', badge['id'])['guide_json'], {})
+    area = updated['quest']['areas'][2]
+    assert area['items'] == [5]                      # item 6 moved into its game
+    assert area['game']['task_code'] == 'M06' and area['game']['ready']
+    assert area['game']['kind'] == 'drill'
+    assert area['game']['name_zh'] == '步操訓練場'
+    assert counts == {name: len(store.list(name)) for name in counts}
+    second = subprocess.run([sys.executable, str(script)], cwd=ROOT, env=env,
+                            capture_output=True, text=True, check=True)
+    assert 'nothing changed' in second.stdout
 
 
 def test_existing_five_game_badge_gets_new_directions_without_overwriting_leader_copy(

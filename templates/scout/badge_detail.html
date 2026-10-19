@@ -92,6 +92,14 @@
                 {% else %}
                   <span class="chip light">{{ L('三關木板 · 過橋後找領袖考核', 'three stages · then a leader’s check') }}</span>
                 {% endif %}
+              {% elif task.code == 'M06' and badge.is_game_badge %}
+                {% if task.status == 'studied' %}
+                  <span class="chip warn">🥁 {{ L('已學完 · 找領袖考核', 'Learned · see a leader') }}</span>
+                {% elif task.status == 'completed' %}
+                  <span class="chip ok">🥁 {{ L('考核通過 · 已完成', 'Check passed · done') }}</span>
+                {% else %}
+                  <span class="chip light">{{ L('七章手冊 · 學完找領袖考核', 'seven chapters · then a leader’s check') }}</span>
+                {% endif %}
               {% elif task.type == 'quiz' %}
                 <span class="chip light">{{ (task.config_json.get('questions') or []) | length }} {{ L('題', 'questions') }} · {{ task.pass_score }}{{ L(' 分合格', ' to pass') }}</span>
               {% endif %}
@@ -107,6 +115,20 @@
                   {# 過了橋：代碼在這裡輸入，不用重玩三關 #}
                   <form class="row" method="post" style="gap:.35rem; margin:0"
                         action="{{ url_for('scout_routes.bridge_code', task_id=task.id) }}">
+                    <input name="code" type="text" required autocomplete="off" maxlength="24"
+                           style="width:9.5rem" aria-label="{{ L('領袖代碼', 'The leader’s code') }}"
+                           placeholder="{{ L('領袖代碼', 'Leader’s code') }}">
+                    <button class="btn primary small" type="submit">🔑 {{ L('輸入代碼', 'Enter code') }}</button>
+                  </form>
+                {% endif %}
+              {% elif task.code == 'M06' and badge.is_game_badge %}
+                {# the drill ground is item 6's game, as the cave is item 4's #}
+                <a class="btn {{ '' if task.status == 'completed' else 'primary' }} small"
+                   href="{{ url_for('scout_routes.task_drill', task_id=task.id) }}">🎮 {{ L('再翻手冊', 'Read the manual again') if task.status == 'completed' else L('進入訓練場遊戲', 'Play the drill game') }}</a>
+                {% if task.status == 'studied' and not badge.locked %}
+                  {# 手冊學完了：代碼在這裡輸入，不用重讀七章 #}
+                  <form class="row" method="post" style="gap:.35rem; margin:0"
+                        action="{{ url_for('scout_routes.drill_code', task_id=task.id) }}">
                     <input name="code" type="text" required autocomplete="off" maxlength="24"
                            style="width:9.5rem" aria-label="{{ L('領袖代碼', 'The leader’s code') }}"
                            placeholder="{{ L('領袖代碼', 'Leader’s code') }}">

@@ -400,21 +400,20 @@
     "icon": "⛰️",
     "name_zh": "石壁山嶺",
     "name_en": "The rocky ridge",
-    "hint_zh": "攀過石壁：考驗你的誓詞與規律，也要考你的隊列動作。",
-    "hint_en": "Climb the rock wall: your Promise and Law, and your drill.",
+    "hint_zh": "攀上山脊：閱兵場上翻開《步操手冊》，逐個動作學會，再找領袖親身考核。",
+    "hint_en": "Climb to the crest: the parade ground opens the drill manual, movement by movement, then a leader assesses you in person.",
     "items": [
-     5,
-     6
+     5
     ],
     "game": {
      "n": 3,
-     "kind": "",
-     "ready": false,
-     "name_zh": "即將推出",
-     "name_en": "Coming soon",
-     "blurb_zh": "這一區的遊戲正在製作，等待領袖加入。",
-     "blurb_en": "This area’s game is being built. Your leader will add it later.",
-     "task_code": ""
+     "kind": "drill",
+     "ready": true,
+     "task_code": "M06",
+     "name_zh": "步操訓練場",
+     "name_en": "The drill ground",
+     "blurb_zh": "七章手冊：基本姿勢、轉法、敬禮、移步、快步、七類集隊手號、看齊。逐個動作看手冊圖學要領，答對自查題；全部通過後找領袖親身考核，輸入領袖代碼完成遊戲 3。",
+     "blurb_en": "Seven chapters: positions, turns, the salute, paces, quick time, the seven fall-in hand signs and the right dress. Learn each movement from the manual's own pages, answer the self-checks, then perform them for a leader and bring back the code to finish game 3."
     }
    },
    {
@@ -526,8 +525,8 @@
     "kicker_en": "STOP 3 · GAME 3",
     "title_zh": "石壁山嶺",
     "title_en": "The rocky ridge",
-    "text_zh": "翻過東面的石壁山嶺，站上山脊俯瞰整個島。這裡的遊戲正在準備，等你來挑戰。",
-    "text_en": "Climb the rocky ridge in the east and look out over the whole island from the crest. The game here is being made ready for you.",
+    "text_zh": "山脊上是一片平地——閱兵場。翻開領袖的《步操手冊》，敬禮、轉法、步法、集隊手號，逐章學會，再找領袖親身考核。",
+    "text_en": "A flat parade ground waits on the crest. Open the leader's drill manual — the salute, the turns, the paces and the fall-in signs — learn chapter by chapter, then be assessed in person.",
     "alt_zh": "山脊上的松樹與石壁",
     "alt_en": "Pines and cliffs on the ridge"
    },

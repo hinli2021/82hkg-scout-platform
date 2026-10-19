@@ -2476,6 +2476,268 @@ body.is-game main { padding-top: 6px; }
 }
 
 
+/* ══ 步操訓練場 — 第 6 項的第三個遊戲（遊戲 3）═══════════════════════════════
+   The ridge flat is a parade ground: the manual's own pages stand in the
+   picture frame (a paper page on the dark glass, like a chart on a board),
+   one movement per card — command, count, points, then one self-check. The
+   index opens the seven chapters in order; answered checks are remembered. */
+.drill .cave-art {
+  border-radius: 5px;
+  background: #f4ecd8;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .16),
+              0 0 0 7px rgba(244, 236, 216, .12);
+}
+
+/* The hand-sign statues are portrait pictures, unlike the cave's wide
+   paintings. Keep the drill stage inside the window on phones and short
+   landscape screens, and size the statue by the available height so the
+   whole figure — head, hands and feet — stays in the frame. */
+.drill { scroll-margin-top: .5rem; }
+@media (max-width: 700px), (max-height: 620px) {
+  .drill .cave-stage {
+    height: calc(100vh - 6.5rem);
+    height: calc(100dvh - 6.5rem);
+    min-height: 0;
+  }
+  .drill .cave-picture { flex: 1 1 auto; min-height: 0; }
+  .drill .cave-art {
+    width: auto; max-width: 100%; height: 100%; max-height: 100%;
+    object-fit: contain;
+  }
+  .drill .cave-card-wrap {
+    max-height: 52%; overflow-y: auto; padding: .7rem .8rem .8rem;
+  }
+  .drill .cave-more:not([hidden]) { display: flex !important; }
+}
+@media (max-height: 620px) and (min-width: 701px) {
+  /* a short, wide window has room beside the words: stand the statue there
+     at full stage height instead of shrinking it above the card */
+  .drill:not(.drill-flip-full) .cave-stage { flex-direction: row; }
+  .drill:not(.drill-flip-full) .cave-picture { flex: 1 1 45%; min-width: 0; }
+  .drill:not(.drill-flip-full) .cave-card-wrap {
+    flex: 1 1 55%; max-width: 55%; max-height: none;
+    border-top: 0; border-left: 1px solid rgba(255, 255, 255, .09);
+  }
+  .drill:not(.drill-flip-full) .cave-card { width: 100%; }
+}
+.drill-chips { display: flex; flex-wrap: wrap; gap: .35rem; margin: .15rem 0 .45rem; }
+.drill-chip {
+  display: inline-flex; align-items: baseline; gap: .25rem;
+  font-size: .8rem; font-weight: 700; color: #ffe9bd;
+  background: rgba(217, 164, 65, .14); border: 1px solid rgba(217, 164, 65, .4);
+  border-radius: 999px; padding: .16rem .6rem; line-height: 1.4;
+}
+.drill-chip.is-command { color: #fff; background: rgba(120, 170, 130, .16); border-color: rgba(150, 210, 160, .45); }
+.drill-chip.is-demo { color: #ffd9a0; background: rgba(255, 150, 80, .13); border-color: rgba(255, 170, 100, .42); }
+.drill-points { margin: .3rem 0 .4rem; padding-left: 1.5rem; }
+.drill-points li { margin: .3rem 0; line-height: 1.55; color: #e9f1e8; font-size: .92rem; }
+.drill-points li::marker { color: var(--brass); font-weight: 800; }
+
+/* the self-check: wrong picks shake and point back at the points above — the
+   answer itself is never given away; a right pick shows why, and the way on */
+.drill-why {
+  margin: .35rem 0 .1rem; padding: .55rem .7rem; border-radius: var(--radius);
+  background: rgba(88, 190, 110, .13); border: 1px solid rgba(120, 220, 140, .4);
+  color: #d9f4d4; font-size: .9rem;
+}
+.drill-why b { color: #b8f0b2; }
+
+/* the index: seven chapters, locked until the one before is learned */
+
+/* the assess card and its code box — the crossing's, in drill uniform */
+.drill-assess-point { color: #e8dcc8; }
+.drill-code { margin: .55rem 0 .2rem; display: flex; flex-direction: column; gap: .35rem; }
+.drill-code-label { font-size: .78rem; font-weight: 800; letter-spacing: .04em; color: #ffe4a8; }
+.drill-code-row { display: flex; gap: .45rem; flex-wrap: wrap; }
+.drill-code-row input {
+  flex: 1 1 8.5rem; min-width: 0; font: inherit; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: .5rem .65rem; border-radius: .5rem;
+  border: 1px solid rgba(255, 255, 255, .28);
+  background: rgba(0, 0, 0, .32); color: #f4ecd9;
+}
+.drill-code-row input::placeholder { letter-spacing: normal; text-transform: none; color: rgba(255, 255, 255, .38); }
+.drill-code-row input:focus-visible { outline: 3px solid #ffe4a8; outline-offset: 2px; }
+.drill-code-note { margin: .15rem 0 0; font-size: .84rem; color: #d9e6d9; }
+.drill-code-note.is-bad { color: #ffb1a3; }
+
+/* ── the live round: the called command and the draining count (打數) ── */
+.drill-command-say {
+  margin: .35rem 0 0; font-size: .78rem; font-weight: 800;
+  letter-spacing: .14em; text-transform: uppercase; color: #b9d4b9;
+}
+.drill-command {
+  margin: .1rem 0 .3rem; font-size: 1.45rem; font-weight: 800;
+  letter-spacing: .02em; color: #ffe4a8; line-height: 1.35;
+}
+.drill-beat {
+  position: relative; height: 12px; border-radius: 999px;
+  background: rgba(255, 255, 255, .13); overflow: hidden; margin: .55rem 0 .25rem;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14);
+}
+.drill-beat-fill {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 100%;
+  background: linear-gradient(90deg, rgba(217, 164, 65, .95), #ffe4a8);
+}
+.drill-beat.is-low .drill-beat-fill {
+  background: linear-gradient(90deg, rgba(192, 86, 74, .95), #ff9d8a);
+}
+.drill-beat-note {
+  display: flex; justify-content: space-between; gap: .6rem;
+  margin: 0 0 .45rem; font-size: .76rem; font-weight: 700; color: #cfdbcf;
+}
+.drill-beat-note [data-drill-beat-count] { color: #ffe4a8; font-variant-numeric: tabular-nums; }
+.drill-teach-why { margin-top: .45rem; }
+
+/* ── section 1 · 集隊手號: the flip cards and the formation buttons ────── */
+.drill-flip-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(8.6rem, 1fr));
+  gap: .6rem; margin: .45rem 0 .35rem;
+}
+.drill-flip {
+  position: relative; aspect-ratio: 3 / 4; perspective: 800px; cursor: pointer;
+  border: 0; padding: 0; background: none; font: inherit;
+}
+.drill-flip-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d; transition: transform .45s cubic-bezier(.2, .85, .25, 1);
+}
+.drill-flip.is-flipped .drill-flip-inner { transform: rotateY(180deg); }
+.drill-flip:focus-visible { outline: 3px solid #ffe4a8; outline-offset: 3px; border-radius: 12px; }
+.drill-flip-face {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 14px; overflow: hidden;
+  border: 1px solid rgba(217, 164, 65, .55);
+  background:
+    radial-gradient(130% 90% at 50% 0%, rgba(217, 164, 65, .10), transparent 55%),
+    radial-gradient(90% 70% at 15% 100%, rgba(64, 112, 78, .20), transparent 62%),
+    linear-gradient(180deg, #0e241b 0%, #08130e 100%);
+  box-shadow:
+    inset 0 0 0 3px rgba(8, 19, 14, .95),
+    inset 0 0 0 4px rgba(217, 164, 65, .30),
+    inset 0 14px 30px rgba(0, 0, 0, .38),
+    0 12px 26px rgba(0, 0, 0, .42);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+/* the four brass rivets, one to a corner */
+.drill-flip-corner {
+  position: absolute; z-index: 3; width: 9px; height: 9px;
+  background: linear-gradient(135deg, #ffe9b8 0%, #d9a441 55%, #8a6420 100%);
+  transform: rotate(45deg); border-radius: 2px;
+  box-shadow: 0 0 7px rgba(255, 228, 168, .55), 0 1px 2px rgba(0, 0, 0, .6);
+}
+.drill-flip .is-tl { top: 8px; left: 8px; }
+.drill-flip .is-tr { top: 8px; right: 8px; }
+.drill-flip .is-bl { bottom: 8px; left: 8px; }
+.drill-flip .is-br { bottom: 8px; right: 8px; }
+.drill-flip-front img {
+  width: 100%; height: 100%; object-fit: contain; padding: .55rem;
+  background:
+    radial-gradient(100% 80% at 50% 20%, rgba(38, 74, 52, .35), transparent 70%),
+    #071009;
+}
+.drill-flip-hint {
+  position: absolute; left: 50%; bottom: .55rem; transform: translateX(-50%);
+  font-size: .68rem; font-weight: 800; letter-spacing: .06em; white-space: nowrap;
+  color: #2b1f06; background: linear-gradient(180deg, #ffe9b8, #d9a441);
+  border: 1px solid rgba(138, 100, 32, .8); border-radius: 999px; padding: .12rem .6rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .45);
+}
+.drill-flip-back { transform: rotateY(180deg); gap: .3rem; padding: .7rem .6rem; }
+.drill-flip-label {
+  font-size: .68rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+  color: #b9d4b9; text-shadow: 0 1px 0 rgba(0, 0, 0, .6);
+}
+.drill-flip-name {
+  color: #ffe4a8; font-size: 1.18rem; font-weight: 800; text-align: center;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .65), 0 0 14px rgba(217, 164, 65, .25);
+}
+.drill-flip-back .drill-form-art {
+  width: 3.1rem; height: 3.1rem; padding: .55rem; border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, rgba(217, 164, 65, .16), rgba(8, 19, 14, .9) 72%);
+  border: 1px solid rgba(217, 164, 65, .45);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .5), 0 0 10px rgba(0, 0, 0, .35);
+}
+.drill-flip-sign {
+  font-size: .74rem; line-height: 1.5; color: #d9e6d9; text-align: center; overflow: hidden;
+}
+.drill-flip-sign b { color: #ffe4a8; }
+.drill-flip-known { color: #b9d4b9; }
+
+/* the flip scene takes the whole screen: the cliff steps aside, the HUD stays
+   floating on top, and the cards grow to fill the stage */
+.drill.drill-flip-full .cave-picture {
+  position: absolute; inset: 0; z-index: 4; padding: 0; pointer-events: none;
+}
+.drill.drill-flip-full .cave-picture .cave-art,
+.drill.drill-flip-full .cave-picture .cave-art-backdrop,
+.drill.drill-flip-full .cave-picture .cave-shade { display: none; }
+.drill.drill-flip-full .cave-hud { pointer-events: auto; }
+/* the height chain must be definite end to end, or the absolute-positioned
+   card faces collapse: wrap stretches the card, the card feeds the grid, the
+   grid sizes its rows, and every card fills its row */
+.drill.drill-flip-full .cave-card-wrap {
+  flex: 1 1 auto; max-height: none; padding: 3.1rem 1rem 1rem;
+  background: #081611; border-top: 0; align-items: stretch;
+}
+.drill.drill-flip-full .cave-card { width: min(76rem, 100%); display: flex; flex-direction: column; }
+.drill.drill-flip-full .drill-flip-grid {
+  flex: 1 1 auto; min-height: 0; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  grid-auto-rows: minmax(22rem, 1fr); margin: .5rem 0 .35rem;
+}
+.drill.drill-flip-full .drill-flip {
+  aspect-ratio: auto; height: 100%; width: 100%; max-width: 24rem; justify-self: center;
+}
+.drill-flip-front img { object-fit: contain; }
+.drill-review-fig {
+  height: 5rem; border-radius: 10px; padding: .2rem;
+  border: 1px solid rgba(217, 164, 65, .45); background: #071009;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
+}
+
+/* the square formation buttons: one row, everything on the screen */
+.drill-form-row {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin: .45rem 0 .15rem;
+}
+.drill-form-btn {
+  flex: 0 1 auto; width: 5.7rem; aspect-ratio: 1 / 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
+  cursor: pointer; border-radius: 14px; padding: .3rem .25rem; font: inherit;
+  background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .26);
+  color: #f2f8f2; transition: background .16s, border-color .16s, transform .16s;
+}
+.drill-form-btn:hover, .drill-form-btn:focus-visible {
+  background: rgba(217, 164, 65, .22); border-color: rgba(217, 164, 65, .62);
+  transform: translateY(-2px);
+}
+.drill-form-name { font-size: .82rem; font-weight: 800; text-align: center; line-height: 1.3; }
+.drill-form-art { width: 2rem; height: 2rem; display: block; }
+.drill-form-art circle { fill: #ffe4a8; }
+.drill-review-form {
+  display: flex; align-items: center; gap: .6rem; justify-content: center; margin: .35rem 0;
+}
+.drill-review-form .drill-form-art { width: 2.4rem; height: 2.4rem; }
+.drill-review-form .drill-form-name { font-size: 1.05rem; color: #ffe4a8; }
+
+@media (max-width: 640px) {
+  .drill-points li { font-size: .88rem; }
+  .drill-command { font-size: 1.22rem; }
+  .drill-form-btn { width: 4.6rem; }
+  .drill-form-name { font-size: .74rem; }
+  .drill-flip-grid { grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); }
+  /* two smaller whole statues per row beat one tall row disappearing below
+     the phone screen (3 = 2 + 1, then 4 = 2 + 2) */
+  .drill.drill-flip-full .drill-flip-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr); gap: .45rem;
+  }
+  .drill.drill-flip-full .drill-flip { max-width: none; }
+}
+@media (max-height: 620px) and (min-width: 701px) {
+  .drill.drill-flip-full .drill-flip-grid { grid-auto-rows: minmax(0, 1fr); }
+}
+
+
 /* A cleared location keeps a small door to play that game again — quiet, and
    never competing with the one journey button at the bottom of the page. */
 .stage-chip-replay {

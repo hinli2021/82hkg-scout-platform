@@ -335,20 +335,23 @@ def stage_list(store, *, user: dict, badge: dict) -> list[dict]:
             members.append(entry)
         # A location is crossed only by clearing *its game*. Supplemental
         # syllabus rows (if any) do not change the map or the badge counter.
-        # The bridge is the one game in two halves: `crossed` means the planks
-        # are laid but the leader's 考核 code has not arrived — the area is not
-        # counted done, yet the walk may carry on to the next game.
+        # Two of the games come in two halves: `crossed` (the bridge — the
+        # planks are laid) and `studied` (the drill ground — the manual is
+        # learned) both mean the first half is done but the leader's 考核
+        # code has not arrived — the area is not counted done, yet the walk
+        # may carry on to the next game.
         game = area.get("game") or {}
         holder = game_slot_task(area, tasks)
         game_ready = bool(game.get("ready") and holder)
         done = bool(game_ready and holder["status"] == "completed")
         crossed = bool(game_ready and holder["status"] == "crossed")
+        studied = bool(game_ready and holder["status"] == "studied")
         pending = bool(game_ready and holder["status"] == "pending")
         rejected = bool(game_ready and holder["status"] == "rejected")
-        status = ("completed" if done else "crossed" if crossed
+        status = ("completed" if done else "crossed" if crossed else "studied" if studied
                   else "pending" if pending else "rejected" if rejected else "todo")
         is_next = False
-        if not done and not crossed and not next_taken:
+        if not done and not crossed and not studied and not next_taken:
             is_next, next_taken = True, True
         label_zh, label_en = _item_range_label(numbers)
         stages.append({
@@ -364,6 +367,7 @@ def stage_list(store, *, user: dict, badge: dict) -> list[dict]:
             "items_label_zh": label_zh, "items_label_en": label_en,
             "status": status, "done": done, "next": is_next,
             "crossed": crossed,
+            "studied": studied,
             "pending": pending, "rejected": rejected,
             "opening": False,
             "done_count": int(done), "total": 1,
@@ -622,13 +626,14 @@ def find_next_task(badges: list[dict]) -> dict | None:
         if badge.get("is_game_badge"):
             # Never offer an optional syllabus task as the way to earn the
             # badge. Suggest the next *playable* area game instead. A crossed
-            # bridge counts too: the scout's next step there is the leader's
-            # 考核 code, and /tasks/<id> opens straight onto the assess card.
+            # bridge or a studied manual counts too: the scout's next step
+            # there is the leader's 考核 code, and /tasks/<id> opens straight
+            # onto the assess card.
             for area in game_areas(badge) or []:
                 if not (area.get("game") or {}).get("ready"):
                     continue
                 task = game_slot_task(area, badge["tasks"])
-                if task and task["status"] in {"todo", "rejected", "crossed"}:
+                if task and task["status"] in {"todo", "rejected", "crossed", "studied"}:
                     return {
                         "badge_id": badge["id"],
                         "badge_title_zh": badge["title_zh"], "badge_title_en": badge["title_en"],

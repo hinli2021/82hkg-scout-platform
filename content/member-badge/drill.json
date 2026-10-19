@@ -1,0 +1,994 @@
+{
+  "_note": "遊戲 3（石壁山嶺）第 1 節＝集隊手號（斷崖機關）：翻卡學手號 → 崖壁顯示手號，在打數之內按下相應隊形（方格按鈕），兩個階段（先學 3 個新手號，再學 4 個；第二階段機關會混合全部 7 個）後石階齊、第 1 節完成；第 2 節（步操口令）即將開放——兩節完成才記錄「已學完」，之後找領袖親身考核並輸入代碼（預設 82DR）。資料來源：香港童軍總會《步操手冊》；集隊手號以領袖石雕像圖顯示（動作按手冊），另附手冊內頁。領袖可自行修改此檔文字與題目，任務以資料庫為準、此檔為預設。",
+  "task_code": "M06",
+  "kind": "drill",
+  "title_zh": "遊戲 3：步操訓練場",
+  "title_en": "Game 3 — the drill ground",
+  "source_zh": "香港童軍總會《步操手冊》",
+  "source_en": "The Scout Association of Hong Kong — Drill Manual",
+  "images": {
+    "ridge": "img/quest/intro/ridge.jpg"
+  },
+  "intro": {
+    "image": "ridge",
+    "kicker_zh": "遊戲 3 · 石壁山嶺",
+    "kicker_en": "Game 3 · the rocky ridge",
+    "title_zh": "步操訓練場",
+    "title_en": "The drill ground",
+    "paras_zh": [
+      "隊伍來到石壁山嶺的斷崖前。下山的路早就塌了，只剩崖壁上一排古老機關——石上刻著做集隊手號的人像。",
+      "在打數之內按下相應的隊形，機關就會啟動，石級一段一段現身。先翻卡記住手號與隊形；兩段石階齊了，就能落崖下山。"
+    ],
+    "paras_en": [
+      "The troop reaches the cliff of the rocky ridge. The way down collapsed long ago — all that is left is a row of ancient mechanisms on the rock face, carved with a scout making the fall-in hand signs.",
+      "Press the matching formation inside the count and a mechanism wakes, sliding a flight of steps out of the rock. Study the flip cards first; with both flights out, the cliff is yours to climb down."
+    ],
+    "hint_zh": "第 1 節考集隊手號：崖壁顯示手號，你在下方按出隊形；第 2 節（步操口令）即將開放。",
+    "hint_en": "Section 1 drills the fall-in hand signs: the rock shows a sign, you press the formation below. Section 2, the drill commands, is coming soon.",
+    "action_zh": "翻開手號卡 →",
+    "action_en": "Open the hand-sign cards →"
+  },
+  "sections": [
+    {
+      "id": "positions",
+      "n": 1,
+      "title_zh": "基本姿勢",
+      "title_en": "Positions",
+      "moves": [
+        {
+          "id": "alert",
+          "title_zh": "立正",
+          "title_en": "Alert",
+          "command": "Alert!",
+          "img": "img/quest/drill/manual/p030-alert.jpg",
+          "manual": "手冊 p.30",
+          "points_zh": [
+            "雙腳平放地面，腳尖向外分開，與中線成 30 度角",
+            "雙膝伸直，身體保持挺直",
+            "雙手握拳放於身體兩側褲縫之後，拇指指甲向前，放於食指之上",
+            "下顎緊貼衣領，眼望無限遠"
+          ],
+          "points_en": [
+            "Feet flat on the ground, toes turned out 30 degrees from the centre line",
+            "Knees straight, body upright",
+            "Fists at the sides behind the seams of the trousers, thumb nails forward on the forefingers",
+            "Chin in to the collar, eyes looking to the far distance"
+          ],
+          "note_zh": "典禮中聽到的 Attention / Squad Shun / Parade Shun 與立正（Alert）動作相同。",
+          "note_en": "Attention / Squad Shun / Parade Shun (used in ceremonies) is the same position as Alert.",
+          "check": {
+            "q_zh": "立正時，腳尖向外分開與中線成多少度？",
+            "q_en": "At the position of attention, how far are the toes turned out?",
+            "options_zh": [
+              "30 度",
+              "45 度",
+              "60 度"
+            ],
+            "options_en": [
+              "30 degrees",
+              "45 degrees",
+              "60 degrees"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：腳尖向外分開與中線成 30 度角。",
+            "why_en": "Manual: toes 30 degrees from the centre line."
+          }
+        },
+        {
+          "id": "stand-at-ease",
+          "title_zh": "稍息",
+          "title_en": "Stand at ease",
+          "command": "Stand at—ease!",
+          "img": "img/quest/drill/manual/p031-stand-at-ease.jpg",
+          "manual": "手冊 p.31",
+          "points_zh": [
+            "由立正：提起左腳直至大腿與地面平行，然後向外踏下",
+            "雙腳分開 305 毫米（12 吋），約與肩膊同寬",
+            "雙手沿身體向後移至身後中央，由拳變掌，右掌疊於左掌上",
+            "雙手拇指緊扣；頭部保持立正向前姿勢"
+          ],
+          "points_en": [
+            "From attention: lift the left foot until the thigh is level, then place it down to the side",
+            "Feet 305 mm (12 in) apart, about shoulder width",
+            "Hands move to the centre of the back, opening from fists, right palm on the left",
+            "Thumbs locked together; head stays as at attention"
+          ],
+          "check": {
+            "q_zh": "稍息時雙腳分開多少？",
+            "q_en": "How far apart are the feet at stand-at-ease?",
+            "options_zh": [
+              "305 毫米（約與肩同寬）",
+              "750 毫米",
+              "150 毫米"
+            ],
+            "options_en": [
+              "305 mm (shoulder width)",
+              "750 mm",
+              "150 mm"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：雙腳分開 305 毫米（12 英吋），闊度約與肩膊相同。",
+            "why_en": "Manual: feet 305 mm (12 in) apart, about shoulder width."
+          }
+        },
+        {
+          "id": "stand-easy",
+          "title_zh": "休息",
+          "title_en": "Stand easy",
+          "command": "Stand—easy!",
+          "img": "img/quest/drill/manual/p032-stand-easy.jpg",
+          "manual": "手冊 p.32",
+          "points_zh": [
+            "由稍息：雙手手指自然放鬆",
+            "身體其他部分與稍息完全相同",
+            "回復稍息的口令是「Squad!」，雙手手指用力拉緊放直"
+          ],
+          "points_en": [
+            "From stand-at-ease: relax the fingers",
+            "Everything else stays exactly as at stand-at-ease",
+            "The command to come back to stand-at-ease is \"Squad!\" — fingers pulled straight"
+          ],
+          "check": {
+            "q_zh": "由休息回復稍息的口令是甚麼？",
+            "q_en": "Which command returns the squad from stand easy to stand at ease?",
+            "options_zh": [
+              "Squad!",
+              "Alert!",
+              "Stand easy!"
+            ],
+            "options_en": [
+              "Squad!",
+              "Alert!",
+              "Stand easy!"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：聽到 Squad! 雙手手指用力拉緊放直，回復稍息。",
+            "why_en": "Manual: on \"Squad!\" the fingers are pulled straight again."
+          }
+        }
+      ]
+    },
+    {
+      "id": "turns",
+      "n": 2,
+      "title_zh": "轉法",
+      "title_en": "Turns",
+      "moves": [
+        {
+          "id": "right-turn",
+          "title_zh": "向右轉",
+          "title_en": "Right turn",
+          "command": "Turning, right—turn!",
+          "count": "打數：One—Two—Three—One",
+          "img": "img/quest/drill/manual/p034-right-turn.jpg",
+          "img2": "img/quest/drill/manual/p035-right-turn-2.jpg",
+          "manual": "手冊 p.34–35",
+          "points_zh": [
+            "第一分部：微微提高右腳尖及左腳跟，以右腳掌及左腳尖為軸心，用頭、肩膊及身體的力量向右轉 90 度",
+            "第二分部：左腳提起並靠攏右腳，回復立正",
+            "轉動時雙膝保持伸直，上體保持立正姿勢"
+          ],
+          "points_en": [
+            "Squad one: raise the right toe and left heel slightly, pivot on them 90 degrees to the right",
+            "Squad two: lift the left foot and close in beside the right, back to attention",
+            "Knees stay straight; the body stays upright throughout"
+          ],
+          "check": {
+            "q_zh": "向右轉的打數是？",
+            "q_en": "What is the count for the right turn?",
+            "options_zh": [
+              "One—Two—Three—One",
+              "One—Two",
+              "Left—Right—Left"
+            ],
+            "options_en": [
+              "One—Two—Three—One",
+              "One—Two",
+              "Left—Right—Left"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：向右轉打數 One—Two—Three—One。",
+            "why_en": "Manual: the right turn is counted One—Two—Three—One."
+          }
+        },
+        {
+          "id": "left-turn",
+          "title_zh": "向左轉",
+          "title_en": "Left turn",
+          "command": "Turning, left—turn!",
+          "count": "打數：One—Two—Three—One",
+          "img": "img/quest/drill/manual/p036-left-turn.jpg",
+          "img2": "img/quest/drill/manual/p037-left-turn-2.jpg",
+          "manual": "手冊 p.36–37",
+          "points_zh": [
+            "與向右轉相同，方向相反：以左腳掌及右腳尖為軸心向左轉 90 度",
+            "第二分部：右腳提起並靠攏左腳，回復立正"
+          ],
+          "points_en": [
+            "As the right turn, in the opposite direction: pivot on the left ball and right toe 90 degrees left",
+            "Squad two: lift the right foot and close in beside the left"
+          ],
+          "check": {
+            "q_zh": "向左轉時，以哪裏為軸心？",
+            "q_en": "What do you pivot on for a left turn?",
+            "options_zh": [
+              "左腳掌及右腳尖",
+              "右腳掌及左腳尖",
+              "雙腳跟"
+            ],
+            "options_en": [
+              "Left ball of foot and right toe",
+              "Right ball of foot and left toe",
+              "Both heels"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：以左腳掌及右腳尖為軸心向左轉 90 度。",
+            "why_en": "Manual: pivot on the left ball of the foot and right toe."
+          }
+        },
+        {
+          "id": "about-turn",
+          "title_zh": "後轉",
+          "title_en": "About turn",
+          "command": "Turning, about—turn!",
+          "count": "打數：One—Two—Three—One",
+          "img": "img/quest/drill/manual/p038-about-turn.jpg",
+          "img2": "img/quest/drill/manual/p039-about-turn-2.jpg",
+          "manual": "手冊 p.38–39",
+          "points_zh": [
+            "與向右轉相同，但轉 180 度",
+            "以右腳掌及左腳尖為軸心，向右轉半圈",
+            "第二分部：左腳提起並靠攏右腳，回復立正"
+          ],
+          "points_en": [
+            "As the right turn, but through 180 degrees",
+            "Pivot on the right ball and left toe, half a circle to the right",
+            "Squad two: close the left foot in beside the right"
+          ],
+          "check": {
+            "q_zh": "後轉共轉多少度？",
+            "q_en": "How many degrees is the about turn?",
+            "options_zh": [
+              "180 度",
+              "90 度",
+              "45 度"
+            ],
+            "options_en": [
+              "180 degrees",
+              "90 degrees",
+              "45 degrees"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：後轉即向右轉 180 度。",
+            "why_en": "Manual: the about turn is 180 degrees."
+          }
+        }
+      ]
+    },
+    {
+      "id": "salute",
+      "n": 3,
+      "title_zh": "敬禮",
+      "title_en": "The salute",
+      "lead_zh": "宣誓禮儀的中心動作：右手舉起，指尖剛好在右眼對上。",
+      "lead_en": "The heart of the investiture customs: the right hand raised, fingertips just above the right eye.",
+      "moves": [
+        {
+          "id": "salute-front",
+          "title_zh": "原地向前敬禮",
+          "title_en": "Saluting to the front at the halt",
+          "command": "Saluting, salute to the front—salute!",
+          "count": "打數：Up—Two—Three—Down",
+          "img": "img/quest/drill/manual/p041-salute.jpg",
+          "img2": "img/quest/drill/manual/p042-salute-2.jpg",
+          "manual": "手冊 p.41–42",
+          "points_zh": [
+            "第一分部（Up!）：右手向橫提升至與肩膊平，握成童軍敬禮手號，隨即儘快用力將右前臂舉起，至食指於右眼對上的位置",
+            "右手前臂與指尖成一直線；右食指放於右眼眼球中心上方 25 毫米（1 吋）位置",
+            "左手握拳緊貼褲縫，雙腳掌平放地面，雙膝直，身軀保持挺直向前",
+            "第二分部（Down!）：右手用最短距離握拳，放回右褲縫位置，回復立正",
+            "完整動作以每分鐘 40 個動作的停頓時距連貫完成；打數時 Two—Three 是停留時間，沒有動作"
+          ],
+          "points_en": [
+            "Squad one (Up!): the right hand is raised sideways to the shoulder, formed into the Scout salute, then smartly forced up until the forefinger is just above the right eye",
+            "The right forearm and fingertips are in one straight line; the forefinger rests 25 mm (1 in) above the centre of the right eye",
+            "Left fist at the trouser seam, feet flat, knees straight, body upright to the front",
+            "Squad two (Down!): the right hand returns as a fist by the shortest route to the right seam, back to attention",
+            "The whole movement flows at 40 movements to the minute; on the count Two—Three you hold still — no movement"
+          ],
+          "check": {
+            "q_zh": "敬禮時，右手食指應放在哪個位置？",
+            "q_en": "When saluting, where does the right forefinger rest?",
+            "options_zh": [
+              "右眼眼球中心上方 25 毫米（1 吋）",
+              "額頭正中央",
+              "左眼對上 25 毫米"
+            ],
+            "options_en": [
+              "25 mm (1 in) above the centre of the right eye",
+              "In the middle of the forehead",
+              "25 mm above the left eye"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：右食指放於右眼眼球中心上方 25 毫米（1 英吋）位置。",
+            "why_en": "Manual: the forefinger rests 25 mm (1 in) above the centre of the right eye."
+          }
+        }
+      ]
+    },
+    {
+      "id": "paces",
+      "n": 4,
+      "title_zh": "移步",
+      "title_en": "Pacing",
+      "moves": [
+        {
+          "id": "side-pace",
+          "title_zh": "橫移（左／右移步）",
+          "title_en": "Side pace (left / right)",
+          "command": "One pace right/left close—march!",
+          "count": "打數：One—Two—Up",
+          "img": "img/quest/drill/manual/p043-side-pace.jpg",
+          "img2": "img/quest/drill/manual/p044-side-pace-2.jpg",
+          "manual": "手冊 p.43–44",
+          "points_zh": [
+            "左（右）腳向左（右）橫移 300 毫米（12 吋），另一腳保持原本位置",
+            "雙腳掌平放地面，雙膝直，左右手握拳緊貼褲縫",
+            "身體保持立正向前姿勢，不會左右搖擺",
+            "前移／後移步同理：聽口令向前或向後踏一步，手冊沒有專頁，跟領袖示範練習"
+          ],
+          "points_en": [
+            "Move the left (right) foot 300 mm (12 in) to the side; the other foot stays",
+            "Both feet flat, knees straight, fists at the trouser seams",
+            "The body stays square to the front — no swaying",
+            "Forward / backward pacing follows the same idea; the manual leaves it to the leader's demonstration"
+          ],
+          "check": {
+            "q_zh": "橫移一步的距離是多少？",
+            "q_en": "How long is one side pace?",
+            "options_zh": [
+              "300 毫米（12 吋）",
+              "750 毫米（30 吋）",
+              "1500 毫米（60 吋）"
+            ],
+            "options_en": [
+              "300 mm (12 in)",
+              "750 mm (30 in)",
+              "1500 mm (60 in)"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：左腳向左橫移 300 毫米（12 英吋）。",
+            "why_en": "Manual: one side pace is 300 mm (12 in)."
+          }
+        }
+      ]
+    },
+    {
+      "id": "quick-time",
+      "n": 5,
+      "title_zh": "快步步操",
+      "title_en": "Quick time",
+      "moves": [
+        {
+          "id": "quick-march",
+          "title_zh": "開步走（齊步）",
+          "title_en": "By the front, quick march",
+          "command": "By the left/right, quick—march!",
+          "count": "打數：Left—Right—Left",
+          "img": "img/quest/drill/manual/p048-quick-march.jpg",
+          "img2": "img/quest/drill/manual/p049-quick-march-2.jpg",
+          "img3": "img/quest/drill/manual/p050-quick-march-3.jpg",
+          "manual": "手冊 p.48–50",
+          "points_zh": [
+            "左腳向前一步 750 毫米（30 吋），右手向前提升，左手拉後",
+            "雙臂自然擺動，前臂與地面成一直線，握拳",
+            "步速每分鐘 116 步",
+            "身軀保持挺直向前，眼望前方"
+          ],
+          "points_en": [
+            "The left foot steps forward 750 mm (30 in); the right arm swings forward, the left back",
+            "Arms swing naturally from the shoulder, fists clenched",
+            "Pace: 116 steps to the minute",
+            "Body upright, eyes to the front"
+          ],
+          "check": {
+            "q_zh": "齊步的步幅與步速是？",
+            "q_en": "What is the step length and pace of the quick march?",
+            "options_zh": [
+              "750 毫米 · 每分鐘 116 步",
+              "300 毫米 · 每分鐘 100 步",
+              "750 毫米 · 每分鐘 140 步"
+            ],
+            "options_en": [
+              "750 mm · 116 per minute",
+              "300 mm · 100 per minute",
+              "750 mm · 140 per minute"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：開步 750 毫米（30 英吋），每分鐘 116 步。",
+            "why_en": "Manual: a 750 mm (30 in) step at 116 paces to the minute."
+          }
+        },
+        {
+          "id": "halt",
+          "title_zh": "停步（立定）",
+          "title_en": "Halting",
+          "command": "Squad—halt!",
+          "count": "打數：One—Two",
+          "img": "img/quest/drill/manual/p051-halt.jpg",
+          "img2": "img/quest/drill/manual/p052-halt-2.jpg",
+          "manual": "手冊 p.51–52",
+          "points_zh": [
+            "口令在左腳落地時發出",
+            "右腳再向前一步 750 毫米（30 吋）",
+            "左腳提起並靠攏右腳，回復立正",
+            "動作要乾淨利落，不再向前衝"
+          ],
+          "points_en": [
+            "The command is given as the left foot strikes the ground",
+            "The right foot takes one more 750 mm (30 in) step",
+            "The left foot then closes in beside the right, back to attention",
+            "Finish crisp and still — no stumbling forward"
+          ],
+          "check": {
+            "q_zh": "聽到「Squad—halt!」後，還要走幾多步？",
+            "q_en": "After \"Squad—halt!\", how many more steps are taken?",
+            "options_zh": [
+              "一步（右腳），然後左腳靠攏",
+              "立即停",
+              "三步"
+            ],
+            "options_en": [
+              "One (right foot), then close in the left",
+              "Stop at once",
+              "Three steps"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：右腳行前一步，左腳隨即靠攏成立正。",
+            "why_en": "Manual: one more step with the right foot, then the left closes in."
+          }
+        },
+        {
+          "id": "mark-time",
+          "title_zh": "原地踏步",
+          "title_en": "Mark time",
+          "command": "Quick mark—time!",
+          "count": "打數：Left—Right—Left",
+          "img": "img/quest/drill/manual/p083-mark-time.jpg",
+          "img2": "img/quest/drill/manual/p084-mark-time-2.jpg",
+          "img3": "img/quest/drill/manual/p085-mark-time-3.jpg",
+          "manual": "手冊 p.83–85",
+          "points_zh": [
+            "左腳提高至大腿與地面平行，然後踏回右腳旁；右腳如是，左右交替",
+            "支撐的腳掌平放地面，膝頭直",
+            "左右手握拳緊貼褲縫",
+            "保持每分鐘 116 步的速度",
+            "停止：Squad—halt!；由行進轉踏步：Quick mark—time!"
+          ],
+          "points_en": [
+            "Lift the left foot until the thigh is level, place it back beside the right; alternate",
+            "The supporting foot stays flat, knee straight",
+            "Fists at the trouser seams",
+            "Keep up 116 steps to the minute",
+            "Halt: Squad—halt!; from the march: Quick mark—time!"
+          ],
+          "check": {
+            "q_zh": "原地踏步時，腳要提高到哪個位置？",
+            "q_en": "How high is the foot lifted when marking time?",
+            "options_zh": [
+              "大腿與地面平行",
+              "盡量提高碰到腰部",
+              "微微離地即可"
+            ],
+            "options_en": [
+              "Until the thigh is level with the ground",
+              "As high as the waist",
+              "Just off the ground"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：要提高的腳必需提高至大腿與地面平行。",
+            "why_en": "Manual: the thigh comes level with the ground."
+          }
+        }
+      ]
+    },
+    {
+      "id": "hand-signs",
+      "n": 6,
+      "title_zh": "集隊手號",
+      "title_en": "Fall-in hand signs",
+      "lead_zh": "司令先立正，發出口令「Scout Troop, Fall-in!」並用雙手做出手號；全隊排成所需隊形後保持立正，直至司令放下雙手，即轉稍息。手冊共有七類手號。",
+      "lead_en": "The commander comes to attention, calls \"Scout Troop, Fall-in!\" and makes the sign with both hands; the troop forms up and stands at attention until the commander drops their hands. The manual carries seven signs.",
+      "moves": [
+        {
+          "id": "fall-in",
+          "title_zh": "集隊口令（Fall-in）",
+          "title_en": "The fall-in",
+          "command": "Scout Troop, Fall—in!",
+          "img": "img/quest/drill/manual/p188-fall-in.jpg",
+          "manual": "手冊 p.188",
+          "points_zh": [
+            "司令先立正，發出口令「Scout Troop, Fall-in!」，跟着用雙手做成手號",
+            "司令與最前的童軍相距 2250 毫米（90 吋）",
+            "全隊排成所需隊形後保持立正，直至司令放下雙手，全隊即由立正轉為稍息",
+            "排列時小隊長在隊的最右方、副小隊長在最左方（直行時小隊長在最前、副小隊長在最後）"
+          ],
+          "points_en": [
+            "The commander stands at attention, calls \"Scout Troop, Fall-in!\" and makes the sign",
+            "The commander stands 2250 mm (90 in) in front of the troop",
+            "The troop forms up and stays at attention until the commander drops their hands — then stands at ease",
+            "Patrol leaders stand on the right of each patrol, assistant patrol leaders on the left (in columns: front and rear)"
+          ],
+          "check": {
+            "q_zh": "司令放下雙手後，全隊由立正轉為甚麼姿勢？",
+            "q_en": "When the commander drops their hands, what does the troop do?",
+            "options_zh": [
+              "由立正轉為稍息",
+              "由立正轉為休息",
+              "立即解散"
+            ],
+            "options_en": [
+              "From attention to stand at ease",
+              "From attention to stand easy",
+              "Dismissed at once"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：全隊保持立正，直至司令放下雙手，立即由立正轉為稍息。",
+            "why_en": "Manual: the troop stays at attention until the hands drop, then stands at ease."
+          }
+        },
+        {
+          "id": "sign-line",
+          "title_zh": "直線",
+          "title_en": "Line",
+          "img": "img/quest/drill/manual/p189-line.jpg",
+          "manual": "手冊 p.189",
+          "points_zh": [
+            "手號：兩手握拳，向身旁兩側平舉，提升至與肩膊成一直線",
+            "全隊按分隊形式，在司令前 2250 毫米（90 吋）排成一直線",
+            "排列後隊形正中央的童軍面對司令",
+            "每名童軍相距 750 毫米（30 吋），每隊之間 1500 毫米（60 吋）"
+          ],
+          "points_en": [
+            "Sign: fists raised out to the sides, level with the shoulders in one line",
+            "The troop forms a single line 2250 mm (90 in) in front of the commander",
+            "The scout at the centre of the line faces the commander",
+            "Scouts 750 mm (30 in) apart; 1500 mm (60 in) between patrols"
+          ],
+          "check": {
+            "q_zh": "直線隊形中，每名童軍相距多少？",
+            "q_en": "In a line, how far apart do scouts stand?",
+            "options_zh": [
+              "750 毫米（30 吋）",
+              "300 毫米（12 吋）",
+              "2250 毫米（90 吋）"
+            ],
+            "options_en": [
+              "750 mm (30 in)",
+              "300 mm (12 in)",
+              "2250 mm (90 in)"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：每名童軍相距 750 毫米（30 英吋）。",
+            "why_en": "Manual: scouts stand 750 mm (30 in) apart."
+          },
+          "figure": "img/quest/drill/signs/sign-line.jpg"
+        },
+        {
+          "id": "sign-line-tall",
+          "title_zh": "直線（由高至矮）",
+          "title_en": "Line, tallest first",
+          "img": "img/quest/drill/manual/p190-line-tall.jpg",
+          "manual": "手冊 p.190",
+          "points_zh": [
+            "手號：左（右）手握拳在面前舉起，前臂與手臂成 90 度，手背向前；右（左）手握拳向身旁一側提升至與肩膊成一直線",
+            "全隊按高至矮，在司令前 2250 毫米（90 吋）排成一直線",
+            "最高的童軍面對司令，其他依高矮次序排在其右（左）方",
+            "每名童軍相距 750 毫米（30 吋）"
+          ],
+          "points_en": [
+            "Sign: one fist held in front, forearm at 90 degrees, back of the hand forward; the other fist raised out to the side, level with the shoulder",
+            "The troop lines up tallest to shortest, 2250 mm (90 in) in front of the commander",
+            "The tallest scout faces the commander; the rest follow in height order to the right (left)",
+            "Scouts stand 750 mm (30 in) apart"
+          ],
+          "check": {
+            "q_zh": "直線（由高至矮）隊形中，哪一位面對司令？",
+            "q_en": "In the tallest-first line, who faces the commander?",
+            "options_zh": [
+              "最高的童軍",
+              "最矮的童軍",
+              "小隊長"
+            ],
+            "options_en": [
+              "The tallest scout",
+              "The shortest scout",
+              "The patrol leader"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：最高的童軍面對司令，其他依高矮次序排在其右（左）方。",
+            "why_en": "Manual: the tallest scout faces the commander, the rest follow in height order."
+          },
+          "figure": "img/quest/drill/signs/sign-line-tall.jpg"
+        },
+        {
+          "id": "sign-columns",
+          "title_zh": "直行",
+          "title_en": "Columns",
+          "img": "img/quest/drill/manual/p191-columns.jpg",
+          "manual": "手冊 p.191",
+          "points_zh": [
+            "手號：兩手握拳向前提升至與肩齊，手背向天",
+            "以小隊為單位，小隊長在司令前 2250 毫米（90 吋）排成直行",
+            "小隊長在前方，副小隊長在最後方；每名童軍前後相距 750 毫米（30 吋）",
+            "第二隊在第一隊的左方，隊與隊之間相距 750 毫米（30 吋），如此類推"
+          ],
+          "points_en": [
+            "Sign: both fists raised forward to the shoulders, backs of the hands to the sky",
+            "Patrol by patrol, columns form 2250 mm (90 in) in front of the commander",
+            "Patrol leaders at the front, assistants at the rear; scouts 750 mm (30 in) apart in file",
+            "The second patrol stands to the left of the first, patrols 750 mm (30 in) apart"
+          ],
+          "check": {
+            "q_zh": "直行時，小隊長站在哪裏？",
+            "q_en": "Where does the patrol leader stand in columns?",
+            "options_zh": [
+              "最前方",
+              "最後方",
+              "右邊"
+            ],
+            "options_en": [
+              "At the front",
+              "At the rear",
+              "On the right"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：直行時小隊長在最前方，副小隊長在最後方。",
+            "why_en": "Manual: patrol leaders lead each column, assistants bring up the rear."
+          },
+          "figure": "img/quest/drill/signs/sign-columns.jpg"
+        },
+        {
+          "id": "sign-open-order",
+          "title_zh": "闊橫排",
+          "title_en": "Open order",
+          "img": "img/quest/drill/manual/p192-open-order.jpg",
+          "manual": "手冊 p.192",
+          "points_zh": [
+            "手號：兩手握拳向左右兩側提升至與肩齊，前臂向上曲 90 度，手背向外",
+            "第一隊在司令前 2250 毫米（90 吋）排成橫排，隊中每名相距 750 毫米（30 吋）",
+            "第二隊對齊第一隊，在其後方 1500 毫米（60 吋）排列，如此類推",
+            "排與排之間空間較大，方便檢查與講解（開闊排＝排間 1500 毫米，手冊 p.6）"
+          ],
+          "points_en": [
+            "Sign: both fists raised out to the sides to the shoulders, forearms bent up 90 degrees, backs of the hands outward",
+            "The first patrol forms a rank 2250 mm (90 in) in front, scouts 750 mm (30 in) apart",
+            "The second patrol aligns behind the first, 1500 mm (60 in) back, and so on",
+            "The wider space between ranks suits inspection and instruction (open order = 1500 mm, manual p.6)"
+          ],
+          "check": {
+            "q_zh": "闊橫排的用途是？",
+            "q_en": "When is open order used?",
+            "options_zh": [
+              "檢查或講解時",
+              "解散時",
+              "行進時"
+            ],
+            "options_en": [
+              "For inspection or instruction",
+              "For dismissing",
+              "On the march"
+            ],
+            "answer": 0,
+            "why_zh": "闊橫排讓各排之間有空間，方便領袖檢查與講解。",
+            "why_en": "Open order makes room between ranks for inspection and instruction."
+          },
+          "figure": "img/quest/drill/signs/sign-open-order.jpg"
+        },
+        {
+          "id": "sign-close-order",
+          "title_zh": "窄橫排",
+          "title_en": "Close order",
+          "img": "img/quest/drill/manual/p193-close-order.jpg",
+          "manual": "手冊 p.193",
+          "points_zh": [
+            "手號：兩手握拳向前提升至與肩齊，前臂向上彎曲 90 度，手背向前",
+            "第一隊在司令前 2250 毫米（90 吋）排成橫排；小隊長在右，副小隊長在左",
+            "每名童軍左右相距 750 毫米（30 吋）；第二隊在其後方 750 毫米（30 吋）對齊排列，如此類推",
+            "收窄排＝排與排之間 750 毫米（30 吋）；開闊排＝1500 毫米（60 吋）（手冊 p.6）"
+          ],
+          "points_en": [
+            "Sign: both fists raised forward to the shoulders, forearms bent up 90 degrees, backs of the hands forward",
+            "The first patrol forms a rank 2250 mm (90 in) in front; leader on the right, assistant on the left",
+            "Scouts 750 mm (30 in) apart; the second patrol aligns 750 mm (30 in) behind, and so on",
+            "Close order = 750 mm (30 in) between ranks; open order = 1500 mm (60 in) (manual p.6)"
+          ],
+          "check": {
+            "q_zh": "窄橫排與闊橫排的分別是？",
+            "q_en": "What changes from open to close order?",
+            "options_zh": [
+              "各排之間距離收窄",
+              "人數減少",
+              "方向改變"
+            ],
+            "options_en": [
+              "The ranks close together",
+              "Fewer scouts",
+              "A change of direction"
+            ],
+            "answer": 0,
+            "why_zh": "窄橫排即各排靠攏：排間由 1500 毫米收窄至 750 毫米。",
+            "why_en": "Close order brings the ranks together: 1500 mm narrows to 750 mm."
+          },
+          "figure": "img/quest/drill/signs/sign-close-order.jpg"
+        },
+        {
+          "id": "sign-horseshoe",
+          "title_zh": "馬蹄鐵形",
+          "title_en": "Horse shoe",
+          "img": "img/quest/drill/manual/p194-horseshoe.jpg",
+          "manual": "手冊 p.194",
+          "points_zh": [
+            "手號：雙手直伸向前（包括手掌），左手腕疊於右手腕上，手背向前",
+            "在司令前 2250 毫米（90 吋）排列成 U 形，開口向司令",
+            "所有童軍面向隊形內；小隊長在右方，副小隊長在左方",
+            "隊內左右相距 750 毫米（30 吋），每隊之間約 1500 毫米（60 吋）"
+          ],
+          "points_en": [
+            "Sign: both hands stretched straight forward, left wrist crossed over the right, backs of the hands forward",
+            "The troop forms a U 2250 mm (90 in) in front of the commander, open towards them",
+            "Every scout faces inward; patrol leaders on the right, assistants on the left",
+            "Scouts 750 mm (30 in) apart, patrols about 1500 mm (60 in) apart"
+          ],
+          "check": {
+            "q_zh": "馬蹄鐵形的開口向哪個方向？",
+            "q_en": "Which way does the horse shoe open?",
+            "options_zh": [
+              "向司令",
+              "背向司令",
+              "向右翼"
+            ],
+            "options_en": [
+              "Towards the commander",
+              "Away from the commander",
+              "To the right flank"
+            ],
+            "answer": 0,
+            "why_zh": "馬蹄鐵形開口向司令，方便講解與溝通。",
+            "why_en": "The horse shoe opens towards the commander."
+          },
+          "figure": "img/quest/drill/signs/sign-horseshoe.jpg"
+        },
+        {
+          "id": "sign-open-square",
+          "title_zh": "開口正方形",
+          "title_en": "Open square",
+          "img": "img/quest/drill/manual/p195-open-square.jpg",
+          "manual": "手冊 p.195",
+          "points_zh": [
+            "手號：雙手手掌互相緊握，右手手背向前，高舉在頭頂上",
+            "在司令前 2250 毫米（90 吋）排列成開口正方形",
+            "所有童軍面向隊形內；小隊長在右方，副小隊長在左方",
+            "隊內左右保持 750 毫米（30 吋），每隊相距約 1500 毫米（60 吋）"
+          ],
+          "points_en": [
+            "Sign: hands clasped tightly together, back of the right hand forward, held high above the head",
+            "The troop forms a square with one side open, 2250 mm (90 in) in front of the commander",
+            "Every scout faces inward; patrol leaders on the right, assistants on the left",
+            "Scouts 750 mm (30 in) apart, patrols about 1500 mm (60 in) apart"
+          ],
+          "check": {
+            "q_zh": "開口正方形與馬蹄鐵形的共同點是？",
+            "q_en": "What do the open square and horse shoe have in common?",
+            "options_zh": [
+              "都留有開口方便講解",
+              "都是行進隊形",
+              "都要報數"
+            ],
+            "options_en": [
+              "Both leave an opening for instruction",
+              "Both are marching formations",
+              "Both require numbering off"
+            ],
+            "answer": 0,
+            "why_zh": "兩者都是留有開口的圍攏隊形，方便司令講解。",
+            "why_en": "Both are enclosed shapes with an opening for the commander."
+          },
+          "figure": "img/quest/drill/signs/sign-open-square.jpg"
+        }
+      ]
+    },
+    {
+      "id": "dressing",
+      "n": 7,
+      "title_zh": "看齊",
+      "title_en": "Dressing",
+      "lead_zh": "集隊之後，隊伍要整理排列——口令 Right—dress!。手冊只提供術語與口令，動作細節跟領袖示範練習。",
+      "lead_en": "After the fall-in comes the dressing — the command Right—dress! The manual gives the term and the command; the movement itself follows the leader's demonstration.",
+      "moves": [
+        {
+          "id": "right-dress",
+          "title_zh": "向右看齊",
+          "title_en": "Right dress",
+          "command": "Right—dress!",
+          "manual": "手冊 p.6、p.200",
+          "leader_demo": true,
+          "points_zh": [
+            "口令：Right—dress!（向右看齊）；取消口令 As you were（回復先前的姿勢）",
+            "看齊（Dressing）的意思：排列時，須與兩旁及前後的隊排成直線（手冊 p.6）",
+            "引導翼（Directing Flank）＝全隊用作看齊的那一邊；向右看齊即以右邊為基準",
+            "手冊沒有逐部分解動作：手部與腳部動作，跟領袖示範練習"
+          ],
+          "points_en": [
+            "The command: Right—dress!; the cancelling command is As you were",
+            "Dressing means lining up straight with the ranks beside you and in front and behind (manual p.6)",
+            "The directing flank is the side the squad dresses by; right dress takes the right as the guide",
+            "The manual gives no movement breakdown: the arms and feet follow the leader's demonstration"
+          ],
+          "check": {
+            "q_zh": "「Dressing（看齊）」的意思是？",
+            "q_en": "What does \"dressing\" mean?",
+            "options_zh": [
+              "與兩旁及前後的隊排成直線",
+              "把制服整理好",
+              "向司令敬禮"
+            ],
+            "options_en": [
+              "Lining up straight with those beside and in front/behind",
+              "Tidying your uniform",
+              "Saluting the commander"
+            ],
+            "answer": 0,
+            "why_zh": "手冊 p.6：Dressing——排列時，須與兩旁及前後的隊排成直線。",
+            "why_en": "Manual p.6: dressing — lining up straight with the ranks beside and in front/behind."
+          }
+        }
+      ]
+    }
+  ],
+  "assess": {
+    "kicker_zh": "遊戲 3 · 還差一步",
+    "kicker_en": "Game 3 · one step more",
+    "title_zh": "手冊學完了，請找領袖考核",
+    "title_en": "The manual is learned — now see your leader",
+    "lead_zh": "第 6 項要在領袖面前親身考核。準備好這些：",
+    "lead_en": "Item 6 is assessed in person, in front of a leader. Be ready with:",
+    "points_zh": [
+      "基本動作：立正、稍息、休息、敬禮、右轉、左轉、後轉",
+      "步法：前後左右移步、齊步開步、停步、原地踏步",
+      "隊形：七類集隊手號，以及向右看齊（Right—dress!）"
+    ],
+    "points_en": [
+      "Positions and movements: alert, stand at ease, stand easy, the salute, right/left/about turns",
+      "Paces and marching: forward, backward and side paces, quick march, halting, marking time",
+      "Formations: the seven fall-in hand signs, and the right dress"
+    ],
+    "after_zh": "考核通過，領袖會給你一個代碼；在下面輸入，遊戲 3 才算完成。想先繼續行程也可以 —— 代碼遲些輸入。",
+    "after_en": "Pass the assessment and your leader gives you a code — type it in below to finish game 3. Or walk on first: the code can wait.",
+    "code_label_zh": "領袖代碼",
+    "code_label_en": "The leader's code",
+    "code_placeholder_zh": "領袖給你的代碼",
+    "code_placeholder_en": "The code your leader gave you",
+    "code_button_zh": "輸入代碼，完成遊戲 3",
+    "code_button_en": "Enter the code — finish game 3",
+    "code_checking_zh": "正在核對代碼…",
+    "code_checking_en": "Checking the code…",
+    "code_wrong_zh": "代碼不對。請向領袖再問一次。",
+    "code_wrong_en": "That code does not match. Ask your leader again.",
+    "code_hint_zh": "代碼由領袖提供（考核通過後）",
+    "code_hint_en": "The code comes from your leader, after the assessment",
+    "go_next_zh": "繼續歷險 →",
+    "go_next_en": "Carry on the adventure →"
+  },
+  "studied": {
+    "kicker_zh": "全部通過",
+    "kicker_en": "All clear",
+    "title_zh": "手冊讀完了，訓練場畢業！",
+    "title_en": "The manual is finished — the drill ground salutes you!",
+    "paras_zh": [
+      "二十個動作、七類手號，你都答對了自查題。這只是紙上學會——真正的步操，要在領袖面前做出來。"
+    ],
+    "paras_en": [
+      "Twenty movements and seven hand signs, every check answered. That is the page learned — real drill is performed in person, in front of your leader."
+    ],
+    "submitting_zh": "正在記錄你的訓練完成…",
+    "submitting_en": "Recording your training…",
+    "save_error_zh": "記錄不到你的完成結果",
+    "save_error_en": "Your finish could not be saved",
+    "save_retry_zh": "請再按一次；仍然不行的話，請找領袖幫忙。",
+    "save_retry_en": "Press the button again; if it still fails, ask your leader for help.",
+    "retry_zh": "再試一次",
+    "retry_en": "Try again",
+    "again_zh": "再讀一次手冊",
+    "again_en": "Read the manual again",
+    "pass_zh": "✓ 代碼正確",
+    "pass_en": "✓ The code is right",
+    "pass_title_zh": "遊戲 3 通關，第 6 項完成！",
+    "pass_title_en": "Game 3 cleared — and item 6 with it!",
+    "pass_note_zh": "步操的口令和動作都記住了。山下的路繼續走：還有兩個區域，就到沙灘。",
+    "pass_note_en": "The commands and movements are yours now. The road goes on: two more areas, and the beach is ahead."
+  },
+  "labels": {
+    "home_zh": "主頁",
+    "home_en": "Home",
+    "badge_zh": "會員章",
+    "badge_en": "Badge",
+    "manual_label_zh": "手冊",
+    "manual_label_en": "Manual",
+    "leave_kicker_zh": "離開訓練場？",
+    "leave_kicker_en": "Leave the drill ground?",
+    "leave_stay_zh": "繼續訓練",
+    "leave_stay_en": "Keep training",
+    "leave_go_zh": "離開",
+    "leave_go_en": "Leave",
+    "progress_zh": "手號 {done} / {total} · 第 {stage} / {stages} 階段",
+    "progress_en": "signs {done} / {total} · stage {stage} / {stages}",
+    "beat_of_zh": "第 {i} / {n} 拍",
+    "beat_of_en": "beat {i} / {n}",
+    "right_title_zh": "✓ 隊形正確",
+    "right_title_en": "✓ Right formation",
+    "late_title_zh": "打數完了！",
+    "late_title_en": "The count ran out!",
+    "wrong_title_zh": "不是這個隊形。",
+    "wrong_title_en": "Not this formation.",
+    "review_lead_zh": "這個手號代表「{name}」。記住它，再回機關前。",
+    "review_lead_en": "This sign calls for “{name}”. Hold it in mind and return to the mechanism.",
+    "review_again_zh": "回到機關 →",
+    "review_again_en": "Back to the mechanism →",
+    "leave_title_zh": "已通過的手號會記住，機關隨時可以再來",
+    "leave_title_en": "Your answered signs are kept — the mechanisms wait for you",
+    "leave_lead_zh": "離開不會重設進度：回來時翻開你在讀的那一階段。",
+    "leave_lead_en": "Leaving resets nothing: the cliff reopens on your stage.",
+    "restart_zh": "由頭再練一次",
+    "restart_en": "Start from the top",
+    "hud_zh": "步操訓練場",
+    "hud_en": "The drill ground",
+    "prompt_q_zh": "機關顯示的手號，是哪一個隊形？",
+    "prompt_q_en": "The mechanism shows a hand sign — which formation does it call for?",
+    "flip_kicker_zh": "第 {stage} 階段 · 翻卡學手號",
+    "flip_kicker_en": "Stage {stage} · study the cards",
+    "flip_lead_zh": "崖壁刻著這一階段的新手號。點一下卡片翻轉，記住手號與隊形的對應。",
+    "flip_lead_en": "The rock carries this stage's new signs. Tap a card to flip it and learn the formation it calls for.",
+    "flip_known_zh": "已學過的手號：",
+    "flip_known_en": "Signs already learned:",
+    "flip_start_zh": "準備好了，啟動機關 →",
+    "flip_start_en": "Ready — wake the mechanism →",
+    "flip_formation_zh": "隊形",
+    "flip_formation_en": "Formation",
+    "flip_sign_zh": "手號",
+    "flip_sign_en": "The sign",
+    "flip_hint_zh": "點擊翻卡",
+    "flip_hint_en": "Tap to flip",
+    "remember_zh": "記住：",
+    "remember_en": "Remember:",
+    "stage_done_zh": "第 {n} 段石階出現了！",
+    "stage_done_en": "Flight {n} of steps has appeared!",
+    "stage_done_note_zh": "機關啟動，崖壁上又多了一段石階。",
+    "stage_done_note_en": "The mechanism wakes, and another flight of steps slides out of the rock.",
+    "next_stage_zh": "下一段石階 →",
+    "next_stage_en": "The next flight →",
+    "section_done_title_zh": "石階齊了——第 1 節完成！",
+    "section_done_title_en": "The steps are complete — section 1 done!",
+    "section_done_note_zh": "兩段石階全部現身，可以落崖下山了。山下的閱兵場——第 2 節「步操口令」——即將開放。",
+    "section_done_note_en": "Both flights are out, and the cliff is yours to climb down. The parade ground below — section 2, the drill commands — is coming soon."
+  },
+  "assess_note": {
+    "code_setting": "drill_assess_code",
+    "code_default": "82DR"
+  },
+  "game": {
+    "sign_stages": [
+      [
+        "sign-line",
+        "sign-columns",
+        "sign-horseshoe"
+      ],
+      [
+        "sign-line-tall",
+        "sign-open-order",
+        "sign-close-order",
+        "sign-open-square"
+      ]
+    ]
+  }
+}

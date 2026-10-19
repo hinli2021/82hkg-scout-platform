@@ -15,7 +15,8 @@ from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, re
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 
 from ..auth import needs_first_time, public_user, scout_required
-from ..content import cave_adventure, cave_images, river_adventure, river_images
+from ..content import (cave_adventure, cave_images, drill_images, drill_manual,
+                       river_adventure, river_images)
 from ..engine import (
     as_int, as_json, award_task_completion, build_suggestions, credit_opening_stages,
     evaluate_submission, game_areas, points_summary, progress_for,
@@ -81,11 +82,12 @@ def _quest_started(st, user_id: str, badge_id: str) -> bool:
 
 
 def _game_kind_for(task: dict, badge: dict | None) -> str:
-    """Which arcade game this task is: 'cave', 'bridge' or '' for a normal task.
+    """Which arcade game this task is: 'cave', 'bridge', 'drill' or '' else.
 
-    A game plays in its own full-bleed page (`/tasks/<id>/cave`, `/tasks/<id>/bridge`)
-    rather than the ordinary task form, and finishing it files the item. The
-    kind is read from the area the task fills, so the leader keeps one place —
+    A game plays in its own full-bleed page (`/tasks/<id>/cave`,
+    `/tasks/<id>/bridge`, `/tasks/<id>/drill`) rather than the ordinary task
+    form, and finishing it files the item. The kind is read from the area the
+    task fills, so the leader keeps one place —
     the badge guide — to say which game lives where.
     """
     if not badge or task.get("type") != "quiz":
@@ -96,7 +98,7 @@ def _game_kind_for(task: dict, badge: dict | None) -> str:
         if game.get("task_code") != task.get("code") or not game.get("ready"):
             continue
         area_kind = (game.get("kind") or "").strip()
-        if area_kind in ("cave", "bridge") and (not kind or kind == area_kind):
+        if area_kind in ("cave", "bridge", "drill") and (not kind or kind == area_kind):
             return area_kind
     return ""
 
@@ -113,6 +115,13 @@ def _is_badge_bridge_task(task: dict, badge: dict | None) -> bool:
     if not river_adventure().get("stages"):
         return False
     return _game_kind_for(task, badge) == "bridge"
+
+
+def _is_badge_drill_task(task: dict, badge: dict | None) -> bool:
+    """The assigned drill ground is the only way to complete item 6's game slot."""
+    if not drill_manual().get("sections"):
+        return False
+    return _game_kind_for(task, badge) == "drill"
 
 
 @scout_routes.get("/badges")
@@ -251,6 +260,8 @@ def _game_url(task: dict, kind: str) -> str:
         return url_for("scout_routes.task_cave", task_id=task["id"])
     if kind == "bridge":
         return url_for("scout_routes.task_bridge", task_id=task["id"])
+    if kind == "drill":
+        return url_for("scout_routes.task_drill", task_id=task["id"])
     return url_for("scout_routes.task_player", task_id=task["id"])
 
 
@@ -259,9 +270,9 @@ def _journey_next(user: dict, task: dict) -> dict | None:
 
     This is the map's own rule — walk the five areas in order and offer the first
     one whose game is built and not yet cleared — so the button at the cave mouth
-    says exactly what the treasure map says next. A crossing that is laid but
-    still waiting on the leader's code counts as played: the walk moves on to
-    game 3, and the code can be typed in any time afterwards.
+    says exactly what the treasure map says next. A crossing that is laid or a
+    manual that is studied but still waiting on the leader's code counts as
+    played: the walk moves on, and the code can be typed in any time afterwards.
     """
     st = store()
     badge = st.get("badges", task.get("badge_id"))
@@ -273,7 +284,7 @@ def _journey_next(user: dict, task: dict) -> dict | None:
         return None
     done = {row.get("task_id") for row in st.list("progress_records")
             if row.get("user_id") == user["id"]
-            and row.get("status") in ("completed", "crossed")}
+            and row.get("status") in ("completed", "crossed", "studied")}
     tasks = [t for t in st.list("tasks") if t.get("badge_id") == badge["id"]]
     for area in areas:
         game = area.get("game") or {}
@@ -334,6 +345,7 @@ def _task_context(user: dict, task_id: str) -> dict | None:
         # A game owns its item: /tasks/<id> redirects to the game, never a form.
         "cave_ready": _is_badge_cave_task(task, badge),
         "bridge_ready": _is_badge_bridge_task(task, badge),
+        "drill_ready": _is_badge_drill_task(task, badge),
         "badge": badge,
         "progress": progress,
         "stats": progress["stats"],
@@ -354,6 +366,8 @@ def task_player(task_id: str):
         return redirect(url_for("scout_routes.task_cave", task_id=task_id))
     if context["bridge_ready"]:
         return redirect(url_for("scout_routes.task_bridge", task_id=task_id))
+    if context["drill_ready"]:
+        return redirect(url_for("scout_routes.task_drill", task_id=task_id))
     return render_template("scout/task.html", **context)
 
 
@@ -751,6 +765,218 @@ def bridge_code(task_id: str):
                   detail={"code": True},
                   message_zh="✓ 代碼正確 — 遊戲 2 通關，第 5 項完成！",
                   message_en="✓ The code is right — game 2 cleared, and item 5 with it!")
+    return redirect(url_for("scout_routes.badge_requirements",
+                            badge_id=task["badge_id"], assess="ok"))
+
+
+# ── 遊戲 3：石壁山嶺 · 步操訓練場 (the drill ground, item 6) ────────────────
+
+@scout_routes.get("/tasks/<task_id>/drill")
+@scout_required
+def task_drill(task_id: str):
+    """第 6 項的步操訓練場 — the badge's third game: seven chapters of the manual.
+
+    Like the cave and the crossing, the whole thing runs in the browser (so it
+    also plays inside the offline demo file) from the content in
+    `content/member-badge/drill.json`. The route hands over the seven sections,
+    their twenty movements, every manual page and every line of interface text.
+    Passing all twenty self-checks is only the first half of game 3: the scout
+    then sees the leader and performs the movements in person (考核), and brings
+    back the leader's code. `POST /tasks/<id>/drill-submit` files the studying;
+    `POST /tasks/<id>/drill-code` files the completion.
+    """
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["drill_ready"] or task.get("status") != "published":
+        abort(404)
+    if context["badge"].get("locked"):
+        abort(403)
+    manual = drill_manual()
+    sections = []
+    for section in manual["sections"]:
+        moves = [m for m in (section.get("moves") or []) if (m.get("check") or {}).get("q_zh")]
+        if moves:
+            sections.append({**section, "moves": moves})
+    if not sections:
+        abort(404)
+
+    # where this scout stands: a manual already studied (waiting on the code),
+    # or the item already finished. The game opens straight onto the assess
+    # card in the first case, so the code can be typed without re-reading.
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    completed_now = any(r.get("status") == "completed" for r in mine)
+    studied_now = not completed_now and any(r.get("status") == "studied" for r in mine)
+    onward = _journey_next(g.user, task)
+
+    scenes = {
+        **manual,
+        "task_id": task_id,
+        "sections": sections,
+        "labels": manual.get("labels") or {},
+        "assess": manual.get("assess") or {},
+        "studied_card": manual.get("studied") or {},
+        "submit_url": url_for("scout_routes.drill_submit", task_id=task_id),
+        "code_url": url_for("scout_routes.drill_code", task_id=task_id),
+        "badge_url": url_for("scout_routes.badge_detail", badge_id=task["badge_id"]),
+        "move_total": sum(len(s["moves"]) for s in sections),
+        "studied_now": studied_now,
+        "completed_now": completed_now,
+        "next_game": ({"name_zh": onward["name_zh"], "name_en": onward["name_en"],
+                       "url": _game_url(onward["task"], onward["kind"])}
+                      if onward else None),
+    }
+    config = context["task"].get("config_json") or {}
+    config = json.loads(config) if isinstance(config, str) else config
+    return render_template(
+        "scout/drill.html",
+        task=context["task"], badge=context["badge"],
+        manual=scenes, scene_json=json.dumps(scenes, ensure_ascii=False),
+        art_names=drill_images(manual),
+        badge_url=scenes["badge_url"],
+        studied_now=studied_now,
+        # the item's own revision links (the leader's drill resources)
+        links=[row for row in (config.get("links") or []) if row.get("url")],
+    )
+
+
+@scout_routes.post("/tasks/<task_id>/drill-submit")
+@scout_required
+def drill_submit(task_id: str):
+    """Twenty checks answered — the manual is studied, but the item is not done.
+
+    The record goes in as `studied`: the browser posts every movement's chosen
+    answer and the server re-checks each one against `drill.json`, so a code
+    cannot be hunted without the learning. Item 6 is cleared only when the
+    leader has seen the movements performed and handed over the code
+    (drill-code below).
+    """
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["drill_ready"] or task.get("status") != "published":
+        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
+    if context["badge"].get("locked"):
+        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
+    manual = drill_manual()
+
+    answers: dict[str, int] = {}
+    wrong: list[str] = []
+    for section in (manual.get("sections") or []):
+        for move in (section.get("moves") or []):
+            check = move.get("check") or {}
+            if not check.get("q_zh"):
+                continue
+            given = as_int_or(request.form.get(f"check_{move['id']}"), None)
+            if given is not None and given == check.get("answer"):
+                answers[move["id"]] = given
+                continue
+            wrong.append(f"{move.get('title_zh') or move['id']}")
+
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    already_done = any(r.get("status") == "completed" for r in mine)
+    already_studied = any(r.get("status") == "studied" for r in mine)
+
+    if wrong and not already_done and not already_studied:
+        return fail(400, "drill_incomplete",
+                    "還有自查題未答對（" + "、".join(wrong[:3]) + ("…" if len(wrong) > 3 else "")
+                    + "）。讀完要點再答一次。",
+                    "Some checks are not answered right yet — read the points and try again.")
+    if not already_done and not already_studied:
+        st.insert("progress_records", {
+            "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
+            "attempt_no": len(mine) + 1, "status": "studied", "score": None,
+            "leader_comment": "",
+            "answers_json": json.dumps(answers, ensure_ascii=False),
+            "checklist_json": None, "evidence_url": "", "reflection_text": "",
+            "points_awarded": 0, "submitted_at": now_iso(),
+            "decided_at": "", "decided_by": "",
+        })
+        audit(g.user, "drill_submit", "tasks", task_id,
+              {"status": "studied", "moves": len(answers)})
+    return ok(passed=already_done, status="completed" if already_done else "studied",
+              already_done=already_done, detail={"moves": len(answers)},
+              message_zh="手冊讀完了！請找領袖親身考核：做出各個動作與集隊手號；考核後輸入領袖代碼，第 6 項就完成。",
+              message_en="The manual is learned! Now see your leader: perform the movements and hand signs in person, then enter the leader's code to finish item 6.")
+
+
+def _drill_assess_code(st) -> str:
+    """The leader's word that finishes game 3 — given by hand after the 考核.
+
+    Default 82DR. A `drill_assess_code` row in settings can change it (the
+    leader edits the settings sheet); the comparison ignores case, spaces and
+    full-width typing, so ８２ｄｒ works just as well as 82DR.
+    """
+    raw = (st.settings().get("drill_assess_code") or "82DR")
+    return unicodedata.normalize("NFKC", str(raw)).replace(" ", "").upper().strip()
+
+
+@scout_routes.post("/tasks/<task_id>/drill-code")
+@scout_required
+def drill_code(task_id: str):
+    """領袖考核後的代碼 — the second half of game 3.
+
+    The studying (drill-submit) proves the manual was read and every check
+    answered; this proves a leader watched the scout perform the movements and
+    the fall-in signs. The code only counts once the studying is on file — a
+    code alone cannot skip the manual — and only the right code completes the
+    item.
+    """
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["drill_ready"] or task.get("status") != "published":
+        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
+    if context["badge"].get("locked"):
+        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
+    assess = (drill_manual().get("assess") or {})
+
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    if any(r.get("status") == "completed" for r in mine):
+        return ok(passed=True, status="completed", already_done=True,
+                  message_zh="第 6 項已完成，不用再輸入代碼。",
+                  message_en="Item 6 is already complete — no code needed.")
+    studied = next((r for r in mine if r.get("status") == "studied"), None)
+    if studied is None:
+        return fail(400, "drill_not_studied",
+                    "請先完成步操訓練場（答對全部自查題），再找領袖考核。",
+                    "Finish the drill ground first — every check answered — then see your leader.")
+
+    given = _bridge_code_normalise(request.form.get("code"))
+    if given != _drill_assess_code(st):
+        audit(g.user, "drill_code_wrong", "tasks", task_id, {})
+        zh = assess.get("code_wrong_zh") or "代碼不對。請向領袖再問一次。"
+        en = assess.get("code_wrong_en") or "That code does not match. Ask your leader again."
+        if wants_json():
+            return fail(400, "drill_code_wrong", zh, en)
+        return redirect(url_for("scout_routes.badge_requirements",
+                                badge_id=task["badge_id"], assess="wrong"))
+
+    progress = progress_for(st, g.user["id"])
+    badge = next((b for b in progress["badges"] if b["id"] == task.get("badge_id")), None)
+    decorated = next((t for t in (badge or {}).get("tasks", []) if t["id"] == task_id), None)
+    record = st.insert("progress_records", {
+        "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
+        "attempt_no": len(mine) + 1, "status": "completed", "score": 100,
+        "leader_comment": "領袖考核通過：已親身做出各項步操動作與集隊手號。",
+        "answers_json": studied.get("answers_json"),
+        "checklist_json": None, "evidence_url": "", "reflection_text": "",
+        "points_awarded": 0, "submitted_at": now_iso(),
+        "decided_at": now_iso(), "decided_by": "leader-code",
+    })
+    if decorated:
+        award_task_completion(st, user=g.user, task=decorated, badge=badge,
+                              record=record, awarded_by="leader-code")
+        touch_streak(st, g.user["id"])
+    audit(g.user, "drill_code", "tasks", task_id, {"status": "completed"})
+    if wants_json():
+        return ok(passed=True, status="completed", already_done=False,
+                  detail={"code": True},
+                  message_zh="✓ 代碼正確 — 遊戲 3 通關，第 6 項完成！",
+                  message_en="✓ The code is right — game 3 cleared, and item 6 with it!")
     return redirect(url_for("scout_routes.badge_requirements",
                             badge_id=task["badge_id"], assess="ok"))
 

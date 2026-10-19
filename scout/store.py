@@ -543,11 +543,11 @@ class Store:
         # The four awards that follow 會員章 stay locked until it is earned, so
         # the demo keeps the real shape of the scheme — one door open at a time.
         demo_scouts = [
-            # M05 is the bridge game now (finished by playing), so the item waiting
-            # for a leader's word is M06 — 宣誓禮儀與中式隊列.
-            ("scout01", "王小明", "Wong Siu Ming", "Tiger", "🦊", ["M01", "M02", "M03"], "M06"),
+            # M04–M06 are games now (cleared by playing), so the item waiting
+            # for a leader's word is M11 — 保護自己 (sign-off after the talk).
+            ("scout01", "王小明", "Wong Siu Ming", "Tiger", "🦊", ["M01", "M02", "M03"], "M11"),
             ("scout02", "李美儀", "Lee Mei Yee", "Tiger", "🐼", ["M01", "M02", "M03", "M04"], None),
-            ("scout03", "張家豪", "Cheung Ka Ho", "Otter", "🦉", ["M01", "M02"], "M06"),
+            ("scout03", "張家豪", "Cheung Ka Ho", "Otter", "🦉", ["M01", "M02"], "M11"),
             ("scout04", "何嘉欣", "Ho Ka Yan", "Otter", "🐧", ["M01"], None),
             ("scout05", "陳大文", "Chan Tai Man", "Seagull", "🐯", ["M01", "M03"], None),
             ("scout06", "林小玲", "Lam Siu Ling", "Seagull", "🐨", [], None),
@@ -620,7 +620,7 @@ class Store:
                     "checklist_json": [True, False] if kind == "checklist" else None,
                     "evidence_url": ("https://drive.google.com/file/d/1SampleEvidenceFileId/view"
                                      if kind == "evidence" else ""),
-                    "reflection_text": (f"我是{zh}，已經練好宣誓的禮儀和隊列動作，請領袖考核。"
+                    "reflection_text": (f"我是{zh}，已經完成這一項的學習，請領袖核實。"
                                         if kind == "signoff" else
                                         f"我是{zh}，想同大家分享這次活動的經歷。" if kind == "reflection" else ""),
                     "leader_comment": "", "points_awarded": 0,

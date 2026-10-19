@@ -451,6 +451,21 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
             code = new_scout.post(f"/tasks/{task['id']}/bridge-code",
                                   data={'code': '82BP'}).get_json()
             assert code['passed'] and code['status'] == 'completed', code
+        elif task['code'] == 'M06':
+            # game 3 also has two halves: answer every check of the manual
+            # (that studies it), then bring the leader's 考核 code
+            drill = (pathlib.Path(__file__).resolve().parent.parent / 'content'
+                     / 'member-badge' / 'drill.json')
+            manual = json.loads(drill.read_text(encoding='utf-8'))
+            data = {}
+            for section in manual['sections']:
+                for move in section['moves']:
+                    data[f"check_{move['id']}"] = str(move['check']['answer'])
+            result = new_scout.post(f"/tasks/{task['id']}/drill-submit", data=data).get_json()
+            assert result['status'] == 'studied', result
+            code = new_scout.post(f"/tasks/{task['id']}/drill-code",
+                                  data={'code': '82DR'}).get_json()
+            assert code['passed'] and code['status'] == 'completed', code
         elif task['type'] == 'checklist':
             new_scout.post(f"/tasks/{task['id']}/submit",
                            data={f"item{i}": '1' for i in range(len(config['items']))})
@@ -460,8 +475,8 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
     after = engine.progress_for(store, new_scout.id)
     badge = after['badges'][0]
     assert badge['tasks_done'] == badge['tasks_total'] == 11
-    assert badge['progress_done'] == 2 and badge['progress_total'] == 5  # cave + bridge
-    assert not badge['earned'] and after['badges'][1]['locked'], 'the other four games are missing'
+    assert badge['progress_done'] == 3 and badge['progress_total'] == 5  # cave + bridge + drill
+    assert not badge['earned'] and after['badges'][1]['locked'], 'the other two games are missing'
     assert not any(r['entry_type'] == 'badge' and r['ref_id'] == badge['id']
                    for r in store.list('points_ledger') if r['user_id'] == new_scout.id)
 
