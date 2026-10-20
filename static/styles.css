@@ -2636,6 +2636,38 @@ body.is-game main { padding-top: 6px; }
     radial-gradient(100% 80% at 50% 20%, rgba(38, 74, 52, .35), transparent 70%),
     #071009;
 }
+/* animated drill statues: still frames of the same Section 1 leader statue,
+   cross-faded in movement order with the current step named underneath. */
+.drill-statue-anim {
+  position: relative; display: block; width: 100%; height: 100%; overflow: hidden;
+  background: radial-gradient(100% 80% at 50% 20%, rgba(38, 74, 52, .35), transparent 70%), #071009;
+}
+.drill-statue-step {
+  position: absolute; inset: 0; display: block; opacity: 0;
+  transition: opacity .07s linear; pointer-events: none;
+}
+.drill-statue-step.is-active { opacity: 1; }
+.drill-statue-step img {
+  width: 100%; height: 100%; object-fit: contain; padding: .55rem .55rem 3.8rem;
+}
+.drill-statue-anim.is-review .drill-statue-step img { padding-bottom: 2.8rem; }
+.drill-statue-caption {
+  position: absolute; left: 50%; bottom: 2.15rem; transform: translateX(-50%);
+  width: max-content; max-width: 92%; padding: .32rem .55rem;
+  border: 1px solid rgba(217, 164, 65, .55); border-radius: 999px;
+  background: rgba(3, 12, 8, .84); color: #fff3d6;
+  font-size: .72rem; font-weight: 800; line-height: 1.35; text-align: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .45);
+}
+.drill-statue-anim.is-review {
+  width: min(10rem, 52vw); height: auto; aspect-ratio: 672 / 900; flex: 0 1 auto;
+  border: 1px solid rgba(217, 164, 65, .5); border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .42);
+}
+.drill-statue-anim.is-review .drill-statue-caption { bottom: .45rem; font-size: .62rem; }
+@media (prefers-reduced-motion: reduce) {
+  .drill-statue-step { transition: none; }
+}
 .drill-flip-hint {
   position: absolute; left: 50%; bottom: .55rem; transform: translateX(-50%);
   font-size: .68rem; font-weight: 800; letter-spacing: .06em; white-space: nowrap;
@@ -2854,6 +2886,9 @@ body.is-game main { padding-top: 6px; }
   .drill-flip-leader, .drill-flip-sign { font-size: .65rem; line-height: 1.32; }
   .drill-review-form .drill-form-art.is-detailed { width: 4rem; height: 4rem; }
   .drill-review-form .drill-move-art.is-detailed { width: 4rem; height: 4rem; }
+  .drill-statue-caption { bottom: 1.85rem; font-size: .58rem; padding: .24rem .42rem; }
+  .drill-statue-step img { padding: .35rem .35rem 4.2rem; }
+  .drill-statue-anim.is-review { width: min(8.5rem, 58vw); }
   .drill-flip-back .drill-move-art.is-detailed { width: min(3.3rem, 58%); padding: .22rem; }
   .drill-flip-icon-front { gap: .28rem; padding: .55rem .45rem 1.55rem; }
   .drill-flip-icon-front .drill-move-art.is-detailed { width: min(3.1rem, 62%); padding: 0; }

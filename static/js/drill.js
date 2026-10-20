@@ -270,9 +270,11 @@
        right answer. say() clears both, so no timer ever outlives its card */
     var beatTimer = null;
     var advanceTimer = null;
+    var statueTimer = null;
     function clearTimers() {
       if (beatTimer) { window.clearInterval(beatTimer); beatTimer = null; }
       if (advanceTimer) { window.clearTimeout(advanceTimer); advanceTimer = null; }
+      if (statueTimer) { window.clearInterval(statueTimer); statueTimer = null; }
     }
 
     function movesOfSection(i) { return sections[i].moves || []; }
@@ -351,6 +353,43 @@
       card.setAttribute('tabindex', '-1');
       syncMore();
       window.setTimeout(syncMore, 80);
+      startStatueAnimations();
+    }
+
+    function startStatueAnimations() {
+      if (!card) return;
+      var nodes = Array.prototype.slice.call(card.querySelectorAll('[data-drill-animation]'));
+      if (!nodes.length) return;
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var startedAt = Date.now();
+      function apply() {
+        nodes.forEach(function (node) {
+          var steps = Array.prototype.slice.call(node.querySelectorAll('[data-drill-frame]'));
+          if (!steps.length) return;
+          if (reduce) {
+            steps.forEach(function (step, index) {
+              step.classList.toggle('is-active', index === steps.length - 1);
+            });
+            return;
+          }
+          var holds = steps.map(function (step) {
+            return Math.max(250, Number(step.getAttribute('data-hold-ms')) || 900);
+          });
+          var total = holds.reduce(function (sum, hold) { return sum + hold; }, 0);
+          var at = (Date.now() - startedAt) % total;
+          var active = 0;
+          var cursor = 0;
+          holds.forEach(function (hold, index) {
+            if (at >= cursor) active = index;
+            cursor += hold;
+          });
+          steps.forEach(function (step, index) {
+            step.classList.toggle('is-active', index === active);
+          });
+        });
+      }
+      apply();
+      if (!reduce) statueTimer = window.setInterval(apply, 80);
     }
     function kicker(text, kind) {
       return '<span class="cave-kicker' + (kind ? ' cave-kicker-' + kind : '') + '">' + esc(text) + '</span>';
@@ -462,10 +501,43 @@
       return pick(m.title_zh, m.title_en);
     }
 
+
+    function animationFrames(m) {
+      return ((m && m.animation) || []).map(function (frame) {
+        return typeof frame === 'string' ? { img: frame } : frame;
+      }).filter(function (frame) { return frame && frame.img && artUrl(frame.img); });
+    }
+
+    function movementArt(m) {
+      var frames = animationFrames(m || {});
+      return (m && m.figure) || (frames.length ? frames[frames.length - 1].img : '') ||
+             (m && m.img) || ridgeArt();
+    }
+
+    function movementAnimationHtml(m, variant) {
+      var frames = animationFrames(m);
+      if (!frames.length) return '';
+      return '<span class="drill-statue-anim is-' + esc(variant || 'flip') + '"' +
+             ' data-drill-animation="' + esc(m.id) + '" data-frame-count="' + frames.length + '"' +
+             ' role="img" aria-label="' + esc(pick(m.title_zh, m.title_en)) + '">' +
+        frames.map(function (frame, index) {
+          var label = pick(frame.label_zh, frame.label_en);
+          return '<span class="drill-statue-step' + (index === 0 ? ' is-active' : '') + '"' +
+                 ' data-drill-frame data-hold-ms="' + esc(frame.hold_ms || 900) + '">' +
+            '<img src="' + esc(artUrl(frame.img)) + '" alt="">' +
+            (label ? '<span class="drill-statue-caption">' + esc(label) + '</span>' : '') +
+          '</span>';
+        }).join('') +
+      '</span>';
+    }
+
     function moveCardFront(unit) {
       var m = unit.moves[0] || {};
-      var image = unit.id === 'pacing' ? '' : (m.img || '');
-      var body = image
+      var frames = unit.id === 'pacing' ? [] : animationFrames(m);
+      var image = unit.id === 'pacing' ? '' : (m.figure || m.img || '');
+      var body = frames.length
+        ? movementAnimationHtml(m, 'flip')
+        : image
         ? '<img src="' + esc(artUrl(image)) + '" alt="' + esc(unitTitle(unit)) + '">'
         : '<span class="drill-flip-icon-front">' + movementSvg(unit.id, true) +
             '<strong>' + esc(unitTitle(unit)) + '</strong>' +
@@ -756,7 +828,7 @@
       state.scene = 'review';
       state.busy = false;
       var isMoveReview = state.section === 2;
-      setArt(isMoveReview ? (m.img || ridgeArt()) : (m.figure || m.img || ridgeArt()));
+      setArt(isMoveReview ? movementArt(m) : (m.figure || m.img || ridgeArt()));
       var points = pointsFor(m);
       var why = pick((m.check || {}).why_zh, (m.check || {}).why_en);
       var reviewChips = [];
@@ -765,7 +837,7 @@
       if (m.manual) reviewChips.push(chip('📖 ' + pick(L.manual_label_zh, L.manual_label_en) + ' — ' + m.manual));
       if (isMoveReview && m.leader_demo) reviewChips.push(chip(pick(L.move_leader_demo_zh, L.move_leader_demo_en), 'is-demo'));
       var reviewVisual = isMoveReview
-        ? movementSvg(m.id, true)
+        ? (animationFrames(m).length ? movementAnimationHtml(m, 'review') : movementSvg(m.id, true))
         : ((m.figure ? '<img class="drill-review-fig" src="' + esc(artUrl(m.figure)) + '"' +
                        ' alt="' + esc(pick(m.title_zh, m.title_en)) + '">' : '') + formationSvg(m.id, true));
       say(kicker(title, 'bad') +
@@ -1108,6 +1180,7 @@
         show('intro');
         if (callback) callback();
       } else if (lastFocus && lastFocus.isConnected && lastFocus !== document.body) {
+        startStatueAnimations();
         lastFocus.focus();
       }
       lastFocus = null;

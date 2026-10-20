@@ -40,18 +40,40 @@
           "title_zh": "立正",
           "title_en": "Alert",
           "command": "Alert!",
-          "img": "img/quest/drill/manual/p030-alert.jpg",
+          "figure": "img/quest/drill/movements/alert-3-alert.jpg",
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/alert-1-stand-at-ease.jpg",
+              "label_zh": "1 · 稍息起步：雙腳分開，雙手在身後",
+              "label_en": "1 · Start at stand at ease: feet apart, hands behind the back",
+              "hold_ms": 950
+            },
+            {
+              "img": "img/quest/drill/movements/alert-2-close.jpg",
+              "label_zh": "2 · 提起左腳至大腿與地面平行，雙手同時回到兩側",
+              "label_en": "2 · Lift the left foot until the thigh is level; bring both hands back to the sides",
+              "hold_ms": 800
+            },
+            {
+              "img": "img/quest/drill/movements/alert-3-alert.jpg",
+              "label_zh": "3 · 左腳踏下靠攏右腳，握拳貼褲縫，成立正",
+              "label_en": "3 · Place the left foot beside the right, fists at the seams — Alert",
+              "hold_ms": 1250
+            }
+          ],
           "manual": "手冊 p.30",
           "points_zh": [
-            "雙腳平放地面，腳尖向外分開，與中線成 30 度角",
-            "雙膝伸直，身體保持挺直",
-            "雙手握拳放於身體兩側褲縫之後，拇指指甲向前，放於食指之上",
+            "起步為稍息：雙腳分開 305 毫米（12 吋），雙手在身後中央",
+            "聽到「Alert!」：提起左腳至大腿與地面平行，左小腿放鬆；雙手同時沿身體回到兩側握拳",
+            "左腳踏下並靠攏右腳，雙腳平放地面，腳尖向外分開，與中線成 30 度角",
+            "雙膝伸直，身體保持挺直；雙拳放於褲縫之後，拇指指甲向前",
             "下顎緊貼衣領，眼望無限遠"
           ],
           "points_en": [
-            "Feet flat on the ground, toes turned out 30 degrees from the centre line",
-            "Knees straight, body upright",
-            "Fists at the sides behind the seams of the trousers, thumb nails forward on the forefingers",
+            "Start at stand at ease: feet 305 mm (12 in) apart, hands in the centre of the back",
+            "On “Alert!” lift the left foot until the thigh is level, lower leg relaxed; at the same time bring both hands back to the sides as fists",
+            "Place the left foot down beside the right; feet flat, toes turned out 30 degrees from the centre line",
+            "Knees straight, body upright, fists behind the trouser seams with the thumbnails forward",
             "Chin in to the collar, eyes looking to the far distance"
           ],
           "note_zh": "典禮中聽到的 Attention / Squad Shun / Parade Shun 與立正（Alert）動作相同。",

@@ -189,6 +189,11 @@ def drill_images(manual: dict) -> list[str]:
         for move in section.get("moves") or []:
             for key in ("img", "img2", "img3", "figure"):
                 take(move.get(key))
+            for frame in (move.get("animation") or []):
+                if isinstance(frame, dict):
+                    take(frame.get("img"))
+                else:
+                    take(frame)
     return names
 
 

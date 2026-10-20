@@ -364,10 +364,25 @@ def main():
                       f'section 2 stage {index + 1} lists movements already learned')
             if index == 0:
                 alert = page.locator('[data-drill-flip="alert"]')
+                anim = alert.locator('[data-drill-animation="alert"]')
+                check(anim.count() == 1 and anim.locator('[data-drill-frame]').count() == 3,
+                      'the Alert card front is a three-frame statue animation')
+                frame_srcs = anim.locator('img').evaluate_all(
+                    "imgs => imgs.map(img => img.getAttribute('src') || '')")
+                check(all('/movements/alert-' in src for src in frame_srcs)
+                      and not any('/manual/' in src for src in frame_srcs),
+                      'the Alert animation uses statue frames, not a PDF/manual page')
+                active_at = lambda: anim.evaluate(
+                    "node => [...node.querySelectorAll('[data-drill-frame]')].findIndex(step => step.classList.contains('is-active'))")
+                first_active = active_at()
+                page.wait_for_timeout(1150)
+                check(active_at() != first_active, 'the Alert statue animation advances through its frames')
                 alert.click(); page.wait_for_timeout(600)
                 back = alert.inner_text()
                 check('口令' in back and 'Alert!' in back and '動作要點' in back and '30 度' in back,
                       'the Alert card back teaches its command and key points')
+                check('起步為稍息' in back and '提起左腳' in back and '左腳踏下並靠攏右腳' in back,
+                      'the Alert card teaches stand-at-ease → lift/close → Alert in order')
                 check(page.locator('[data-drill-flip] .drill-move-art.is-detailed').count() == 3,
                       'every stage 1 movement card back carries a movement diagram')
                 shoot(page, 'drill-move-flip-stage1.png')
@@ -419,8 +434,9 @@ def main():
                 target = MOVE_BY_ID[target_id]
                 check('不是這個動作' in review and target['title_zh'] in review and target['command'] in review,
                       'a wrong movement press opens the command review')
-                check(page.locator('[data-drill-card] .drill-move-art.is-detailed').count() == 1,
-                      'the movement review shows the detailed movement diagram')
+                check(page.locator('[data-drill-card] .drill-move-art.is-detailed').count() == 1
+                      or page.locator('[data-drill-card] [data-drill-animation]').count() == 1,
+                      'the movement review shows its detailed diagram or animated statue')
                 shoot(page, 'drill-move-review-stage1.png')
                 click(page, '[data-drill-go="resume"]')
                 page.wait_for_selector('[data-drill-scene="drill"]')
