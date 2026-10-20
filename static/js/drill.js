@@ -14,9 +14,13 @@
    second stage's mechanism mixing all 7 — and both flights of steps are
    out: section 1 is done.
 
-   Section 2 (the 步操 commands, down on the parade ground) is coming soon;
-   the studying is filed and the leader's 考核 code (82DR) only enters the
-   picture once both sections are cleared. A scout who has already studied
+   Down the steps is section 2, the drill movements on the parade ground:
+   three stages of movement cards first (command, count and key points),
+   then the command mechanism calls a command and the right movement must
+   be pressed inside the count. Each stage mixes in every movement learned
+   before it in section 2. Only when both sections are cleared is the
+   studying filed; then the leader assesses the scout in person and the
+   leader's code (82DR) finishes game 3. A scout who has already studied
    or finished re-opens straight onto the assess card.
 
    The same shape as cave.js and bridge.js on purpose: one browser-side
@@ -97,6 +101,93 @@
            leader + '<g transform="translate(6 9)">' + body + '</g></svg>';
   }
 
+  /* Section 2's little movement diagrams: gold footprints, green direction
+     arrows and one clear cue per movement. They are deliberately schematic —
+     the manual page and the leader's demonstration carry the exact footwork. */
+  function movementSvg(id, detailed) {
+    var foot = function (x, y, rotate, cls) {
+      return '<ellipse class="' + (cls || 'move-foot') + '" cx="' + x + '" cy="' + y +
+             '" rx="3.1" ry="5.2" transform="rotate(' + (rotate || 0) + ' ' + x + ' ' + y + ')"/>';
+    };
+    var arrow = function (points) {
+      return '<polygon class="move-arrow" points="' + points + '"/>';
+    };
+    var line = function (points, cls) {
+      return '<polyline class="' + (cls || 'move-line') + '" points="' + points + '"/>';
+    };
+    var path = function (d, cls) {
+      return '<path class="' + (cls || 'move-line') + '" d="' + d + '"/>';
+    };
+    var centreFeet = foot(20, 28, -18) + foot(28, 28, 18);
+    var arts = {
+      'alert': function () {
+        return '<line class="move-guide" x1="24" y1="5" x2="24" y2="42"/>' +
+               '<circle class="move-dot" cx="24" cy="9" r="3.4"/>' +
+               line('24,13 24,24') + foot(20, 34, -30) + foot(28, 34, 30);
+      },
+      'stand-at-ease': function () {
+        return foot(13, 33, -12) + foot(35, 33, 12) +
+               '<line class="move-guide" x1="13" y1="42" x2="35" y2="42"/>' +
+               arrow('13,39.5 18,42 13,44.5') + arrow('35,39.5 30,42 35,44.5') +
+               '<circle class="move-dot" cx="24" cy="9" r="3.4"/>' + line('24,13 24,25');
+      },
+      'salute-front': function () {
+        return '<circle class="move-dot" cx="22" cy="10" r="4"/>' +
+               line('22,15 22,34') + line('22,34 17,43') + line('22,34 27,43') +
+               line('22,19 34,19 29,8') + '<circle class="move-green-dot" cx="27" cy="8" r="2"/>';
+      },
+      'pace-forward': function () { return centreFeet + arrow('24,3 31,13 27,13 27,21 21,21 21,13 17,13'); },
+      'pace-backward': function () { return centreFeet + arrow('24,45 17,35 21,35 21,27 27,27 27,35 31,35'); },
+      'pace-left': function () { return centreFeet + arrow('3,24 13,17 13,21 21,21 21,27 13,27 13,31'); },
+      'pace-right': function () { return centreFeet + arrow('45,24 35,31 35,27 27,27 27,21 35,21 35,17'); },
+      'pacing': function () {
+        return centreFeet +
+               arrow('24,2 29,9 26,9 26,15 22,15 22,9 19,9') +
+               arrow('24,46 19,39 22,39 22,33 26,33 26,39 29,39') +
+               arrow('2,24 9,19 9,22 15,22 15,26 9,26 9,29') +
+               arrow('46,24 39,29 39,26 33,26 33,22 39,22 39,19');
+      },
+      'right-turn': function () {
+        return '<circle class="move-dot" cx="24" cy="24" r="3"/>' +
+               path('M14 31 A12 12 0 0 1 35 20') + arrow('35,14 40,23 30,24');
+      },
+      'left-turn': function () {
+        return '<circle class="move-dot" cx="24" cy="24" r="3"/>' +
+               path('M34 31 A12 12 0 0 0 13 20') + arrow('13,14 8,23 18,24');
+      },
+      'about-turn': function () {
+        return '<circle class="move-dot" cx="24" cy="24" r="3"/>' +
+               path('M13 27 A11 11 0 1 1 35 27') + arrow('35,20 41,29 31,31');
+      },
+      'mark-time': function () {
+        return '<line class="move-guide" x1="7" y1="40" x2="41" y2="40"/>' +
+               foot(16, 34, -8) + foot(32, 22, 8) +
+               arrow('32,5 37,13 34,13 34,18 30,18 30,13 27,13');
+      },
+      'quick-march': function () {
+        return foot(12, 38, -28) + foot(21, 29, 24) + foot(29, 20, -22) + foot(36, 12, 20) +
+               arrow('42,3 45,12 38,9 36,15 33,11 39,9');
+      },
+      'halt': function () {
+        return '<polygon class="move-stop" points="18,4 30,4 38,12 38,24 30,32 18,32 10,24 10,12"/>' +
+               '<line class="move-stop-line" x1="16" y1="18" x2="32" y2="18"/>' +
+               foot(20, 41, -18) + foot(28, 41, 18);
+      },
+      'right-dress': function () {
+        return '<line class="move-guide" x1="7" y1="34" x2="39" y2="34"/>' +
+               '<circle class="move-dot" cx="10" cy="28" r="3.2"/>' +
+               '<circle class="move-dot" cx="19" cy="28" r="3.2"/>' +
+               '<circle class="move-dot" cx="28" cy="28" r="3.2"/>' +
+               '<circle class="move-green-dot" cx="37" cy="28" r="3.6"/>' +
+               arrow('45,12 36,17 36,14 18,14 18,20 36,20 36,17') +
+               '<line class="move-green-line" x1="41" y1="8" x2="41" y2="38"/>';
+      }
+    };
+    var body = (arts[id] || arts.alert)();
+    return '<svg class="drill-move-art' + (detailed ? ' is-detailed' : '') +
+           '" viewBox="0 0 48 48" aria-hidden="true" focusable="false">' + body + '</svg>';
+  }
+
   function mountOne(root) {
     if (!root || root.getAttribute('data-drill-bound') === '1') return;
     var cfg = null;
@@ -115,13 +206,20 @@
     var totalMoves = 0;
     sections.forEach(function (s) { totalMoves += (s.moves || []).length; });
 
-    /* the play itself: section 1's stages, each a list of new sign ids */
+    /* the play itself: section 1's sign stages, then section 2's three
+       movement stages. Each list names only that stage's new prompts; the
+       mechanism pool is cumulative inside its own section. */
     var game = cfg.game || {};
     var signStages = (game.sign_stages || []).filter(function (row) { return row && row.length; });
     if (!signStages.length) {
       signStages = [allMoves().filter(function (m) { return !m.command; }).map(function (m) { return m.id; })];
     }
+    var movementStages = (game.movement_stages || []).filter(function (row) { return row && row.length; });
     var allSigns = cumulativePool(signStages.length - 1);
+    var allMovements = cumulativeMovementPool(movementStages.length - 1);
+    var requiredMoves = allSigns.concat(allMovements.filter(function (m) {
+      return !allSigns.some(function (sign) { return sign.id === m.id; });
+    }));
 
     /* every page of the manual waits in the hidden block, keyed by name; the
        ridge painting stands behind the cards that carry no page of their own */
@@ -159,6 +257,7 @@
     var state = {
       scene: 'intro',            /* intro · flip · drill · review · stage-done ·
                                     section-done · studied · result · save-error */
+      section: 1,                /* 1 = hand signs on the cliff; 2 = movements below */
       stage: 0,
       queue: [],                 /* sign ids still to answer this stage run */
       forms: [],                 /* the square formation buttons, this stage */
@@ -187,22 +286,33 @@
       allMoves().forEach(function (m) { if (m.id === id) found = m; });
       return found;
     }
-    function cumulativePool(stageIndex) {
+    function cumulativeFrom(stageLists, stageIndex) {
       var ids = [];
-      for (var i = 0; i <= stageIndex && i < signStages.length; i += 1) {
-        signStages[i].forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
+      for (var i = 0; i <= stageIndex && i < stageLists.length; i += 1) {
+        (stageLists[i] || []).forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
       }
       return ids.map(moveById).filter(function (m) { return m; });
     }
+    function cumulativePool(stageIndex) { return cumulativeFrom(signStages, stageIndex); }
+    function cumulativeMovementPool(stageIndex) { return cumulativeFrom(movementStages, stageIndex); }
+    function activeStageLists() { return state.section === 2 ? movementStages : signStages; }
+    function activePool(stageIndex) {
+      return state.section === 2 ? cumulativeMovementPool(stageIndex) : cumulativePool(stageIndex);
+    }
     function movePassed(m) { return answers[m.id] !== undefined; }
     function signsDone() { return allSigns.filter(movePassed).length; }
-    function allStagesPassed() { return allSigns.every(movePassed); }
-    function firstOpenStage() {
-      for (var i = 0; i < signStages.length; i += 1) {
-        if (cumulativePool(i).some(function (m) { return !movePassed(m); })) return i;
+    function movementsDone() { return allMovements.filter(movePassed).length; }
+    function section1Passed() { return allSigns.length > 0 && allSigns.every(movePassed); }
+    function section2Passed() { return allMovements.length > 0 && allMovements.every(movePassed); }
+    function allGamePassed() { return requiredMoves.length > 0 && requiredMoves.every(movePassed); }
+    function firstOpenFrom(stageLists, poolFor) {
+      for (var i = 0; i < stageLists.length; i += 1) {
+        if (poolFor(i).some(function (m) { return !movePassed(m); })) return i;
       }
-      return signStages.length - 1;
+      return Math.max(0, stageLists.length - 1);
     }
+    function firstOpenStage() { return firstOpenFrom(signStages, cumulativePool); }
+    function firstOpenMovementStage() { return firstOpenFrom(movementStages, cumulativeMovementPool); }
 
     function setArt(name) {
       if (art && name && artUrl(name) && art.getAttribute('src') !== artUrl(name)) {
@@ -229,6 +339,8 @@
       clearTimers();                              /* a new card ends any running beat */
       /* the flip cards are the whole screen — no cliff above, no small panel */
       root.classList.toggle('drill-flip-full', state.scene === 'flip');
+      root.classList.toggle('drill-command-full', state.section === 2 && state.scene === 'drill');
+      root.setAttribute('data-drill-section', String(state.section || 1));
       if (!card) return;
       card.innerHTML = html;
       if (panel && panel.scrollTop) panel.scrollTop = 0;
@@ -249,6 +361,13 @@
 
     function paintProgress() {
       if (!progress) return;
+      if (state.section === 2 && movementStages.length) {
+        progress.textContent = fill(pick(L.move_progress_zh, L.move_progress_en) || '', {
+          done: movementsDone(), total: allMovements.length,
+          stage: state.stage + 1, stages: movementStages.length
+        }) || pick(L.hud_zh, L.hud_en) || '';
+        return;
+      }
       progress.textContent = fill(pick(L.progress_zh, L.progress_en) || '', {
         done: signsDone(), total: allSigns.length,
         stage: state.stage + 1, stages: signStages.length
@@ -268,7 +387,7 @@
       return text.replace(/^手號：/, '').replace(/^Sign:\s*/i, '');
     }
 
-    function flipHtml() {
+    function signFlipHtml() {
       var fresh = (signStages[state.stage] || []).map(moveById).filter(function (m) { return m; });
       var known = state.stage > 0 ? cumulativePool(state.stage - 1) : [];
       var cards = fresh.map(function (m) {
@@ -311,8 +430,145 @@
           esc(pick(L.flip_start_zh, L.flip_start_en)) + '</button></div>';
     }
 
-    function showFlip(stageIndex) {
-      state.stage = Math.max(0, Math.min(signStages.length - 1, stageIndex));
+
+    function pointsFor(m) {
+      return (isEn() ? (m.points_en || m.points_zh) : (m.points_zh || m.points_en)) || [];
+    }
+
+    function countText(m) {
+      return String((m && m.count) || '').replace(/^打數：\s*/, '').trim();
+    }
+
+    function studyUnitsFor(ids) {
+      var units = [];
+      var paceUnit = null;
+      (ids || []).map(moveById).filter(function (m) { return m; }).forEach(function (m) {
+        if (m.study_group === 'pacing') {
+          if (!paceUnit) {
+            paceUnit = { id: 'pacing', moves: [] };
+            units.push(paceUnit);
+          }
+          paceUnit.moves.push(m);
+        } else {
+          units.push({ id: m.id, moves: [m] });
+        }
+      });
+      return units;
+    }
+
+    function unitTitle(unit) {
+      if (unit.id === 'pacing') return pick(L.pace_card_title_zh, L.pace_card_title_en);
+      var m = unit.moves[0] || {};
+      return pick(m.title_zh, m.title_en);
+    }
+
+    function moveCardFront(unit) {
+      var m = unit.moves[0] || {};
+      var image = unit.id === 'pacing' ? '' : (m.img || '');
+      var body = image
+        ? '<img src="' + esc(artUrl(image)) + '" alt="' + esc(unitTitle(unit)) + '">'
+        : '<span class="drill-flip-icon-front">' + movementSvg(unit.id, true) +
+            '<strong>' + esc(unitTitle(unit)) + '</strong>' +
+            (unit.id === 'pacing'
+              ? '<small>' + unit.moves.map(function (pace) {
+                  return esc(pick(pace.title_zh, pace.title_en));
+                }).join(isEn() ? ' · ' : '、') + '</small>'
+              : '<small>' + esc(m.command || '') + '</small>') +
+          '</span>';
+      return '<div class="drill-flip-face drill-flip-front">' + body +
+        '<span class="drill-flip-hint">⟳ ' + esc(pick(L.flip_hint_zh, L.flip_hint_en)) + '</span></div>';
+    }
+
+    function moveMetaChips(m) {
+      var chips = [];
+      if (countText(m)) {
+        chips.push('<span class="drill-move-count"><b>' +
+          esc(pick(L.move_count_label_zh, L.move_count_label_en)) + '</b> ' +
+          esc(countText(m)) + '</span>');
+      }
+      if (m.manual) {
+        chips.push('<span class="drill-move-manual">📖 ' +
+          esc(pick(L.manual_label_zh, L.manual_label_en)) + ' — ' + esc(m.manual) + '</span>');
+      } else if (m.leader_demo) {
+        chips.push('<span class="drill-move-manual">' +
+          esc(pick(L.move_leader_demo_zh, L.move_leader_demo_en)) + '</span>');
+      }
+      return chips.length ? '<span class="drill-move-meta">' + chips.join('') + '</span>' : '';
+    }
+
+    function moveCardBack(unit) {
+      if (unit.id === 'pacing') {
+        var directions = unit.moves.map(function (m) {
+          var firstPoint = pointsFor(m)[0] || '';
+          return '<span class="drill-pace-direction">' + movementSvg(m.id) +
+            '<b>' + esc(pick(m.title_zh, m.title_en)) + '</b>' +
+            '<small>' + esc(m.command || '') + '</small>' +
+            '<span>' + esc(firstPoint) + '</span></span>';
+        }).join('');
+        return '<div class="drill-flip-face drill-flip-back is-move">' +
+          '<span class="drill-flip-label">' + esc(pick(L.move_flip_label_zh, L.move_flip_label_en)) + '</span>' +
+          '<strong class="drill-flip-name">' + esc(unitTitle(unit)) + '</strong>' +
+          movementSvg('pacing', true) +
+          '<span class="drill-pace-directions">' + directions + '</span>' +
+          '<span class="drill-flip-sign">' + esc(pick(L.pace_card_note_zh, L.pace_card_note_en)) + '</span>' +
+        '</div>';
+      }
+      var m = unit.moves[0] || {};
+      var points = pointsFor(m);
+      var note = pick(m.note_zh, m.note_en);
+      return '<div class="drill-flip-face drill-flip-back is-move">' +
+        '<span class="drill-flip-label">' + esc(pick(L.move_flip_label_zh, L.move_flip_label_en)) + '</span>' +
+        '<strong class="drill-flip-name">' + esc(pick(m.title_zh, m.title_en)) + '</strong>' +
+        movementSvg(m.id, true) +
+        '<span class="drill-move-command"><b>' +
+          esc(pick(L.move_command_label_zh, L.move_command_label_en)) + '</b> ' +
+          esc(m.command || '') + '</span>' +
+        moveMetaChips(m) +
+        (points.length
+          ? '<span class="drill-move-points-label">' +
+              esc(pick(L.move_points_label_zh, L.move_points_label_en)) + '</span>' +
+            '<ol class="drill-flip-points">' + points.map(function (text) {
+              return '<li>' + esc(text) + '</li>';
+            }).join('') + '</ol>'
+          : '') +
+        (note ? '<span class="drill-flip-sign">' + esc(note) + '</span>' : '') +
+      '</div>';
+    }
+
+    function moveFlipHtml() {
+      var freshIds = movementStages[state.stage] || [];
+      var fresh = studyUnitsFor(freshIds);
+      var known = state.stage > 0 ? studyUnitsFor(cumulativeMovementPool(state.stage - 1).map(function (m) { return m.id; })) : [];
+      var cards = fresh.map(function (unit) {
+        return '<div class="drill-flip" data-drill-flip="' + esc(unit.id) + '" role="button" tabindex="0"' +
+               ' aria-label="' + esc(unitTitle(unit)) + '">' +
+          '<span class="drill-flip-corner is-tl" aria-hidden="true"></span>' +
+          '<span class="drill-flip-corner is-tr" aria-hidden="true"></span>' +
+          '<span class="drill-flip-corner is-bl" aria-hidden="true"></span>' +
+          '<span class="drill-flip-corner is-br" aria-hidden="true"></span>' +
+          '<div class="drill-flip-inner">' + moveCardFront(unit) + moveCardBack(unit) + '</div>' +
+        '</div>';
+      }).join('');
+      var knownNote = known.length
+        ? '<p class="cave-line small drill-flip-known">' + esc(pick(L.move_flip_known_zh, L.move_flip_known_en)) +
+          ' ' + known.map(function (unit) { return esc(unitTitle(unit)); }).join(isEn() ? ', ' : '、') + '</p>'
+        : '';
+      return kicker(fill(pick(L.move_flip_kicker_zh, L.move_flip_kicker_en), { stage: state.stage + 1 })) +
+        '<p class="cave-line small">' + esc(pick(L.move_flip_lead_zh, L.move_flip_lead_en)) + '</p>' +
+        '<div class="drill-flip-grid">' + cards + '</div>' +
+        knownNote +
+        '<div class="cave-actions"><button class="btn primary big" type="button" data-drill-go="start-stage" data-cheer="🥁">' +
+          esc(pick(L.move_flip_start_zh, L.move_flip_start_en)) + '</button></div>';
+    }
+
+    function flipHtml() {
+      return state.section === 2 ? moveFlipHtml() : signFlipHtml();
+    }
+
+    function showFlip(section, stageIndex) {
+      state.section = movementStages.length && section === 2 ? 2 : 1;
+      var lists = activeStageLists();
+      state.stage = Math.max(0, Math.min(Math.max(0, lists.length - 1), stageIndex));
       state.scene = 'flip';
       setArt(ridgeArt());
       say(flipHtml());
@@ -323,8 +579,21 @@
 
     /* ── the live mechanism: a sign on the rock, the count running ────────── */
 
-    function beatMs() { return 1500; }
-    function beatCount() { return 3; }      /* three beats to every sign */
+    function beatCountFor(m) {
+      if (state.section !== 2) return 3;      /* three beats to every hand sign */
+      var count = countText(m);
+      if (!count) return 3;
+      var parts = count.split(/[—–-]+/).map(function (part) { return part.trim(); })
+                       .filter(function (part) { return part; });
+      return Math.max(2, Math.min(6, parts.length || 3));
+    }
+    function beatTotalFor(m) {
+      var beats = beatCountFor(m);
+      /* Section 2 gives the scout time to read the command and find the right
+         movement among a cumulative bank; the bar still runs to the movement's
+         own number of beats, only more slowly than parade tempo. */
+      return state.section === 2 ? Math.max(8000, beats * 1700) : Math.max(4000, beats * 1500);
+    }
 
     function formationBtn(m) {
       return '<button class="drill-form-btn" type="button" data-drill-form="' + esc(m.id) + '"' +
@@ -334,9 +603,16 @@
       '</button>';
     }
 
-    function promptHtml(m) {
-      var beats = beatCount();
-      var total = Math.max(4000, beats * beatMs());
+    function movementBtn(m) {
+      return '<button class="drill-form-btn drill-move-btn" type="button" data-drill-form="' + esc(m.id) + '"' +
+             ' aria-label="' + esc(pick(m.title_zh, m.title_en)) + '">' +
+        '<span class="drill-form-name">' + esc(pick(m.title_zh, m.title_en)) + '</span>' +
+        movementSvg(m.id) +
+      '</button>';
+    }
+
+    function signPromptHtml(m) {
+      var beats = beatCountFor(m);
       return kicker(pick(L.prompt_kicker_zh, L.prompt_kicker_en) ||
                     fill(pick('第 1 節 · 集隊手號 · 第 {stage} / {stages} 階段',
                               'Section 1 · hand signs · stage {stage} / {stages}'),
@@ -354,9 +630,39 @@
         '</div>';
     }
 
+
+    function movePromptHtml(m) {
+      var beats = beatCountFor(m);
+      var chips = [];
+      if (countText(m)) chips.push(chip(pick(L.move_count_label_zh, L.move_count_label_en) + '：' + countText(m), 'is-command'));
+      if (m.manual) chips.push(chip('📖 ' + pick(L.manual_label_zh, L.manual_label_en) + ' — ' + m.manual));
+      if (m.leader_demo) chips.push(chip(pick(L.move_leader_demo_zh, L.move_leader_demo_en), 'is-demo'));
+      return kicker(fill(pick(L.move_prompt_kicker_zh, L.move_prompt_kicker_en),
+                         { stage: state.stage + 1, stages: movementStages.length })) +
+        '<p class="drill-command-say">' + esc(pick(L.move_prompt_say_zh, L.move_prompt_say_en)) + '</p>' +
+        '<h2 class="drill-command" data-drill-command>' + esc(m.command || '') + '</h2>' +
+        (chips.length ? '<div class="drill-chips">' + chips.join('') + '</div>' : '') +
+        '<h3 class="cave-subtitle drill-move-question">' + esc(pick(L.move_prompt_q_zh, L.move_prompt_q_en)) + '</h3>' +
+        '<div class="drill-beat" data-drill-beat aria-hidden="true">' +
+          '<div class="drill-beat-fill" data-drill-beat-fill></div>' +
+        '</div>' +
+        '<p class="drill-beat-note"><span>' + esc(pick('在打數之內按出動作', 'press the movement inside the count')) + '</span>' +
+          '<span data-drill-beat-count>' +
+            esc(fill(pick(L.beat_of_zh, L.beat_of_en), { i: 1, n: beats })) +
+          '</span></p>' +
+        '<div class="drill-form-row is-movements" data-drill-forms>' +
+          state.forms.map(movementBtn).join('') +
+        '</div>';
+    }
+
+    function promptHtml(m) {
+      return state.section === 2 ? movePromptHtml(m) : signPromptHtml(m);
+    }
+
     function startBeats() {
-      var beats = beatCount();
-      var total = Math.max(4000, beats * beatMs());
+      var beats = beatCountFor(state.current);
+      var total = beatTotalFor(state.current);
+      var beatMs = total / beats;
       var fillBar = card && card.querySelector('[data-drill-beat-fill]');
       var countNote = card && card.querySelector('[data-drill-beat-count]');
       var bar = card && card.querySelector('[data-drill-beat]');
@@ -368,7 +674,7 @@
         if (fillBar) fillBar.style.width = (left / total * 100) + '%';
         if (bar) bar.classList.toggle('is-low', left < total * 0.34);
         if (countNote) {
-          var beat = Math.min(beats, Math.floor(elapsed / beatMs()) + 1);
+          var beat = Math.min(beats, Math.floor(elapsed / beatMs) + 1);
           countNote.textContent = fill(pick(L.beat_of_zh, L.beat_of_en), { i: beat, n: beats });
         }
         if (left <= 0) {
@@ -382,7 +688,9 @@
       state.current = m;
       state.busy = false;
       state.scene = 'drill';
-      setArt(m.figure || m.img || ridgeArt());   /* the leader statue shows the sign */
+      setArt(state.section === 2 ? ridgeArt() : (m.figure || m.img || ridgeArt()));
+      /* section 1: the leader statue shows the sign. Section 2: the full-screen
+         command board needs no picture — the called command is the prompt. */
       say(promptHtml(m));
       mark('drill');
       bringStageIntoView();
@@ -390,9 +698,11 @@
       startBeats();
     }
 
-    function beginStage(stageIndex) {
-      state.stage = Math.max(0, Math.min(signStages.length - 1, stageIndex));
-      var pool = cumulativePool(state.stage);
+    function beginStage(section, stageIndex) {
+      state.section = movementStages.length && section === 2 ? 2 : 1;
+      var lists = activeStageLists();
+      state.stage = Math.max(0, Math.min(Math.max(0, lists.length - 1), stageIndex));
+      var pool = activePool(state.stage);
       state.forms = shuffled(pool);      /* the buttons hold still for the stage */
       state.queue = shuffled(pool.map(function (m) { return m.id; }));
       nextInStage();
@@ -415,18 +725,22 @@
         save();
         chime();
         var why = pick((m.check || {}).why_zh, (m.check || {}).why_en);
-        say(kicker(pick(L.right_title_zh, L.right_title_en), 'good') +
+        var isMove = state.section === 2;
+        say(kicker(isMove ? pick(L.move_right_title_zh, L.move_right_title_en)
+                          : pick(L.right_title_zh, L.right_title_en), 'good') +
             '<h2 class="cave-subtitle">' + esc(pick(m.title_zh, m.title_en)) + '</h2>' +
+            (isMove && m.command ? '<p class="drill-command drill-command-feedback">' + esc(m.command) + '</p>' : '') +
             (why ? '<p class="drill-why drill-teach-why"><b>' + esc(pick(L.remember_zh, L.remember_en)) +
                   '</b> ' + esc(why) + '</p>' : ''));
-        burstOn(card.querySelector('.cave-kicker'), ['✨', '🪨']);
+        burstOn(card.querySelector('.cave-kicker'), isMove ? ['✨', '🥁'] : ['✨', '🪨']);
         paintProgress();
         advanceTimer = window.setTimeout(nextInStage, 1000);
         return;
       }
       clearTimers();
       thud();
-      reviewCard(m, pick(L.wrong_title_zh, L.wrong_title_en));
+      reviewCard(m, state.section === 2 ? pick(L.move_wrong_title_zh, L.move_wrong_title_en)
+                                        : pick(L.wrong_title_zh, L.wrong_title_en));
     }
 
     function onLate() {
@@ -441,18 +755,27 @@
       state.queue.push(m.id);
       state.scene = 'review';
       state.busy = false;
-      setArt(m.figure || m.img || ridgeArt());
-      var points = (isEn() ? (m.points_en || m.points_zh) : (m.points_zh || m.points_en)) || [];
+      var isMoveReview = state.section === 2;
+      setArt(isMoveReview ? (m.img || ridgeArt()) : (m.figure || m.img || ridgeArt()));
+      var points = pointsFor(m);
       var why = pick((m.check || {}).why_zh, (m.check || {}).why_en);
+      var reviewChips = [];
+      if (isMoveReview && m.command) reviewChips.push(chip(m.command, 'is-command'));
+      if (isMoveReview && countText(m)) reviewChips.push(chip(pick(L.move_count_label_zh, L.move_count_label_en) + '：' + countText(m)));
+      if (m.manual) reviewChips.push(chip('📖 ' + pick(L.manual_label_zh, L.manual_label_en) + ' — ' + m.manual));
+      if (isMoveReview && m.leader_demo) reviewChips.push(chip(pick(L.move_leader_demo_zh, L.move_leader_demo_en), 'is-demo'));
+      var reviewVisual = isMoveReview
+        ? movementSvg(m.id, true)
+        : ((m.figure ? '<img class="drill-review-fig" src="' + esc(artUrl(m.figure)) + '"' +
+                       ' alt="' + esc(pick(m.title_zh, m.title_en)) + '">' : '') + formationSvg(m.id, true));
       say(kicker(title, 'bad') +
-          '<h2 class="cave-subtitle">' + esc(fill(pick(L.review_lead_zh, L.review_lead_en),
+          '<h2 class="cave-subtitle">' + esc(fill(isMoveReview
+                                                  ? pick(L.move_review_lead_zh, L.move_review_lead_en)
+                                                  : pick(L.review_lead_zh, L.review_lead_en),
                                                   { name: pick(m.title_zh, m.title_en) })) + '</h2>' +
-          (m.manual ? '<div class="drill-chips">' + chip('📖 ' + pick(L.manual_label_zh, L.manual_label_en) +
-                   ' — ' + m.manual, 'is-manual') + '</div>' : '') +
+          (reviewChips.length ? '<div class="drill-chips">' + reviewChips.join('') + '</div>' : '') +
           '<div class="drill-review-form">' +
-            (m.figure ? '<img class="drill-review-fig" src="' + esc(artUrl(m.figure)) + '"' +
-                         ' alt="' + esc(pick(m.title_zh, m.title_en)) + '">' : '') +
-            formationSvg(m.id, true) +
+            reviewVisual +
             '<span class="drill-form-name">' + esc(pick(m.title_zh, m.title_en)) + '</span>' +
           '</div>' +
           '<ol class="drill-points">' + points.map(function (text) {
@@ -469,6 +792,20 @@
     /* ── between stages: a flight of steps appears ────────────────────────── */
 
     function stageDoneHtml() {
+      if (state.section === 2) {
+        var lastMoveStage = state.stage + 1 >= movementStages.length;
+        var moveDoneTitle = fill(pick(L.move_stage_done_zh, L.move_stage_done_en), { n: state.stage + 1 });
+        return kicker(moveDoneTitle, 'good') +
+          '<h2 class="cave-subtitle">' + esc(moveDoneTitle) + '</h2>' +
+          '<p class="cave-line small">' + esc(pick(L.move_stage_done_note_zh, L.move_stage_done_note_en)) + '</p>' +
+          '<div class="cave-actions cave-actions-split">' +
+            (lastMoveStage
+              ? '<button class="btn primary" type="button" data-drill-go="finish" data-cheer="🎖,🥁">' +
+                esc(pick(L.move_finish_zh, L.move_finish_en)) + '</button>'
+              : '<button class="btn primary" type="button" data-drill-go="next-stage" data-cheer="🥁">' +
+                esc(pick(L.move_next_stage_zh, L.move_next_stage_en)) + '</button>') +
+          '</div>';
+      }
       var last = state.stage + 1 >= signStages.length;
       return kicker(fill(pick(L.stage_done_zh, L.stage_done_en), { n: state.stage + 1 }), 'good') +
         '<h2 class="cave-subtitle">' +
@@ -498,6 +835,8 @@
         '<h1 class="cave-title">' + esc(pick(L.section_done_title_zh, L.section_done_title_en)) + '</h1>' +
         '<p class="cave-line small">' + esc(pick(L.section_done_note_zh, L.section_done_note_en)) + '</p>' +
         '<div class="cave-actions cave-actions-split">' +
+          '<button class="btn primary" type="button" data-drill-go="section2" data-cheer="🥁">' +
+            esc(pick(L.section2_start_zh, L.section2_start_en)) + '</button>' +
           '<button class="btn ghost" type="button" data-drill-go="restart">' +
             esc(pick(L.restart_zh, L.restart_en)) + '</button>' +
           (badgeLink ? badgeLink.outerHTML : '') +
@@ -514,12 +853,15 @@
 
     function mark(name) {
       root.setAttribute('data-drill-scene', name);
+      root.setAttribute('data-drill-section', String(state.section || 1));
     }
 
     function show(scene) {
       state.scene = scene;
       mark(scene);
       if (scene === 'intro') {
+        state.section = section1Passed() && movementStages.length ? 2 : 1;
+        state.stage = state.section === 2 ? firstOpenMovementStage() : firstOpenStage();
         setArt(ridgeArt());
         var paras = (isEn() ? ((cfg.intro || {}).paras_en || (cfg.intro || {}).paras_zh)
                             : ((cfg.intro || {}).paras_zh || (cfg.intro || {}).paras_en)) || [];
@@ -559,10 +901,8 @@
         return;
       }
       var body = new FormData();
-      sections.forEach(function (s) {
-        (s.moves || []).forEach(function (m) {
-          body.append('check_' + m.id, String(answers[m.id] !== undefined ? answers[m.id] : (m.check || {}).answer));
-        });
+      requiredMoves.forEach(function (m) {
+        body.append('check_' + m.id, String(answers[m.id] !== undefined ? answers[m.id] : (m.check || {}).answer));
       });
       fetch(url, { method: 'POST', body: body, credentials: 'same-origin' })
         .then(function (response) {
@@ -715,6 +1055,7 @@
     }
 
     function reset() {
+      state.section = 1;
       state.stage = 0;
       state.queue = [];
       state.forms = [];
@@ -844,13 +1185,16 @@
       var where = go.getAttribute('data-drill-go');
       if (where === 'start') {
         tap();
-        if (allStagesPassed()) sectionDone();
-        else showFlip(firstOpenStage());
+        if (allGamePassed()) { finish(); return; }
+        if (!section1Passed()) showFlip(1, firstOpenStage());
+        else if (movementStages.length && !section2Passed()) sectionDone();
+        else sectionDone();
         return;
       }
-      if (where === 'start-stage') { tap(); beginStage(state.stage); return; }
-      if (where === 'next-stage') { tap(); showFlip(state.stage + 1); return; }
+      if (where === 'start-stage') { tap(); beginStage(state.section, state.stage); return; }
+      if (where === 'next-stage') { tap(); showFlip(state.section, state.stage + 1); return; }
       if (where === 'section-done') { tap(); sectionDone(); return; }
+      if (where === 'section2') { tap(); showFlip(2, firstOpenMovementStage()); return; }
       if (where === 'resume') { tap(); nextInStage(); return; }
       if (where === 'finish') { finish(); return; }
       if (where === 'restart') { restart(); return; }
@@ -879,17 +1223,13 @@
       state.ticked = false;
       /* answers may be absent on a fresh browser: the studying is on file, so
          treat every movement as answered for the walk's sake */
-      sections.forEach(function (s) {
-        (s.moves || []).forEach(function (m) {
-          if (answers[m.id] === undefined) answers[m.id] = (m.check || {}).answer;
-        });
+      requiredMoves.forEach(function (m) {
+        if (answers[m.id] === undefined) answers[m.id] = (m.check || {}).answer;
       });
       assess();
     } else if (cfg.completed_now) {
-      sections.forEach(function (s) {
-        (s.moves || []).forEach(function (m) {
-          if (answers[m.id] === undefined) answers[m.id] = (m.check || {}).answer;
-        });
+      requiredMoves.forEach(function (m) {
+        if (answers[m.id] === undefined) answers[m.id] = (m.check || {}).answer;
       });
       state.ticked = true;
       result();

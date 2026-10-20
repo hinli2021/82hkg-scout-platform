@@ -141,6 +141,35 @@ def drill_manual() -> dict:
     return {**manual, "sections": sections}
 
 
+def drill_required_moves(manual: dict) -> list[dict]:
+    """The movements game 3 actually asks the scout to clear, in play order.
+
+    The manual file may also carry background movements that are not part of
+    either section's stages (for example Stand Easy and the fall-in page
+    itself). They stay readable in the content, but the game only files the
+    studying once every movement named by `game.sign_stages` and
+    `game.movement_stages` has been answered. Older content without those
+    stage lists falls back to every movement in the manual.
+    """
+    by_id: dict[str, dict] = {}
+    ordered: list[dict] = []
+    for section in (manual.get("sections") or []):
+        for move in (section.get("moves") or []):
+            if isinstance(move, dict) and move.get("id") and move["id"] not in by_id:
+                by_id[move["id"]] = move
+                ordered.append(move)
+    game = manual.get("game") or {}
+    required: list[dict] = []
+    seen: set[str] = set()
+    for key in ("sign_stages", "movement_stages"):
+        for stage in (game.get(key) or []):
+            for move_id in (stage or []):
+                if move_id in by_id and move_id not in seen:
+                    seen.add(move_id)
+                    required.append(by_id[move_id])
+    return required or ordered
+
+
 def drill_images(manual: dict) -> list[str]:
     """Every picture the drill ground can show, in the order first needed.
 

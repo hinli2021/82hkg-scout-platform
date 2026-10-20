@@ -484,7 +484,7 @@ with sync_playwright() as pw:
     assert "2 / 5" in tile.inner_text()
     print("  home tile:", tile.inner_text().replace("\n", " "))
 
-    # ── 遊戲 3 · 第 1 節（集隊手號）: the cliff face plays in the one file ──
+    # ── 遊戲 3 · 兩節: hand signs on the cliff, then movements below ──
     page.evaluate("window.OFFLINE_DEMO.go('drill')"); page.wait_for_timeout(400)
     assert page.locator("#pane-drill [data-drill][data-drill-scene='intro']").count() == 1
     intro3 = page.locator("#pane-drill [data-drill-card]").inner_text()
@@ -496,18 +496,26 @@ with sync_playwright() as pw:
         return page.get_attribute("#pane-drill [data-drill]", "data-drill-scene")
 
     def drill_answer():
-        """Press the formation the carved sign on the rock is calling for."""
+        """Press what the visible prompt calls for: sign art, or a command."""
         page.wait_for_selector("#pane-drill [data-drill-beat]")
         page.wait_for_timeout(150)
         return page.evaluate("""() => {
             var root = document.querySelector('#pane-drill [data-drill]');
             var cfg = JSON.parse(root.getAttribute('data-drill-config'));
-            var art = root.querySelector('.cave-picture .cave-art');
-            var framed = art ? (art.getAttribute('data-drill-art') || '') : '';
             var moves = [];
             cfg.sections.forEach(function (s) { (s.moves || []).forEach(function (m) { moves.push(m); }); });
-            var target = moves.find(function (m) { return (m.figure && m.figure === framed) || (m.img && m.img === framed); });
-            if (!target) return 'NOT FOUND: ' + framed;
+            var target = null;
+            if (root.getAttribute('data-drill-section') === '2') {
+                var node = root.querySelector('[data-drill-command]');
+                var command = node ? node.textContent.trim() : '';
+                target = moves.find(function (m) { return (m.command || '') === command; });
+                if (!target) return 'NOT FOUND COMMAND: ' + command;
+            } else {
+                var art = root.querySelector('.cave-picture .cave-art');
+                var framed = art ? (art.getAttribute('data-drill-art') || '') : '';
+                target = moves.find(function (m) { return (m.figure && m.figure === framed) || (m.img && m.img === framed); });
+                if (!target) return 'NOT FOUND: ' + framed;
+            }
             var btn = root.querySelector('[data-drill-form="' + target.id + '"]');
             if (!btn) return 'NO BUTTON for ' + target.id;
             btn.click();
@@ -519,7 +527,7 @@ with sync_playwright() as pw:
         guard = 0
         while True:
             guard += 1
-            assert guard < 40, "an offline stage never ended"
+            assert guard < 60, "an offline stage never ended"
             where = drill_scene()
             if where == 'review':
                 reviews += 1
@@ -553,25 +561,75 @@ with sync_playwright() as pw:
         assert reviews == 0, f"offline stage {index + 1} reviews: {reviews}"
     print("  drill: 2 stages cleared, the stairs are out")
 
-    # section 1 done — section 2 is named, and nothing is filed yet
+    # section 1 done — the steps lead down to section 2; nothing is filed yet
     page.click("#pane-drill [data-drill-go='section-done']")
     page.wait_for_selector("#pane-drill [data-drill-scene='section-done']")
     card3 = page.locator("#pane-drill [data-drill-card]").inner_text()
-    assert "石階齊了" in card3 and "第 2 節" in card3 and "即將開放" in card3, card3[:120]
+    assert "石階齊了" in card3 and "第 2 節" in card3 and "步操動作" in card3, card3[:160]
+    assert "即將開放" not in card3, "section 2 is open, not a placeholder"
     assert page.locator("#pane-drill [data-drill-code-input]").count() == 0, \
         "no code box until both sections are cleared"
-    # the badge counters have not moved: still 2 / 5 everywhere
+    print("  drill: section 1 done, the parade ground opens below")
+
+    # section 2: three movement-card stages, cumulative command pools 3/10/14
+    page.click("#pane-drill [data-drill-go='section2']")
+    page.wait_for_selector("#pane-drill [data-drill-scene='flip']")
+    move_units = [3, 4, 4]
+    move_pools = [3, 10, 14]
+    for index in range(3):
+        if index:
+            page.click("#pane-drill [data-drill-go='next-stage']")
+            page.wait_for_selector("#pane-drill [data-drill-scene='flip']")
+        assert page.get_attribute("#pane-drill [data-drill]", "data-drill-section") == "2"
+        fresh = page.locator("#pane-drill [data-drill-flip]").count()
+        assert fresh == move_units[index], f"section 2 stage {index + 1} cards: {fresh}"
+        if index == 1:
+            assert page.locator("#pane-drill [data-drill-flip='pacing']").count() == 1, \
+                "the four paces share one offline study card"
+        page.click("#pane-drill [data-drill-go='start-stage']")
+        page.wait_for_selector("#pane-drill [data-drill-scene='drill']")
+        assert page.locator("#pane-drill [data-drill-command]").count() == 1, \
+            "the offline command board calls a command"
+        buttons = page.locator("#pane-drill [data-drill-form]").count()
+        assert buttons == move_pools[index], f"section 2 stage {index + 1} buttons: {buttons}"
+        where, prompts, reviews = drill_clear_stage()
+        assert where == 'stage-done', f"offline section 2 stage {index + 1} ended on {where}"
+        assert prompts == move_pools[index], f"offline section 2 stage {index + 1} prompts: {prompts}"
+        assert reviews == 0, f"offline section 2 stage {index + 1} reviews: {reviews}"
+    print("  drill: section 2's 3 stages cleared (3 + 10 + 14 cumulative calls)")
+
+    # both sections clear: the offline studying is filed, the code still waits
+    page.click("#pane-drill [data-drill-go='finish']")
+    page.wait_for_selector("#pane-drill [data-drill-code-input]")
+    assess3 = page.locator("#pane-drill [data-drill-card]").inner_text()
+    assert "找領袖考核" in assess3 and "前、後、左、右移一步" in assess3, assess3[:180]
     page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
     meter = page.locator("#pane-quest-map .quest-progress").inner_text()
     assert "2 / 5 個遊戲已完成" in meter, meter
     chip3 = page.locator("#pane-quest-map .stage-chip[data-stage='3']").inner_text()
-    assert "等你開始" in chip3, chip3
-    play = page.locator("#pane-quest-map [data-journey-play]")
-    assert play.count() == 1 and play.get_attribute("data-nav") == "drill", \
-        "the one button still points at game 3"
+    assert "已學完" in chip3 and "找領袖考核" in chip3, chip3
     page.evaluate("window.OFFLINE_DEMO.go('home')"); page.wait_for_timeout(200)
     assert "2 / 5" in page.locator("#pane-home [data-badge-meter]").first.inner_text()
-    print("  drill: section 1 done, nothing filed →", meter.replace("\n", " "))
+    print("  drill: both sections studied, counters still wait →", meter.replace("\n", " "))
+
+    # back on the assess card: a wrong code is refused, 82DR clears game 3
+    page.evaluate("window.OFFLINE_DEMO.go('drill')"); page.wait_for_timeout(300)
+    page.wait_for_selector("#pane-drill [data-drill-code-input]")
+    page.fill("#pane-drill [data-drill-code-input]", "0000")
+    page.click("#pane-drill [data-drill-code] button[type='submit']"); page.wait_for_timeout(500)
+    assert "代碼不對" in page.locator("#pane-drill [data-drill-card]").inner_text()
+    page.fill("#pane-drill [data-drill-code-input]", "82DR")
+    page.click("#pane-drill [data-drill-code] button[type='submit']"); page.wait_for_timeout(600)
+    result3 = page.locator("#pane-drill [data-drill-card]").inner_text()
+    assert "遊戲 3 通關" in result3 and "第 6 項完成" in result3, result3[:180]
+    page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
+    meter = page.locator("#pane-quest-map .quest-progress").inner_text()
+    assert "3 / 5 個遊戲已完成" in meter, meter
+    chip3 = page.locator("#pane-quest-map .stage-chip[data-stage='3']").inner_text()
+    assert "已完成" in chip3, chip3
+    page.evaluate("window.OFFLINE_DEMO.go('home')"); page.wait_for_timeout(200)
+    assert "3 / 5" in page.locator("#pane-home [data-badge-meter]").first.inner_text()
+    print("  drill: leader code accepted, game 3 cleared →", meter.replace("\n", " "))
 
     for pane in ("quest-map", "guide", "cave", "bridge", "drill", "badges", "history"):
         page.evaluate(f"window.OFFLINE_DEMO.go('{pane}')")

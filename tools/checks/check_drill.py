@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
-"""Play section 1 of 步操訓練場 (game 3) in a real browser — the cliff face.
+"""Play both sections of 步操訓練場 (game 3) in a real browser.
 
     DATA_DIR=<server data> LD_LIBRARY_PATH=/tmp/syslibs python3 tools/checks/check_drill.py [base_url]
 
-Game 3 is played in two sections; this check walks section 1, the fall-in
-hand signs on the cliff. The story opens the game: the way down collapsed,
-and the rock face carries a row of ancient mechanisms carved with a scout
-making the hand signs. Each stage opens on the flip cards — the stage's new
-signs big and clear, tap one to turn it over and see the formation it calls
-for — then the mechanism wakes: the rock shows a sign, a beat bar drains the
-count (打數), and the formation must be pressed from the square buttons
-below, inside the count, everything on the screen. A wrong press or a late
-one opens the card again as the review (never the answer outright) and the
-sign rejoins the queue. Two stages — 3 new signs first, then 4, with the
-second stage's mechanism mixing all 7 — and both flights of steps are out:
-section 1 is done, and nothing is filed
-on the server yet (section 2, the drill commands, is coming; the studying
-and the leader's code only enter once both sections are cleared).
-Screenshots land in docs/screens/.
+Section 1 is the cliff of fall-in hand signs: two flip-card stages, then the
+statue mechanism inside a three-beat count. Section 2 is the parade ground
+below: three movement stages — Alert / Stand at ease / Salute; four-direction
+pacing plus left/right/about turns; and Mark time / Quick march / Halt /
+Right dress. Each stage first teaches with movement cards (manual page,
+command, count and key points), then the full-screen command board calls a
+command and the scout presses the movement inside its count. Every stage's
+pool is cumulative within section 2 (3, then 10, then 14 calls). Wrong or
+late answers reopen the teaching review and re-queue the movement. Clearing
+both sections files the studying only; the leader's 82DR code completes
+item 6. Screenshots land in docs/screens/.
 """
 import json
 import pathlib
@@ -33,6 +29,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SHOTS = ROOT / 'docs' / 'screens'
 MANUAL = json.loads((ROOT / 'content' / 'member-badge' / 'drill.json').read_text(encoding='utf-8'))
 STAGES = MANUAL['game']['sign_stages']
+MOVE_STAGES = MANUAL['game']['movement_stages']
+MOVE_BY_ID = {m['id']: m for sec in MANUAL['sections'] for m in sec['moves']}
 problems = []
 
 
@@ -66,36 +64,47 @@ def progress(page):
     return badge, task
 
 
-def answer_current(page):
-    """Press the formation the carved sign on the rock is calling for.
-
-    Reads only what the player can see — the framed leader statue — and matches
-    it against the game's own config. Returns the sign's movement id.
-    """
-    page.wait_for_selector('[data-drill-beat]')
-    page.wait_for_timeout(150)
+def current_move_id(page):
+    """Read the visible prompt: a statue's sign in section 1, a command in 2."""
     return page.evaluate("""() => {
         var root = document.querySelector('[data-drill]');
         var cfg = JSON.parse(root.getAttribute('data-drill-config'));
-        var art = root.querySelector('.cave-picture .cave-art');
-        var framed = art ? (art.getAttribute('data-drill-art') || '') : '';
         var moves = [];
         cfg.sections.forEach(function (s) { (s.moves || []).forEach(function (m) { moves.push(m); }); });
+        if (root.getAttribute('data-drill-section') === '2') {
+            var commandNode = root.querySelector('[data-drill-command]');
+            var command = commandNode ? commandNode.textContent.trim() : '';
+            var called = moves.find(function (m) { return (m.command || '') === command; });
+            return called ? called.id : 'NOT FOUND COMMAND: ' + command;
+        }
+        var art = root.querySelector('.cave-picture .cave-art');
+        var framed = art ? (art.getAttribute('data-drill-art') || '') : '';
         var target = moves.find(function (m) { return (m.figure && m.figure === framed) || (m.img && m.img === framed); });
-        if (!target) return 'NOT FOUND: ' + framed;
-        var btn = root.querySelector('[data-drill-form="' + target.id + '"]');
-        if (!btn) return 'NO BUTTON for ' + target.id;
-        btn.click();
-        return target.id;
+        return target ? target.id : 'NOT FOUND: ' + framed;
     }""")
+
+
+def answer_current(page):
+    """Press the formation or movement the visible prompt is calling for."""
+    page.wait_for_selector('[data-drill-beat]')
+    page.wait_for_timeout(150)
+    target_id = current_move_id(page)
+    if target_id.startswith('NOT FOUND'):
+        return target_id
+    btn = page.locator(f'[data-drill-form="{target_id}"]')
+    if btn.count() != 1:
+        return f'NO BUTTON for {target_id}'
+    btn.first.click()
+    return target_id
 
 
 def clear_stage(page):
     """Answer every sign the stage calls, until the scene moves on.
 
-    Returns (final scene, prompts answered, reviews met along the way).
+    Returns (final scene, prompts answered, reviews met, movement ids).
     """
     prompts = reviews = 0
+    seen = []
     guard = 0
     while True:
         guard += 1
@@ -108,8 +117,8 @@ def clear_stage(page):
             page.wait_for_timeout(250)
             continue
         if where != 'drill':
-            return where, prompts, reviews
-        answer_current(page)
+            return where, prompts, reviews, seen
+        seen.append(answer_current(page))
         prompts += 1
         page.wait_for_timeout(1300)      # the ✓ flash, then the next sign
 
@@ -121,6 +130,7 @@ def main():
         ctx = browser.new_context(locale='zh-HK', viewport={'width': 1180, 'height': 940})
         page = ctx.new_page()
         errors = []
+        expected_bad_code_errors = 0
         page.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
         ctx.request.post(f'{BASE}/login/demo/demo3')          # scout07: a blank slate
         complete_setup(BASE, ctx)                             # …and finish required setup
@@ -138,8 +148,8 @@ def main():
         check('步操訓練場' in body, 'the drill ground names itself')
         check('斷崖' in body and '機關' in body,
               'the story tells of the cliff and its mechanisms')
-        check('手號' in body and '隊形' in body,
-              'the story says what section 1 is: hand signs and formations')
+        check('手號' in body and '隊形' in body and '第 2 節' in body and '口令' in body,
+              'the story names section 1 hand signs and section 2 commands')
         check('翻開手號卡' in body, 'the way in is the flip cards')
         shoot(page, 'drill-intro.png')
 
@@ -264,7 +274,7 @@ def main():
             check(False, 'the count ran out but no review opened')
 
         # ── stage 1 clears only when every sign is answered in time
-        where, prompts, reviews = clear_stage(page)
+        where, prompts, reviews, seen = clear_stage(page)
         check(where == 'stage-done', 'stage 1 ends on its stairs card')
         done = page.inner_text('[data-drill-card]')
         check('第 1 段石階出現了' in done, 'the card says the first flight of steps is out')
@@ -287,7 +297,7 @@ def main():
             buttons = page.query_selector_all('[data-drill-form]')
             check(len(buttons) == expected_pool[-1],
                   f'stage {index + 1} answers from {expected_pool[-1]} formation buttons')
-            where, prompts, reviews = clear_stage(page)
+            where, prompts, reviews, seen = clear_stage(page)
             check(where == 'stage-done', f'stage {index + 1} ends on its stairs card')
             check(prompts == expected_pool[-1],
                   f'stage {index + 1} calls every sign of the pool ({prompts} prompts)')
@@ -299,8 +309,10 @@ def main():
         card = page.inner_text('[data-drill-card]')
         check('石階齊了' in card and '第 1 節完成' in card,
               'the section-done card says the steps are complete')
-        check('第 2 節' in card and '即將開放' in card,
-              'the card names section 2, the drill commands, as coming soon')
+        check('第 2 節' in card and '步操動作' in card and '即將開放' not in card,
+              'the card opens section 2, the drill movements, below the cliff')
+        check(page.query_selector('[data-drill-go="section2"]') is not None,
+              'the section-done card leads down to the parade ground')
         check(page.query_selector('[data-drill-code-input]') is None,
               'no code box yet: the leader’s code only enters once both sections are cleared')
         check(page.query_selector('a[data-drill-link="badge"]') is not None,
@@ -326,7 +338,160 @@ def main():
         check('石階齊了' in page.inner_text('[data-drill-card]'),
               're-entry lands straight back on the section-done card')
 
+        # ── section 2 · the parade ground: three cumulative movement stages
+        click(page, '[data-drill-go="section2"]')
+        page.wait_for_selector('[data-drill-scene="flip"]')
+        expected_units = [3, 4, 4]          # pacing is one card with four calls
+        expected_pools = []
+        running = 0
+        for stage_ids in MOVE_STAGES:
+            running += len(stage_ids)
+            expected_pools.append(running)
+        for index, fresh_ids in enumerate(MOVE_STAGES):
+            if index:
+                click(page, '[data-drill-go="next-stage"]')
+                page.wait_for_selector('[data-drill-scene="flip"]')
+            check(page.get_attribute('[data-drill]', 'data-drill-section') == '2',
+                  f'section 2 stage {index + 1} opens on the parade ground')
+            cards = page.query_selector_all('[data-drill-flip]')
+            check(len(cards) == expected_units[index],
+                  f'section 2 stage {index + 1} shows {expected_units[index]} study card(s)')
+            flip_text = page.inner_text('[data-drill-card]')
+            check(f'第 {index + 1} 階段' in flip_text and '口令' in flip_text,
+                  f'section 2 stage {index + 1} teaches commands before the mechanism')
+            if index:
+                check('已學過的動作' in flip_text,
+                      f'section 2 stage {index + 1} lists movements already learned')
+            if index == 0:
+                alert = page.locator('[data-drill-flip="alert"]')
+                alert.click(); page.wait_for_timeout(600)
+                back = alert.inner_text()
+                check('口令' in back and 'Alert!' in back and '動作要點' in back and '30 度' in back,
+                      'the Alert card back teaches its command and key points')
+                check(page.locator('[data-drill-flip] .drill-move-art.is-detailed').count() == 3,
+                      'every stage 1 movement card back carries a movement diagram')
+                shoot(page, 'drill-move-flip-stage1.png')
+                alert.click(); page.wait_for_timeout(400)
+            if index == 1:
+                pacing = page.locator('[data-drill-flip="pacing"]')
+                check(pacing.count() == 1, 'the four paces share one study card')
+                pacing.click(); page.wait_for_timeout(600)
+                back = pacing.inner_text()
+                pace_commands = [MOVE_BY_ID[mid]['command'] for mid in fresh_ids[:4]]
+                check(all(command in back for command in pace_commands),
+                      'the pacing card teaches all four directional commands')
+                check('300 毫米' in back and '領袖示範' in back,
+                      'the pacing card gives the side-pace distance and leader-demo note')
+                shoot(page, 'drill-move-flip-pacing.png')
+                pacing.click(); page.wait_for_timeout(400)
+            if index == 2:
+                dress = page.locator('[data-drill-flip="right-dress"]')
+                dress.click(); page.wait_for_timeout(600)
+                back = dress.inner_text()
+                check('Right—dress!' in back and '看齊' in back and '排成直線' in back,
+                      'the dressing card teaches the command and what dressing means')
+                shoot(page, 'drill-move-flip-stage3.png')
+                dress.click(); page.wait_for_timeout(400)
+
+            click(page, '[data-drill-go="start-stage"]')
+            page.wait_for_selector('[data-drill-scene="drill"]')
+            page.wait_for_timeout(250)
+            check(page.locator('.drill.drill-command-full').count() == 1,
+                  f'section 2 stage {index + 1} commands take the whole screen')
+            command = page.inner_text('[data-drill-command]').strip()
+            pool_ids = [mid for stage in MOVE_STAGES[:index + 1] for mid in stage]
+            pool_commands = {MOVE_BY_ID[mid]['command'] for mid in pool_ids}
+            check(command in pool_commands,
+                  f'section 2 stage {index + 1} calls a learned command: {command}')
+            buttons = page.query_selector_all('[data-drill-form]')
+            check(len(buttons) == expected_pools[index],
+                  f'section 2 stage {index + 1} answers from {expected_pools[index]} cumulative movement buttons')
+            check(page.locator('[data-drill-forms] .drill-move-art').count() == expected_pools[index],
+                  f'every section 2 stage {index + 1} button carries a movement diagram')
+            shoot(page, f'drill-move-prompt-stage{index + 1}.png')
+
+            if index == 0:
+                target_id = current_move_id(page)
+                wrong_btn = next(b for b in buttons if b.get_attribute('data-drill-form') != target_id)
+                wrong_btn.click()
+                page.wait_for_selector('[data-drill-scene="review"]')
+                review = page.inner_text('[data-drill-card]')
+                target = MOVE_BY_ID[target_id]
+                check('不是這個動作' in review and target['title_zh'] in review and target['command'] in review,
+                      'a wrong movement press opens the command review')
+                check(page.locator('[data-drill-card] .drill-move-art.is-detailed').count() == 1,
+                      'the movement review shows the detailed movement diagram')
+                shoot(page, 'drill-move-review-stage1.png')
+                click(page, '[data-drill-go="resume"]')
+                page.wait_for_selector('[data-drill-scene="drill"]')
+            if index == 2:
+                for width, height, label in ((390, 700, 'phone'), (1000, 550, 'short')):
+                    page.set_viewport_size({'width': width, 'height': height})
+                    page.wait_for_timeout(250)
+                    fit = page.evaluate("""() => {
+                        const forms = document.querySelector('[data-drill-forms]');
+                        const cmd = document.querySelector('[data-drill-command]');
+                        const btns = [...forms.querySelectorAll('button')].map(b => b.getBoundingClientRect());
+                        const c = cmd.getBoundingClientRect();
+                        return {
+                          commandVisible: c.top >= 0 && c.bottom <= innerHeight,
+                          allButtonsVisible: btns.every(r => r.top >= 0 && r.bottom <= innerHeight)
+                        };
+                    }""")
+                    check(fit['commandVisible'] and fit['allButtonsVisible'],
+                          f'the 14-movement command board fits a {label} window')
+                    page.screenshot(path=str(SHOTS / f'drill-move-prompt-stage3-{label}.png'))
+                page.set_viewport_size({'width': 1180, 'height': 940})
+                page.wait_for_timeout(250)
+
+            where, prompts, reviews, seen = clear_stage(page)
+            check(where == 'stage-done', f'section 2 stage {index + 1} ends on its drill card')
+            check(prompts == expected_pools[index] and set(seen) == set(pool_ids),
+                  f'section 2 stage {index + 1} calls every cumulative movement ({prompts})')
+            check(reviews == 0, f'section 2 stage {index + 1} needed no extra reviews on this walk')
+            done = page.inner_text('[data-drill-card]')
+            check(f'第 {index + 1} 階段操練完成' in done,
+                  f'section 2 stage {index + 1} completion is named on its card')
+
+        # ── both sections clear: studying is filed, then the leader's code
+        click(page, '[data-drill-go="finish"]')
+        page.wait_for_selector('[data-drill-code-input]', timeout=10000)
+        assess = page.inner_text('[data-drill-card]')
+        check('找領袖考核' in assess and '四方向' not in assess and '前、後、左、右移一步' in assess,
+              'finishing section 2 opens the leader assessment card')
+        check('原地踏步' in assess and '停步' in assess and '向右看齊' in assess,
+              'the assessment card names the stage 3 movements to perform')
+        shoot(page, 'drill-assess.png')
+        badge, task = progress(page)
+        check(task['status'] == 'studied', 'both sections file the studying, not completion')
+        check(badge['progress_done'] == before,
+              'the game counter still waits for the leader code')
+        page.fill('[data-drill-code-input]', '0000')
+        page.click('[data-drill-code] button[type="submit"]')
+        page.wait_for_timeout(700)
+        check('代碼不對' in page.inner_text('[data-drill-card]'),
+              'a wrong leader code is refused')
+        expected_bad_code_errors = 1  # Chromium logs the deliberate 400 as a resource error
+        page.fill('[data-drill-code-input]', '82DR')
+        page.click('[data-drill-code] button[type="submit"]')
+        page.wait_for_timeout(900)
+        result = page.inner_text('[data-drill-card]')
+        check('遊戲 3 通關' in result and '第 6 項完成' in result,
+              'the right leader code clears game 3 and item 6')
+        shoot(page, 'drill-result.png')
+        badge, task = progress(page)
+        check(task['status'] == 'completed', 'item 6 is completed after the leader code')
+        check(badge['progress_done'] == before + 1,
+              f'the game counter moves once ({before} → {badge["progress_done"]} of {total})')
+        page.goto(drill_url)
+        page.wait_for_selector('[data-drill][data-drill-scene="result"]')
+        check('遊戲 3 通關' in page.inner_text('[data-drill-card]'),
+              'a completed scout re-opens on the game 3 result card')
+
         for text in errors:
+            if expected_bad_code_errors and 'status of 400' in text:
+                expected_bad_code_errors -= 1
+                continue
             problems.append(f'console error: {text}')
         ctx.close()
         browser.close()

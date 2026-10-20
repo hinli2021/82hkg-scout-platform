@@ -2512,13 +2512,13 @@ body.is-game main { padding-top: 6px; }
 @media (max-height: 620px) and (min-width: 701px) {
   /* a short, wide window has room beside the words: stand the statue there
      at full stage height instead of shrinking it above the card */
-  .drill:not(.drill-flip-full) .cave-stage { flex-direction: row; }
-  .drill:not(.drill-flip-full) .cave-picture { flex: 1 1 45%; min-width: 0; }
-  .drill:not(.drill-flip-full) .cave-card-wrap {
+  .drill:not(.drill-flip-full):not(.drill-command-full) .cave-stage { flex-direction: row; }
+  .drill:not(.drill-flip-full):not(.drill-command-full) .cave-picture { flex: 1 1 45%; min-width: 0; }
+  .drill:not(.drill-flip-full):not(.drill-command-full) .cave-card-wrap {
     flex: 1 1 55%; max-width: 55%; max-height: none;
     border-top: 0; border-left: 1px solid rgba(255, 255, 255, .09);
   }
-  .drill:not(.drill-flip-full) .cave-card { width: 100%; }
+  .drill:not(.drill-flip-full):not(.drill-command-full) .cave-card { width: 100%; }
 }
 .drill-chips { display: flex; flex-wrap: wrap; gap: .35rem; margin: .15rem 0 .45rem; }
 .drill-chip {
@@ -2668,6 +2668,80 @@ body.is-game main { padding-top: 6px; }
   fill: #55d66d; stroke: #0d3b1e; stroke-width: .8; stroke-linejoin: round;
 }
 .drill-leader-tri { color: #55d66d; font-size: .78em; }
+/* section 2 movement cards: the back is a compact teaching page — command,
+   count, a big schematic movement diagram and the manual's key points. It
+   may scroll inside the card; nothing is squashed to fit. */
+.drill-flip-back.is-move {
+  justify-content: flex-start; gap: .38rem; padding: .8rem .7rem;
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+}
+.drill-flip-back.is-move > * { flex: 0 0 auto; }
+.drill-flip-icon-front {
+  width: 100%; height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .65rem;
+  padding: 1rem .7rem 2rem; text-align: center; color: #f4ecd9;
+  background: radial-gradient(100% 80% at 50% 20%, rgba(38, 74, 52, .35), transparent 70%), #071009;
+}
+.drill-flip-icon-front strong { font-size: 1.35rem; color: #ffe4a8; line-height: 1.25; }
+.drill-flip-icon-front small { font-size: .82rem; line-height: 1.5; color: #d9e6d9; }
+.drill-flip-icon-front .drill-move-art.is-detailed {
+  width: min(9rem, 68%); height: auto; aspect-ratio: 1 / 1; flex: 0 0 auto;
+}
+.drill-flip-back .drill-move-art.is-detailed {
+  width: min(6.8rem, 56%); height: auto; aspect-ratio: 1 / 1;
+  padding: .45rem; border-radius: 22px;
+  background: radial-gradient(circle at 50% 35%, rgba(217, 164, 65, .16), rgba(8, 19, 14, .9) 72%);
+  border: 1px solid rgba(217, 164, 65, .45);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .5), 0 0 10px rgba(0, 0, 0, .35);
+}
+.drill-move-command {
+  display: block; max-width: 96%; text-align: center;
+  padding: .42rem .6rem; border-radius: 999px;
+  background: rgba(120, 170, 130, .16); border: 1px solid rgba(150, 210, 160, .45);
+  color: #fff; font-size: .82rem; line-height: 1.4;
+}
+.drill-move-command b, .drill-move-count b { color: #b8f0b2; }
+.drill-move-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: .3rem; }
+.drill-move-count, .drill-move-manual {
+  display: inline-block; padding: .18rem .5rem; border-radius: 999px;
+  background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .18);
+  color: #e8f2e8; font-size: .68rem; line-height: 1.35; text-align: center;
+}
+.drill-move-points-label {
+  align-self: flex-start; margin-top: .1rem;
+  color: #ffe4a8; font-size: .72rem; font-weight: 800; letter-spacing: .08em;
+}
+.drill-flip-points {
+  align-self: stretch; margin: 0; padding-left: 1.05rem;
+  color: #e9f1e8; font-size: .72rem; line-height: 1.5; text-align: left;
+}
+.drill-flip-points li { margin: .18rem 0; }
+.drill-flip-points li::marker { color: var(--brass); font-weight: 800; }
+.drill-pace-directions {
+  align-self: stretch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem;
+}
+.drill-pace-direction {
+  display: flex; flex-direction: column; align-items: center; gap: .18rem;
+  padding: .45rem .4rem; border-radius: 12px; text-align: center;
+  background: rgba(255, 255, 255, .055); border: 1px solid rgba(217, 164, 65, .3);
+  color: #e9f1e8; font-size: .66rem; line-height: 1.42;
+}
+.drill-pace-direction b { color: #ffe4a8; font-size: .78rem; }
+.drill-pace-direction small { color: #b8f0b2; font-size: .64rem; line-height: 1.35; }
+.drill-pace-direction .drill-move-art { width: 2.25rem; height: 2.25rem; }
+.drill-move-art { width: 2.35rem; height: 2.35rem; display: block; }
+.drill-move-art .move-foot { fill: #ffe4a8; stroke: #8a6420; stroke-width: .7; }
+.drill-move-art .move-dot { fill: #ffe4a8; }
+.drill-move-art .move-green-dot { fill: #55d66d; stroke: #0d3b1e; stroke-width: .7; }
+.drill-move-art .move-line {
+  fill: none; stroke: #ffe4a8; stroke-width: 2.3;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.drill-move-art .move-guide { stroke: rgba(255, 228, 168, .45); stroke-width: 1.1; stroke-dasharray: 3 3; }
+.drill-move-art .move-green-line { stroke: #55d66d; stroke-width: 2; stroke-linecap: round; }
+.drill-move-art .move-arrow { fill: #55d66d; stroke: #0d3b1e; stroke-width: .8; stroke-linejoin: round; }
+.drill-move-art .move-stop { fill: rgba(207, 82, 66, .95); stroke: #ffe4a8; stroke-width: 1.2; stroke-linejoin: round; }
+.drill-move-art .move-stop-line { stroke: #fff6e2; stroke-width: 3; stroke-linecap: round; }
 .drill-flip-leader {
   display: block; max-width: 94%; text-align: center;
   font-size: .8rem; line-height: 1.45; color: #dff3dc;
@@ -2697,6 +2771,23 @@ body.is-game main { padding-top: 6px; }
   background: #081611; border-top: 0; align-items: stretch;
 }
 .drill.drill-flip-full .cave-card { width: min(76rem, 100%); display: flex; flex-direction: column; }
+.drill.drill-command-full .cave-picture {
+  position: absolute; inset: 0; z-index: 4; padding: 0; pointer-events: none;
+}
+.drill.drill-command-full .cave-picture .cave-art,
+.drill.drill-command-full .cave-picture .cave-art-backdrop,
+.drill.drill-command-full .cave-picture .cave-shade { display: none; }
+.drill.drill-command-full .cave-hud { pointer-events: auto; }
+.drill.drill-command-full .cave-card-wrap {
+  flex: 1 1 auto; max-height: none; padding: 3.1rem 1rem 1rem;
+  background: #081611; border-top: 0; align-items: stretch; overflow-y: auto;
+}
+.drill.drill-command-full .cave-card {
+  width: min(76rem, 100%); display: flex; flex-direction: column;
+  justify-content: center; justify-content: safe center;
+}
+.drill-move-question { margin-top: .35rem; }
+.drill-command-feedback { font-size: 1.05rem; margin: .15rem 0 .35rem; }
 .drill.drill-flip-full .drill-flip-grid {
   flex: 1 1 auto; min-height: 0; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   grid-auto-rows: minmax(22rem, 1fr); margin: .5rem 0 .35rem;
@@ -2734,6 +2825,7 @@ body.is-game main { padding-top: 6px; }
 }
 .drill-review-form .drill-form-art { width: 2.4rem; height: 2.4rem; }
 .drill-review-form .drill-form-art.is-detailed { width: 4.6rem; height: 4.6rem; }
+.drill-review-form .drill-move-art.is-detailed { width: 4.6rem; height: 4.6rem; }
 .drill-review-form .drill-form-name { font-size: 1.05rem; color: #ffe4a8; }
 
 @media (max-width: 640px) {
@@ -2761,6 +2853,22 @@ body.is-game main { padding-top: 6px; }
   .drill-flip-name { font-size: .94rem; line-height: 1.15; }
   .drill-flip-leader, .drill-flip-sign { font-size: .65rem; line-height: 1.32; }
   .drill-review-form .drill-form-art.is-detailed { width: 4rem; height: 4rem; }
+  .drill-review-form .drill-move-art.is-detailed { width: 4rem; height: 4rem; }
+  .drill-flip-back .drill-move-art.is-detailed { width: min(3.3rem, 58%); padding: .22rem; }
+  .drill-flip-icon-front { gap: .28rem; padding: .55rem .45rem 1.55rem; }
+  .drill-flip-icon-front .drill-move-art.is-detailed { width: min(3.1rem, 62%); padding: 0; }
+  .drill-flip-icon-front strong { font-size: 1rem; }
+  .drill-flip-icon-front small { font-size: .66rem; }
+  .drill-move-command { font-size: .68rem; padding: .3rem .45rem; }
+  .drill-flip-points, .drill-pace-direction { font-size: .62rem; }
+  .drill-pace-directions { grid-template-columns: 1fr; }
+  /* the cumulative stage-3 command board has 14 movements: compact square
+     buttons keep the whole bank on a phone screen */
+  .drill.drill-command-full .cave-card-wrap { padding: 2.75rem .65rem .65rem; }
+  .drill-form-row.is-movements { gap: .32rem; }
+  .drill-form-row.is-movements .drill-form-btn { width: 4.05rem; padding: .22rem .14rem; }
+  .drill-form-row.is-movements .drill-form-name { font-size: .66rem; line-height: 1.2; }
+  .drill-form-row.is-movements .drill-move-art { width: 1.75rem; height: 1.75rem; }
 }
 @media (max-height: 620px) and (min-width: 701px) {
   .drill-flip-back {
@@ -2772,6 +2880,8 @@ body.is-game main { padding-top: 6px; }
   .drill-flip-back .drill-form-art.is-detailed { width: min(4.1rem, 52%); padding: .3rem; }
   .drill-flip-back .drill-flip-name { font-size: 1rem; line-height: 1.15; }
   .drill-flip-leader, .drill-flip-sign { font-size: .7rem; line-height: 1.35; }
+  .drill-flip-back .drill-move-art.is-detailed { width: min(3.8rem, 52%); padding: .3rem; }
+  .drill-flip-points, .drill-pace-direction { font-size: .66rem; }
 }
 @media (max-height: 620px) and (min-width: 701px) {
   .drill.drill-flip-full .drill-flip-grid { grid-auto-rows: minmax(0, 1fr); }

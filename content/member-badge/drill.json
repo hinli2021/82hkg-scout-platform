@@ -1,5 +1,5 @@
 {
-  "_note": "遊戲 3（石壁山嶺）第 1 節＝集隊手號（斷崖機關）：翻卡學手號 → 崖壁顯示手號，在打數之內按下相應隊形（方格按鈕），兩個階段（先學 3 個新手號，再學 4 個；第二階段機關會混合全部 7 個）後石階齊、第 1 節完成；第 2 節（步操口令）即將開放——兩節完成才記錄「已學完」，之後找領袖親身考核並輸入代碼（預設 82DR）。資料來源：香港童軍總會《步操手冊》；集隊手號以領袖石雕像圖顯示（動作按手冊），另附手冊內頁。領袖可自行修改此檔文字與題目，任務以資料庫為準、此檔為預設。",
+  "_note": "遊戲 3（石壁山嶺）分兩節：第 1 節＝集隊手號（斷崖機關，兩階段：翻卡學手號，在打數之內按下相應隊形）；第 2 節＝步操動作（山下閱兵場，三階段：先翻動作卡學口令、打數與要點，再在口令機關限時按下正確動作；每段累積混合之前學過的動作）。第 2 節三段為：立正／稍息／敬禮；四方向移步＋左轉／右轉／後轉；原地踏步／齊步／停步／看齊。兩節完成才記錄「已學完」，之後找領袖親身考核並輸入代碼（預設 82DR）。資料來源：香港童軍總會《步操手冊》；集隊手號以領袖石雕像圖顯示，步操動作以手冊原頁及動作示意圖顯示。領袖可自行修改此檔文字與題目，任務以資料庫為準、此檔為預設。",
   "task_code": "M06",
   "kind": "drill",
   "title_zh": "遊戲 3：步操訓練場",
@@ -17,14 +17,14 @@
     "title_en": "The drill ground",
     "paras_zh": [
       "隊伍來到石壁山嶺的斷崖前。下山的路早就塌了，只剩崖壁上一排古老機關——石上刻著做集隊手號的人像。",
-      "在打數之內按下相應的隊形，機關就會啟動，石級一段一段現身。先翻卡記住手號與隊形；兩段石階齊了，就能落崖下山。"
+      "在打數之內按下相應的隊形，機關就會啟動，石級一段一段現身。兩段石階齊了，就能落到山下的閱兵場，開始第 2 節：翻卡學步操口令、打數和動作要點，再聽口令按出正確動作。"
     ],
     "paras_en": [
       "The troop reaches the cliff of the rocky ridge. The way down collapsed long ago — all that is left is a row of ancient mechanisms on the rock face, carved with a scout making the fall-in hand signs.",
-      "Press the matching formation inside the count and a mechanism wakes, sliding a flight of steps out of the rock. Study the flip cards first; with both flights out, the cliff is yours to climb down."
+      "Press the matching formation inside the count and a mechanism wakes, sliding a flight of steps out of the rock. With both flights out, climb down to the parade ground for section 2: study the drill commands, counts and movement points on the cards, then press the right movement when the command is called."
     ],
-    "hint_zh": "第 1 節考集隊手號：崖壁顯示手號，你在下方按出隊形；第 2 節（步操口令）即將開放。",
-    "hint_en": "Section 1 drills the fall-in hand signs: the rock shows a sign, you press the formation below. Section 2, the drill commands, is coming soon.",
+    "hint_zh": "第 1 節集隊手號兩階段；第 2 節步操動作三階段。每階段先翻卡學習，再在打數之內完成機關。",
+    "hint_en": "Section 1 has two hand-sign stages; section 2 has three drill-movement stages. Study the cards first in every stage, then answer inside the count.",
     "action_zh": "翻開手號卡 →",
     "action_en": "Open the hand-sign cards →"
   },
@@ -323,29 +323,100 @@
       "title_en": "Pacing",
       "moves": [
         {
-          "id": "side-pace",
-          "title_zh": "橫移（左／右移步）",
-          "title_en": "Side pace (left / right)",
-          "command": "One pace right/left close—march!",
-          "count": "打數：One—Two—Up",
+          "id": "pace-forward",
+          "title_zh": "前移一步",
+          "title_en": "One pace forward",
+          "command": "One pace forward—march!",
+          "count": "打數：One—Two",
+          "study_group": "pacing",
+          "leader_demo": true,
+          "points_zh": [
+            "聽口令向前移一步，身體保持正面向前及立正姿勢",
+            "只移一步；完成後雙腳回復立正位置",
+            "手冊未有前移步專頁：起步腳與收步節奏跟領袖示範練習"
+          ],
+          "points_en": [
+            "Move one pace forward, keeping the body square to the front at attention",
+            "One pace only; finish with the feet back in the attention position",
+            "The manual has no separate forward-pace page: the starting and closing feet follow the leader’s demonstration"
+          ],
+          "check": {
+            "q_zh": "前移一步後，身體應朝向哪個方向？",
+            "q_en": "After one pace forward, which way should the body face?",
+            "options_zh": [
+              "正面向前",
+              "轉向左方",
+              "轉向右方"
+            ],
+            "options_en": [
+              "Square to the front",
+              "Turned left",
+              "Turned right"
+            ],
+            "answer": 0,
+            "why_zh": "前移一步只改變位置，身體保持正面向前。",
+            "why_en": "One pace forward changes position only; the body stays square to the front."
+          }
+        },
+        {
+          "id": "pace-backward",
+          "title_zh": "後移一步",
+          "title_en": "One pace backward",
+          "command": "One pace backward—march!",
+          "count": "打數：One—Two",
+          "study_group": "pacing",
+          "leader_demo": true,
+          "points_zh": [
+            "聽口令向後移一步，頭和身體仍正面向前，不轉身",
+            "只移一步；完成後雙腳回復立正位置",
+            "手冊未有後移步專頁：起步腳與收步節奏跟領袖示範練習"
+          ],
+          "points_en": [
+            "Move one pace backward, keeping the head and body square to the front — do not turn around",
+            "One pace only; finish with the feet back in the attention position",
+            "The manual has no separate backward-pace page: the starting and closing feet follow the leader’s demonstration"
+          ],
+          "check": {
+            "q_zh": "後移一步時，要不要轉身向後？",
+            "q_en": "When moving one pace backward, do you turn around?",
+            "options_zh": [
+              "不用，身體保持正面向前",
+              "要，先後轉才踏步",
+              "要，望向後方踏步"
+            ],
+            "options_en": [
+              "No — stay square to the front",
+              "Yes — about turn first",
+              "Yes — look backwards as you step"
+            ],
+            "answer": 0,
+            "why_zh": "後移一步時身體保持正面向前，不用轉身。",
+            "why_en": "For one pace backward the body stays square to the front."
+          }
+        },
+        {
+          "id": "pace-left",
+          "title_zh": "左移一步",
+          "title_en": "One pace left close",
+          "command": "One pace, left close—march!",
+          "count": "打數：One—Two",
+          "study_group": "pacing",
           "img": "img/quest/drill/manual/p043-side-pace.jpg",
           "img2": "img/quest/drill/manual/p044-side-pace-2.jpg",
           "manual": "手冊 p.43–44",
           "points_zh": [
-            "左（右）腳向左（右）橫移 300 毫米（12 吋），另一腳保持原本位置",
-            "雙腳掌平放地面，雙膝直，左右手握拳緊貼褲縫",
-            "身體保持立正向前姿勢，不會左右搖擺",
-            "前移／後移步同理：聽口令向前或向後踏一步，手冊沒有專頁，跟領袖示範練習"
+            "第一分部：左腳向左邊橫移 300 毫米（12 吋），右腳保持原本位置",
+            "第二分部：提起右膝至大腿與地面平行，然後右腳踏在左腳旁，回復立正",
+            "雙腳掌平放地面，雙膝蹬直；左右手握拳緊貼褲縫，身體保持立正向前，不左右搖擺"
           ],
           "points_en": [
-            "Move the left (right) foot 300 mm (12 in) to the side; the other foot stays",
-            "Both feet flat, knees straight, fists at the trouser seams",
-            "The body stays square to the front — no swaying",
-            "Forward / backward pacing follows the same idea; the manual leaves it to the leader's demonstration"
+            "Squad one: move the left foot 300 mm (12 in) to the left; the right foot stays",
+            "Squad two: raise the right knee until the thigh is level, then place the right foot beside the left at attention",
+            "Feet flat, knees straight, fists at the trouser seams, body square to the front without swaying"
           ],
           "check": {
-            "q_zh": "橫移一步的距離是多少？",
-            "q_en": "How long is one side pace?",
+            "q_zh": "左移一步第一分部的距離是多少？",
+            "q_en": "How far does the left foot move in squad one of one pace left close?",
             "options_zh": [
               "300 毫米（12 吋）",
               "750 毫米（30 吋）",
@@ -357,8 +428,46 @@
               "1500 mm (60 in)"
             ],
             "answer": 0,
-            "why_zh": "手冊：左腳向左橫移 300 毫米（12 英吋）。",
-            "why_en": "Manual: one side pace is 300 mm (12 in)."
+            "why_zh": "手冊：左腳向左邊橫移 300 毫米（12 英吋），然後右腳靠攏。",
+            "why_en": "Manual: the left foot moves 300 mm (12 in), then the right foot closes in."
+          }
+        },
+        {
+          "id": "pace-right",
+          "title_zh": "右移一步",
+          "title_en": "One pace right close",
+          "command": "One pace, right close—march!",
+          "count": "打數：One—Two",
+          "study_group": "pacing",
+          "img": "img/quest/drill/manual/p043-side-pace.jpg",
+          "img2": "img/quest/drill/manual/p044-side-pace-2.jpg",
+          "manual": "手冊 p.43–44",
+          "points_zh": [
+            "第一分部：右腳向右邊橫移 300 毫米（12 吋），左腳保持原本位置",
+            "第二分部：提起左膝至大腿與地面平行，然後左腳踏在右腳旁，回復立正",
+            "向右橫移與向左橫移動作相反；身體保持立正向前，不左右搖擺"
+          ],
+          "points_en": [
+            "Squad one: move the right foot 300 mm (12 in) to the right; the left foot stays",
+            "Squad two: raise the left knee until the thigh is level, then place the left foot beside the right at attention",
+            "The right close is the reverse of the left close; stay square to the front without swaying"
+          ],
+          "check": {
+            "q_zh": "右移一步第一分部，哪一隻腳先橫移？",
+            "q_en": "In squad one of one pace right close, which foot moves first?",
+            "options_zh": [
+              "右腳",
+              "左腳",
+              "雙腳同時"
+            ],
+            "options_en": [
+              "Right foot",
+              "Left foot",
+              "Both feet together"
+            ],
+            "answer": 0,
+            "why_zh": "手冊：向右橫移與向左相反，右腳先向右橫移 300 毫米，左腳再靠攏。",
+            "why_en": "Manual: the right close is the reverse of the left — right foot out 300 mm, then the left closes in."
           }
         }
       ]
@@ -868,14 +977,16 @@
     "lead_zh": "第 6 項要在領袖面前親身考核。準備好這些：",
     "lead_en": "Item 6 is assessed in person, in front of a leader. Be ready with:",
     "points_zh": [
-      "基本動作：立正、稍息、休息、敬禮、右轉、左轉、後轉",
-      "步法：前後左右移步、齊步開步、停步、原地踏步",
-      "隊形：七類集隊手號，以及向右看齊（Right—dress!）"
+      "基本姿勢與敬禮：立正、稍息、原地向前敬禮",
+      "移步與轉法：前、後、左、右移一步，以及向左轉、向右轉、後轉",
+      "步法與看齊：原地踏步、齊步、停步、向右看齊",
+      "隊形：七類集隊手號，並說出領袖（司令員）的位置"
     ],
     "points_en": [
-      "Positions and movements: alert, stand at ease, stand easy, the salute, right/left/about turns",
-      "Paces and marching: forward, backward and side paces, quick march, halting, marking time",
-      "Formations: the seven fall-in hand signs, and the right dress"
+      "Positions and salute: alert, stand at ease, saluting to the front",
+      "Paces and turns: one pace forward, backward, left and right close; left, right and about turns",
+      "Marching and dressing: mark time, quick march, halt, right dress",
+      "Formations: the seven fall-in hand signs, including where the leader (commander) stands"
     ],
     "after_zh": "考核通過，領袖會給你一個代碼；在下面輸入，遊戲 3 才算完成。想先繼續行程也可以 —— 代碼遲些輸入。",
     "after_en": "Pass the assessment and your leader gives you a code — type it in below to finish game 3. Or walk on first: the code can wait.",
@@ -900,10 +1011,10 @@
     "title_zh": "手冊讀完了，訓練場畢業！",
     "title_en": "The manual is finished — the drill ground salutes you!",
     "paras_zh": [
-      "二十個動作、七類手號，你都答對了自查題。這只是紙上學會——真正的步操，要在領袖面前做出來。"
+      "七類集隊手號和十四個步操動作提示，你都完成了。這只是先在遊戲中學會——真正的步操，要在領袖面前親身做出來。"
     ],
     "paras_en": [
-      "Twenty movements and seven hand signs, every check answered. That is the page learned — real drill is performed in person, in front of your leader."
+      "Seven fall-in hand signs and fourteen drill-movement calls, all completed. That is the game learned — real drill is performed in person, in front of your leader."
     ],
     "submitting_zh": "正在記錄你的訓練完成…",
     "submitting_en": "Recording your training…",
@@ -987,8 +1098,54 @@
     "next_stage_en": "The next flight →",
     "section_done_title_zh": "石階齊了——第 1 節完成！",
     "section_done_title_en": "The steps are complete — section 1 done!",
-    "section_done_note_zh": "兩段石階全部現身，可以落崖下山了。山下的閱兵場——第 2 節「步操口令」——即將開放。",
-    "section_done_note_en": "Both flights are out, and the cliff is yours to climb down. The parade ground below — section 2, the drill commands — is coming soon."
+    "section_done_note_zh": "兩段石階全部現身，可以落崖下山了。山下的閱兵場就是第 2 節「步操動作」：先翻卡學口令、打數和動作要點，再在機關叫出口令時按正確動作。",
+    "section_done_note_en": "Both flights are out, and the cliff is yours to climb down. The parade ground below is section 2, the drill movements: study each command, count and key point on the cards, then press the right movement when the command is called.",
+    "move_progress_zh": "第 2 節 · 動作 {done} / {total} · 第 {stage} / {stages} 階段",
+    "move_progress_en": "section 2 · movements {done} / {total} · stage {stage} / {stages}",
+    "move_flip_kicker_zh": "第 2 節 · 第 {stage} 階段 · 翻卡學步操動作",
+    "move_flip_kicker_en": "Section 2 · stage {stage} · study the movement cards",
+    "move_flip_lead_zh": "閱兵場放著這一階段的新動作卡。點一下卡片翻轉，記住口令、打數和動作要點；之後機關叫出口令，你要按出正確動作。",
+    "move_flip_lead_en": "The parade ground carries this stage’s new movement cards. Tap a card to learn its command, count and key points; then press the right movement when the mechanism calls the command.",
+    "move_flip_known_zh": "已學過的動作：",
+    "move_flip_known_en": "Movements already learned:",
+    "move_flip_start_zh": "準備好了，聽口令 →",
+    "move_flip_start_en": "Ready — take the commands →",
+    "move_flip_label_zh": "步操動作",
+    "move_flip_label_en": "Drill movement",
+    "move_command_label_zh": "口令",
+    "move_command_label_en": "Command",
+    "move_count_label_zh": "打數",
+    "move_count_label_en": "Count",
+    "move_points_label_zh": "動作要點",
+    "move_points_label_en": "Key points",
+    "move_leader_demo_zh": "跟領袖示範練習",
+    "move_leader_demo_en": "Practise with the leader’s demonstration",
+    "pace_card_title_zh": "四方向移步",
+    "pace_card_title_en": "Pacing in four directions",
+    "pace_card_note_zh": "四個方向共用同一基本姿勢：身體正面向前，只移一步，完成後回復立正。左／右橫移一步為 300 毫米；前／後移步跟領袖示範練習。",
+    "pace_card_note_en": "All four directions share the same basics: stay square to the front, move one pace only, and finish at attention. One side pace is 300 mm; forward and backward pacing follows the leader’s demonstration.",
+    "move_prompt_kicker_zh": "第 2 節 · 步操動作 · 第 {stage} / {stages} 階段",
+    "move_prompt_kicker_en": "Section 2 · drill movements · stage {stage} / {stages}",
+    "move_prompt_say_zh": "領袖叫出口令",
+    "move_prompt_say_en": "The leader calls",
+    "move_prompt_q_zh": "聽到這個口令，要做哪一個動作？",
+    "move_prompt_q_en": "On this command, which movement do you make?",
+    "move_right_title_zh": "✓ 動作正確",
+    "move_right_title_en": "✓ Right movement",
+    "move_wrong_title_zh": "不是這個動作。",
+    "move_wrong_title_en": "Not this movement.",
+    "move_review_lead_zh": "這個口令要做「{name}」。看清口令、打數和動作要點，再回閱兵場。",
+    "move_review_lead_en": "This command calls for “{name}”. Read the command, count and key points, then return to the parade ground.",
+    "move_stage_done_zh": "第 {n} 階段操練完成！",
+    "move_stage_done_en": "Stage {n} drill complete!",
+    "move_stage_done_note_zh": "閱兵場升起一面訓練旗；這一階段的口令和動作已經完成。",
+    "move_stage_done_note_en": "A training flag rises over the parade ground; this stage’s commands and movements are complete.",
+    "move_next_stage_zh": "下一階段操練 →",
+    "move_next_stage_en": "Next drill stage →",
+    "move_finish_zh": "完成第 2 節，記錄訓練 →",
+    "move_finish_en": "Finish section 2 and record the training →",
+    "section2_start_zh": "落到閱兵場，開始第 2 節 →",
+    "section2_start_en": "Climb down to the parade ground — start section 2 →"
   },
   "assess_note": {
     "code_setting": "drill_assess_code",
@@ -1006,6 +1163,28 @@
         "sign-open-order",
         "sign-close-order",
         "sign-open-square"
+      ]
+    ],
+    "movement_stages": [
+      [
+        "alert",
+        "stand-at-ease",
+        "salute-front"
+      ],
+      [
+        "pace-forward",
+        "pace-backward",
+        "pace-left",
+        "pace-right",
+        "left-turn",
+        "right-turn",
+        "about-turn"
+      ],
+      [
+        "mark-time",
+        "quick-march",
+        "halt",
+        "right-dress"
       ]
     ]
   }

@@ -16,7 +16,7 @@ from itsdangerous import BadSignature, URLSafeTimedSerializer
 
 from ..auth import needs_first_time, public_user, scout_required
 from ..content import (cave_adventure, cave_images, drill_images, drill_manual,
-                       river_adventure, river_images)
+                       drill_required_moves, river_adventure, river_images)
 from ..engine import (
     as_int, as_json, award_task_completion, build_suggestions, credit_opening_stages,
     evaluate_submission, game_areas, points_summary, progress_for,
@@ -774,13 +774,14 @@ def bridge_code(task_id: str):
 @scout_routes.get("/tasks/<task_id>/drill")
 @scout_required
 def task_drill(task_id: str):
-    """第 6 項的步操訓練場 — the badge's third game: seven chapters of the manual.
+    """第 6 項的步操訓練場 — the badge's third game, in two sections.
 
     Like the cave and the crossing, the whole thing runs in the browser (so it
     also plays inside the offline demo file) from the content in
-    `content/member-badge/drill.json`. The route hands over the seven sections,
-    their twenty movements, every manual page and every line of interface text.
-    Passing all twenty self-checks is only the first half of game 3: the scout
+    `content/member-badge/drill.json`. The route hands over every manual
+    section and page, every line of interface text, and the stage lists for
+    section 1 (hand signs) and section 2 (drill movements). Passing every
+    required stage prompt is only the first half of game 3: the scout
     then sees the leader and performs the movements in person (考核), and brings
     back the leader's code. `POST /tasks/<id>/drill-submit` files the studying;
     `POST /tasks/<id>/drill-code` files the completion.
@@ -820,7 +821,7 @@ def task_drill(task_id: str):
         "submit_url": url_for("scout_routes.drill_submit", task_id=task_id),
         "code_url": url_for("scout_routes.drill_code", task_id=task_id),
         "badge_url": url_for("scout_routes.badge_detail", badge_id=task["badge_id"]),
-        "move_total": sum(len(s["moves"]) for s in sections),
+        "move_total": len(drill_required_moves({**manual, "sections": sections})),
         "studied_now": studied_now,
         "completed_now": completed_now,
         "next_game": ({"name_zh": onward["name_zh"], "name_en": onward["name_en"],
@@ -844,7 +845,7 @@ def task_drill(task_id: str):
 @scout_routes.post("/tasks/<task_id>/drill-submit")
 @scout_required
 def drill_submit(task_id: str):
-    """Twenty checks answered — the manual is studied, but the item is not done.
+    """Every required stage answered — the manual is studied, not yet done.
 
     The record goes in as `studied`: the browser posts every movement's chosen
     answer and the server re-checks each one against `drill.json`, so a code
@@ -863,16 +864,13 @@ def drill_submit(task_id: str):
 
     answers: dict[str, int] = {}
     wrong: list[str] = []
-    for section in (manual.get("sections") or []):
-        for move in (section.get("moves") or []):
-            check = move.get("check") or {}
-            if not check.get("q_zh"):
-                continue
-            given = as_int_or(request.form.get(f"check_{move['id']}"), None)
-            if given is not None and given == check.get("answer"):
-                answers[move["id"]] = given
-                continue
-            wrong.append(f"{move.get('title_zh') or move['id']}")
+    for move in drill_required_moves(manual):
+        check = move.get("check") or {}
+        given = as_int_or(request.form.get(f"check_{move['id']}"), None)
+        if given is not None and given == check.get("answer"):
+            answers[move["id"]] = given
+            continue
+        wrong.append(f"{move.get('title_zh') or move['id']}")
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]

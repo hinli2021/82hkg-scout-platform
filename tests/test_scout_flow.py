@@ -457,12 +457,16 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
             drill = (pathlib.Path(__file__).resolve().parent.parent / 'content'
                      / 'member-badge' / 'drill.json')
             manual = json.loads(drill.read_text(encoding='utf-8'))
-            data = {}
-            for section in manual['sections']:
-                for move in section['moves']:
-                    data[f"check_{move['id']}"] = str(move['check']['answer'])
+            moves = {move['id']: move for section in manual['sections']
+                     for move in section['moves']}
+            required = [move_id for key in ('sign_stages', 'movement_stages')
+                        for stage in manual['game'][key] for move_id in stage]
+            assert len(required) == 21 and 'stand-easy' not in required
+            data = {f"check_{move_id}": str(moves[move_id]['check']['answer'])
+                    for move_id in required}
             result = new_scout.post(f"/tasks/{task['id']}/drill-submit", data=data).get_json()
             assert result['status'] == 'studied', result
+            assert result['detail']['moves'] == len(required), result
             code = new_scout.post(f"/tasks/{task['id']}/drill-code",
                                   data={'code': '82DR'}).get_json()
             assert code['passed'] and code['status'] == 'completed', code

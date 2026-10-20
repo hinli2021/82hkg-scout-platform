@@ -98,7 +98,7 @@
                 {% elif task.status == 'completed' %}
                   <span class="chip ok">🥁 {{ L('考核通過 · 已完成', 'Check passed · done') }}</span>
                 {% else %}
-                  <span class="chip light">{{ L('七章手冊 · 學完找領袖考核', 'seven chapters · then a leader’s check') }}</span>
+                  <span class="chip light">{{ L('兩節訓練 · 學完找領袖考核', 'two sections · then a leader’s check') }}</span>
                 {% endif %}
               {% elif task.type == 'quiz' %}
                 <span class="chip light">{{ (task.config_json.get('questions') or []) | length }} {{ L('題', 'questions') }} · {{ task.pass_score }}{{ L(' 分合格', ' to pass') }}</span>
