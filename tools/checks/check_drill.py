@@ -365,8 +365,8 @@ def main():
             if index == 0:
                 alert = page.locator('[data-drill-flip="alert"]')
                 anim = alert.locator('[data-drill-animation="alert"]')
-                check(anim.count() == 1 and anim.locator('[data-drill-frame]').count() == 3,
-                      'the Alert card front is a three-frame statue animation')
+                check(anim.count() == 1 and anim.locator('[data-drill-frame]').count() == 5,
+                      'the Alert card front is a five-frame statue animation')
                 frame_srcs = anim.locator('img').evaluate_all(
                     "imgs => imgs.map(img => img.getAttribute('src') || '')")
                 check(all('/movements/alert-' in src for src in frame_srcs)

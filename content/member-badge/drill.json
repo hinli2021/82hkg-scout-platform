@@ -40,7 +40,7 @@
           "title_zh": "立正",
           "title_en": "Alert",
           "command": "Alert!",
-          "figure": "img/quest/drill/movements/alert-3-alert.jpg",
+          "figure": "img/quest/drill/movements/alert-5-alert.jpg",
           "animation": [
             {
               "img": "img/quest/drill/movements/alert-1-stand-at-ease.jpg",
@@ -49,15 +49,27 @@
               "hold_ms": 950
             },
             {
-              "img": "img/quest/drill/movements/alert-2-close.jpg",
-              "label_zh": "2 · 提起左腳至大腿與地面平行，雙手同時回到兩側",
-              "label_en": "2 · Lift the left foot until the thigh is level; bring both hands back to the sides",
-              "hold_ms": 800
+              "img": "img/quest/drill/movements/alert-2-lift.jpg",
+              "label_zh": "2 · 左腳開始提起，雙手由身後回至兩側",
+              "label_en": "2 · Begin lifting the left foot; bring both hands from behind the back to the sides",
+              "hold_ms": 520
             },
             {
-              "img": "img/quest/drill/movements/alert-3-alert.jpg",
-              "label_zh": "3 · 左腳踏下靠攏右腳，握拳貼褲縫，成立正",
-              "label_en": "3 · Place the left foot beside the right, fists at the seams — Alert",
+              "img": "img/quest/drill/movements/alert-3-close.jpg",
+              "label_zh": "3 · 左大腿與地面平行，雙手回到兩側握拳",
+              "label_en": "3 · Left thigh level with the ground; both hands return to the sides as fists",
+              "hold_ms": 650
+            },
+            {
+              "img": "img/quest/drill/movements/alert-4-lower.jpg",
+              "label_zh": "4 · 左腳開始踏下，靠攏右腳",
+              "label_en": "4 · Begin lowering the left foot in beside the right",
+              "hold_ms": 420
+            },
+            {
+              "img": "img/quest/drill/movements/alert-5-alert.jpg",
+              "label_zh": "5 · 左腳踏下靠攏右腳，握拳貼褲縫，成立正",
+              "label_en": "5 · Place the left foot beside the right, fists at the seams — Alert",
               "hold_ms": 1250
             }
           ],
