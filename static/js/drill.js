@@ -753,7 +753,8 @@
           '<span data-drill-beat-count>' +
             esc(fill(pick(L.beat_of_zh, L.beat_of_en), { i: 1, n: beats })) +
           '</span></p>' +
-        '<div class="drill-form-row is-movements" data-drill-forms>' +
+        '<div class="drill-form-row is-movements is-count-' + state.forms.length + '" data-drill-forms' +
+          ' data-move-count="' + state.forms.length + '" style="--move-count:' + state.forms.length + '">' +
           state.forms.map(movementBtn).join('') +
         '</div>';
     }

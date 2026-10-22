@@ -123,6 +123,39 @@ def clear_stage(page):
         page.wait_for_timeout(1300)      # the ✓ flash, then the next sign
 
 
+def answer_grid_fit(page):
+    return page.evaluate("""() => {
+        const wrap = document.querySelector('.cave-card-wrap');
+        const card = document.querySelector('[data-drill-card]');
+        const forms = document.querySelector('[data-drill-forms]');
+        const buttons = [...forms.querySelectorAll('button')].map(b => b.getBoundingClientRect());
+        const animation = document.querySelector('[data-drill-form="alert"] [data-drill-animation]');
+        const a = animation ? animation.getBoundingClientRect() : null;
+        const c = card.getBoundingClientRect(), f = forms.getBoundingClientRect();
+        return {
+          count: buttons.length, taggedCount: Number(forms.dataset.moveCount || 0),
+          wrapClient: wrap.clientHeight, wrapScroll: wrap.scrollHeight,
+          cardClient: card.clientHeight, cardScroll: card.scrollHeight,
+          allVisible: buttons.every(r => r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth),
+          minButton: Math.min(...buttons.map(r => Math.min(r.width, r.height))),
+          animationWidth: a ? a.width : 0, animationHeight: a ? a.height : 0,
+          bottomGap: c.bottom - f.bottom
+        };
+    }""")
+
+
+def check_answer_grid(page, expected, minimum, label):
+    page.wait_for_timeout(250)
+    fit = answer_grid_fit(page)
+    check(fit['count'] == expected and fit['taggedCount'] == expected and fit['allVisible']
+          and fit['wrapScroll'] <= fit['wrapClient'] + 1 and fit['cardScroll'] <= fit['cardClient'] + 1
+          and fit['minButton'] >= 38 and fit['bottomGap'] <= 42
+          and fit['animationWidth'] >= minimum[0] and fit['animationHeight'] >= minimum[1],
+          f'the {expected}-movement answers fill {label} without scrolling; '
+          f"Alert animation {round(fit['animationWidth'])}×{round(fit['animationHeight'])}px")
+    return fit
+
+
 def main():
     SHOTS.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as pw:
@@ -447,6 +480,9 @@ def main():
             check(page.locator('[data-drill-forms] [data-drill-move-visual="icon"] .drill-move-art').count()
                   == expected_pools[index] - len(animated_ids),
                   f'section 2 stage {index + 1} keeps icons only for movements without a finalized animation')
+            check_answer_grid(page, expected_pools[index],
+                              ((300, 450), (180, 220), (130, 220))[index],
+                              f'the desktop stage {index + 1} screen')
             shoot(page, f'drill-move-prompt-stage{index + 1}.png')
 
             if index == 0:
@@ -465,21 +501,17 @@ def main():
                 click(page, '[data-drill-go="resume"]')
                 page.wait_for_selector('[data-drill-scene="drill"]')
             if index == 2:
-                for width, height, label in ((390, 700, 'phone'), (1000, 550, 'short')):
+                for width, height, label in ((390, 700, 'phone'), (1000, 550, 'short'), (700, 420, 'tiny-short')):
                     page.set_viewport_size({'width': width, 'height': height})
                     page.wait_for_timeout(250)
-                    fit = page.evaluate("""() => {
-                        const forms = document.querySelector('[data-drill-forms]');
-                        const cmd = document.querySelector('[data-drill-command]');
-                        const btns = [...forms.querySelectorAll('button')].map(b => b.getBoundingClientRect());
-                        const c = cmd.getBoundingClientRect();
-                        return {
-                          commandVisible: c.top >= 0 && c.bottom <= innerHeight,
-                          allButtonsVisible: btns.every(r => r.top >= 0 && r.bottom <= innerHeight)
-                        };
+                    command_visible = page.evaluate("""() => {
+                        const c = document.querySelector('[data-drill-command]').getBoundingClientRect();
+                        return c.top >= 0 && c.bottom <= innerHeight;
                     }""")
-                    check(fit['commandVisible'] and fit['allButtonsVisible'],
-                          f'the 14-movement command board fits a {label} window')
+                    check(command_visible,
+                          f'the 14-movement command stays visible in a {label} window')
+                    check_answer_grid(page, 14, (50, 70) if width <= 430 else (75, 70),
+                                      f'a {label} window')
                     page.screenshot(path=str(SHOTS / f'drill-move-prompt-stage3-{label}.png'))
                 page.set_viewport_size({'width': 1180, 'height': 940})
                 page.wait_for_timeout(250)

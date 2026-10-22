@@ -2874,12 +2874,16 @@ body.is-game main { padding-top: 6px; }
 .drill.drill-command-full .cave-picture .cave-shade { display: none; }
 .drill.drill-command-full .cave-hud { pointer-events: auto; }
 .drill.drill-command-full .cave-card-wrap {
-  flex: 1 1 auto; max-height: none; padding: 3.1rem 1rem 1rem;
-  background: #081611; border-top: 0; align-items: stretch; overflow-y: auto;
+  flex: 1 1 auto; max-height: none; min-height: 0; padding: 3.1rem 1rem 1rem;
+  background: #081611; border-top: 0; align-items: stretch; overflow: hidden;
 }
 .drill.drill-command-full .cave-card {
-  width: min(76rem, 100%); display: flex; flex-direction: column;
-  justify-content: center; justify-content: safe center;
+  width: min(76rem, 100%); height: 100%; min-height: 0;
+  display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden;
+}
+.drill.drill-command-full .cave-card > * { flex: 0 0 auto; }
+.drill.drill-command-full .cave-card > .drill-form-row.is-movements {
+  flex: 1 1 auto; min-height: 0;
 }
 .drill-move-question { margin-top: .35rem; }
 .drill-command-feedback { font-size: 1.05rem; margin: .15rem 0 .35rem; }
@@ -2913,6 +2917,57 @@ body.is-game main { padding-top: 6px; }
   transform: translateY(-2px);
 }
 .drill-form-name { font-size: .82rem; font-weight: 800; text-align: center; line-height: 1.3; }
+/* Section 2's answer bank fills every pixel left under the called command.
+   The count classes choose the arrangement that gives each portrait statue
+   the largest possible cell while keeping the whole cumulative bank on one
+   screen: 3 in one row, 10 as 5 × 2, and 14 as 7 × 2 on a wide stage. */
+.drill-form-row.is-movements {
+  --move-gap: .6rem;
+  display: grid; width: 100%; min-height: 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: var(--move-gap); margin: .55rem 0 0;
+  align-items: stretch; justify-items: stretch;
+}
+.drill-form-row.is-movements.is-count-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.drill-form-row.is-movements.is-count-10 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.drill-form-row.is-movements.is-count-14 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.drill-form-row.is-movements .drill-move-btn {
+  width: 100%; height: 100%; min-width: 0; min-height: 0; aspect-ratio: auto;
+  justify-content: stretch; gap: .25rem; padding: .4rem; overflow: hidden;
+}
+.drill-form-row.is-movements .drill-move-btn .drill-move-art {
+  flex: 1 1 0; width: 100%; height: auto; min-width: 0; min-height: 0;
+}
+.drill-form-row.is-movements .drill-form-name {
+  flex: 0 1 auto; min-height: 0; overflow-wrap: anywhere;
+  font-size: clamp(.72rem, 1.35vw, 1.08rem); line-height: 1.18;
+}
+.drill-form-row.is-movements.is-count-3 .drill-form-name {
+  font-size: clamp(.95rem, 2.1vw, 1.55rem);
+}
+.drill-form-row.is-movements.is-count-10 .drill-form-name {
+  font-size: clamp(.78rem, 1.55vw, 1.18rem);
+}
+/* an animated answer is a full-bleed miniature statue, not a thumbnail in a
+   padded square: the forest frame fills the button and only the name pill
+   sits over its foot */
+.drill-form-row.is-movements .drill-move-btn.has-statue-animation {
+  position: relative; padding: 0;
+}
+.drill-form-row.is-movements .drill-statue-anim.is-button {
+  position: absolute; inset: 0; flex: none; width: 100%; height: 100%; border-radius: inherit;
+}
+.drill-form-row.is-movements .drill-statue-anim.is-button .drill-statue-step img {
+  padding: .12rem .12rem clamp(1.35rem, 24%, 2.15rem);
+}
+.drill-form-row.is-movements .has-statue-animation .drill-form-name {
+  position: absolute; z-index: 2; left: 50%; bottom: .35rem; transform: translateX(-50%);
+  width: max-content; max-width: calc(100% - .7rem); overflow-wrap: normal;
+  padding: .18rem .55rem; border-radius: 999px;
+  color: #fff8e8; background: rgba(3, 12, 8, .84);
+  border: 1px solid rgba(217, 164, 65, .55); box-shadow: 0 3px 10px rgba(0, 0, 0, .45);
+}
 .drill-form-art { width: 2.35rem; height: 2.35rem; display: block; }
 .drill-form-art circle { fill: #ffe4a8; }
 .drill-review-form {
@@ -2970,13 +3025,29 @@ body.is-game main { padding-top: 6px; }
   .drill-pace-direction-command { font-size: .72rem; }
   .drill-flip-points, .drill-pace-direction { font-size: .62rem; }
   .drill-pace-directions { grid-template-columns: 1fr; }
-  /* the cumulative stage-3 command board has 14 movements: compact square
-     buttons keep the whole bank on a phone screen */
+  /* phones use the grid arrangement that gives portrait movements the most
+     height: 3 across, 10 as 4 + 4 + 2, and 14 as 5 + 5 + 4 */
   .drill.drill-command-full .cave-card-wrap { padding: 2.75rem .65rem .65rem; }
-  .drill-form-row.is-movements { gap: .32rem; }
-  .drill-form-row.is-movements .drill-form-btn { width: 4.05rem; padding: .22rem .14rem; }
-  .drill-form-row.is-movements .drill-form-name { font-size: .66rem; line-height: 1.2; }
-  .drill-form-row.is-movements .drill-move-art { width: 1.75rem; height: 1.75rem; }
+  .drill-form-row.is-movements { --move-gap: .32rem; gap: var(--move-gap); margin-top: .35rem; }
+  .drill-form-row.is-movements.is-count-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .drill-form-row.is-movements.is-count-10 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .drill-form-row.is-movements.is-count-14 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  /* Fourteen answers on a phone need the prompt's spare lines more than they
+     need its manual/count chips and repeated question. */
+  .drill.drill-command-full:has(.drill-form-row.is-count-14) .drill-chips,
+  .drill.drill-command-full:has(.drill-form-row.is-count-14) .drill-move-question,
+  .drill.drill-command-full:has(.drill-form-row.is-count-14) .drill-beat-note > span:first-child { display: none; }
+  .drill.drill-command-full:has(.drill-form-row.is-count-14) .drill-beat-note { justify-content: flex-end; }
+  .drill-form-row.is-movements .drill-form-btn { width: 100%; height: 100%; padding: .22rem .14rem; }
+  .drill-form-row.is-movements .drill-move-btn.has-statue-animation { padding: 0; }
+  .drill-form-row.is-movements .drill-form-name { font-size: .62rem; line-height: 1.14; }
+  .drill-form-row.is-movements.is-count-3 .drill-form-name { font-size: .78rem; }
+  .drill-form-row.is-movements.is-count-10 .drill-form-name { font-size: .64rem; }
+  .drill-form-row.is-movements.is-count-14 .drill-form-name { font-size: .56rem; }
+  .drill-form-row.is-movements .has-statue-animation .drill-form-name {
+    bottom: .2rem; max-width: calc(100% - .4rem); padding: .1rem .34rem;
+  }
+  .drill-form-row.is-movements .drill-move-art { width: 100%; height: auto; }
 }
 @media (max-height: 620px) and (min-width: 701px) {
   .drill-flip-back {
@@ -2994,6 +3065,35 @@ body.is-game main { padding-top: 6px; }
 }
 @media (max-height: 620px) and (min-width: 701px) {
   .drill.drill-flip-full .drill-flip-grid { grid-auto-rows: minmax(0, 1fr); }
+  /* short landscape: spread the bank wider instead of stacking it, and
+     tighten the prompt so the movements keep the height there is */
+  .drill-form-row.is-movements { --move-gap: .35rem; gap: var(--move-gap); margin-top: .3rem; }
+  .drill-form-row.is-movements.is-count-10 { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  .drill-form-row.is-movements.is-count-14 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .drill-form-row.is-movements .drill-form-name { font-size: .62rem; line-height: 1.12; }
+  .drill-form-row.is-movements.is-count-3 .drill-form-name { font-size: .82rem; }
+  .drill.drill-command-full .drill-command { font-size: 1.16rem; margin-bottom: .12rem; }
+  .drill.drill-command-full .drill-move-question { margin-top: .12rem; font-size: .82rem; }
+  .drill.drill-command-full .drill-beat { margin-top: .25rem; }
+}
+@media (max-height: 620px) and (min-width: 560px) and (max-width: 700px) {
+  .drill-form-row.is-movements.is-count-10 { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  .drill-form-row.is-movements.is-count-14 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+@media (max-height: 480px) {
+  /* the very shortest windows keep only what the round needs — the command,
+     its count bar and the largest possible bank of movements */
+  .drill.drill-command-full .cave-card { padding: .55rem .65rem; }
+  .drill.drill-command-full .cave-kicker,
+  .drill.drill-command-full .drill-command-say,
+  .drill.drill-command-full .drill-chips,
+  .drill.drill-command-full .drill-move-question { display: none; }
+  .drill.drill-command-full .drill-command { font-size: 1.02rem; line-height: 1.16; margin: 0 0 .08rem; }
+  .drill.drill-command-full .drill-beat { height: 9px; margin: .18rem 0 .12rem; }
+  .drill.drill-command-full .drill-beat-note { font-size: .62rem; margin-bottom: .14rem; }
+  .drill-form-row.is-movements { --move-gap: .26rem; gap: var(--move-gap); margin-top: .12rem; }
+  .drill-form-row.is-movements .drill-form-name { font-size: .54rem; }
+  .drill-form-row.is-movements.is-count-3 .drill-form-name { font-size: .68rem; }
 }
 
 
