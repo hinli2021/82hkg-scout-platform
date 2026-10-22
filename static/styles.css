@@ -2665,6 +2665,57 @@ body.is-game main { padding-top: 6px; }
   box-shadow: 0 8px 22px rgba(0, 0, 0, .42);
 }
 .drill-statue-anim.is-review .drill-statue-caption { bottom: .45rem; font-size: .62rem; }
+/* Section 2 teaching cards put the command first: a dominant command banner
+   sits above the movement itself, so the scout learns command → action. */
+.drill-flip-front.is-move-front { justify-content: flex-start; align-items: stretch; }
+.drill-move-front-command {
+  flex: 0 0 auto; z-index: 2; display: block; margin: .55rem .55rem .35rem;
+  padding: .52rem .65rem .58rem; border-radius: 12px; text-align: center;
+  color: #fff8e8; background: linear-gradient(180deg, rgba(27, 72, 43, .96), rgba(7, 24, 14, .96));
+  border: 1px solid rgba(217, 164, 65, .75);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, .48), inset 0 1px 0 rgba(255, 255, 255, .12);
+}
+.drill-move-front-command small {
+  display: block; color: #b8f0b2; font-size: .62rem; font-weight: 900;
+  letter-spacing: .13em; line-height: 1.25; text-transform: uppercase;
+}
+.drill-move-front-command strong {
+  display: block; margin-top: .12rem; color: #ffffff;
+  font-size: clamp(1.02rem, 2vw, 1.52rem); font-weight: 900; line-height: 1.12;
+  overflow-wrap: anywhere; text-shadow: 0 2px 8px rgba(0, 0, 0, .7);
+}
+.drill-move-front-command.is-long strong { font-size: clamp(.94rem, 1.75vw, 1.28rem); }
+.drill-move-front-command.is-very-long strong { font-size: clamp(.86rem, 1.55vw, 1.14rem); }
+.drill-move-front-visual {
+  position: relative; flex: 1 1 auto; min-height: 0; width: 100%; display: block; overflow: hidden;
+}
+.drill-flip-command-front {
+  width: 100%; height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .7rem; padding: 1rem .7rem 2.2rem;
+  text-align: center; color: #f4ecd9;
+  background: radial-gradient(100% 80% at 50% 20%, rgba(38, 74, 52, .35), transparent 70%), #071009;
+}
+.drill-flip-command-front strong { font-size: 1.35rem; color: #ffe4a8; line-height: 1.25; }
+.drill-pace-front-list {
+  height: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .45rem; padding: .15rem .55rem 2.25rem;
+}
+.drill-pace-front-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .22rem;
+  min-width: 0; padding: .5rem .4rem; border-radius: 12px; text-align: center;
+  background: rgba(255, 255, 255, .055); border: 1px solid rgba(217, 164, 65, .35);
+}
+.drill-pace-front-item small { color: #ffe4a8; font-size: .68rem; font-weight: 800; line-height: 1.3; }
+.drill-pace-front-item strong {
+  color: #ffffff; font-size: .82rem; font-weight: 900; line-height: 1.25; overflow-wrap: anywhere;
+}
+/* a finalized statue animation replaces the schematic on its game button */
+.drill-statue-anim.is-button {
+  flex: 1 1 auto; width: 100%; height: auto; min-height: 0; border-radius: 9px;
+}
+.drill-statue-anim.is-button .drill-statue-step img { padding: .08rem; }
+.drill-move-btn.has-statue-animation { gap: .12rem; padding: .28rem; }
+.drill-move-btn.has-statue-animation .drill-form-name { flex: 0 0 auto; }
 @media (prefers-reduced-motion: reduce) {
   .drill-statue-step { transition: none; }
 }
@@ -2727,12 +2778,23 @@ body.is-game main { padding-top: 6px; }
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, .5), 0 0 10px rgba(0, 0, 0, .35);
 }
 .drill-move-command {
-  display: block; max-width: 96%; text-align: center;
-  padding: .42rem .6rem; border-radius: 999px;
-  background: rgba(120, 170, 130, .16); border: 1px solid rgba(150, 210, 160, .45);
-  color: #fff; font-size: .82rem; line-height: 1.4;
+  display: block; width: 100%; max-width: 100%; text-align: center;
+  padding: .55rem .65rem .62rem; border-radius: 12px;
+  background: linear-gradient(180deg, rgba(27, 72, 43, .94), rgba(7, 24, 14, .94));
+  border: 1px solid rgba(217, 164, 65, .72);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .1);
+  color: #fff; line-height: 1.25;
 }
-.drill-move-command b, .drill-move-count b { color: #b8f0b2; }
+.drill-move-command small {
+  display: block; color: #b8f0b2; font-size: .62rem; font-weight: 900;
+  letter-spacing: .13em; line-height: 1.25; text-transform: uppercase;
+}
+.drill-move-command strong {
+  display: block; margin-top: .14rem; color: #ffffff;
+  font-size: clamp(1.02rem, 2vw, 1.46rem); font-weight: 900; line-height: 1.13;
+  overflow-wrap: anywhere; text-shadow: 0 2px 8px rgba(0, 0, 0, .7);
+}
+.drill-move-count b { color: #b8f0b2; }
 .drill-move-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: .3rem; }
 .drill-move-count, .drill-move-manual {
   display: inline-block; padding: .18rem .5rem; border-radius: 999px;
@@ -2758,9 +2820,10 @@ body.is-game main { padding-top: 6px; }
   background: rgba(255, 255, 255, .055); border: 1px solid rgba(217, 164, 65, .3);
   color: #e9f1e8; font-size: .66rem; line-height: 1.42;
 }
-.drill-pace-direction b { color: #ffe4a8; font-size: .78rem; }
-.drill-pace-direction small { color: #b8f0b2; font-size: .64rem; line-height: 1.35; }
-.drill-pace-direction .drill-move-art { width: 2.25rem; height: 2.25rem; }
+.drill-pace-direction-name { color: #ffe4a8; font-size: .68rem; font-weight: 800; line-height: 1.3; }
+.drill-pace-direction-command {
+  color: #ffffff; font-size: .82rem; font-weight: 900; line-height: 1.22; overflow-wrap: anywhere;
+}
 .drill-move-art { width: 2.35rem; height: 2.35rem; display: block; }
 .drill-move-art .move-foot { fill: #ffe4a8; stroke: #8a6420; stroke-width: .7; }
 .drill-move-art .move-dot { fill: #ffe4a8; }
@@ -2889,12 +2952,22 @@ body.is-game main { padding-top: 6px; }
   .drill-statue-caption { bottom: 1.85rem; font-size: .58rem; padding: .24rem .42rem; }
   .drill-statue-step img { padding: .35rem .35rem 4.2rem; }
   .drill-statue-anim.is-review { width: min(8.5rem, 58vw); }
-  .drill-flip-back .drill-move-art.is-detailed { width: min(3.3rem, 58%); padding: .22rem; }
-  .drill-flip-icon-front { gap: .28rem; padding: .55rem .45rem 1.55rem; }
-  .drill-flip-icon-front .drill-move-art.is-detailed { width: min(3.1rem, 62%); padding: 0; }
-  .drill-flip-icon-front strong { font-size: 1rem; }
-  .drill-flip-icon-front small { font-size: .66rem; }
-  .drill-move-command { font-size: .68rem; padding: .3rem .45rem; }
+  .drill-move-front-command { margin: .3rem .3rem .18rem; padding: .3rem .35rem .34rem; }
+  .drill-move-front-command small { display: none; }
+  .drill-move-front-command strong { margin-top: 0; font-size: .76rem; }
+  .drill-move-front-command.is-long strong { font-size: .68rem; }
+  .drill-move-front-command.is-very-long strong { font-size: .6rem; }
+  .drill-move-front-visual > img { padding: .18rem .25rem 1.55rem; }
+  .drill-flip-command-front { gap: .35rem; padding: .55rem .45rem 1.7rem; }
+  .drill-flip-command-front strong { font-size: 1rem; }
+  .drill-pace-front-list { gap: .28rem; padding: .08rem .38rem 1.7rem; }
+  .drill-pace-front-item { padding: .32rem .24rem; }
+  .drill-pace-front-item small { font-size: .56rem; }
+  .drill-pace-front-item strong { font-size: .62rem; }
+  .drill-move-command { padding: .4rem .45rem .45rem; }
+  .drill-move-command small { font-size: .52rem; }
+  .drill-move-command strong { font-size: .84rem; }
+  .drill-pace-direction-command { font-size: .72rem; }
   .drill-flip-points, .drill-pace-direction { font-size: .62rem; }
   .drill-pace-directions { grid-template-columns: 1fr; }
   /* the cumulative stage-3 command board has 14 movements: compact square
@@ -2915,7 +2988,8 @@ body.is-game main { padding-top: 6px; }
   .drill-flip-back .drill-form-art.is-detailed { width: min(4.1rem, 52%); padding: .3rem; }
   .drill-flip-back .drill-flip-name { font-size: 1rem; line-height: 1.15; }
   .drill-flip-leader, .drill-flip-sign { font-size: .7rem; line-height: 1.35; }
-  .drill-flip-back .drill-move-art.is-detailed { width: min(3.8rem, 52%); padding: .3rem; }
+  .drill-move-front-command { margin: .38rem .45rem .24rem; padding: .38rem .5rem .42rem; }
+  .drill-move-front-command strong, .drill-move-command strong { font-size: .9rem; }
   .drill-flip-points, .drill-pace-direction { font-size: .66rem; }
 }
 @media (max-height: 620px) and (min-width: 701px) {

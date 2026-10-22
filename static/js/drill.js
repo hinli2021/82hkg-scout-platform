@@ -521,7 +521,9 @@
              ' data-drill-animation="' + esc(m.id) + '" data-frame-count="' + frames.length + '"' +
              ' role="img" aria-label="' + esc(pick(m.title_zh, m.title_en)) + '">' +
         frames.map(function (frame, index) {
-          var label = pick(frame.label_zh, frame.label_en);
+          /* the miniature animation on an answer button has no room for the
+             teaching captions; the movement name under it does that work */
+          var label = variant === 'button' ? '' : pick(frame.label_zh, frame.label_en);
           return '<span class="drill-statue-step' + (index === 0 ? ' is-active' : '') + '"' +
                  ' data-drill-frame data-hold-ms="' + esc(frame.hold_ms || 900) + '">' +
             '<img src="' + esc(artUrl(frame.img)) + '" alt="">' +
@@ -531,23 +533,50 @@
       '</span>';
     }
 
+    function commandActionLabel() {
+      return pick(L.move_command_action_label_zh || '口令 → 動作',
+                  L.move_command_action_label_en || 'Command → movement');
+    }
+
+    function moveFrontCommandHtml(unit) {
+      if (unit.id === 'pacing') {
+        return '<span class="drill-move-front-command is-pacing">' +
+          '<small>' + esc(pick(L.move_command_label_zh, L.move_command_label_en)) + '</small>' +
+          '<strong>' + esc(unitTitle(unit)) + '</strong></span>';
+      }
+      var m = unit.moves[0] || {};
+      var command = m.command || '';
+      var lengthClass = command.length > 32 ? ' is-very-long' : command.length > 20 ? ' is-long' : '';
+      return '<span class="drill-move-front-command' + lengthClass + '">' +
+        '<small>' + esc(pick(L.move_command_label_zh, L.move_command_label_en)) +
+          ' · ' + esc(unitTitle(unit)) + '</small>' +
+        '<strong>' + esc(command) + '</strong></span>';
+    }
+
+    function paceFrontCommandsHtml(unit) {
+      return '<span class="drill-pace-front-list">' + unit.moves.map(function (pace) {
+        return '<span class="drill-pace-front-item">' +
+          '<small>' + esc(pick(pace.title_zh, pace.title_en)) + '</small>' +
+          '<strong>' + esc(pace.command || '') + '</strong></span>';
+      }).join('') + '</span>';
+    }
+
     function moveCardFront(unit) {
       var m = unit.moves[0] || {};
       var frames = unit.id === 'pacing' ? [] : animationFrames(m);
       var image = unit.id === 'pacing' ? '' : (m.figure || m.img || '');
-      var body = frames.length
+      var body = unit.id === 'pacing'
+        ? paceFrontCommandsHtml(unit)
+        : frames.length
         ? movementAnimationHtml(m, 'flip')
         : image
         ? '<img src="' + esc(artUrl(image)) + '" alt="' + esc(unitTitle(unit)) + '">'
-        : '<span class="drill-flip-icon-front">' + movementSvg(unit.id, true) +
-            '<strong>' + esc(unitTitle(unit)) + '</strong>' +
-            (unit.id === 'pacing'
-              ? '<small>' + unit.moves.map(function (pace) {
-                  return esc(pick(pace.title_zh, pace.title_en));
-                }).join(isEn() ? ' · ' : '、') + '</small>'
-              : '<small>' + esc(m.command || '') + '</small>') +
+        : '<span class="drill-flip-command-front">' +
+            '<strong>' + esc(unitTitle(unit)) + '</strong>' + moveMetaChips(m) +
           '</span>';
-      return '<div class="drill-flip-face drill-flip-front">' + body +
+      return '<div class="drill-flip-face drill-flip-front is-move-front">' +
+        moveFrontCommandHtml(unit) +
+        '<span class="drill-move-front-visual">' + body + '</span>' +
         '<span class="drill-flip-hint">⟳ ' + esc(pick(L.flip_hint_zh, L.flip_hint_en)) + '</span></div>';
     }
 
@@ -572,15 +601,14 @@
       if (unit.id === 'pacing') {
         var directions = unit.moves.map(function (m) {
           var firstPoint = pointsFor(m)[0] || '';
-          return '<span class="drill-pace-direction">' + movementSvg(m.id) +
-            '<b>' + esc(pick(m.title_zh, m.title_en)) + '</b>' +
-            '<small>' + esc(m.command || '') + '</small>' +
+          return '<span class="drill-pace-direction">' +
+            '<small class="drill-pace-direction-name">' + esc(pick(m.title_zh, m.title_en)) + '</small>' +
+            '<strong class="drill-pace-direction-command">' + esc(m.command || '') + '</strong>' +
             '<span>' + esc(firstPoint) + '</span></span>';
         }).join('');
         return '<div class="drill-flip-face drill-flip-back is-move">' +
-          '<span class="drill-flip-label">' + esc(pick(L.move_flip_label_zh, L.move_flip_label_en)) + '</span>' +
+          '<span class="drill-flip-label">' + esc(commandActionLabel()) + '</span>' +
           '<strong class="drill-flip-name">' + esc(unitTitle(unit)) + '</strong>' +
-          movementSvg('pacing', true) +
           '<span class="drill-pace-directions">' + directions + '</span>' +
           '<span class="drill-flip-sign">' + esc(pick(L.pace_card_note_zh, L.pace_card_note_en)) + '</span>' +
         '</div>';
@@ -589,12 +617,11 @@
       var points = pointsFor(m);
       var note = pick(m.note_zh, m.note_en);
       return '<div class="drill-flip-face drill-flip-back is-move">' +
-        '<span class="drill-flip-label">' + esc(pick(L.move_flip_label_zh, L.move_flip_label_en)) + '</span>' +
+        '<span class="drill-flip-label">' + esc(commandActionLabel()) + '</span>' +
         '<strong class="drill-flip-name">' + esc(pick(m.title_zh, m.title_en)) + '</strong>' +
-        movementSvg(m.id, true) +
-        '<span class="drill-move-command"><b>' +
-          esc(pick(L.move_command_label_zh, L.move_command_label_en)) + '</b> ' +
-          esc(m.command || '') + '</span>' +
+        '<span class="drill-move-command"><small>' +
+          esc(pick(L.move_command_label_zh, L.move_command_label_en)) + '</small>' +
+          '<strong>' + esc(m.command || '') + '</strong></span>' +
         moveMetaChips(m) +
         (points.length
           ? '<span class="drill-move-points-label">' +
@@ -676,10 +703,14 @@
     }
 
     function movementBtn(m) {
-      return '<button class="drill-form-btn drill-move-btn" type="button" data-drill-form="' + esc(m.id) + '"' +
+      var animated = animationFrames(m).length > 0;
+      var visual = animated ? movementAnimationHtml(m, 'button') : movementSvg(m.id);
+      return '<button class="drill-form-btn drill-move-btn' +
+             (animated ? ' has-statue-animation' : '') + '" type="button" data-drill-form="' + esc(m.id) + '"' +
+             ' data-drill-move-visual="' + (animated ? 'animation' : 'icon') + '"' +
              ' aria-label="' + esc(pick(m.title_zh, m.title_en)) + '">' +
+        visual +
         '<span class="drill-form-name">' + esc(pick(m.title_zh, m.title_en)) + '</span>' +
-        movementSvg(m.id) +
       '</button>';
     }
 

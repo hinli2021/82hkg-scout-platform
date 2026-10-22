@@ -359,6 +359,10 @@ def main():
             flip_text = page.inner_text('[data-drill-card]')
             check(f'第 {index + 1} 階段' in flip_text and '口令' in flip_text,
                   f'section 2 stage {index + 1} teaches commands before the mechanism')
+            check(page.locator('[data-drill-flip] .drill-move-front-command').count() == expected_units[index],
+                  f'section 2 stage {index + 1} puts a command banner on every card front')
+            check(page.locator('[data-drill-flip] .drill-flip-back.is-move .drill-move-art').count() == 0,
+                  f'section 2 stage {index + 1} card backs lead with the command, not a movement icon')
             if index:
                 check('已學過的動作' in flip_text,
                       f'section 2 stage {index + 1} lists movements already learned')
@@ -367,6 +371,17 @@ def main():
                 anim = alert.locator('[data-drill-animation="alert"]')
                 check(anim.count() == 1 and anim.locator('[data-drill-frame]').count() == 5,
                       'the Alert card front is a five-frame statue animation')
+                alert_front = alert.locator('.drill-flip-front')
+                command_layout = alert_front.evaluate("""node => {
+                    const banner = node.querySelector('.drill-move-front-command');
+                    const animation = node.querySelector('[data-drill-animation]');
+                    const b = banner.getBoundingClientRect(), a = animation.getBoundingClientRect();
+                    return {text: banner.textContent, bannerBottom: b.bottom, animationTop: a.top,
+                            fontSize: parseFloat(getComputedStyle(banner.querySelector('strong')).fontSize)};
+                }""")
+                check('Alert!' in command_layout['text'] and command_layout['bannerBottom'] <= command_layout['animationTop'] + 1
+                      and command_layout['fontSize'] >= 16,
+                      'the Alert card front leads with a large Alert! command above the statue animation')
                 frame_srcs = anim.locator('img').evaluate_all(
                     "imgs => imgs.map(img => img.getAttribute('src') || '')")
                 check(all('/movements/alert-' in src for src in frame_srcs)
@@ -383,13 +398,17 @@ def main():
                       'the Alert card back teaches its command and key points')
                 check('起步為稍息' in back and '提起左腳' in back and '左腳踏下並靠攏右腳' in back,
                       'the Alert card teaches stand-at-ease → lift/close → Alert in order')
-                check(page.locator('[data-drill-flip] .drill-move-art.is-detailed').count() == 3,
-                      'every stage 1 movement card back carries a movement diagram')
+                check(page.locator('[data-drill-flip] .drill-flip-back.is-move .drill-move-command').count() == 3,
+                      'every stage 1 movement card back leads with its command')
                 shoot(page, 'drill-move-flip-stage1.png')
                 alert.click(); page.wait_for_timeout(400)
             if index == 1:
                 pacing = page.locator('[data-drill-flip="pacing"]')
                 check(pacing.count() == 1, 'the four paces share one study card')
+                pace_front = pacing.locator('.drill-flip-front').inner_text()
+                pace_front_commands = [MOVE_BY_ID[mid]['command'] for mid in fresh_ids[:4]]
+                check(all(command in pace_front for command in pace_front_commands),
+                      'the pacing card front puts all four directional commands first')
                 pacing.click(); page.wait_for_timeout(600)
                 back = pacing.inner_text()
                 pace_commands = [MOVE_BY_ID[mid]['command'] for mid in fresh_ids[:4]]
@@ -421,8 +440,13 @@ def main():
             buttons = page.query_selector_all('[data-drill-form]')
             check(len(buttons) == expected_pools[index],
                   f'section 2 stage {index + 1} answers from {expected_pools[index]} cumulative movement buttons')
-            check(page.locator('[data-drill-forms] .drill-move-art').count() == expected_pools[index],
-                  f'every section 2 stage {index + 1} button carries a movement diagram')
+            animated_ids = [mid for mid in pool_ids if MOVE_BY_ID[mid].get('animation')]
+            check(page.locator('[data-drill-forms] [data-drill-move-visual="animation"]').count() == len(animated_ids)
+                  and page.locator('[data-drill-form="alert"] [data-drill-animation="alert"] [data-drill-frame]').count() == 5,
+                  f'section 2 stage {index + 1} uses the finalized Alert statue animation on its answer button')
+            check(page.locator('[data-drill-forms] [data-drill-move-visual="icon"] .drill-move-art').count()
+                  == expected_pools[index] - len(animated_ids),
+                  f'section 2 stage {index + 1} keeps icons only for movements without a finalized animation')
             shoot(page, f'drill-move-prompt-stage{index + 1}.png')
 
             if index == 0:
