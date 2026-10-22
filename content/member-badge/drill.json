@@ -50,8 +50,8 @@
             },
             {
               "img": "img/quest/drill/movements/alert-2-lift.jpg",
-              "label_zh": "2 · 左腳開始提起，雙手由身後回至兩側",
-              "label_en": "2 · Begin lifting the left foot; bring both hands from behind the back to the sides",
+              "label_zh": "2 · 左腳提起至中途，雙手由身後回到兩側",
+              "label_en": "2 · Lift the left foot halfway; bring both hands from behind the back to the sides",
               "hold_ms": 520
             },
             {
@@ -62,8 +62,8 @@
             },
             {
               "img": "img/quest/drill/movements/alert-4-lower.jpg",
-              "label_zh": "4 · 左腳開始踏下，靠攏右腳",
-              "label_en": "4 · Begin lowering the left foot in beside the right",
+              "label_zh": "4 · 左腳落至接近地面，準備靠攏右腳",
+              "label_en": "4 · Lower the left foot close to the ground, ready to close beside the right",
               "hold_ms": 420
             },
             {
