@@ -10,7 +10,9 @@ pacing plus left/right/about turns; and Mark time / Quick march / Halt /
 Right dress. Each stage first teaches with movement cards (manual page,
 command, count and key points), then the full-screen command board calls a
 command and the scout presses the movement inside its count. Every stage's
-pool is cumulative within section 2 (3, then 10, then 14 calls). Wrong or
+call pool is cumulative within section 2 (3, then 10, then 14 calls); from
+stage 2 each call shows five shuffled choices drawn from that pool, always
+including the called movement. Wrong or
 late answers reopen the teaching review and re-queue the movement. Clearing
 both sections files the studying only; the leader's 82DR code completes
 item 6. Screenshots land in docs/screens/.
@@ -84,10 +86,22 @@ def current_move_id(page):
     }""")
 
 
+def choice_snapshot(page):
+    """The visible answer order plus where the called movement sits in it."""
+    target_id = current_move_id(page)
+    ids = page.evaluate("""() => [...document.querySelectorAll('[data-drill-form]')]
+        .map(button => button.getAttribute('data-drill-form'))""")
+    return {'target': target_id, 'ids': ids,
+            'position': ids.index(target_id) if target_id in ids else -1}
+
+
 def answer_current(page):
     """Press the formation or movement the visible prompt is calling for."""
     page.wait_for_selector('[data-drill-beat]')
-    page.wait_for_timeout(150)
+    # The previous card's start button can leave the pointer exactly on a new
+    # answer's lower edge, making its hover lift oscillate; park it first.
+    page.mouse.move(5, 5)
+    page.wait_for_timeout(200)
     target_id = current_move_id(page)
     if target_id.startswith('NOT FOUND'):
         return target_id
@@ -98,10 +112,12 @@ def answer_current(page):
     return target_id
 
 
-def clear_stage(page):
+def clear_stage(page, choice_audit=None):
     """Answer every sign the stage calls, until the scene moves on.
 
     Returns (final scene, prompts answered, reviews met, movement ids).
+    When ``choice_audit`` is a list, each prompt's visible answer order and
+    correct-answer position are appended before the answer is pressed.
     """
     prompts = reviews = 0
     seen = []
@@ -118,6 +134,10 @@ def clear_stage(page):
             continue
         if where != 'drill':
             return where, prompts, reviews, seen
+        if choice_audit is not None:
+            page.wait_for_selector('[data-drill-beat]')
+            page.wait_for_timeout(150)
+            choice_audit.append(choice_snapshot(page))
         seen.append(answer_current(page))
         prompts += 1
         page.wait_for_timeout(1300)      # the ✓ flash, then the next sign
@@ -129,8 +149,8 @@ def answer_grid_fit(page):
         const card = document.querySelector('[data-drill-card]');
         const forms = document.querySelector('[data-drill-forms]');
         const buttons = [...forms.querySelectorAll('button')].map(b => b.getBoundingClientRect());
-        const animation = document.querySelector('[data-drill-form="alert"] [data-drill-animation]');
-        const a = animation ? animation.getBoundingClientRect() : null;
+        const visual = forms.querySelector('[data-drill-animation]') || forms.querySelector('.drill-move-art');
+        const a = visual ? visual.getBoundingClientRect() : null;
         const c = card.getBoundingClientRect(), f = forms.getBoundingClientRect();
         return {
           count: buttons.length, taggedCount: Number(forms.dataset.moveCount || 0),
@@ -152,7 +172,7 @@ def check_answer_grid(page, expected, minimum, label):
           and fit['minButton'] >= 38 and fit['bottomGap'] <= 42
           and fit['animationWidth'] >= minimum[0] and fit['animationHeight'] >= minimum[1],
           f'the {expected}-movement answers fill {label} without scrolling; '
-          f"Alert animation {round(fit['animationWidth'])}×{round(fit['animationHeight'])}px")
+          f"first movement visual {round(fit['animationWidth'])}×{round(fit['animationHeight'])}px")
     return fit
 
 
@@ -380,6 +400,7 @@ def main():
         for stage_ids in MOVE_STAGES:
             running += len(stage_ids)
             expected_pools.append(running)
+        expected_button_counts = [expected_pools[0], 5, 5]
         for index, fresh_ids in enumerate(MOVE_STAGES):
             if index:
                 click(page, '[data-drill-go="next-stage"]')
@@ -517,9 +538,19 @@ def main():
             check(command in pool_commands,
                   f'section 2 stage {index + 1} calls a learned command: {command}')
             buttons = page.query_selector_all('[data-drill-form]')
-            check(len(buttons) == expected_pools[index],
-                  f'section 2 stage {index + 1} answers from {expected_pools[index]} cumulative movement buttons')
-            animated_ids = [mid for mid in pool_ids if MOVE_BY_ID[mid].get('animation')]
+            button_ids = [button.get_attribute('data-drill-form') for button in buttons]
+            expected_buttons = expected_button_counts[index]
+            first_target_id = current_move_id(page)
+            first_position = button_ids.index(first_target_id) if first_target_id in button_ids else -1
+            check(len(buttons) == expected_buttons and len(set(button_ids)) == expected_buttons
+                  and set(button_ids) <= set(pool_ids) and first_position >= 0,
+                  f'section 2 stage {index + 1} shows {expected_buttons} unique choices '
+                  f'from its {expected_pools[index]}-movement cumulative pool, including the call')
+            if index:
+                check(0 <= first_position < expected_buttons,
+                      f'section 2 stage {index + 1} places the correct movement among the five choices '
+                      f'(position {first_position + 1} on this call)')
+            animated_ids = [mid for mid in button_ids if MOVE_BY_ID[mid].get('animation')]
             animated_frame_counts = {
                 mid: page.locator(
                     f'[data-drill-form="{mid}"] [data-drill-animation="{mid}"] [data-drill-frame]'
@@ -529,18 +560,20 @@ def main():
             check(page.locator('[data-drill-forms] [data-drill-move-visual="animation"]').count() == len(animated_ids)
                   and all(animated_frame_counts[mid] == len(MOVE_BY_ID[mid]['animation'])
                           for mid in animated_ids),
-                  f'section 2 stage {index + 1} uses every finalized statue animation on its answer buttons')
+                  f'section 2 stage {index + 1} animates every shown movement that has a finalized statue animation')
             check(page.locator('[data-drill-forms] [data-drill-move-visual="icon"] .drill-move-art').count()
-                  == expected_pools[index] - len(animated_ids),
-                  f'section 2 stage {index + 1} keeps icons only for movements without a finalized animation')
-            check_answer_grid(page, expected_pools[index],
-                              ((300, 450), (180, 220), (130, 220))[index],
+                  == expected_buttons - len(animated_ids),
+                  f'section 2 stage {index + 1} keeps icons only for shown movements without a finalized animation')
+            check_answer_grid(page, expected_buttons,
+                              ((300, 450), (180, 220), (180, 220))[index],
                               f'the desktop stage {index + 1} screen')
             shoot(page, f'drill-move-prompt-stage{index + 1}.png')
 
             if index == 0:
                 target_id = current_move_id(page)
                 wrong_btn = next(b for b in buttons if b.get_attribute('data-drill-form') != target_id)
+                page.mouse.move(5, 5)
+                page.wait_for_timeout(200)
                 wrong_btn.click()
                 page.wait_for_selector('[data-drill-scene="review"]')
                 review = page.inner_text('[data-drill-card]')
@@ -562,17 +595,31 @@ def main():
                         return c.top >= 0 && c.bottom <= innerHeight;
                     }""")
                     check(command_visible,
-                          f'the 14-movement command stays visible in a {label} window')
-                    check_answer_grid(page, 14, (50, 70) if width <= 430 else (75, 70),
+                          f'the stage 3 command stays visible in a {label} window')
+                    check_answer_grid(page, expected_buttons, (70, 90) if width <= 430 else (90, 90),
                                       f'a {label} window')
                     page.screenshot(path=str(SHOTS / f'drill-move-prompt-stage3-{label}.png'))
                 page.set_viewport_size({'width': 1180, 'height': 940})
                 page.wait_for_timeout(250)
 
-            where, prompts, reviews, seen = clear_stage(page)
+            choice_audit = []
+            where, prompts, reviews, seen = clear_stage(page, choice_audit)
             check(where == 'stage-done', f'section 2 stage {index + 1} ends on its drill card')
             check(prompts == expected_pools[index] and set(seen) == set(pool_ids),
                   f'section 2 stage {index + 1} calls every cumulative movement ({prompts})')
+            if index:
+                positions = [entry['position'] for entry in choice_audit]
+                check(len(choice_audit) == prompts
+                      and all(len(entry['ids']) == expected_buttons
+                              and len(set(entry['ids'])) == expected_buttons
+                              and set(entry['ids']) <= set(pool_ids)
+                              and entry['target'] in entry['ids']
+                              and entry['ids'][entry['position']] == entry['target']
+                              for entry in choice_audit),
+                      f'section 2 stage {index + 1} shows five unique learned choices on every call')
+                check(len(set(positions)) >= 2,
+                      f'section 2 stage {index + 1} varies the correct-answer position '
+                      f'({[position + 1 for position in positions]})')
             check(reviews == 0, f'section 2 stage {index + 1} needed no extra reviews on this walk')
             done = page.inner_text('[data-drill-card]')
             check(f'第 {index + 1} 階段操練完成' in done,

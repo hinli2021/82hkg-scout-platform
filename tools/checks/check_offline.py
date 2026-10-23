@@ -571,11 +571,12 @@ with sync_playwright() as pw:
         "no code box until both sections are cleared"
     print("  drill: section 1 done, the parade ground opens below")
 
-    # section 2: three movement-card stages, cumulative command pools 3/10/14
+    # section 2: cumulative command pools 3/10/14; stages 2–3 show 5 choices
     page.click("#pane-drill [data-drill-go='section2']")
     page.wait_for_selector("#pane-drill [data-drill-scene='flip']")
     move_units = [3, 4, 4]
     move_pools = [3, 10, 14]
+    move_buttons = [3, 5, 5]
     for index in range(3):
         if index:
             page.click("#pane-drill [data-drill-go='next-stage']")
@@ -591,12 +592,12 @@ with sync_playwright() as pw:
         assert page.locator("#pane-drill [data-drill-command]").count() == 1, \
             "the offline command board calls a command"
         buttons = page.locator("#pane-drill [data-drill-form]").count()
-        assert buttons == move_pools[index], f"section 2 stage {index + 1} buttons: {buttons}"
+        assert buttons == move_buttons[index], f"section 2 stage {index + 1} buttons: {buttons}"
         where, prompts, reviews = drill_clear_stage()
         assert where == 'stage-done', f"offline section 2 stage {index + 1} ended on {where}"
         assert prompts == move_pools[index], f"offline section 2 stage {index + 1} prompts: {prompts}"
         assert reviews == 0, f"offline section 2 stage {index + 1} reviews: {reviews}"
-    print("  drill: section 2's 3 stages cleared (3 + 10 + 14 cumulative calls)")
+    print("  drill: section 2's 3 stages cleared (3 + 10 + 14 calls; 5 choices from stage 2)")
 
     # both sections clear: the offline studying is filed, the code still waits
     page.click("#pane-drill [data-drill-go='finish']")

@@ -18,7 +18,9 @@
    three stages of movement cards first (command, count and key points),
    then the command mechanism calls a command and the right movement must
    be pressed inside the count. Each stage mixes in every movement learned
-   before it in section 2. Only when both sections are cleared is the
+   before it in section 2. From movement stage 2 onward, each call shows
+   five choices — the called movement and four random learned movements,
+   shuffled so the answer's place changes. Only when both sections are cleared is the
    studying filed; then the leader assesses the scout in person and the
    leader's code (82DR) finishes game 3. A scout who has already studied
    or finished re-opens straight onto the assess card.
@@ -254,13 +256,15 @@
     }
     sanitize();
 
+    var MOVEMENT_CHOICE_LIMIT = 5;
     var state = {
       scene: 'intro',            /* intro · flip · drill · review · stage-done ·
                                     section-done · studied · result · save-error */
       section: 1,                /* 1 = hand signs on the cliff; 2 = movements below */
       stage: 0,
+      pool: [],                  /* every learned move in the current cumulative stage */
       queue: [],                 /* sign ids still to answer this stage run */
-      forms: [],                 /* the square formation buttons, this stage */
+      forms: [],                 /* the answer buttons shown for the current call */
       current: null,
       busy: false,
       ticked: false              /* the code has been accepted in this session */
@@ -300,6 +304,18 @@
     function activeStageLists() { return state.section === 2 ? movementStages : signStages; }
     function activePool(stageIndex) {
       return state.section === 2 ? cumulativeMovementPool(stageIndex) : cumulativePool(stageIndex);
+    }
+    function movementChoicesFor(m) {
+      var pool = state.pool && state.pool.length ? state.pool : activePool(state.stage);
+      if (state.section !== 2 || state.stage < 1 || pool.length <= MOVEMENT_CHOICE_LIMIT) {
+        return state.forms && state.forms.length ? state.forms : shuffled(pool);
+      }
+      var distractors = shuffled(pool.filter(function (candidate) {
+        return candidate.id !== m.id;
+      })).slice(0, MOVEMENT_CHOICE_LIMIT - 1);
+      /* a second shuffle gives the correct movement a random one of the
+         five places instead of leaving it at the head of the choice list */
+      return shuffled([m].concat(distractors));
     }
     function movePassed(m) { return answers[m.id] !== undefined; }
     function signsDone() { return allSigns.filter(movePassed).length; }
@@ -790,6 +806,7 @@
 
     function renderPrompt(m) {
       state.current = m;
+      if (state.section === 2) state.forms = movementChoicesFor(m);
       state.busy = false;
       state.scene = 'drill';
       setArt(state.section === 2 ? ridgeArt() : (m.figure || m.img || ridgeArt()));
@@ -807,7 +824,9 @@
       var lists = activeStageLists();
       state.stage = Math.max(0, Math.min(Math.max(0, lists.length - 1), stageIndex));
       var pool = activePool(state.stage);
-      state.forms = shuffled(pool);      /* the buttons hold still for the stage */
+      state.pool = pool;
+      state.forms = shuffled(pool);      /* fixed in section 1 and movement stage 1;
+                                            later movement calls rebuild five choices */
       state.queue = shuffled(pool.map(function (m) { return m.id; }));
       nextInStage();
     }
