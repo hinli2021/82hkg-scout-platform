@@ -425,6 +425,27 @@ def main():
                 first_active = active_at()
                 page.wait_for_timeout(1150)
                 check(active_at() != first_active, 'the Alert statue animation advances through its frames')
+                ease = page.locator('[data-drill-flip="stand-at-ease"]')
+                ease_anim = ease.locator('[data-drill-animation="stand-at-ease"]')
+                check(ease_anim.count() == 1 and ease_anim.locator('[data-drill-frame]').count() == 7,
+                      'the Stand at ease card front is a seven-frame statue animation')
+                ease_srcs = ease_anim.locator('img').evaluate_all(
+                    "imgs => imgs.map(img => img.getAttribute('src') || '')")
+                expected_ease_frames = [
+                    'alert-5-alert.jpg', 'alert-4-lower.jpg', 'alert-2-lift.jpg',
+                    'alert-3-close.jpg', 'stand-at-ease-5-lower-out.jpg',
+                    'stand-at-ease-6-land.jpg', 'alert-1-stand-at-ease.jpg',
+                ]
+                check(len(ease_srcs) == len(expected_ease_frames)
+                      and all(name in src for name, src in zip(expected_ease_frames, ease_srcs))
+                      and not any('/manual/' in src for src in ease_srcs),
+                      'Stand at ease runs Alert → lift → thigh level → lower out → stand at ease')
+                ease_active_at = lambda: ease_anim.evaluate(
+                    "node => [...node.querySelectorAll('[data-drill-frame]')].findIndex(step => step.classList.contains('is-active'))")
+                ease_first_active = ease_active_at()
+                page.wait_for_timeout(750)
+                check(ease_active_at() != ease_first_active,
+                      'the Stand at ease statue animation advances through its frames')
                 alert.click(); page.wait_for_timeout(600)
                 back = alert.inner_text()
                 check('口令' in back and 'Alert!' in back and '動作要點' in back and '30 度' in back,
@@ -474,9 +495,16 @@ def main():
             check(len(buttons) == expected_pools[index],
                   f'section 2 stage {index + 1} answers from {expected_pools[index]} cumulative movement buttons')
             animated_ids = [mid for mid in pool_ids if MOVE_BY_ID[mid].get('animation')]
+            animated_frame_counts = {
+                mid: page.locator(
+                    f'[data-drill-form="{mid}"] [data-drill-animation="{mid}"] [data-drill-frame]'
+                ).count()
+                for mid in animated_ids
+            }
             check(page.locator('[data-drill-forms] [data-drill-move-visual="animation"]').count() == len(animated_ids)
-                  and page.locator('[data-drill-form="alert"] [data-drill-animation="alert"] [data-drill-frame]').count() == 5,
-                  f'section 2 stage {index + 1} uses the finalized Alert statue animation on its answer button')
+                  and all(animated_frame_counts[mid] == len(MOVE_BY_ID[mid]['animation'])
+                          for mid in animated_ids),
+                  f'section 2 stage {index + 1} uses every finalized statue animation on its answer buttons')
             check(page.locator('[data-drill-forms] [data-drill-move-visual="icon"] .drill-move-art').count()
                   == expected_pools[index] - len(animated_ids),
                   f'section 2 stage {index + 1} keeps icons only for movements without a finalized animation')

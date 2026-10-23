@@ -113,7 +113,51 @@
           "title_zh": "稍息",
           "title_en": "Stand at ease",
           "command": "Stand at—ease!",
-          "img": "img/quest/drill/manual/p031-stand-at-ease.jpg",
+          "figure": "img/quest/drill/movements/alert-1-stand-at-ease.jpg",
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/alert-5-alert.jpg",
+              "label_zh": "1 · 立正起步：雙腳靠攏，雙拳貼褲縫",
+              "label_en": "1 · Start at Alert: feet together, fists at the seams",
+              "hold_ms": 950
+            },
+            {
+              "img": "img/quest/drill/movements/alert-4-lower.jpg",
+              "label_zh": "2 · 左腳開始提起，左小腿放鬆",
+              "label_en": "2 · Begin lifting the left foot, lower leg relaxed",
+              "hold_ms": 320
+            },
+            {
+              "img": "img/quest/drill/movements/alert-2-lift.jpg",
+              "label_zh": "3 · 左腳提起至中途",
+              "label_en": "3 · Lift the left foot halfway",
+              "hold_ms": 420
+            },
+            {
+              "img": "img/quest/drill/movements/alert-3-close.jpg",
+              "label_zh": "4 · 左大腿與地面平行，左小腿放鬆",
+              "label_en": "4 · Left thigh level with the ground, lower leg relaxed",
+              "hold_ms": 650
+            },
+            {
+              "img": "img/quest/drill/movements/stand-at-ease-5-lower-out.jpg",
+              "label_zh": "5 · 左腳向外落下，雙手同時移至身後",
+              "label_en": "5 · Lower the left foot outward as both hands move behind the back",
+              "hold_ms": 420
+            },
+            {
+              "img": "img/quest/drill/movements/stand-at-ease-6-land.jpg",
+              "label_zh": "6 · 左腳接近地面，準備向外踏下",
+              "label_en": "6 · Left foot close to the ground, ready to step out",
+              "hold_ms": 320
+            },
+            {
+              "img": "img/quest/drill/movements/alert-1-stand-at-ease.jpg",
+              "label_zh": "7 · 左腳踏下，雙腳分開，雙手在身後中央，成稍息",
+              "label_en": "7 · Place the left foot down, feet apart and hands behind the back — stand at ease",
+              "hold_ms": 1250
+            }
+          ],
           "manual": "手冊 p.31",
           "points_zh": [
             "由立正：提起左腳直至大腿與地面平行，然後向外踏下",
