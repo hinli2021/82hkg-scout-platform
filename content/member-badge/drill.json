@@ -357,8 +357,57 @@
           "title_en": "Saluting to the front at the halt",
           "command": "Saluting, salute to the front—salute!",
           "count": "打數：Up—Two—Three—Down",
-          "img": "img/quest/drill/manual/p041-salute.jpg",
-          "img2": "img/quest/drill/manual/p042-salute-2.jpg",
+          "figure": "img/quest/drill/movements/salute-5-salute.jpg",
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/alert-5-alert.jpg",
+              "label_zh": "1 · 立正起步：雙拳貼褲縫",
+              "label_en": "1 · Start at Alert: both fists at the seams",
+              "hold_ms": 850
+            },
+            {
+              "img": "img/quest/drill/movements/salute-2-side-rise.jpg",
+              "label_zh": "2 · Up：右手向橫提起",
+              "label_en": "2 · Up: raise the right hand sideways",
+              "hold_ms": 300
+            },
+            {
+              "img": "img/quest/drill/movements/salute-3-shoulder-level.jpg",
+              "label_zh": "3 · 右手提至與肩膊平，成童軍敬禮手勢",
+              "label_en": "3 · Right hand at shoulder level, formed into the Scout salute",
+              "hold_ms": 350
+            },
+            {
+              "img": "img/quest/drill/movements/salute-4-forearm-rise.jpg",
+              "label_zh": "4 · 右前臂用力舉起",
+              "label_en": "4 · Force the right forearm upward",
+              "hold_ms": 350
+            },
+            {
+              "img": "img/quest/drill/movements/salute-5-salute.jpg",
+              "label_zh": "5 · 食指在右眼上方，Two—Three 保持敬禮",
+              "label_en": "5 · Forefinger above the right eye; hold on Two—Three",
+              "hold_ms": 1500
+            },
+            {
+              "img": "img/quest/drill/movements/salute-6-lower.jpg",
+              "label_zh": "6 · Down：右手由額前向前落下並握拳",
+              "label_en": "6 · Down: bring the right hand down towards the front and close the fist",
+              "hold_ms": 320
+            },
+            {
+              "img": "img/quest/drill/movements/salute-7-almost-down.jpg",
+              "label_zh": "7 · 右拳沿大腿前面落下，接近褲縫",
+              "label_en": "7 · Lower the right fist down the front of the thigh, close to the seam",
+              "hold_ms": 300
+            },
+            {
+              "img": "img/quest/drill/movements/alert-5-alert.jpg",
+              "label_zh": "8 · 右拳回到右褲縫，回復立正",
+              "label_en": "8 · Right fist back at the right seam — Alert",
+              "hold_ms": 950
+            }
+          ],
           "manual": "手冊 p.41–42",
           "points_zh": [
             "第一分部（Up!）：右手向橫提升至與肩膊平，握成童軍敬禮手號，隨即儘快用力將右前臂舉起，至食指於右眼對上的位置",

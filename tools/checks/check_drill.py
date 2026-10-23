@@ -446,6 +446,31 @@ def main():
                 page.wait_for_timeout(750)
                 check(ease_active_at() != ease_first_active,
                       'the Stand at ease statue animation advances through its frames')
+                salute = page.locator('[data-drill-flip="salute-front"]')
+                salute_anim = salute.locator('[data-drill-animation="salute-front"]')
+                check(salute_anim.count() == 1 and salute_anim.locator('[data-drill-frame]').count() == 8,
+                      'the Salute card front is an eight-frame statue animation')
+                salute_srcs = salute_anim.locator('img').evaluate_all(
+                    "imgs => imgs.map(img => img.getAttribute('src') || '')")
+                expected_salute_frames = [
+                    'alert-5-alert.jpg', 'salute-2-side-rise.jpg',
+                    'salute-3-shoulder-level.jpg', 'salute-4-forearm-rise.jpg',
+                    'salute-5-salute.jpg', 'salute-6-lower.jpg',
+                    'salute-7-almost-down.jpg', 'alert-5-alert.jpg',
+                ]
+                check(len(salute_srcs) == len(expected_salute_frames)
+                      and all(name in src for name, src in zip(expected_salute_frames, salute_srcs))
+                      and not any('/manual/' in src for src in salute_srcs),
+                      'Salute runs Alert → side rise → shoulder → forearm up → hold → down by the front → Alert')
+                salute_active_at = lambda: salute_anim.evaluate(
+                    "node => [...node.querySelectorAll('[data-drill-frame]')].findIndex(step => step.classList.contains('is-active'))")
+                salute_first_active = salute_active_at()
+                for _ in range(24):
+                    page.wait_for_timeout(100)
+                    if salute_active_at() != salute_first_active:
+                        break
+                check(salute_active_at() != salute_first_active,
+                      'the Salute statue animation advances through its frames')
                 alert.click(); page.wait_for_timeout(600)
                 back = alert.inner_text()
                 check('口令' in back and 'Alert!' in back and '動作要點' in back and '30 度' in back,
