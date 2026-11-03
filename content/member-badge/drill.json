@@ -528,6 +528,44 @@
           "command": "One pace, left close—march!",
           "count": "打數：One—Two",
           "study_group": "pacing",
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/pace-left-longstone-fixed-1-alert.jpg",
+              "label_zh": "1 · 立正起步：雙腳靠攏，雙拳貼褲縫",
+              "label_en": "1 · Start at Alert: feet together, fists at the seams",
+              "hold_ms": 950
+            },
+            {
+              "img": "img/quest/drill/movements/pace-left-longstone-fixed-2-step-out.jpg",
+              "label_zh": "2 · 第一分部：左腳開始向左橫移，右腳保持原位",
+              "label_en": "2 · Squad one: the left foot starts moving left; the right foot stays",
+              "hold_ms": 420
+            },
+            {
+              "img": "img/quest/drill/movements/pace-left-longstone-fixed-3-step-out.jpg",
+              "label_zh": "3 · 左腳橫移 300 毫米踏下，雙膝伸直",
+              "label_en": "3 · Place the left foot 300 mm to the left, knees straight",
+              "hold_ms": 650
+            },
+            {
+              "img": "img/quest/drill/movements/pace-left-longstone-fixed-4-close-lift.jpg",
+              "label_zh": "4 · 第二分部：提起右膝至大腿與地面平行，右小腿放鬆",
+              "label_en": "4 · Squad two: raise the right knee until the thigh is level, lower leg relaxed",
+              "hold_ms": 650
+            },
+            {
+              "img": "img/quest/drill/movements/pace-left-longstone-fixed-5-close-lower.jpg",
+              "label_zh": "5 · 右腳向下，準備踏在左腳旁",
+              "label_en": "5 · Lower the right foot, ready to place it beside the left",
+              "hold_ms": 420
+            },
+            {
+              "img": "img/quest/drill/movements/pace-left-longstone-fixed-6-alert.jpg",
+              "label_zh": "6 · 右腳踏下靠攏左腳，回復立正",
+              "label_en": "6 · Place the right foot beside the left — back at Alert",
+              "hold_ms": 1250
+            }
+          ],
           "img": "img/quest/drill/manual/p043-side-pace.jpg",
           "img2": "img/quest/drill/manual/p044-side-pace-2.jpg",
           "manual": "手冊 p.43–44",
