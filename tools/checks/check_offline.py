@@ -297,7 +297,7 @@ with sync_playwright() as pw:
     assert onward.count() == 1, "the cave mouth offers the next game"
     print("  the cave mouth:", onward.inner_text().strip()[:40])
     onward.click(); page.wait_for_timeout(350)
-    assert page.locator(".cave-exit-overlay").is_hidden(), \
+    assert page.locator(".cave-exit-overlay:not([hidden])").count() == 0, \
         "a cleared cave leaves without the 'you will restart' warning"
     assert shown() == ["bridge"], shown()
     # leaving the crossing half-laid still asks first (the guard is only lifted
@@ -327,7 +327,7 @@ with sync_playwright() as pw:
     print("  location 1's door opens the cave again at its entrance")
     # a re-opened cave is a fresh run, so going back out still asks first
     page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
-    assert page.locator(".cave-exit-overlay").is_visible(), \
+    assert page.locator(".cave-exit-overlay:not([hidden])").count() == 1, \
         "leaving a fresh replay still warns"
     page.click("[data-cave-leave]"); page.wait_for_timeout(300)
     assert shown() == ["quest-map"], shown()
@@ -660,7 +660,7 @@ with sync_playwright() as pw:
         label = link.inner_text().strip().replace("\n", " ")[:16]
         link.click()
         if pane == 'cave':
-            assert page.locator('.cave-exit-overlay').is_visible()
+            assert page.locator('.cave-exit-overlay:not([hidden])').count() == 1
             page.click('[data-cave-leave]')
             assert page.evaluate('window.__caveState.scene') == 'intro'
         if pane == 'bridge':

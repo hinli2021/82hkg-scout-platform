@@ -1325,18 +1325,18 @@
     /* ── the warning before leaving ────────────────────────────────────────── */
 
     var exitOverlay = document.createElement('div');
-    exitOverlay.className = 'cave-exit';
+    exitOverlay.className = 'cave-exit-overlay';
     exitOverlay.hidden = true;
-    exitOverlay.setAttribute('role', 'dialog');
-    exitOverlay.setAttribute('aria-modal', 'true');
+    /* the same centred dialog the cave shows: one look for every game */
     exitOverlay.innerHTML =
-      '<div class="cave-exit-box">' +
-        '<span class="cave-kicker cave-kicker-bad">' + esc(pick(L.leave_kicker_zh, L.leave_kicker_en)) + '</span>' +
-        '<h2 class="cave-subtitle">' + esc(pick(L.leave_title_zh, L.leave_title_en)) + '</h2>' +
-        '<p class="cave-line small">' + esc(pick(L.leave_lead_zh, L.leave_lead_en)) + '</p>' +
-        '<div class="cave-actions cave-actions-split">' +
-          '<button class="btn primary" type="button" data-drill-stay>' + esc(pick(L.leave_stay_zh, L.leave_stay_en)) + '</button>' +
-          '<button class="btn ghost" type="button" data-drill-leave>' + esc(pick(L.leave_go_zh, L.leave_go_en)) + '</button>' +
+      '<div class="cave-exit-dialog" role="alertdialog" aria-modal="true" ' +
+        'aria-labelledby="drill-exit-title" aria-describedby="drill-exit-message">' +
+        '<span class="cave-kicker">' + esc(pick(L.leave_kicker_zh, L.leave_kicker_en)) + '</span>' +
+        '<h2 id="drill-exit-title">' + esc(pick(L.leave_title_zh, L.leave_title_en)) + '</h2>' +
+        '<p id="drill-exit-message">' + esc(pick(L.leave_lead_zh, L.leave_lead_en)) + '</p>' +
+        '<div class="cave-exit-actions">' +
+          '<button type="button" class="btn primary" data-drill-stay>' + esc(pick(L.leave_stay_zh, L.leave_stay_en)) + '</button>' +
+          '<button type="button" class="btn ghost" data-drill-leave>' + esc(pick(L.leave_go_zh, L.leave_go_en)) + '</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(exitOverlay);
@@ -1371,7 +1371,16 @@
       else if (event.target.closest('[data-drill-leave]')) finishExit(true);
     });
     exitOverlay.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); finishExit(false); }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); finishExit(false); return; }
+      if (event.key !== 'Tab') return;
+      /* keep the keyboard inside the dialog, like the cave does */
+      var stay = exitOverlay.querySelector('[data-drill-stay]');
+      var leave = exitOverlay.querySelector('[data-drill-leave]');
+      if (event.shiftKey && document.activeElement === stay) {
+        event.preventDefault(); leave.focus();
+      } else if (!event.shiftKey && document.activeElement === leave) {
+        event.preventDefault(); stay.focus();
+      }
     });
     function requestExit(callback) {
       // the assessed result and the finished section card have nothing to

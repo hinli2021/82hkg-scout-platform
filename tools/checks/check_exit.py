@@ -101,6 +101,60 @@ def main():
         assert page.locator('.cave-picks, .cave-review-picks, .cave-pick-good').count() == 0
         page.click('[data-cave-go="question"]')
         assert page.locator('.cave-question').inner_text() == en_question['q_en']
+        # every game warns with the same centred dialog as the cave — no
+        # game-specific strip of buttons pinned to the bottom of the page
+        for code, route, stay in (('M04', 'cave', 'cave-stay'),
+                                  ('M05', 'bridge', 'bridge-stay'),
+                                  ('M06', 'drill', 'drill-stay')):
+            game_id = next(row['id'] for row in
+                           json.loads((ROOT / 'data/db/tasks.json').read_text())
+                           if row.get('code') == code)
+            game = live.new_page()
+            game.on('pageerror', lambda error: errors.append(str(error)))
+            game.goto(f'{BASE}/tasks/{game_id}/{route}')
+            # the three games open on different first buttons; `.first` on a
+            # combined selector would grab a hidden one from another game
+            for selector in ('[data-cave-go="wall"]', '[data-bridge-go="teach"]',
+                             '[data-drill-go="start"]'):
+                start = game.locator(selector)
+                if start.count() and start.first.is_visible():
+                    start.first.click()
+                    break
+            game.wait_for_timeout(600)
+            game.locator('.cave-hud-link, a[href="/home"]').first.click()
+            game.wait_for_timeout(500)
+            box = game.evaluate("""() => {
+              const overlay = document.querySelector('.cave-exit-overlay');
+              const dialog = overlay && overlay.querySelector('.cave-exit-dialog');
+              if (!dialog) return null;
+              const r = dialog.getBoundingClientRect();
+              const style = getComputedStyle(overlay);
+              return {position: style.position, zIndex: Number(style.zIndex),
+                      cx: r.x + r.width / 2, cy: r.y + r.height / 2,
+                      vw: innerWidth, vh: innerHeight,
+                      actions: dialog.querySelectorAll('.cave-exit-actions button').length,
+                      role: dialog.getAttribute('role'),
+                      title: dialog.querySelector('h2').textContent.trim()};
+            }""")
+            assert box, f'{route}: the leave warning is not the shared centred dialog'
+            assert box['position'] == 'fixed' and box['zIndex'] >= 1000, (route, box)
+            assert abs(box['cx'] - box['vw'] / 2) <= 2 and abs(box['cy'] - box['vh'] / 2) <= 2, \
+                f'{route}: the dialog is not centred ({box["cx"]:.0f},{box["cy"]:.0f} of {box["vw"]}x{box["vh"]})'
+            assert box['actions'] == 2 and box['role'] == 'alertdialog', (route, box)
+            assert box['title'], f'{route}: the dialog has no title'
+            with_escape = game.locator('.cave-exit-overlay').is_visible()
+            game.keyboard.press('Escape')
+            game.wait_for_timeout(300)
+            assert with_escape and game.locator('.cave-exit-overlay').is_hidden(), \
+                f'{route}: Escape does not close the warning'
+            assert f'/{route}' in game.url, f'{route}: cancelling should keep the scout in the game'
+            game.locator('.cave-hud-link, a[href="/home"]').first.click()
+            game.wait_for_timeout(400)
+            game.click(f'[data-{stay}]')
+            game.wait_for_timeout(400)
+            game.close()
+            print(f'live: {route} warns with the same centred dialog as the cave')
+
         live.close()
         print('live: English warning and recap-only retry confirmed')
 
@@ -111,7 +165,12 @@ def main():
         file_page.click('[data-nav="leader-code"]')
         file_page.click('[data-demo="scout"]')
         file_page.click('#pane-home [data-nav="quest-intro"]')
-        file_page.click('#pane-quest-intro [data-journey-play]')
+        # the story replays first; leave it to reach the route's play button
+        if file_page.locator('#pane-quest-intro [data-intro-skip]').count():
+            file_page.click('#pane-quest-intro [data-intro-skip]')
+            file_page.wait_for_timeout(400)
+        file_page.click('#pane-quest-map [data-journey-play]')
+        file_page.wait_for_timeout(400)
         file_page.click('#pane-cave [data-cave-go="wall"]')
         file_page.click('#pane-cave [data-cave-go="question"]')
         offline_config = json.loads(file_page.locator('#pane-cave #cave-root').get_attribute('data-cave-config'))
@@ -124,22 +183,24 @@ def main():
         file_page.click('#pane-cave [data-cave-go="question"]')
         assert file_page.locator('#pane-cave .cave-question').inner_text() == offline_first['q_zh']
         file_page.click('#pane-cave .cave-hud-link[data-nav="home"]')
-        assert file_page.locator('.cave-exit-overlay').is_visible()
+        assert file_page.locator('.cave-exit-overlay:not([hidden])').count() == 1
         file_page.keyboard.press('Escape')
-        assert not file_page.locator('.cave-exit-overlay').is_visible()
+        assert file_page.locator('.cave-exit-overlay:not([hidden])').count() == 0
         assert file_page.evaluate('window.__caveState.scene') == 'question'
         file_page.click('#pane-cave .cave-hud-link[data-nav="quest-intro"]')
         file_page.click('[data-cave-leave]')
-        assert file_page.locator('#pane-quest-intro').is_visible()
+        assert file_page.locator('#pane-quest-map').is_visible(), \
+            'a door after the replayed story opens on the route'
         file_page.evaluate("window.OFFLINE_DEMO.go('cave')")
         assert file_page.evaluate('window.__caveState.scene') == 'intro'
         file_page.keyboard.press('Escape')
-        assert file_page.locator('.cave-exit-overlay').is_visible()
+        assert file_page.locator('.cave-exit-overlay:not([hidden])').count() == 1
         file_page.click('[data-cave-stay]')
         assert file_page.locator('#pane-cave').is_visible()
         file_page.keyboard.press('Escape')
         file_page.click('[data-cave-leave]')
-        assert file_page.locator('#pane-quest-intro').is_visible()
+        assert file_page.locator('#pane-quest-map').is_visible(), \
+            'a door after the replayed story opens on the route'
         print('offline: mobile home, membership and Escape; cancel/re-entry confirmed')
 
         assert not errors, f'Browser errors: {errors}'
