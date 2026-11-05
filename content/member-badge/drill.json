@@ -533,7 +533,7 @@
               "img": "img/quest/drill/movements/pace-left-longstone-fixed-animation.webp",
               "label_zh": "左移一步：左腳橫移 300 毫米，右腳靠攏，回復立正",
               "label_en": "One pace left: left foot 300 mm sideways, right foot closes — back at Alert",
-              "hold_ms": 4340
+              "hold_ms": 2880
             }
           ],
           "img": "img/quest/drill/manual/p043-side-pace.jpg",
