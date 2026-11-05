@@ -16,11 +16,11 @@
 
    Down the steps is section 2, the drill movements on the parade ground:
    three stages of movement cards first (command, count and key points),
-   then the command mechanism calls a command and the right movement must
-   be pressed inside the count. Each stage mixes in every movement learned
-   before it in section 2. From movement stage 2 onward, each call shows
-   five choices — the called movement and four random learned movements,
-   shuffled so the answer's place changes. Only when both sections are cleared is the
+   then the statue mechanism shows one movement large and the right command
+   must be pressed inside the count. Each stage mixes in every movement learned
+   before it in section 2. From movement stage 2 onward, each question shows
+   five command choices — the shown movement's command and four random learned
+   commands, shuffled so the answer's place changes. Only when both sections are cleared is the
    studying filed; then the leader assesses the scout in person and the
    leader's code (82DR) finishes game 3. A scout who has already studied
    or finished re-opens straight onto the assess card.
@@ -533,13 +533,18 @@
     function movementAnimationHtml(m, variant) {
       var frames = animationFrames(m);
       if (!frames.length) return '';
+      var isPrompt = variant === 'prompt';
+      var ariaLabel = isPrompt
+        ? pick(L.move_prompt_visual_zh || '石像示範的步操動作',
+               L.move_prompt_visual_en || 'The drill movement shown by the statue')
+        : pick(m.title_zh, m.title_en);
       return '<span class="drill-statue-anim is-' + esc(variant || 'flip') + '"' +
              ' data-drill-animation="' + esc(m.id) + '" data-frame-count="' + frames.length + '"' +
-             ' role="img" aria-label="' + esc(pick(m.title_zh, m.title_en)) + '">' +
+             ' role="img" aria-label="' + esc(ariaLabel) + '">' +
         frames.map(function (frame, index) {
-          /* the miniature animation on an answer button has no room for the
-             teaching captions; the movement name under it does that work */
-          var label = variant === 'button' ? '' : pick(frame.label_zh, frame.label_en);
+          /* a question animation carries no teaching caption: the scout has
+             to name the movement from the statue's action alone */
+          var label = (variant === 'button' || isPrompt) ? '' : pick(frame.label_zh, frame.label_en);
           return '<span class="drill-statue-step' + (index === 0 ? ' is-active' : '') + '"' +
                  ' data-drill-frame data-hold-ms="' + esc(frame.hold_ms || 900) + '">' +
             '<img src="' + esc(artUrl(frame.img)) + '" alt="">' +
@@ -718,16 +723,38 @@
       '</button>';
     }
 
-    function movementBtn(m) {
-      var animated = animationFrames(m).length > 0;
-      var visual = animated ? movementAnimationHtml(m, 'button') : movementSvg(m.id);
-      return '<button class="drill-form-btn drill-move-btn' +
-             (animated ? ' has-statue-animation' : '') + '" type="button" data-drill-form="' + esc(m.id) + '"' +
-             ' data-drill-move-visual="' + (animated ? 'animation' : 'icon') + '"' +
-             ' aria-label="' + esc(pick(m.title_zh, m.title_en)) + '">' +
-        visual +
-        '<span class="drill-form-name">' + esc(pick(m.title_zh, m.title_en)) + '</span>' +
+    function commandLengthClass(command) {
+      var text = String(command || '');
+      return text.length > 32 ? ' is-very-long' : text.length > 20 ? ' is-long' : '';
+    }
+
+    function commandBtn(m) {
+      var command = m.command || pick(m.title_zh, m.title_en);
+      return '<button class="drill-command-btn' + commandLengthClass(command) +
+             '" type="button" data-drill-form="' + esc(m.id) + '"' +
+             ' data-drill-answer-kind="command">' +
+        '<span class="drill-command-answer">' + esc(command) + '</span>' +
       '</button>';
+    }
+
+    function movementPromptVisualHtml(m) {
+      var frames = animationFrames(m);
+      var kind = 'diagram';
+      var visual = '';
+      if (frames.length) {
+        kind = 'animation';
+        visual = movementAnimationHtml(m, 'prompt');
+      } else if (m.figure && artUrl(m.figure)) {
+        kind = 'figure';
+        visual = '<img class="drill-move-prompt-figure" src="' + esc(artUrl(m.figure)) + '" alt=""' +
+                 ' aria-label="' + esc(pick(L.move_prompt_visual_zh || '石像示範的步操動作',
+                                             L.move_prompt_visual_en || 'The drill movement shown by the statue')) + '">';
+      } else {
+        visual = movementSvg(m.id, true);
+      }
+      return '<div class="drill-move-prompt-visual" data-drill-prompt-visual' +
+             ' data-drill-prompt-move="' + esc(m.id) + '"' +
+             ' data-drill-prompt-kind="' + kind + '">' + visual + '</div>';
     }
 
     function signPromptHtml(m) {
@@ -752,26 +779,31 @@
 
     function movePromptHtml(m) {
       var beats = beatCountFor(m);
-      var chips = [];
-      if (countText(m)) chips.push(chip(pick(L.move_count_label_zh, L.move_count_label_en) + '：' + countText(m), 'is-command'));
-      if (m.manual) chips.push(chip('📖 ' + pick(L.manual_label_zh, L.manual_label_en) + ' — ' + m.manual));
-      if (m.leader_demo) chips.push(chip(pick(L.move_leader_demo_zh, L.move_leader_demo_en), 'is-demo'));
       return kicker(fill(pick(L.move_prompt_kicker_zh, L.move_prompt_kicker_en),
                          { stage: state.stage + 1, stages: movementStages.length })) +
-        '<p class="drill-command-say">' + esc(pick(L.move_prompt_say_zh, L.move_prompt_say_en)) + '</p>' +
-        '<h2 class="drill-command" data-drill-command>' + esc(m.command || '') + '</h2>' +
-        (chips.length ? '<div class="drill-chips">' + chips.join('') + '</div>' : '') +
-        '<h3 class="cave-subtitle drill-move-question">' + esc(pick(L.move_prompt_q_zh, L.move_prompt_q_en)) + '</h3>' +
-        '<div class="drill-beat" data-drill-beat aria-hidden="true">' +
-          '<div class="drill-beat-fill" data-drill-beat-fill></div>' +
-        '</div>' +
-        '<p class="drill-beat-note"><span>' + esc(pick('在打數之內按出動作', 'press the movement inside the count')) + '</span>' +
-          '<span data-drill-beat-count>' +
-            esc(fill(pick(L.beat_of_zh, L.beat_of_en), { i: 1, n: beats })) +
-          '</span></p>' +
-        '<div class="drill-form-row is-movements is-count-' + state.forms.length + '" data-drill-forms' +
-          ' data-move-count="' + state.forms.length + '" style="--move-count:' + state.forms.length + '">' +
-          state.forms.map(movementBtn).join('') +
+        '<p class="drill-command-say">' +
+          esc(pick(L.move_prompt_watch_zh || '看石像動作',
+                   L.move_prompt_watch_en || 'Watch the statue’s movement')) + '</p>' +
+        '<div class="drill-move-prompt-layout">' +
+          movementPromptVisualHtml(m) +
+          '<div class="drill-move-prompt-side">' +
+            '<h3 class="cave-subtitle drill-move-question">' +
+              esc(pick(L.move_prompt_q_zh, L.move_prompt_q_en)) + '</h3>' +
+            '<div class="drill-beat" data-drill-beat aria-hidden="true">' +
+              '<div class="drill-beat-fill" data-drill-beat-fill></div>' +
+            '</div>' +
+            '<p class="drill-beat-note"><span>' +
+              esc(pick(L.move_prompt_beat_zh || '在打數之內選出口令',
+                       L.move_prompt_beat_en || 'choose the command inside the count')) + '</span>' +
+              '<span data-drill-beat-count>' +
+                esc(fill(pick(L.beat_of_zh, L.beat_of_en), { i: 1, n: beats })) +
+              '</span></p>' +
+            '<div class="drill-form-row is-commands is-count-' + state.forms.length + '" data-drill-forms' +
+              ' data-answer-kind="command" data-answer-count="' + state.forms.length + '"' +
+              ' style="--answer-count:' + state.forms.length + '">' +
+              state.forms.map(commandBtn).join('') +
+            '</div>' +
+          '</div>' +
         '</div>';
     }
 
@@ -810,8 +842,9 @@
       state.busy = false;
       state.scene = 'drill';
       setArt(state.section === 2 ? ridgeArt() : (m.figure || m.img || ridgeArt()));
-      /* section 1: the leader statue shows the sign. Section 2: the full-screen
-         command board needs no picture — the called command is the prompt. */
+      /* section 1: the leader statue shows the sign in the picture frame.
+         Section 2: the large movement prompt lives inside the full-screen card,
+         with the commands below it (or beside it on a wide screen). */
       say(promptHtml(m));
       mark('drill');
       bringStageIntoView();

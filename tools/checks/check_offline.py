@@ -506,10 +506,10 @@ with sync_playwright() as pw:
             cfg.sections.forEach(function (s) { (s.moves || []).forEach(function (m) { moves.push(m); }); });
             var target = null;
             if (root.getAttribute('data-drill-section') === '2') {
-                var node = root.querySelector('[data-drill-command]');
-                var command = node ? node.textContent.trim() : '';
-                target = moves.find(function (m) { return (m.command || '') === command; });
-                if (!target) return 'NOT FOUND COMMAND: ' + command;
+                var node = root.querySelector('[data-drill-prompt-move]');
+                var shownId = node ? node.getAttribute('data-drill-prompt-move') : '';
+                target = moves.find(function (m) { return m.id === shownId; });
+                if (!target) return 'NOT FOUND PROMPT: ' + shownId;
             } else {
                 var art = root.querySelector('.cave-picture .cave-art');
                 var framed = art ? (art.getAttribute('data-drill-art') || '') : '';
@@ -589,8 +589,13 @@ with sync_playwright() as pw:
                 "the four paces share one offline study card"
         page.click("#pane-drill [data-drill-go='start-stage']")
         page.wait_for_selector("#pane-drill [data-drill-scene='drill']")
-        assert page.locator("#pane-drill [data-drill-command]").count() == 1, \
-            "the offline command board calls a command"
+        assert page.locator("#pane-drill [data-drill-prompt-visual]").count() == 1, \
+            "the offline movement board shows one large movement question"
+        assert page.locator(
+            "#pane-drill [data-drill-forms][data-answer-kind='command'] "
+            ".drill-command-btn[data-drill-answer-kind='command']"
+        ).count() == move_buttons[index], \
+            "the offline answers are command buttons, not miniature movements"
         buttons = page.locator("#pane-drill [data-drill-form]").count()
         assert buttons == move_buttons[index], f"section 2 stage {index + 1} buttons: {buttons}"
         where, prompts, reviews = drill_clear_stage()

@@ -2882,11 +2882,110 @@ body.is-game main { padding-top: 6px; }
   display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden;
 }
 .drill.drill-command-full .cave-card > * { flex: 0 0 auto; }
-.drill.drill-command-full .cave-card > .drill-form-row.is-movements {
+.drill.drill-command-full .cave-card > .drill-move-prompt-layout {
   flex: 1 1 auto; min-height: 0;
 }
 .drill-move-question { margin-top: .35rem; }
 .drill-command-feedback { font-size: 1.05rem; margin: .15rem 0 .35rem; }
+/* Section 2 asks from the movement, not from the called words: the statue
+   animation (or, until one is finished, its large movement diagram) owns
+   the flexible part of the screen, while the command answers stay compact. */
+.drill-move-prompt-layout {
+  display: flex; flex-direction: column; gap: .55rem;
+  min-height: 0; margin-top: .3rem;
+}
+.drill-move-prompt-visual {
+  flex: 1 1 auto; min-height: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(217, 164, 65, .55); border-radius: 18px;
+  background:
+    radial-gradient(100% 80% at 50% 20%, rgba(38, 74, 52, .35), transparent 70%),
+    #071009;
+  box-shadow: inset 0 0 0 3px rgba(8, 19, 14, .9), 0 10px 24px rgba(0, 0, 0, .38);
+}
+.drill-statue-anim.is-prompt {
+  width: 100%; height: 100%; flex: 1 1 auto;
+}
+.drill-statue-anim.is-prompt .drill-statue-step img { padding: .35rem; }
+.drill-move-prompt-figure {
+  width: 100%; height: 100%; object-fit: contain; padding: .35rem;
+}
+.drill-move-prompt-visual .drill-move-art.is-detailed {
+  width: min(17rem, 78vw); height: auto; max-height: 92%; aspect-ratio: 1 / 1;
+  padding: 1rem; border-radius: 24px;
+  background: radial-gradient(circle at 50% 35%, rgba(217, 164, 65, .16), rgba(8, 19, 14, .9) 72%);
+  border: 1px solid rgba(217, 164, 65, .45);
+}
+.drill-move-prompt-side {
+  flex: 0 0 auto; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.drill-move-prompt-side .drill-move-question { margin: 0; text-align: center; }
+.drill-move-prompt-side .drill-beat { margin-top: .4rem; }
+.drill-move-prompt-side .drill-beat-note { margin-bottom: .3rem; }
+.drill-form-row.is-commands {
+  display: grid; width: 100%; min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .45rem; margin: .25rem 0 0;
+}
+.drill-form-row.is-commands.is-count-3 .drill-command-btn:last-child,
+.drill-form-row.is-commands.is-count-5 .drill-command-btn:last-child { grid-column: 1 / -1; }
+.drill-command-btn {
+  min-width: 0; min-height: 3.35rem; padding: .55rem .65rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border-radius: 14px; font: inherit; text-align: center;
+  color: #fff8e8; background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .28);
+  transition: background .16s, border-color .16s, transform .16s;
+}
+.drill-command-btn:hover, .drill-command-btn:focus-visible {
+  background: rgba(217, 164, 65, .24); border-color: rgba(217, 164, 65, .68);
+  transform: translateY(-2px);
+}
+.drill-command-btn:focus-visible { outline: 3px solid #ffe4a8; outline-offset: 2px; }
+.drill-command-answer {
+  min-width: 0; font-size: clamp(.9rem, 2.1vw, 1.28rem);
+  font-weight: 900; line-height: 1.18; overflow-wrap: anywhere;
+}
+.drill-command-btn.is-long .drill-command-answer { font-size: clamp(.82rem, 1.8vw, 1.12rem); }
+.drill-command-btn.is-very-long .drill-command-answer { font-size: clamp(.74rem, 1.55vw, 1rem); }
+@media (min-width: 760px) {
+  .drill-move-prompt-layout { flex-direction: row; gap: .8rem; }
+  .drill-move-prompt-visual { flex: 1 1 56%; min-width: 0; }
+  .drill-move-prompt-side { flex: 1 1 44%; justify-content: center; }
+  .drill-move-prompt-visual .drill-move-art.is-detailed { width: min(20rem, 90%); }
+}
+/* Short landscape screens below the desktop breakpoint still put the statue
+   beside the commands; stacking them would crush the question animation. */
+@media (min-width: 560px) and (max-height: 620px) {
+  .drill-move-prompt-layout { flex-direction: row; gap: .55rem; }
+  .drill-move-prompt-visual { flex: 1 1 52%; min-width: 0; }
+  .drill-move-prompt-side { flex: 1 1 48%; justify-content: center; }
+}
+@media (max-width: 640px) {
+  /* the floating progress pill already names the stage on a phone; spend
+     those two prompt heading lines on the movement itself */
+  .drill.drill-command-full:has(.drill-move-prompt-layout) .cave-card > .cave-kicker,
+  .drill.drill-command-full:has(.drill-move-prompt-layout) .cave-card > .drill-command-say { display: none; }
+  .drill-move-prompt-layout { gap: .42rem; margin-top: .22rem; }
+  .drill-move-prompt-visual { border-radius: 14px; }
+  .drill-move-prompt-side .drill-move-question { font-size: .98rem; line-height: 1.25; }
+  .drill-move-prompt-side .drill-beat { margin-top: .3rem; }
+  .drill-move-prompt-side .drill-beat-note { margin-bottom: .22rem; font-size: .68rem; }
+  .drill-form-row.is-commands { gap: .36rem; margin-top: .18rem; }
+  .drill-command-btn { min-height: 3rem; padding: .44rem .48rem; border-radius: 12px; }
+  .drill-command-answer { font-size: .86rem; }
+  .drill-command-btn.is-long .drill-command-answer { font-size: .76rem; }
+  .drill-command-btn.is-very-long .drill-command-answer { font-size: .67rem; }
+  .drill-move-prompt-visual .drill-move-art.is-detailed { width: min(13rem, 72vw); padding: .65rem; }
+}
+@media (max-height: 480px) {
+  .drill-move-prompt-layout { gap: .3rem; margin-top: 0; }
+  .drill-move-prompt-visual .drill-move-art.is-detailed { width: min(9rem, 80%); padding: .4rem; }
+  .drill-command-btn { min-height: 2.5rem; padding: .3rem .4rem; }
+  .drill-command-answer, .drill-command-btn.is-long .drill-command-answer { font-size: .68rem; }
+  .drill-command-btn.is-very-long .drill-command-answer { font-size: .6rem; }
+}
 .drill.drill-flip-full .drill-flip-grid {
   flex: 1 1 auto; min-height: 0; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   grid-auto-rows: minmax(22rem, 1fr); margin: .5rem 0 .35rem;
