@@ -267,7 +267,11 @@
       forms: [],                 /* the answer buttons shown for the current call */
       current: null,
       busy: false,
-      ticked: false              /* the code has been accepted in this session */
+      ticked: false,             /* the code has been accepted in this session */
+      flipIndex: 0,              /* which study card is on the board */
+      flipIds: [],               /* the stage's study cards, in carousel order */
+      flipRead: {},              /* card id → the scout has turned it over */
+      flipFace: {}               /* card id → 'back', so a revisit keeps the notes */
     };
 
     /* the beat timers: one tick for the bar, one for the auto-advance after a
@@ -370,6 +374,9 @@
       syncMore();
       window.setTimeout(syncMore, 80);
       startStatueAnimations();
+      fitFlipCard();
+      window.setTimeout(fitFlipCard, 60);
+      window.setTimeout(fitFlipCard, 240);
     }
 
     function startStatueAnimations() {
@@ -447,13 +454,7 @@
       var known = state.stage > 0 ? cumulativePool(state.stage - 1) : [];
       var cards = fresh.map(function (m) {
         var front = m.figure || m.img;             /* the drawn figure first, the page behind */
-        return '<div class="drill-flip" data-drill-flip="' + esc(m.id) + '" role="button" tabindex="0"' +
-               ' aria-label="' + esc(pick(m.title_zh, m.title_en)) + '">' +
-          '<span class="drill-flip-corner is-tl" aria-hidden="true"></span>' +
-          '<span class="drill-flip-corner is-tr" aria-hidden="true"></span>' +
-          '<span class="drill-flip-corner is-bl" aria-hidden="true"></span>' +
-          '<span class="drill-flip-corner is-br" aria-hidden="true"></span>' +
-          '<div class="drill-flip-inner">' +
+        var inner =
             '<div class="drill-flip-face drill-flip-front">' +
               '<img src="' + esc(artUrl(front)) + '" alt="' + esc(pick(m.title_zh, m.title_en)) + '">' +
               '<span class="drill-flip-hint">⟳ ' + esc(pick(L.flip_hint_zh, L.flip_hint_en)) + '</span>' +
@@ -466,10 +467,9 @@
                 esc(pick(L.flip_leader_zh, L.flip_leader_en)) + '</b>：' + esc(leaderText(m)) + '</span>' : '') +
               '<span class="drill-flip-sign"><b>' + esc(pick(L.flip_sign_zh, L.flip_sign_en)) + '</b> ' +
                 esc(signFaceText(m)) + '</span>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      }).join('');
+            '</div>';
+        return { id: m.id, html: flipCardHtml(m.id, pick(m.title_zh, m.title_en), inner) };
+      });
       var knownNote = known.length
         ? '<p class="cave-line small drill-flip-known">' + esc(pick(L.flip_known_zh, L.flip_known_en)) +
           ' ' + known.map(function (m) { return esc(pick(m.title_zh, m.title_en)); }).join('、') + '</p>'
@@ -479,10 +479,8 @@
         (pick(L.flip_leader_note_zh, L.flip_leader_note_en)
           ? '<p class="cave-line small drill-flip-leader-note"><span class="drill-leader-tri" aria-hidden="true">▼</span> ' +
             esc(pick(L.flip_leader_note_zh, L.flip_leader_note_en)) + '</p>' : '') +
-        '<div class="drill-flip-grid">' + cards + '</div>' +
         knownNote +
-        '<div class="cave-actions"><button class="btn primary big" type="button" data-drill-go="start-stage" data-cheer="🪨">' +
-          esc(pick(L.flip_start_zh, L.flip_start_en)) + '</button></div>';
+        flipCarouselHtml(cards, pick(L.flip_start_zh, L.flip_start_en), '🪨');
     }
 
 
@@ -494,25 +492,15 @@
       return String((m && m.count) || '').replace(/^打數：\s*/, '').trim();
     }
 
+    /* One study card per movement. The four paces used to share a single card,
+       but four commands on one card cannot be read on a phone — the carousel
+       now gives every movement its own turn on the board. */
     function studyUnitsFor(ids) {
-      var units = [];
-      var paceUnit = null;
-      (ids || []).map(moveById).filter(function (m) { return m; }).forEach(function (m) {
-        if (m.study_group === 'pacing') {
-          if (!paceUnit) {
-            paceUnit = { id: 'pacing', moves: [] };
-            units.push(paceUnit);
-          }
-          paceUnit.moves.push(m);
-        } else {
-          units.push({ id: m.id, moves: [m] });
-        }
-      });
-      return units;
+      return (ids || []).map(moveById).filter(function (m) { return m; })
+        .map(function (m) { return { id: m.id, moves: [m] }; });
     }
 
     function unitTitle(unit) {
-      if (unit.id === 'pacing') return pick(L.pace_card_title_zh, L.pace_card_title_en);
       var m = unit.moves[0] || {};
       return pick(m.title_zh, m.title_en);
     }
@@ -559,12 +547,150 @@
                   L.move_command_action_label_en || 'Command → movement');
     }
 
-    function moveFrontCommandHtml(unit) {
-      if (unit.id === 'pacing') {
-        return '<span class="drill-move-front-command is-pacing">' +
-          '<small>' + esc(pick(L.move_command_label_zh, L.move_command_label_en)) + '</small>' +
-          '<strong>' + esc(unitTitle(unit)) + '</strong></span>';
+
+    /* ── the study carousel: one card at a time, read them all to go on ───── */
+
+    function flipCardHtml(id, label, inner) {
+      var flipped = state.flipFace[id] === 'back' ? ' is-flipped' : '';
+      return '<div class="drill-flip' + flipped + '" data-drill-flip="' + esc(id) + '" role="button" tabindex="0"' +
+             ' aria-label="' + esc(label) + '">' +
+        '<span class="drill-flip-corner is-tl" aria-hidden="true"></span>' +
+        '<span class="drill-flip-corner is-tr" aria-hidden="true"></span>' +
+        '<span class="drill-flip-corner is-bl" aria-hidden="true"></span>' +
+        '<span class="drill-flip-corner is-br" aria-hidden="true"></span>' +
+        '<div class="drill-flip-inner">' + inner + '</div>' +
+      '</div>';
+    }
+
+    function flipReadCount() {
+      return state.flipIds.filter(function (id) { return state.flipRead[id]; }).length;
+    }
+
+    function flipAllRead() {
+      return state.flipIds.length > 0 && flipReadCount() === state.flipIds.length;
+    }
+
+    function flipGateText(allRead) {
+      var total = state.flipIds.length;
+      var left = total - flipReadCount();
+      if (allRead) {
+        return '✓ ' + esc(fill(pick(L.flip_gate_done_zh, L.flip_gate_done_en), { n: total }));
       }
+      return esc(fill(pick(L.flip_gate_left_zh, L.flip_gate_left_en), { n: left, total: total }));
+    }
+
+    function flipCarouselHtml(cards, startLabel, cheer) {
+      state.flipIds = cards.map(function (c) { return c.id; });
+      if (state.flipIndex > cards.length - 1) state.flipIndex = cards.length - 1;
+      if (state.flipIndex < 0) state.flipIndex = 0;
+      var index = state.flipIndex;
+      var allRead = flipAllRead();
+      var dots = cards.map(function (c, i) {
+        var cls = 'drill-flip-dot' + (i === index ? ' is-active' : '') +
+                  (state.flipRead[c.id] ? ' is-read' : '');
+        return '<button type="button" class="' + cls + '" data-drill-flip-go="jump"' +
+               ' data-drill-flip-jump="' + esc(c.id) + '"' +
+               ' aria-label="' + esc(fill(pick(L.flip_card_of_zh, L.flip_card_of_en), { i: i + 1, n: cards.length })) +
+               '"></button>';
+      }).join('');
+      return '<div class="drill-flip-stage" data-drill-carousel="' + cards.length + '">' +
+          '<div class="drill-flip-board" data-drill-flip-board>' + cards[index].html + '</div>' +
+          '<div class="drill-flip-nav">' +
+            '<button type="button" class="drill-flip-step" data-drill-flip-go="prev"' +
+              (index === 0 ? ' disabled' : '') +
+              ' aria-label="' + esc(pick(L.flip_prev_zh, L.flip_prev_en)) + '">‹</button>' +
+            '<span class="drill-flip-count" data-drill-flip-count>' + (index + 1) + ' / ' + cards.length + '</span>' +
+            '<button type="button" class="drill-flip-step" data-drill-flip-go="next"' +
+              (index === cards.length - 1 ? ' disabled' : '') +
+              ' aria-label="' + esc(pick(L.flip_next_zh, L.flip_next_en)) + '">›</button>' +
+          '</div>' +
+          '<div class="drill-flip-dots" data-drill-flip-dots>' + dots + '</div>' +
+        '</div>' +
+        '<p class="drill-flip-gate' + (allRead ? ' is-done' : '') + '" data-drill-flip-gate>' +
+          flipGateText(allRead) + '</p>' +
+        '<div class="cave-actions"><button class="btn primary big" type="button"' +
+          ' data-drill-go="start-stage" data-cheer="' + esc(cheer) + '"' +
+          (allRead ? '' : ' disabled aria-disabled="true"') + '>' + esc(startLabel) + '</button></div>';
+    }
+
+    /* turning a card over is what counts as reading it */
+    function toggleFlipCard(node) {
+      if (!node) return;
+      node.classList.toggle('is-flipped');
+      var id = node.getAttribute('data-drill-flip') || '';
+      var back = node.classList.contains('is-flipped');
+      if (id) {
+        state.flipFace[id] = back ? 'back' : 'front';
+        if (back) state.flipRead[id] = true;
+      }
+      paintFlipGate();
+    }
+
+    function paintFlipGate() {
+      if (!card) return;
+      var allRead = flipAllRead();
+      var gate = card.querySelector('[data-drill-flip-gate]');
+      if (gate) {
+        gate.innerHTML = flipGateText(allRead);
+        gate.classList.toggle('is-done', allRead);
+      }
+      var start = card.querySelector('[data-drill-go="start-stage"]');
+      if (start) {
+        if (allRead) {
+          start.removeAttribute('disabled');
+          start.removeAttribute('aria-disabled');
+        } else {
+          start.setAttribute('disabled', 'disabled');
+          start.setAttribute('aria-disabled', 'true');
+        }
+      }
+      Array.prototype.forEach.call(card.querySelectorAll('[data-drill-flip-go="jump"]'), function (dot) {
+        dot.classList.toggle('is-read', !!state.flipRead[dot.getAttribute('data-drill-flip-jump')]);
+      });
+    }
+
+    function goToFlipCard(index) {
+      var total = state.flipIds.length;
+      if (!total) return;
+      var next = Math.max(0, Math.min(total - 1, index));
+      if (next === state.flipIndex) return;
+      state.flipIndex = next;
+      say(flipHtml());
+    }
+
+    /* a 3:4 card that fits the board: tall screens size it by height, narrow
+       ones by width, so the statue is as big as the phone allows */
+    function fitFlipCard() {
+      if (!card) return;
+      var board = card.querySelector('[data-drill-flip-board]');
+      var flip = board && board.querySelector('[data-drill-flip]');
+      if (!board || !flip) return;
+      var w = board.clientWidth;
+      var h = board.clientHeight;
+      if (!w || !h) return;
+      var height = Math.min(h, w * 4 / 3);
+      var width = height * 3 / 4;
+      flip.style.width = Math.round(width) + 'px';
+      flip.style.height = Math.round(height) + 'px';
+      /* a wide board leaves the card a column of empty space either side:
+         on desktop the back may grow sideways to read its key points */
+      var back = flip.querySelector('.drill-flip-back');
+      if (back) {
+        var wide = window.innerWidth >= 760;
+        back.style.width = wide ? Math.round(Math.min(w, Math.max(width, 544))) + 'px' : '';
+        back.style.left = '';
+        back.style.right = '';
+        if (wide) {
+          var flapLeft = Math.round((Math.min(w, Math.max(width, 544)) - width) / 2);
+          back.style.marginLeft = (-flapLeft) + 'px';
+        } else {
+          back.style.marginLeft = '';
+        }
+      }
+    }
+
+
+    function moveFrontCommandHtml(unit) {
       var m = unit.moves[0] || {};
       var command = m.command || '';
       var lengthClass = command.length > 32 ? ' is-very-long' : command.length > 20 ? ' is-long' : '';
@@ -572,33 +698,6 @@
         '<small>' + esc(pick(L.move_command_label_zh, L.move_command_label_en)) +
           ' · ' + esc(unitTitle(unit)) + '</small>' +
         '<strong>' + esc(command) + '</strong></span>';
-    }
-
-    function paceFrontCommandsHtml(unit) {
-      return '<span class="drill-pace-front-list">' + unit.moves.map(function (pace) {
-        return '<span class="drill-pace-front-item">' +
-          '<small>' + esc(pick(pace.title_zh, pace.title_en)) + '</small>' +
-          '<strong>' + esc(pace.command || '') + '</strong></span>';
-      }).join('') + '</span>';
-    }
-
-    function moveCardFront(unit) {
-      var m = unit.moves[0] || {};
-      var frames = unit.id === 'pacing' ? [] : animationFrames(m);
-      var image = unit.id === 'pacing' ? '' : (m.figure || m.img || '');
-      var body = unit.id === 'pacing'
-        ? paceFrontCommandsHtml(unit)
-        : frames.length
-        ? movementAnimationHtml(m, 'flip')
-        : image
-        ? '<img src="' + esc(artUrl(image)) + '" alt="' + esc(unitTitle(unit)) + '">'
-        : '<span class="drill-flip-command-front">' +
-            '<strong>' + esc(unitTitle(unit)) + '</strong>' + moveMetaChips(m) +
-          '</span>';
-      return '<div class="drill-flip-face drill-flip-front is-move-front">' +
-        moveFrontCommandHtml(unit) +
-        '<span class="drill-move-front-visual">' + body + '</span>' +
-        '<span class="drill-flip-hint">⟳ ' + esc(pick(L.flip_hint_zh, L.flip_hint_en)) + '</span></div>';
     }
 
     function moveMetaChips(m) {
@@ -618,25 +717,28 @@
       return chips.length ? '<span class="drill-move-meta">' + chips.join('') + '</span>' : '';
     }
 
+    function moveCardFront(unit) {
+      var m = unit.moves[0] || {};
+      var frames = animationFrames(m);
+      var image = m.figure || m.img || '';
+      var body = frames.length
+        ? movementAnimationHtml(m, 'flip')
+        : image
+        ? '<img src="' + esc(artUrl(image)) + '" alt="' + esc(unitTitle(unit)) + '">'
+        : '<span class="drill-flip-command-front">' +
+            '<strong>' + esc(unitTitle(unit)) + '</strong>' + moveMetaChips(m) +
+          '</span>';
+      return '<div class="drill-flip-face drill-flip-front is-move-front">' +
+        moveFrontCommandHtml(unit) +
+        '<span class="drill-move-front-visual">' + body + '</span>' +
+        '<span class="drill-flip-hint">⟳ ' + esc(pick(L.flip_hint_zh, L.flip_hint_en)) + '</span></div>';
+    }
+
     function moveCardBack(unit) {
-      if (unit.id === 'pacing') {
-        var directions = unit.moves.map(function (m) {
-          var firstPoint = pointsFor(m)[0] || '';
-          return '<span class="drill-pace-direction">' +
-            '<small class="drill-pace-direction-name">' + esc(pick(m.title_zh, m.title_en)) + '</small>' +
-            '<strong class="drill-pace-direction-command">' + esc(m.command || '') + '</strong>' +
-            '<span>' + esc(firstPoint) + '</span></span>';
-        }).join('');
-        return '<div class="drill-flip-face drill-flip-back is-move">' +
-          '<span class="drill-flip-label">' + esc(commandActionLabel()) + '</span>' +
-          '<strong class="drill-flip-name">' + esc(unitTitle(unit)) + '</strong>' +
-          '<span class="drill-pace-directions">' + directions + '</span>' +
-          '<span class="drill-flip-sign">' + esc(pick(L.pace_card_note_zh, L.pace_card_note_en)) + '</span>' +
-        '</div>';
-      }
       var m = unit.moves[0] || {};
       var points = pointsFor(m);
       var note = pick(m.note_zh, m.note_en);
+      if (!note && m.study_group === 'pacing') note = pick(L.pace_card_note_zh, L.pace_card_note_en);
       return '<div class="drill-flip-face drill-flip-back is-move">' +
         '<span class="drill-flip-label">' + esc(commandActionLabel()) + '</span>' +
         '<strong class="drill-flip-name">' + esc(pick(m.title_zh, m.title_en)) + '</strong>' +
@@ -660,25 +762,16 @@
       var fresh = studyUnitsFor(freshIds);
       var known = state.stage > 0 ? studyUnitsFor(cumulativeMovementPool(state.stage - 1).map(function (m) { return m.id; })) : [];
       var cards = fresh.map(function (unit) {
-        return '<div class="drill-flip" data-drill-flip="' + esc(unit.id) + '" role="button" tabindex="0"' +
-               ' aria-label="' + esc(unitTitle(unit)) + '">' +
-          '<span class="drill-flip-corner is-tl" aria-hidden="true"></span>' +
-          '<span class="drill-flip-corner is-tr" aria-hidden="true"></span>' +
-          '<span class="drill-flip-corner is-bl" aria-hidden="true"></span>' +
-          '<span class="drill-flip-corner is-br" aria-hidden="true"></span>' +
-          '<div class="drill-flip-inner">' + moveCardFront(unit) + moveCardBack(unit) + '</div>' +
-        '</div>';
-      }).join('');
+        return { id: unit.id, html: flipCardHtml(unit.id, unitTitle(unit), moveCardFront(unit) + moveCardBack(unit)) };
+      });
       var knownNote = known.length
         ? '<p class="cave-line small drill-flip-known">' + esc(pick(L.move_flip_known_zh, L.move_flip_known_en)) +
           ' ' + known.map(function (unit) { return esc(unitTitle(unit)); }).join(isEn() ? ', ' : '、') + '</p>'
         : '';
       return kicker(fill(pick(L.move_flip_kicker_zh, L.move_flip_kicker_en), { stage: state.stage + 1 })) +
         '<p class="cave-line small">' + esc(pick(L.move_flip_lead_zh, L.move_flip_lead_en)) + '</p>' +
-        '<div class="drill-flip-grid">' + cards + '</div>' +
         knownNote +
-        '<div class="cave-actions"><button class="btn primary big" type="button" data-drill-go="start-stage" data-cheer="🥁">' +
-          esc(pick(L.move_flip_start_zh, L.move_flip_start_en)) + '</button></div>';
+        flipCarouselHtml(cards, pick(L.move_flip_start_zh, L.move_flip_start_en), '🥁');
     }
 
     function flipHtml() {
@@ -690,6 +783,10 @@
       var lists = activeStageLists();
       state.stage = Math.max(0, Math.min(Math.max(0, lists.length - 1), stageIndex));
       state.scene = 'flip';
+      state.flipIndex = 0;
+      state.flipIds = [];
+      state.flipRead = {};
+      state.flipFace = {};
       setArt(ridgeArt());
       say(flipHtml());
       mark('flip');
@@ -1323,10 +1420,20 @@
     /* ── the controls ─────────────────────────────────────────────────────── */
 
     root.addEventListener('click', function (event) {
+      var flipGo = event.target.closest('[data-drill-flip-go]');
+      if (flipGo) {
+        event.preventDefault();
+        tap();
+        var step = flipGo.getAttribute('data-drill-flip-go');
+        if (step === 'prev') goToFlipCard(state.flipIndex - 1);
+        else if (step === 'next') goToFlipCard(state.flipIndex + 1);
+        else if (step === 'jump') goToFlipCard(state.flipIds.indexOf(flipGo.getAttribute('data-drill-flip-jump')));
+        return;
+      }
       var flipCard = event.target.closest('[data-drill-flip]');
       if (flipCard) {
         event.preventDefault();
-        flipCard.classList.toggle('is-flipped');
+        toggleFlipCard(flipCard);
         tap();
         return;
       }
@@ -1348,7 +1455,20 @@
         else sectionDone();
         return;
       }
-      if (where === 'start-stage') { tap(); beginStage(state.section, state.stage); return; }
+      if (where === 'start-stage') {
+        if (!flipAllRead()) {
+          /* the gate is real: the mechanism stays asleep until every card is read */
+          var gate = card && card.querySelector('[data-drill-flip-gate]');
+          if (gate) {
+            gate.classList.add('is-warn');
+            window.setTimeout(function () { gate.classList.remove('is-warn'); }, 900);
+          }
+          return;
+        }
+        tap();
+        beginStage(state.section, state.stage);
+        return;
+      }
       if (where === 'next-stage') { tap(); showFlip(state.section, state.stage + 1); return; }
       if (where === 'section-done') { tap(); sectionDone(); return; }
       if (where === 'section2') { tap(); showFlip(2, firstOpenMovementStage()); return; }
@@ -1357,14 +1477,20 @@
       if (where === 'restart') { restart(); return; }
     });
     root.addEventListener('keydown', function (event) {
+      if (state.scene === 'flip' && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+        event.preventDefault();
+        goToFlipCard(state.flipIndex + (event.key === 'ArrowRight' ? 1 : -1));
+        return;
+      }
       if (event.key !== 'Enter' && event.key !== ' ') return;
       var flipCard = event.target.closest && event.target.closest('[data-drill-flip]');
       if (flipCard) {
         event.preventDefault();
-        flipCard.classList.toggle('is-flipped');
+        toggleFlipCard(flipCard);
         tap();
       }
     });
+    window.addEventListener('resize', function () { fitFlipCard(); });
 
     /* the leader's 考核 code: the last order of game 3 */
     root.addEventListener('submit', function (event) {

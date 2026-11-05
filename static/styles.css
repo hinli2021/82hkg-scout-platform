@@ -2994,6 +2994,122 @@ body.is-game main { padding-top: 6px; }
   aspect-ratio: auto; height: 100%; width: 100%; max-width: 24rem; justify-self: center;
 }
 .drill-flip-front img { object-fit: contain; }
+
+/* on the carousel page the breadcrumb and the page's bottom padding would
+   push the start button past the fold — both stand aside */
+.page:has(.drill.drill-flip-full) { padding-bottom: 0; }
+.page:has(.drill.drill-flip-full) > .crumbs { display: none; }
+
+
+/* the card back on the carousel: the formation diagram leads, the notes follow */
+.drill-flip-stage .drill-flip-back {
+  justify-content: flex-start; gap: .38rem; padding: .6rem .55rem;
+  text-align: center; overflow: hidden;
+}
+.drill-flip-stage .drill-flip-back .drill-form-art,
+.drill-flip-stage .drill-flip-back .drill-form-art.is-detailed {
+  flex: 0 1 auto; min-height: 0; width: auto; height: auto;
+  max-width: min(78%, 13rem); max-height: 46%; aspect-ratio: 1 / 1;
+  margin: .1rem auto; padding: .5rem; border-radius: 16px;
+}
+.drill-flip-stage .drill-flip-back .drill-flip-label { flex: 0 0 auto; font-size: .7rem; letter-spacing: .08em; }
+.drill-flip-stage .drill-flip-back .drill-flip-name { flex: 0 0 auto; font-size: 1.12rem; }
+.drill-flip-stage .drill-flip-back .drill-flip-leader,
+.drill-flip-stage .drill-flip-back .drill-flip-sign {
+  flex: 0 1 auto; min-height: 0; display: block; width: 100%;
+  font-size: .78rem; line-height: 1.4; overflow: hidden;
+}
+@media (max-width: 640px), (max-height: 620px) {
+  .drill-flip-stage .drill-flip-back { gap: .28rem; padding: .45rem .4rem; }
+  .drill-flip-stage .drill-flip-back .drill-form-art.is-detailed {
+    max-width: min(84%, 11rem); max-height: 50%; padding: .35rem;
+  }
+  .drill-flip-stage .drill-flip-back .drill-flip-name { font-size: 1rem; }
+  .drill-flip-stage .drill-flip-back .drill-flip-leader,
+  .drill-flip-stage .drill-flip-back .drill-flip-sign { font-size: .72rem; line-height: 1.35; }
+}
+/* ── the study carousel: one card at a time, as big as the screen allows ── */
+.drill-flip-stage {
+  flex: 1 1 0; min-height: 0; display: flex; flex-direction: column;
+  gap: .35rem; margin: .45rem 0 .15rem;
+}
+.drill-flip-board {
+  flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center;
+}
+/* the height chain must be definite all the way down, or the single card
+   collapses to its content instead of filling the board */
+.drill.drill-flip-full .cave-card { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.drill.drill-flip-full .cave-card > * { flex: 0 0 auto; }
+.drill.drill-flip-full .cave-card > .drill-flip-stage { flex: 1 1 0; min-height: 0; }
+.drill-flip-board .drill-flip {
+  flex: 0 0 auto; aspect-ratio: auto; width: 100%; height: 100%; max-width: none; justify-self: auto;
+}
+.drill-flip-nav { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: .7rem; }
+.drill-flip-step {
+  width: 2.9rem; height: 2.9rem; padding: 0; border-radius: 999px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit; font-size: 1.55rem; font-weight: 900; line-height: 1;
+  color: #ffe4a8; background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(217, 164, 65, .55);
+  transition: background .16s, border-color .16s, transform .16s;
+}
+.drill-flip-step:hover:not([disabled]), .drill-flip-step:focus-visible:not([disabled]) {
+  background: rgba(217, 164, 65, .24); border-color: rgba(217, 164, 65, .85); transform: translateY(-1px);
+}
+.drill-flip-step:focus-visible { outline: 3px solid #ffe4a8; outline-offset: 2px; }
+.drill-flip-step[disabled] { opacity: .32; cursor: default; }
+.drill-flip-count {
+  min-width: 4.6rem; text-align: center; font-weight: 800; letter-spacing: .06em;
+  color: #ffe4a8; font-variant-numeric: tabular-nums;
+}
+.drill-flip-dots { flex: 0 0 auto; display: flex; gap: .38rem; justify-content: center; }
+.drill-flip-dot {
+  width: .62rem; height: .62rem; padding: 0; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(217, 164, 65, .6); background: transparent;
+  transition: background .16s, transform .16s;
+}
+.drill-flip-dot.is-read { background: rgba(184, 240, 178, .5); border-color: rgba(184, 240, 178, .8); }
+.drill-flip-dot.is-active { background: #ffe4a8; border-color: #ffe4a8; transform: scale(1.2); }
+.drill-flip-gate {
+  flex: 0 0 auto; text-align: center; font-size: .82rem; line-height: 1.45;
+  color: #cfe8cf; margin: .05rem 0 .25rem;
+}
+.drill-flip-gate.is-done { color: #b8f0b2; font-weight: 700; }
+.drill-flip-gate.is-warn { color: #ffd9a0; animation: drill-gate-shake .4s ease-in-out 1; }
+@keyframes drill-gate-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.drill .btn[disabled] { opacity: .48; cursor: not-allowed; filter: saturate(.5); }
+/* on a wide screen the card may use most of the board's width, so the command
+   and the key points sit on one comfortable column */
+@media (min-width: 760px) {
+  .drill-flip-stage .drill-flip-board .drill-flip { max-width: min(34rem, 100%); }
+}
+@media (max-width: 640px) {
+  /* a phone spends its height on the study card, not on captions the card
+     already carries: the stage heading, the lead and the learned list step
+     aside, and the carousel keeps only its arrows and counter */
+  .drill.drill-flip-full .cave-card-wrap { padding: 2.9rem .6rem .45rem; }
+  .drill.drill-flip-full .cave-card > .cave-kicker,
+  .drill.drill-flip-full .cave-card > .cave-line.small { display: none; }
+  .drill.drill-flip-full .drill-flip-stage { gap: .3rem; margin: .2rem 0 .05rem; }
+  .drill-flip-dots { display: none; }
+  .drill-flip-step { width: 2.5rem; height: 2.5rem; font-size: 1.3rem; }
+  .drill-flip-count { min-width: 3.9rem; font-size: .9rem; }
+  .drill-flip-gate { font-size: .72rem; line-height: 1.3; margin: 0 0 .2rem; }
+}
+@media (max-height: 620px) {
+  /* landscape phones and short windows: same trade, plus no dots */
+  .drill.drill-flip-full .cave-card-wrap { padding: 2.6rem .8rem .4rem; }
+  .drill.drill-flip-full .cave-card > .cave-kicker,
+  .drill.drill-flip-full .cave-card > .cave-line.small,
+  .drill-flip-dots { display: none; }
+  .drill.drill-flip-full .drill-flip-stage { margin: .1rem 0 0; gap: .25rem; }
+  .drill-flip-step { width: 2.3rem; height: 2.3rem; font-size: 1.2rem; }
+  .drill-flip-gate { font-size: .7rem; margin: 0 0 .15rem; }
+}
 .drill-review-fig {
   height: 5rem; border-radius: 10px; padding: .2rem;
   border: 1px solid rgba(217, 164, 65, .45); background: #071009;

@@ -112,6 +112,39 @@ def answer_current(page):
     return target_id
 
 
+def study_cards(page, expect, section=1):
+    """Turn every study card of the open flip stage, in carousel order.
+
+    The cards come one at a time now: the board holds a single card, the
+    arrows walk it, and the stage's start button stays disabled until every
+    card has been turned over. Returns the list of card ids in order.
+    """
+    seen = []
+    total_attr = page.get_attribute('[data-drill-carousel]', 'data-drill-carousel')
+    check(total_attr is not None and int(total_attr) == expect,
+          f'the {section == 2 and "movement" or "sign"} stage opens a carousel of {expect} card(s) ({total_attr})')
+    check(page.locator('[data-drill-flip]').count() == 1,
+          'the carousel shows one study card at a time, not the whole set at once')
+    for index in range(expect):
+        board = page.locator('[data-drill-flip]')
+        seen.append(board.get_attribute('data-drill-flip'))
+        board.click()
+        page.wait_for_timeout(560)
+        check('is-flipped' in (board.get_attribute('class') or ''),
+              f'card {index + 1} of {expect} turns over to its notes')
+        if index < expect - 1:
+            page.click('[data-drill-flip-go="next"]')
+            page.wait_for_timeout(520)
+    counter = page.inner_text('[data-drill-flip-count]')
+    check(counter.strip() == f'{expect} / {expect}',
+          f'the carousel counter ends at the last card ({counter.strip()})')
+    gate = page.inner_text('[data-drill-flip-gate]')
+    check('看過' in gate, f'the gate says every card has been read ({gate[:24]})')
+    check(page.locator('[data-drill-go="start-stage"][disabled]').count() == 0,
+          'the start button unlocks once every card is read')
+    return seen
+
+
 def clear_stage(page, choice_audit=None):
     """Answer every sign the stage calls, until the scene moves on.
 
@@ -208,59 +241,87 @@ def main():
         check('翻開手號卡' in body, 'the way in is the flip cards')
         shoot(page, 'drill-intro.png')
 
-        # ── stage 1: three flip cards, big and clear, tap to turn
+        # ── stage 1: the carousel, one sign at a time, all of them read
         click(page, '[data-drill-go="start"]')
         page.wait_for_selector('[data-drill-scene="flip"]')
-        cards = page.query_selector_all('[data-drill-flip]')
-        check(len(cards) == len(STAGES[0]),
-              f'stage 1 shows its {len(STAGES[0])} new signs as flip cards ({len(cards)})')
         check(page.locator('.drill.drill-flip-full').count() == 1,
-              'the flip cards take the whole screen — no cliff above them')
+              'the study cards take the whole screen — no cliff above them')
         check(not page.locator('.cave-picture .cave-art').first.is_visible(),
               'the cliff painting steps aside on the flip page')
         check(page.locator('.cave-hud-link').first.is_visible(),
               'the 主頁 / 會員章 pills still float on top of the full screen')
+        check(page.locator('[data-drill-go="start-stage"][disabled]').count() == 1,
+              'the mechanism stays locked until the cards are read')
+        check('未翻開' in page.inner_text('[data-drill-flip-gate]'),
+              'the gate names how many cards are still unopened')
         front_src = page.locator('[data-drill-flip] img').first.get_attribute('src')
         check('/signs/' in str(front_src),
               'the card front shows the drawn figure of the sign')
-        first = page.locator('[data-drill-flip]').first
+        card_box = page.locator('[data-drill-flip]').bounding_box()
+        check(bool(card_box) and card_box['width'] >= 300 and card_box['height'] >= 400,
+              f"the single card is large on a desktop ({round(card_box['width'])}×{round(card_box['height'])}px)")
+
+        first = page.locator('[data-drill-flip]')
         first.click()
-        page.wait_for_timeout(600)
+        page.wait_for_timeout(620)
         check('is-flipped' in (first.get_attribute('class') or ''),
-              'tapping a card turns it over')
+              'tapping the card turns it over')
         back = first.inner_text()
         check('隊形' in back and '手號' in back,
               'the back names the formation and describes the sign')
         check('領袖位置' in back and '正前方中央' in back,
               'the back tells the scout where the leader stands')
-        check(page.locator('[data-drill-flip] .drill-form-art.is-detailed').count() == len(STAGES[0]),
-              'every card back carries the detailed formation diagram')
-        check(page.locator('[data-drill-flip] .drill-form-leader').count() == len(STAGES[0]),
-              'every detailed diagram marks the leader with the green triangle')
+        check(page.locator('[data-drill-flip] .drill-form-art.is-detailed').count() == 1,
+              'the card back carries the detailed formation diagram')
+        check(page.locator('[data-drill-flip] .drill-form-leader').count() == 1,
+              'the detailed diagram marks the leader with the green triangle')
         icon_box = first.locator('.drill-form-art.is-detailed').bounding_box()
         check(bool(icon_box) and icon_box['width'] >= 100,
               f"the card-back formation icon is large ({round(icon_box['width']) if icon_box else 0}px wide)")
-        check('綠色 ▼' in page.inner_text('[data-drill-card]'),
+        check('未翻開' in page.inner_text('[data-drill-flip-gate]')
+              and page.locator('[data-drill-go="start-stage"][disabled]').count() == 1,
+              'one card read is not enough — the gate and the lock still hold')
+        check('綠色 ▼' in page.inner_text('[data-drill-card]')
+              or page.locator('.drill-leader-tri').count() >= 1,
               'the flip page explains the green leader marker')
         shoot(page, 'drill-flip.png')
-        for width, height, minimum in ((390, 700, 55), (1000, 550, 65)):
+        for width, height, minimum in ((390, 700, 130), (1000, 550, 90)):
             page.set_viewport_size({'width': width, 'height': height})
-            page.wait_for_timeout(300)
+            page.wait_for_timeout(420)
             compact = page.evaluate("""() => {
               const svg = document.querySelector('[data-drill-flip].is-flipped .drill-form-art.is-detailed');
+              const card = document.querySelector('[data-drill-flip]');
               if (!svg) return null;
-              const r = svg.getBoundingClientRect();
-              return {width: r.width, height: r.height};
+              const r = svg.getBoundingClientRect(), c = card.getBoundingClientRect();
+              return {width: r.width, height: r.height, cardWidth: c.width, cardHeight: c.height,
+                      scroll: document.documentElement.scrollHeight - innerHeight};
             }""")
             check(bool(compact and compact['width'] >= minimum
                        and abs(compact['width'] - compact['height']) <= 2),
-                  f'the card-back diagram stays square in a {width}×{height} window')
+                  f'the card-back diagram stays square and large in a {width}×{height} window '
+                  f'({round(compact["width"]) if compact else 0}px)')
+            check(bool(compact) and compact['scroll'] <= 0,
+                  f'the {width}×{height} study card fits without scrolling')
+            if width == 390:
+                page.screenshot(path=str(SHOTS / 'drill-flip-phone-back.png'), full_page=True)
         page.set_viewport_size({'width': 1180, 'height': 940})
-        page.wait_for_timeout(300)
-        first.click()                                        # …and back again
-        page.wait_for_timeout(600)
-        check('is-flipped' not in (first.get_attribute('class') or ''),
-              'a second tap turns the card back to the sign')
+        page.wait_for_timeout(320)
+
+        # walk the rest of the carousel; every card must be read to unlock
+        for index in range(1, len(STAGES[0])):
+            page.click('[data-drill-flip-go="next"]')
+            page.wait_for_timeout(520)
+            card = page.locator('[data-drill-flip]')
+            card.click()
+            page.wait_for_timeout(560)
+        counter = page.inner_text('[data-drill-flip-count]').strip()
+        check(counter == f'{len(STAGES[0])} / {len(STAGES[0])}',
+              f'the carousel walks every sign card ({counter})')
+        check('看過' in page.inner_text('[data-drill-flip-gate]'),
+              'the gate confirms every card has been read')
+        check(page.locator('[data-drill-go="start-stage"][disabled]').count() == 0,
+              'the start button unlocks only after the whole carousel is read')
+        shoot(page, 'drill-flip-read.png')
 
         # ── the mechanism: a sign on the rock, the count running, the buttons
         click(page, '[data-drill-go="start-stage"]')
@@ -341,11 +402,15 @@ def main():
         for index in range(1, len(STAGES)):
             click(page, '[data-drill-go="next-stage"]')
             page.wait_for_selector('[data-drill-scene="flip"]')
-            cards = page.query_selector_all('[data-drill-flip]')
-            check(len(cards) == len(STAGES[index]),
-                  f'stage {index + 1} shows its {len(STAGES[index])} new sign(s) ({len(cards)})')
+            practice = page.locator('[data-drill-flip]').count()
+            check(practice == 1,
+                  f'stage {index + 1} shows one sign card at a time ({practice})')
+            total_attr = page.get_attribute('[data-drill-carousel]', 'data-drill-carousel')
+            check(int(total_attr) == len(STAGES[index]),
+                  f'stage {index + 1} carousel holds its {len(STAGES[index])} new sign(s) ({total_attr})')
             known = page.inner_text('[data-drill-card]')
             check('已學過' in known, f'stage {index + 1} lists the signs already learned')
+            study_cards(page, len(STAGES[index]))
             click(page, '[data-drill-go="start-stage"]')
             page.wait_for_selector('[data-drill-scene="drill"]')
             expected_pool.append(expected_pool[-1] + len(STAGES[index]))
@@ -409,20 +474,28 @@ def main():
                 page.wait_for_selector('[data-drill-scene="flip"]')
             check(page.get_attribute('[data-drill]', 'data-drill-section') == '2',
                   f'section 2 stage {index + 1} opens on the parade ground')
-            cards = page.query_selector_all('[data-drill-flip]')
-            check(len(cards) == expected_units[index],
-                  f'section 2 stage {index + 1} shows {expected_units[index]} study card(s)')
+            check(page.locator('[data-drill-flip]').count() == 1,
+                  f'section 2 stage {index + 1} shows one study card at a time')
+            total = int(page.get_attribute('[data-drill-carousel]', 'data-drill-carousel'))
+            check(total == len(fresh_ids),
+                  f'section 2 stage {index + 1} has {len(fresh_ids)} card(s) in its carousel ({total})')
             flip_text = page.inner_text('[data-drill-card]')
             check(f'第 {index + 1} 階段' in flip_text and '口令' in flip_text,
                   f'section 2 stage {index + 1} teaches commands before the mechanism')
-            check(page.locator('[data-drill-flip] .drill-move-front-command').count() == expected_units[index],
-                  f'section 2 stage {index + 1} puts a command banner on every card front')
-            check(page.locator('[data-drill-flip] .drill-flip-back.is-move .drill-move-art').count() == 0,
-                  f'section 2 stage {index + 1} card backs lead with the command, not a movement icon')
+            if index:
+                check(page.locator('[data-drill-go="start-stage"][disabled]').count() == 1,
+                      f'section 2 stage {index + 1} keeps the mechanism locked until the cards are read')
             if index:
                 check('已學過的動作' in flip_text,
                       f'section 2 stage {index + 1} lists movements already learned')
             if index == 0:
+                # the alert card is the first of three, each on its own turn
+                check(page.get_attribute('[data-drill-flip]', 'data-drill-flip') == 'alert',
+                      'section 2 stage 1 opens on the Alert card')
+                check(page.locator('[data-drill-flip] .drill-move-front-command').count() == 1,
+                      'section 2 stage 1 puts a command banner on the card front')
+                check(page.locator('[data-drill-flip] .drill-flip-back.is-move .drill-move-art').count() == 0,
+                      'the movement card back leads with the command, not a movement icon')
                 alert = page.locator('[data-drill-flip="alert"]')
                 anim = alert.locator('[data-drill-animation="alert"]')
                 check(anim.count() == 1 and anim.locator('[data-drill-frame]').count() == 5,
@@ -448,7 +521,9 @@ def main():
                 first_active = active_at()
                 page.wait_for_timeout(1150)
                 check(active_at() != first_active, 'the Alert statue animation advances through its frames')
+                page.click('[data-drill-flip-go="next"]'); page.wait_for_timeout(520)
                 ease = page.locator('[data-drill-flip="stand-at-ease"]')
+                check(ease.count() == 1, 'the next carousel card is Stand at ease')
                 ease_anim = ease.locator('[data-drill-animation="stand-at-ease"]')
                 check(ease_anim.count() == 1 and ease_anim.locator('[data-drill-frame]').count() == 7,
                       'the Stand at ease card front is a seven-frame statue animation')
@@ -469,7 +544,9 @@ def main():
                 page.wait_for_timeout(750)
                 check(ease_active_at() != ease_first_active,
                       'the Stand at ease statue animation advances through its frames')
+                page.click('[data-drill-flip-go="next"]'); page.wait_for_timeout(520)
                 salute = page.locator('[data-drill-flip="salute-front"]')
+                check(salute.count() == 1, 'the last carousel card is Salute')
                 salute_anim = salute.locator('[data-drill-animation="salute-front"]')
                 check(salute_anim.count() == 1 and salute_anim.locator('[data-drill-frame]').count() == 8,
                       'the Salute card front is an eight-frame statue animation')
@@ -494,42 +571,69 @@ def main():
                         break
                 check(salute_active_at() != salute_first_active,
                       'the Salute statue animation advances through its frames')
+                page.click('[data-drill-flip-go="prev"]'); page.wait_for_timeout(420)
+                page.click('[data-drill-flip-go="prev"]'); page.wait_for_timeout(480)
+                alert = page.locator('[data-drill-flip="alert"]')
                 alert.click(); page.wait_for_timeout(600)
                 back = alert.inner_text()
+                check(page.locator('[data-drill-go="start-stage"][disabled]').count() == 1,
+                      'two stage-1 cards are still unread — the mechanism stays locked')
                 check('口令' in back and 'Alert!' in back and '動作要點' in back and '30 度' in back,
                       'the Alert card back teaches its command and key points')
                 check('起步為稍息' in back and '提起左腳' in back and '左腳踏下並靠攏右腳' in back,
                       'the Alert card teaches stand-at-ease → lift/close → Alert in order')
-                check(page.locator('[data-drill-flip] .drill-flip-back.is-move .drill-move-command').count() == 3,
-                      'every stage 1 movement card back leads with its command')
                 shoot(page, 'drill-move-flip-stage1.png')
                 alert.click(); page.wait_for_timeout(400)
             if index == 1:
-                pacing = page.locator('[data-drill-flip="pacing"]')
-                check(pacing.count() == 1, 'the four paces share one study card')
-                pace_front = pacing.locator('.drill-flip-front').inner_text()
-                pace_front_commands = [MOVE_BY_ID[mid]['command'] for mid in fresh_ids[:4]]
-                check(all(command in pace_front for command in pace_front_commands),
-                      'the pacing card front puts all four directional commands first')
-                pacing.click(); page.wait_for_timeout(600)
-                back = pacing.inner_text()
-                pace_commands = [MOVE_BY_ID[mid]['command'] for mid in fresh_ids[:4]]
-                check(all(command in back for command in pace_commands),
-                      'the pacing card teaches all four directional commands')
-                check('300 毫米' in back and '領袖示範' in back,
-                      'the pacing card gives the side-pace distance and leader-demo note')
+                # every pace now gets its own card, so each one is readable on a phone
+                pace_ids = []
+                for step in range(4):
+                    card = page.locator('[data-drill-flip]')
+                    pace_ids.append(card.get_attribute('data-drill-flip'))
+                    card.click()
+                    page.wait_for_timeout(520)
+                    if step < 3:
+                        page.click('[data-drill-flip-go="next"]')
+                        page.wait_for_timeout(480)
+                check(pace_ids == fresh_ids[:4],
+                      f'the four paces each get their own card, in order ({pace_ids})')
+                back = page.locator('[data-drill-flip]').inner_text()
+                check(MOVE_BY_ID['pace-right']['command'] in back and '右' in back,
+                      'the last pacing card teaches its own command, not a shared card')
                 shoot(page, 'drill-move-flip-pacing.png')
-                pacing.click(); page.wait_for_timeout(400)
+                for step in range(3):          # back to the first card
+                    page.click('[data-drill-flip-go="prev"]')
+                    page.wait_for_timeout(360)
+                page.wait_for_timeout(200)
             if index == 2:
+                for step in range(3):
+                    page.click('[data-drill-flip-go="next"]')
+                    page.wait_for_timeout(420)
                 dress = page.locator('[data-drill-flip="right-dress"]')
+                check(dress.count() == 1, 'the dressing card is the last of the four')
                 dress.click(); page.wait_for_timeout(600)
                 back = dress.inner_text()
                 check('Right—dress!' in back and '看齊' in back and '排成直線' in back,
                       'the dressing card teaches the command and what dressing means')
                 shoot(page, 'drill-move-flip-stage3.png')
-                dress.click(); page.wait_for_timeout(400)
+                dress.click(); page.wait_for_timeout(300)
+                for step in range(3):
+                    page.click('[data-drill-flip-go="prev"]')
+                    page.wait_for_timeout(320)
 
-            click(page, '[data-drill-go="start-stage"]')
+            # read every card of this stage before the mechanism may wake
+            for step in range(len(fresh_ids)):
+                card = page.locator('[data-drill-flip]')
+                if 'is-flipped' not in (card.get_attribute('class') or ''):
+                    card.click()
+                    page.wait_for_timeout(420)
+                if step < len(fresh_ids) - 1:
+                    page.click('[data-drill-flip-go="next"]')
+                    page.wait_for_timeout(400)
+            check(page.locator('[data-drill-go="start-stage"][disabled]').count() == 0,
+                  f'section 2 stage {index + 1} unlocks the mechanism after every card is read')
+
+            page.click('[data-drill-go="start-stage"]')
             page.wait_for_selector('[data-drill-scene="drill"]')
             page.wait_for_timeout(250)
             check(page.locator('.drill.drill-command-full').count() == 1,

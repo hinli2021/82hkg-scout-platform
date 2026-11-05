@@ -522,6 +522,23 @@ with sync_playwright() as pw:
             return target.id;
         }""")
 
+    def drill_read_cards(expected):
+        """Turn every card of the open carousel — the mechanism stays locked until then."""
+        total = int(page.get_attribute("#pane-drill [data-drill-carousel]",
+                                        "data-drill-carousel"))
+        assert total == expected, f"offline carousel holds {total} cards, expected {expected}"
+        assert page.locator("#pane-drill [data-drill-flip]").count() == 1, \
+            "the offline carousel shows one card at a time"
+        for step in range(total):
+            card = page.locator("#pane-drill [data-drill-flip]")
+            card.click()
+            page.wait_for_timeout(380)
+            if step < total - 1:
+                page.click("#pane-drill [data-drill-flip-go='next']")
+                page.wait_for_timeout(320)
+        assert page.locator("#pane-drill [data-drill-go='start-stage'][disabled]").count() == 0, \
+            "the offline start button unlocks after the last card"
+
     def drill_clear_stage():
         prompts = reviews = 0
         guard = 0
@@ -546,8 +563,9 @@ with sync_playwright() as pw:
         page.click("#pane-drill [data-drill-go='start']" if index == 0
                    else "#pane-drill [data-drill-go='next-stage']")
         page.wait_for_selector("#pane-drill [data-drill-scene='flip']")
-        fresh = page.locator("#pane-drill [data-drill-flip]").count()
-        assert fresh == [3, 4][index], f"stage {index + 1} flip cards: {fresh}"
+        assert page.locator("#pane-drill [data-drill-flip]").count() == 1, \
+            f"stage {index + 1} shows one study card at a time"
+        drill_read_cards([3, 4][index])
         page.click("#pane-drill [data-drill-go='start-stage']")
         page.wait_for_selector("#pane-drill [data-drill-scene='drill']")
         framed3 = page.get_attribute("#pane-drill .cave-picture .cave-art",
@@ -574,7 +592,7 @@ with sync_playwright() as pw:
     # section 2: cumulative command pools 3/10/14; stages 2–3 show 5 choices
     page.click("#pane-drill [data-drill-go='section2']")
     page.wait_for_selector("#pane-drill [data-drill-scene='flip']")
-    move_units = [3, 4, 4]
+    move_cards = [3, 7, 4]          # every movement now has its own study card
     move_pools = [3, 10, 14]
     move_buttons = [3, 5, 5]
     for index in range(3):
@@ -582,11 +600,9 @@ with sync_playwright() as pw:
             page.click("#pane-drill [data-drill-go='next-stage']")
             page.wait_for_selector("#pane-drill [data-drill-scene='flip']")
         assert page.get_attribute("#pane-drill [data-drill]", "data-drill-section") == "2"
-        fresh = page.locator("#pane-drill [data-drill-flip]").count()
-        assert fresh == move_units[index], f"section 2 stage {index + 1} cards: {fresh}"
-        if index == 1:
-            assert page.locator("#pane-drill [data-drill-flip='pacing']").count() == 1, \
-                "the four paces share one offline study card"
+        assert page.locator("#pane-drill [data-drill-flip]").count() == 1, \
+            f"section 2 stage {index + 1} shows one study card at a time"
+        drill_read_cards(move_cards[index])
         page.click("#pane-drill [data-drill-go='start-stage']")
         page.wait_for_selector("#pane-drill [data-drill-scene='drill']")
         assert page.locator("#pane-drill [data-drill-prompt-visual]").count() == 1, \
