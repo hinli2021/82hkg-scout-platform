@@ -66,7 +66,9 @@ def main():
         assert page.locator('input[name="question_id"]').input_value() == last_id
         assert f"q={last_index}" in page.url
         assert "50 / 50" in page.locator(".cave-editor-form .chip").inner_text()
-        page.locator('.lang-switch a', has_text="EN").click()
+        # 語言切換按鈕已移除（平台以中文為主）：用網址轉英文，題目 50 仍然要在
+        here = page.url[len(BASE):]
+        page.goto(f"{BASE}/set-language/en?next={here}")
         assert page.locator('html').get_attribute('lang') == "en"
         assert page.locator('input[name="question_id"]').input_value() == last_id
         assert "Edit cave questions" in page.locator("h1").inner_text()

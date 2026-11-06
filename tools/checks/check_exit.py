@@ -81,13 +81,13 @@ def main():
         assert page.evaluate('window.__caveState.passed') == 0
         print('live: confirmed membership exit → cave starts at entrance again')
 
-        # Changing language also navigates; the warning itself must translate.
-        page.locator('.lang-switch a').last.click()
-        assert page.locator('.cave-exit-overlay').is_visible()
-        page.click('[data-cave-leave]')
+        # 平台以中文為主，語言切換按鈕已移除：改用網址轉成英文。
+        # 離開的警告本身仍然要翻譯（English text in the same dialog）。
+        page.goto(f'{BASE}/set-language/en?next=/tasks/{CAVE_ID}/cave')
         page.wait_for_load_state('networkidle')
         assert page.locator('html').get_attribute('lang') == 'en'
         page.locator('.cave-hud-link').first.click()
+        assert page.locator('.cave-exit-overlay').is_visible()
         assert 'start the game again' in page.locator('#cave-exit-message').inner_text()
         page.click('[data-cave-stay]')
         page.click('[data-cave-go="wall"]')

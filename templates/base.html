@@ -56,10 +56,8 @@
       </nav>
       <div class="topbar-right">
         <button class="icon-btn" type="button" data-sound-toggle title="{{ L('遊戲音效', 'Game sound') }}">🔊</button>
-        <span class="lang-switch">
-          <a href="{{ url_for('set_language', code='zh', next=request.full_path.rstrip('?')) }}" class="{{ 'active' if lang != 'en' else '' }}">中文</a>
-          <a href="{{ url_for('set_language', code='en', next=request.full_path.rstrip('?')) }}" class="{{ 'active' if lang == 'en' else '' }}">EN</a>
-        </span>
+        {# 平台以中文為主：不再顯示語言切換按鈕（雙語內容與 /set-language 仍在）。
+           若要在英文環境查看，直接開 /set-language/en。 #}
         <form method="post" action="{{ url_for('auth_routes.logout') }}" class="nowrap">
           <button class="btn ghost small" type="submit" title="{{ L('登出', 'Sign out') }}">🚪</button>
         </form>
