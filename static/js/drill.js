@@ -604,6 +604,9 @@
               (index === cards.length - 1 ? ' disabled' : '') +
               ' aria-label="' + esc(pick(L.flip_next_zh, L.flip_next_en)) + '">›</button>' +
           '</div>' +
+          (allRead ? '' :
+            '<div class="drill-flip-walk"><button type="button" class="btn primary big"' +
+              ' data-drill-flip-go="walk">' + esc(pick(L.flip_walk_zh, L.flip_walk_en)) + '</button></div>') +
           '<div class="drill-flip-dots" data-drill-flip-dots>' + dots + '</div>' +
         '</div>' +
         '<p class="drill-flip-gate' + (allRead ? ' is-done' : '') + '" data-drill-flip-gate>' +
@@ -647,6 +650,31 @@
       Array.prototype.forEach.call(card.querySelectorAll('[data-drill-flip-go="jump"]'), function (dot) {
         dot.classList.toggle('is-read', !!state.flipRead[dot.getAttribute('data-drill-flip-jump')]);
       });
+    }
+
+    /* The guided first pass: one press turns the current card over and moves on
+       to the next unread one, so a stage can be read with N presses instead of
+       N × (tap the card + tap the arrow).  Once every card is read the button
+       disappears and the arrows / taps are the only way round — which is what
+       the scout asked for. */
+    function walkFlipCard() {
+      if (!state.flipIds.length) return;
+      var id = state.flipIds[state.flipIndex];
+      var node = card && card.querySelector('[data-drill-flip]');
+      var wasRead = !!state.flipRead[id];
+      if (!wasRead && node) toggleFlipCard(node);      /* animates + marks read */
+      function advance() {
+        var total = state.flipIds.length;
+        var next = -1;
+        for (var k = 1; k <= total; k += 1) {
+          var j = (state.flipIndex + k) % total;
+          if (!state.flipRead[state.flipIds[j]]) { next = j; break; }
+        }
+        if (next >= 0) state.flipIndex = next;
+        say(flipHtml());
+      }
+      if (wasRead) advance();
+      else window.setTimeout(advance, 480);            /* let the card turn over */
     }
 
     function goToFlipCard(index) {
@@ -1436,6 +1464,7 @@
         var step = flipGo.getAttribute('data-drill-flip-go');
         if (step === 'prev') goToFlipCard(state.flipIndex - 1);
         else if (step === 'next') goToFlipCard(state.flipIndex + 1);
+        else if (step === 'walk') walkFlipCard();
         else if (step === 'jump') goToFlipCard(state.flipIds.indexOf(flipGo.getAttribute('data-drill-flip-jump')));
         return;
       }

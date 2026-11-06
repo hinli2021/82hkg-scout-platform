@@ -3099,6 +3099,8 @@ body.is-game main { padding-top: 6px; }
   min-width: 4.6rem; text-align: center; font-weight: 800; letter-spacing: .06em;
   color: #ffe4a8; font-variant-numeric: tabular-nums;
 }
+.drill-flip-walk { display: flex; justify-content: center; margin: .1rem 0 .45rem; }
+.drill-flip-walk .btn { width: 100%; max-width: 26rem; }
 .drill-flip-dots { flex: 0 0 auto; display: flex; gap: .38rem; justify-content: center; }
 .drill-flip-dot {
   width: .62rem; height: .62rem; padding: 0; border-radius: 999px; cursor: pointer;
