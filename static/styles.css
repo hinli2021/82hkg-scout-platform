@@ -2460,6 +2460,27 @@ body.is-game main { padding-top: 6px; }
 .bridge-plank:active { transform: translateY(2px); box-shadow: 0 1px 0 #6f4e28; }
 .bridge-plank.is-wrong { background: linear-gradient(180deg, #d98a7c, #b1553f); border-color: #7a2f20; color: #2b0f08; }
 .bridge-plank:focus-visible { outline: 3px solid #ffe4a8; outline-offset: 2px; }
+/* 木板離手：木堆上那一塊升起來、滑到橋上的空格，途中那一格仍是虛線空格，
+   落到位才變成木色。整張卡不再重畫，所以沒有閃動。 */
+.bridge-plank-fly {
+  position: fixed; z-index: 70; margin: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; transform-origin: top left;
+  color: #241705; font-weight: 800; font-size: .82rem; line-height: 1.2; text-align: center;
+  border-radius: .45rem; border: 1px dashed rgba(255, 214, 150, .62);
+  background: linear-gradient(180deg, #c99a5f, #916536);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .45);
+  transition: transform .34s cubic-bezier(.22, .8, .3, 1);
+  will-change: transform;
+}
+.bridge-slot.is-incoming {
+  background: rgba(255, 255, 255, .04);
+  border-color: rgba(255, 255, 255, .28);
+}
+.bridge-slot.is-incoming .bridge-board,
+.bridge-slot.is-incoming .bridge-slot-no { opacity: 0; }
+.bridge-slot.is-landed { animation: bridge-landed .22s ease-out; }
+@keyframes bridge-landed { from { transform: scale(.94); } }
 .bridge-submitting { display: block; margin-top: .4rem; color: #ffe4a8; font-size: .86rem; }
 
 /* ── the assess card: the leader's 考核 code ends game 2 ─────────────────── */

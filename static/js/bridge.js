@@ -145,9 +145,12 @@
         // a new scene starts at its heading
         panel.scrollTop = 0;
       }
-      card.classList.remove('is-in');
-      void card.offsetWidth;
-      card.classList.add('is-in');
+      /* 同一個畫面重畫（放下木板）不重播卡片進場：整張卡不閃，只見到木板移動 */
+      if (!keepScroll) {
+        card.classList.remove('is-in');
+        void card.offsetWidth;
+        card.classList.add('is-in');
+      }
       if (emoji) burstOn(card.querySelector('.btn'), emoji);
       card.setAttribute('tabindex', '-1');
       syncMore();
@@ -349,7 +352,47 @@
       show('teach');
     }
 
-    function place(key) {
+    /* 選一塊木頭，就只見到它由木堆升起、滑到橋上的那一格：
+       不再有整張卡重畫的閃動（見 say）。 */
+    function reducedMotion() {
+      try { return !!(window.FX && FX.reducedMotion && FX.reducedMotion()); }
+      catch (e) { return false; }
+    }
+    function flyPlank(from, text, slot) {
+      if (!from || !slot || !slot.isConnected) { if (slot) slot.classList.remove('is-incoming'); return; }
+      var to = slot.getBoundingClientRect();
+      if (!from.width || !to.width) { slot.classList.remove('is-incoming'); return; }
+      var fly = document.createElement('span');
+      fly.className = 'bridge-plank-fly';
+      fly.textContent = text;
+      fly.style.left = from.left + 'px';
+      fly.style.top = from.top + 'px';
+      fly.style.width = from.width + 'px';
+      fly.style.height = from.height + 'px';
+      document.body.appendChild(fly);
+      var landed = false;
+      var land = function () {
+        if (landed) return;
+        landed = true;
+        slot.classList.remove('is-incoming');
+        slot.classList.add('is-landed');
+        window.setTimeout(function () { slot.classList.remove('is-landed'); }, 260);
+        if (fly.parentNode) fly.parentNode.removeChild(fly);
+      };
+      var dx = to.left - from.left;
+      var dy = to.top - from.top;
+      var sx = to.width / from.width;
+      var sy = to.height / from.height;
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          fly.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + sx + ',' + sy + ')';
+        });
+      });
+      fly.addEventListener('transitionend', land, { once: true });
+      window.setTimeout(land, 600);
+    }
+
+    function place(key, el) {
       if (state.busy) return;
       var wanted = (stage().planks || [])[state.laid.length];
       var plank = (stage().planks || []).filter(function (row) { return row.key === key; })[0];
@@ -370,6 +413,8 @@
       for (var i = 0; i < state.pool.length; i += 1) {
         if (state.pool[i].key === key) { state.pool.splice(i, 1); break; }
       }
+      var fromRect = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null;
+      var fromText = el ? (el.textContent || '') : '';
       state.laid.push(plank);
       tap();
       if (state.laid.length === plankTotal()) {
@@ -378,6 +423,12 @@
         return;
       }
       show('build');
+      var slots = card ? card.querySelectorAll('.bridge-rail .bridge-slot') : [];
+      var target = slots[state.laid.length - 1];
+      if (target && fromRect && !reducedMotion()) {
+        target.classList.add('is-incoming');
+        window.requestAnimationFrame(function () { flyPlank(fromRect, fromText, target); });
+      }
     }
 
     function retry() {
@@ -685,7 +736,7 @@
 
     root.addEventListener('click', function (event) {
       var plank = event.target.closest('[data-bridge-plank]');
-      if (plank) { event.preventDefault(); place(plank.getAttribute('data-bridge-plank')); return; }
+      if (plank) { event.preventDefault(); place(plank.getAttribute('data-bridge-plank'), plank); return; }
       var go = event.target.closest('[data-bridge-go]');
       if (!go) return;
       event.preventDefault();
