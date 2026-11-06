@@ -22,6 +22,12 @@ from .util import days_between, local_date, now_iso, parse_time, shift_date, tod
 
 # ── small helpers ───────────────────────────────────────────────────────────
 
+# 綱要第 1 項（與小隊長商議加入童軍團的安排）是「加入即可」的一項：每位有
+# 帳戶的童軍，這項一律預設為已完成。它只在顯示層成立 —— 不寫入任何進度
+# 紀錄、不計分、不影響會員章（會員章只數五個遊戲）。第 4 項等其餘各項不受
+# 影響，仍要看實際通關紀錄。
+DEFAULT_DONE_CODES = {"M01"}
+
 def as_json(value, fallback):
     """Rows read from a Sheet may carry JSON text; normalise on the way in."""
     if value is None or value == "":
@@ -524,6 +530,9 @@ def progress_for(store, user_id: str) -> dict:
     awards = store.list("badge_awards")
     stats = store.stats_for(user_id)
 
+    viewer = store.get("users", user_id) or {}
+    is_scout = (viewer.get("role") or "scout") == "scout"
+
     mine = [r for r in records if r.get("user_id") == user_id]
     mine.sort(key=lambda r: as_int(r.get("attempt_no"), 1))
     best_by_task: dict[str, dict] = {}
@@ -544,9 +553,18 @@ def progress_for(store, user_id: str) -> dict:
         decorated = []
         for task in badge_tasks:
             record = best_by_task.get(task["id"])
+            status = (record or {}).get("status") or "todo"
+            # 第 1 項：加入童軍團即完成 — every scout with an account starts
+            # with it ticked; nothing is written to the sheet for it.
+            default_done = bool(
+                not record and is_scout and status == "todo"
+                and str(task.get("code") or "") in DEFAULT_DONE_CODES)
+            if default_done:
+                status = "completed"
             decorated.append({
                 **public_task(task),
-                "status": (record or {}).get("status") or "todo",
+                "status": status,
+                "default_done": default_done,
                 "score": (record or {}).get("score"),
                 "record_id": (record or {}).get("id"),
                 "leader_comment": (record or {}).get("leader_comment", ""),

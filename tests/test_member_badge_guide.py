@@ -321,7 +321,10 @@ def test_legacy_start_route_credits_no_other_task(app, store):
     response = client.post(f"/badges/{badge['id']}/start", follow_redirects=False)
     assert response.status_code == 302 and "started=1" in response.headers["Location"]
     progress = engine.progress_for(store, scout["id"])["badges"][0]
-    assert progress["tasks_done"] == 0 and progress["progress_done"] == 0
+    # 第 1 項是「加入即可」，任何有帳戶的童軍都預設已完成（顯示層，不寫紀錄），
+    # 所以 tasks_done 是 1；五個遊戲仍未開始，progress_done 仍是 0。
+    assert progress["tasks_done"] == 1 and progress["progress_done"] == 0
+    assert progress["tasks"][0]["default_done"] is True
     assert not any(r["user_id"] == scout["id"] and r["badge_id"] == badge["id"]
                    for r in store.list("progress_records"))
     page = client.get(f"/badges/{badge['id']}?started=1").get_data(as_text=True)
@@ -555,7 +558,8 @@ def test_only_five_distinct_game_wins_award_and_unlocks_next(app, new_scout, sto
     member = end['badges'][0]
     assert member['earned'] and member['progress_done'] == member['progress_total'] == 5
     assert end['badges'][1]['locked'] is False
-    assert next(t for t in member['tasks'] if t['code'] == 'M01')['status'] == 'todo'
+    # 第 1 項預設完成（display-level），不影響五個遊戲的計數
+    assert next(t for t in member['tasks'] if t['code'] == 'M01')['status'] == 'completed'
     assert next(t for t in member['tasks'] if t['code'] == 'M02')['status'] == 'todo'
     assert sum(r['ref_id'] == badge['id'] for r in store.list('points_ledger')
                if r.get('user_id') == new_scout.id and r.get('entry_type') == 'badge') == 1
@@ -572,3 +576,27 @@ def test_duplicate_game_task_cannot_pretend_to_be_five(store):
     scout = next(u for u in store.list('users') if u['username'] == 'scout02')
     result = engine.check_badge_completion(store, user=scout, badge=store.get('badges', badge['id']))
     assert result['reason'] == 'games_unavailable' and not result['awarded']
+
+
+def test_item_one_is_ticked_for_every_scout_account(new_scout, store):
+    """綱要第 1 項「與小隊長商議加入安排」＝ 加入即可。
+
+    Every scout who has an account starts with item 1 ticked, without any
+    record being written for it (nothing on the sheet, no points), and it does
+    not count towards the five games that earn the badge.
+    """
+    badge = sorted(store.list("badges"), key=lambda b: int(b["order_index"]))[0]
+    shown = next(b for b in engine.progress_for(store, new_scout.id)["badges"]
+                 if b["id"] == badge["id"])
+    first = next(t for t in shown["tasks"] if t["code"] == "M01")
+    assert first["status"] == "completed" and first["default_done"] is True
+    assert first["record_id"] is None, "nothing is written to the records"
+    assert first["score"] is None and not first["submitted_at"]
+    assert shown["progress_done"] == 0, "item 1 alone clears no game"
+
+    page = new_scout.get(f"/badges/{badge['id']}/requirements").get_data(as_text=True)
+    head, _, rest = page.partition('data-guide-item="1"')
+    item1 = rest.partition('data-guide-item="2"')[0]
+    assert 'guide-item done' in head[-160:], "item 1 is drawn as done"
+    assert "加入童軍團即符合此項" in item1
+    assert "提交" not in item1, "there is nothing to submit for a joined scout"

@@ -81,7 +81,11 @@
             {% for link in item.links or [] %}
               <a class="btn small ghost" href="{{ link.url }}" target="_blank" rel="noopener">🔗 {{ L(link.label_zh, link.label_en) }}</a>
             {% endfor %}
-            {% if task %}
+            {% if task and task.default_done %}
+              {# 第 1 項「加入即可」：每位童軍的帳戶都預設完成，沒有東西要提交 #}
+              {{ status_pill(task.status) }}
+              <span class="chip light">{{ L('加入童軍團即符合此項', 'Joining the Troop meets this item') }}</span>
+            {% elif task %}
               {% if task.code == 'M04' and badge.is_game_badge %}
                 <span class="chip light">50 {{ L('題 · 全部完成即通關', 'questions · finish them all to clear the game') }}</span>
               {% elif task.code == 'M05' and badge.is_game_badge %}
