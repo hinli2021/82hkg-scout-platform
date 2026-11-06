@@ -355,7 +355,15 @@
             "answer": 0,
             "why_zh": "手冊：後轉即向右轉 180 度。",
             "why_en": "Manual: the about turn is 180 degrees."
-          }
+          },
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/about-turn-animation.webp",
+              "label_zh": "後轉：以右腳掌及左腳尖為軸心向右轉 180 度（轉至背向），左腳提起靠攏右腳，回復立正",
+              "label_en": "About turn: pivot 180 degrees to his right on the right ball and left toe, ending with his back to the viewer, then the left foot closes — back at Alert",
+              "hold_ms": 3020
+            }
+          ]
         }
       ]
     },
