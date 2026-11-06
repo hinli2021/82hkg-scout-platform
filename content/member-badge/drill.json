@@ -1177,9 +1177,9 @@
           "animation": [
             {
               "img": "img/quest/drill/movements/right-dress-animation.webp",
-              "label_zh": "向右看齊：先立正；Up! 右手向橫提升至肩膊平、手背向天，頭同時轉右 90 度；Move! 用碎步橫移就位，與右方隊員保持一隻手位距離",
-              "label_en": "Right dress: from attention, on “Up!” the right arm rises sideways to shoulder level with the back of the hand up and the head turns 90 degrees right; on “Move!” small shuffling steps close the gap until you are one hand-space from the scout on your right",
-              "hold_ms": 1880
+              "label_zh": "向右看齊：左邊立正不動的是引導翼（右方隊員）。Up! 右手向橫提升至肩膊平、手背向天，頭同時轉右 90 度望向該隊員；Move! 用碎步橫移就位，直至拳頭與他相距一隻手位",
+              "label_en": "Right dress: the statue standing fast on the left is the directing flank — the scout on your right. On “Up!” the right arm rises sideways to shoulder level, back of the hand up, and the head turns 90 degrees right toward him; on “Move!” small shuffling steps close the gap until the fist is one hand-space from his shoulder",
+              "hold_ms": 1900
             }
           ]
         }
