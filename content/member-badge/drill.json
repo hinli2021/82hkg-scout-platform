@@ -703,8 +703,8 @@
           "animation": [
             {
               "img": "img/quest/drill/movements/quick-march-animation.webp",
-              "label_zh": "開步走：左腳踏前 750 毫米，雙臂前後自然擺動、握拳，身軀挺直，每分鐘 116 步",
-              "label_en": "Quick march: the left foot steps forward 750 mm, arms swing in opposition from the shoulder with fists clenched, body upright — 116 steps to the minute",
+              "label_zh": "開步走：左腳踏前 750 毫米，右臂向前擺至與肩膊平（手臂伸直、與地面平行），左臂向後拉至最盡，雙膝蹬直，每分鐘 116 步",
+              "label_en": "Quick march: the foot steps forward 750 mm while the opposite arm swings forward dead straight and level with the shoulder, the other arm pulled back as far as possible — 116 steps to the minute",
               "hold_ms": 2060
             }
           ]
