@@ -606,7 +606,11 @@
           '</div>' +
           (allRead ? '' :
             '<div class="drill-flip-walk"><button type="button" class="btn primary big"' +
-              ' data-drill-flip-go="walk">' + esc(pick(L.flip_walk_zh, L.flip_walk_en)) + '</button></div>') +
+              ' data-drill-flip-go="walk">' +
+              esc(state.flipRead[cards[index].id]
+                    ? pick(L.flip_walk_next_zh, L.flip_walk_next_en)
+                    : pick(L.flip_walk_zh, L.flip_walk_en)) +
+              '</button></div>') +
           '<div class="drill-flip-dots" data-drill-flip-dots>' + dots + '</div>' +
         '</div>' +
         '<p class="drill-flip-gate' + (allRead ? ' is-done' : '') + '" data-drill-flip-gate>' +
@@ -652,29 +656,31 @@
       });
     }
 
-    /* The guided first pass: one press turns the current card over and moves on
-       to the next unread one, so a stage can be read with N presses instead of
-       N × (tap the card + tap the arrow).  Once every card is read the button
-       disappears and the arrows / taps are the only way round — which is what
-       the scout asked for. */
+    /* The guided first pass, one press = one clear action:
+       press once and the current card turns over so the back can be read;
+       press again and it moves on to the next card still to be read. */
     function walkFlipCard() {
       if (!state.flipIds.length) return;
       var id = state.flipIds[state.flipIndex];
       var node = card && card.querySelector('[data-drill-flip]');
-      var wasRead = !!state.flipRead[id];
-      if (!wasRead && node) toggleFlipCard(node);      /* animates + marks read */
-      function advance() {
-        var total = state.flipIds.length;
-        var next = -1;
-        for (var k = 1; k <= total; k += 1) {
-          var j = (state.flipIndex + k) % total;
-          if (!state.flipRead[state.flipIds[j]]) { next = j; break; }
+      if (!state.flipRead[id] && node) {
+        toggleFlipCard(node);                     /* turn it over, stay here */
+        var walkBtn = card.querySelector('[data-drill-flip-go="walk"]');
+        if (walkBtn) walkBtn.textContent = pick(L.flip_walk_next_zh, L.flip_walk_next_en);
+        if (flipAllRead()) {
+          /* the last card: let the turn finish, then clear the button away */
+          window.setTimeout(function () { say(flipHtml()); }, 520);
         }
-        if (next >= 0) state.flipIndex = next;
-        say(flipHtml());
+        return;
       }
-      if (wasRead) advance();
-      else window.setTimeout(advance, 480);            /* let the card turn over */
+      var total = state.flipIds.length;
+      var next = -1;
+      for (var k = 1; k <= total; k += 1) {
+        var j = (state.flipIndex + k) % total;
+        if (!state.flipRead[state.flipIds[j]]) { next = j; break; }
+      }
+      if (next >= 0 && next !== state.flipIndex) state.flipIndex = next;
+      say(flipHtml());                            /* move on */
     }
 
     function goToFlipCard(index) {

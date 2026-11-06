@@ -1379,8 +1379,10 @@
     "flip_gate_left_en": "{n} of {total} cards still unopened — flip every card before you start.",
     "flip_gate_done_zh": "全部 {n} 張卡都看過了，可以開始。",
     "flip_gate_done_en": "All {n} cards read — you may start.",
-    "flip_walk_zh": "下一張 →",
-    "flip_walk_en": "Next card →"
+    "flip_walk_zh": "翻開這張卡 →",
+    "flip_walk_en": "Turn this card over →",
+    "flip_walk_next_zh": "下一張卡 →",
+    "flip_walk_next_en": "Next card →"
   },
   "assess_note": {
     "code_setting": "drill_assess_code",
