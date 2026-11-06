@@ -746,7 +746,15 @@
             "answer": 0,
             "why_zh": "手冊：右腳行前一步，左腳隨即靠攏成立正。",
             "why_en": "Manual: one more step with the right foot, then the left closes in."
-          }
+          },
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/halt-animation.webp",
+              "label_zh": "停步：口令在左腳著地時發出；右腳再踏前 750 毫米，左腳前半步靠攏收細步幅，右腳提膝至大腿與地面平行、雙手夾回褲旁，最後踏下靠攏立正",
+              "label_en": "Halting: the command comes as the left foot lands; the right foot takes one more 750 mm step, the left closes up with a half step, then the right knee rises to thigh-level with both fists snapped to the trouser seams before it is planted beside the left foot — back to attention",
+              "hold_ms": 2080
+            }
+          ]
         },
         {
           "id": "mark-time",
