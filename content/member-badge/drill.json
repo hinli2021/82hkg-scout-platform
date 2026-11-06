@@ -1141,19 +1141,21 @@
           "title_zh": "向右看齊",
           "title_en": "Right dress",
           "command": "Right—dress!",
-          "manual": "手冊 p.6、p.200",
+          "manual": "手冊 p.24–26（第六章第四節 睇齊）",
           "leader_demo": true,
           "points_zh": [
-            "口令：Right—dress!（向右看齊）；取消口令 As you were（回復先前的姿勢）",
+            "口令：Dressing, right—dress!（打數 Up—Two—Three—Move!）；取消口令 As you were（回復先前的姿勢）",
             "看齊（Dressing）的意思：排列時，須與兩旁及前後的隊排成直線（手冊 p.6）",
-            "引導翼（Directing Flank）＝全隊用作看齊的那一邊；向右看齊即以右邊為基準",
-            "手冊沒有逐部分解動作：手部與腳部動作，跟領袖示範練習"
+            "第一分部（Up!）：右手向橫提升至與肩膊平、握拳手背向天，同一時間頭轉向右方 90 度；左手緊貼身旁；雙腳腳掌平放、雙膝蹬直",
+            "第二分部（Move!）：用碎步向左或右移動，至與右方隊員保持一隻手位之距離",
+            "兩排（直向）版本：右手向前提升至與肩膊平、手背向右；左手緊貼身旁"
           ],
           "points_en": [
-            "The command: Right—dress!; the cancelling command is As you were",
+            "The command: Dressing, right—dress! (counted Up—Two—Three—Move!); the cancelling command is As you were",
             "Dressing means lining up straight with the ranks beside you and in front and behind (manual p.6)",
-            "The directing flank is the side the squad dresses by; right dress takes the right as the guide",
-            "The manual gives no movement breakdown: the arms and feet follow the leader's demonstration"
+            "Part one (Up!): the right arm is raised sideways to shoulder level, fist clenched with the back of the hand up, while the head turns 90 degrees to the right; the left arm stays tight to the side; both feet flat, knees straight",
+            "Part two (Move!): small shuffling steps left or right until you are one hand-space from the scout on your right",
+            "Two-rank (in file) version: the right arm is raised forward to shoulder level, back of the hand to the right; the left arm stays tight to the side"
           ],
           "check": {
             "q_zh": "「Dressing（看齊）」的意思是？",
@@ -1171,7 +1173,15 @@
             "answer": 0,
             "why_zh": "手冊 p.6：Dressing——排列時，須與兩旁及前後的隊排成直線。",
             "why_en": "Manual p.6: dressing — lining up straight with the ranks beside and in front/behind."
-          }
+          },
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/right-dress-animation.webp",
+              "label_zh": "向右看齊：先立正；Up! 右手向橫提升至肩膊平、手背向天，頭同時轉右 90 度；Move! 用碎步橫移就位，與右方隊員保持一隻手位距離",
+              "label_en": "Right dress: from attention, on “Up!” the right arm rises sideways to shoulder level with the back of the hand up and the head turns 90 degrees right; on “Move!” small shuffling steps close the gap until you are one hand-space from the scout on your right",
+              "hold_ms": 1880
+            }
+          ]
         }
       ]
     }
