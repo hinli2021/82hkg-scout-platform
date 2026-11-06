@@ -240,6 +240,14 @@
           "count": "打數：One—Two—Three—One",
           "img": "img/quest/drill/manual/p034-right-turn.jpg",
           "img2": "img/quest/drill/manual/p035-right-turn-2.jpg",
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/right-turn-animation.webp",
+              "label_zh": "向右轉：以右腳掌及左腳尖為軸心向右轉 90 度（轉至面向畫面左方），抬腳九十度，左腳放下靠攏，回復立正",
+              "label_en": "Right turn: pivot 90 degrees to his right until he faces the left of the image, knee raised at ninety degrees, the left foot comes down and closes — back at Alert",
+              "hold_ms": 3200
+            }
+          ],
           "manual": "手冊 p.34–35",
           "points_zh": [
             "第一分部：微微提高右腳尖及左腳跟，以右腳掌及左腳尖為軸心，用頭、肩膊及身體的力量向右轉 90 度",
