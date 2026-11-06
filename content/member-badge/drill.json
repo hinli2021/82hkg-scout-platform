@@ -500,6 +500,14 @@
           "command": "One pace backward—march!",
           "count": "打數：One—Two",
           "study_group": "pacing",
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/pace-backward-side-animation.webp",
+              "label_zh": "後移一步：左腿離地後擺，身體隨之後移，左腿後落，雙腳踏地，右腿離地抬腳九十度，右腿放下併攏，回復立正",
+              "label_en": "One pace backward: the left leg lifts and swings back, the body follows, it lands behind, the right leg lifts to ninety degrees and comes down, the feet close — back at Alert",
+              "hold_ms": 4440
+            }
+          ],
           "leader_demo": true,
           "points_zh": [
             "聽口令向後移一步，頭和身體仍正面向前，不轉身",
