@@ -456,6 +456,14 @@
           "command": "One pace forward—march!",
           "count": "打數：One—Two",
           "study_group": "pacing",
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/pace-forward-side-animation.webp",
+              "label_zh": "前移一步：前腳踏前，後腳靠攏，回復立正",
+              "label_en": "One pace forward: the front foot steps ahead, the rear foot closes — back at Alert",
+              "hold_ms": 2880
+            }
+          ],
           "leader_demo": true,
           "points_zh": [
             "聽口令向前移一步，身體保持正面向前及立正姿勢",
