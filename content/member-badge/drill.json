@@ -780,7 +780,15 @@
             "answer": 0,
             "why_zh": "手冊：要提高的腳必需提高至大腿與地面平行。",
             "why_en": "Manual: the thigh comes level with the ground."
-          }
+          },
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/mark-time-animation.webp",
+              "label_zh": "原地踏步：左右腳交替提起至大腿與地面平行，支撐腳掌平放、膝頭直，雙手握拳貼褲縫，每分鐘 116 步",
+              "label_en": "Mark time: lift each foot in turn until the thigh is level, the supporting foot flat with the knee straight, fists at the trouser seams, 116 steps to the minute",
+              "hold_ms": 2180
+            }
+          ]
         }
       ]
     },
