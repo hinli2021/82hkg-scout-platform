@@ -699,7 +699,15 @@
             "answer": 0,
             "why_zh": "手冊：開步 750 毫米（30 英吋），每分鐘 116 步。",
             "why_en": "Manual: a 750 mm (30 in) step at 116 paces to the minute."
-          }
+          },
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/quick-march-animation.webp",
+              "label_zh": "開步走：左腳踏前 750 毫米，雙臂前後自然擺動、握拳，身軀挺直，每分鐘 116 步",
+              "label_en": "Quick march: the left foot steps forward 750 mm, arms swing in opposition from the shoulder with fists clenched, body upright — 116 steps to the minute",
+              "hold_ms": 2060
+            }
+          ]
         },
         {
           "id": "halt",
