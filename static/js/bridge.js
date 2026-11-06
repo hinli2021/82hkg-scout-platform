@@ -127,11 +127,24 @@
       window.addEventListener('resize', syncMore);
     }
 
-    function say(html, emoji) {
+    function say(html, emoji, keepScroll) {
       if (!card) return;
+      /* 放下木板是同一個畫面重畫：位置要留在原處，不要跳回頂部
+         （手機捲的是整頁，桌面捲的是畫面下方的面板，兩邊都要留住）。 */
+      var winY = window.scrollY || window.pageYOffset || 0;
+      var panelY = panel ? panel.scrollTop : 0;
       card.innerHTML = html;
-      // the panel scrolls under the picture: a new scene starts at its heading
-      if (panel && panel.scrollTop) panel.scrollTop = 0;
+      if (keepScroll) {
+        var restore = function () {
+          if (panel && panelY) panel.scrollTop = panelY;
+          if (winY) window.scrollTo(0, winY);
+        };
+        restore();
+        window.requestAnimationFrame(restore);
+      } else if (panel && panel.scrollTop) {
+        // a new scene starts at its heading
+        panel.scrollTop = 0;
+      }
       card.classList.remove('is-in');
       void card.offsetWidth;
       card.classList.add('is-in');
@@ -173,16 +186,19 @@
 
     /* ── the bridge itself ─────────────────────────────────────────────────── */
 
+    /* 一格木板：編號收在左上角，不佔格子的寬和高 —— 空格與鋪好的一模一樣，
+       木板只是照着虛線的形狀填進去，長的字也不會被編號擠成一條直線。 */
     function slotHtml(index) {
       var plank = state.laid[index];
       var number = fill(pick(L.slot_zh, L.slot_en) || '第 {i} 塊', { i: index + 1 });
+      var no = '<span class="bridge-slot-no">' + esc(number) + '</span>';
       if (!plank) {
-        return '<span class="bridge-slot is-empty"><b>' + esc(number) + '</b>' +
+        return '<span class="bridge-slot is-empty">' + no +
                '<i>' + esc(pick(L.empty_zh, L.empty_en) || '') + '</i></span>';
       }
       var text = pick(plank.zh, plank.en);
-      return '<span class="bridge-slot is-laid' + (text.length > 10 ? ' has-long' : '') + '"><b>' +
-             esc(number) + '</b><span class="bridge-board">' + esc(text) + '</span></span>';
+      return '<span class="bridge-slot is-laid' + (text.length > 10 ? ' has-long' : '') + '">' + no +
+             '<span class="bridge-board">' + esc(text) + '</span></span>';
     }
 
     /* 同一句的木板排成一行：先按木板上的 line 分組，再把每行的空格畫出來 */
@@ -252,6 +268,7 @@
     }
 
     function show(scene) {
+      var wasScene = state.scene;
       state.scene = scene;
       mark(scene);
       var st = stage();
@@ -274,7 +291,8 @@
             '<p class="cave-line small">' + esc(pick((cfg.planks || {}).tip_zh, (cfg.planks || {}).tip_en)) + '</p>' +
             bridgeHtml() +
             '<div class="cave-actions"><button class="btn ghost" type="button" data-bridge-go="teach">' +
-            esc(pick(L.card_reopen_zh, L.card_reopen_en) || '') + '</button></div>');
+            esc(pick(L.card_reopen_zh, L.card_reopen_en) || '') + '</button></div>',
+            null, wasScene === 'build');
       } else if (scene === 'wrong') {
         var wrong = cfg.wrong || {};
         setArt(wrong.image || 'slip');

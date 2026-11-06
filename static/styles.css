@@ -2418,22 +2418,33 @@ body.is-game main { padding-top: 6px; }
   background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .12);
 }
 .bridge-slots { flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: .3rem; }
+/* 一格木板：虛線框就是木板放上去之後的形狀。空格與鋪好的同一個大小、同一條虛線，
+   木板只是照着虛線填上木色；編號收在左上角，不佔格子的寬和高，長的字才不會被
+   擠成一條直線（「竭盡所能」也要橫着讀得出來）。 */
 .bridge-slot {
-  flex: 1 1 3.6rem; min-width: 3.6rem; display: flex; flex-direction: column; gap: .12rem;
-  padding: .35rem .4rem; border-radius: .45rem; text-align: center;
+  position: relative;
+  flex: 1 1 3.6rem; min-width: 3.6rem;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 2.9rem; padding: 1.05rem .3rem .3rem;
+  border-radius: .45rem; text-align: center;
   border: 1px dashed rgba(255, 255, 255, .28);
 }
-.bridge-slot b { font-size: .64rem; font-weight: 800; letter-spacing: .03em; color: #cfe0cf; }
-.bridge-slot i { color: rgba(255, 255, 255, .35); font-style: normal; font-size: .8rem; }
+.bridge-slot-no {
+  position: absolute; top: .2rem; left: .34rem; line-height: 1.1;
+  font-size: .54rem; font-weight: 800; letter-spacing: .04em; color: #cfe0cf;
+}
+.bridge-slot i { color: rgba(255, 255, 255, .3); font-style: normal; font-size: .76rem; }
 .bridge-slot.is-laid {
-  border: 1px solid rgba(217, 164, 65, .6);
-  background: linear-gradient(180deg, #b98a52, #8a6033);
+  border: 1px dashed rgba(255, 214, 150, .62);
+  background: linear-gradient(180deg, #c99a5f, #916536);
   box-shadow: 0 3px 10px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .18);
 }
-.bridge-slot.is-laid b { color: #3c2a14; }
-.bridge-board { color: #2b1d0c; font-weight: 800; font-size: .86rem; line-height: 1.35;
-  overflow-wrap: anywhere; }
-.bridge-slot.is-laid.has-long .bridge-board { font-size: .78rem; }
+.bridge-slot.is-laid .bridge-slot-no { color: #3c2a14; }
+.bridge-board {
+  color: #241705; font-weight: 800; font-size: .88rem; line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.bridge-slot.is-laid.has-long .bridge-board { font-size: .74rem; }
 .bridge-slot.is-empty { background: rgba(255, 255, 255, .04); }
 
 /* the pile of planks still on the bank */
@@ -2474,8 +2485,7 @@ body.is-game main { padding-top: 6px; }
 @media (max-width: 640px) {
   .bridge-line { flex-direction: column; gap: .2rem; }
   .bridge-line-label { flex: none; align-self: flex-start; padding: .1rem .5rem; }
-  .bridge-slot { flex-direction: row; align-items: baseline; gap: .5rem; text-align: left; }
-  .bridge-slot b { flex: 0 0 3.4rem; }
+  /* 一格木板在窄屏仍然是上編號、下字詞：改成左右排會把字擠成一條直線 */
   .bridge-plank { font-size: .82rem; }
 }
 
