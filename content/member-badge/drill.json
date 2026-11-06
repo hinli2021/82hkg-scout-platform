@@ -310,7 +310,15 @@
             "answer": 0,
             "why_zh": "手冊：以左腳掌及右腳尖為軸心向左轉 90 度。",
             "why_en": "Manual: pivot on the left ball of the foot and right toe."
-          }
+          },
+          "animation": [
+            {
+              "img": "img/quest/drill/movements/left-turn-animation.webp",
+              "label_zh": "向左轉：以左腳掌及右腳尖為軸心向左轉 90 度（轉至面向畫面右方），抬腳九十度，右腳放下靠攏，回復立正",
+              "label_en": "Left turn: pivot 90 degrees to his left on the left ball and right toe until he faces the right of the image, knee raised at ninety degrees, the right foot comes down and closes — back at Alert",
+              "hold_ms": 3200
+            }
+          ]
         },
         {
           "id": "about-turn",
