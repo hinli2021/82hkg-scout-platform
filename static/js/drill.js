@@ -530,13 +530,10 @@
              ' data-drill-animation="' + esc(m.id) + '" data-frame-count="' + frames.length + '"' +
              ' role="img" aria-label="' + esc(ariaLabel) + '">' +
         frames.map(function (frame, index) {
-          /* a question animation carries no teaching caption: the scout has
-             to name the movement from the statue's action alone */
-          var label = (variant === 'button' || isPrompt) ? '' : pick(frame.label_zh, frame.label_en);
+          /* no caption under the statue: the animation itself is the teaching */
           return '<span class="drill-statue-step' + (index === 0 ? ' is-active' : '') + '"' +
                  ' data-drill-frame data-hold-ms="' + esc(frame.hold_ms || 900) + '">' +
             '<img src="' + esc(artUrl(frame.img)) + '" alt="">' +
-            (label ? '<span class="drill-statue-caption">' + esc(label) + '</span>' : '') +
           '</span>';
         }).join('') +
       '</span>';
