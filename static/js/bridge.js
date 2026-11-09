@@ -222,6 +222,27 @@
       return rows;
     }
 
+    /* 這一行由第幾塊木板開始：錯放一塊，只把這一行收回河岸，
+       上面已經釘好的行留在橋上。 */
+    function rowStartFor(index) {
+      var rows = plankRows(stage());
+      var start = 0;
+      for (var r = 0; r < rows.length; r += 1) {
+        if (index < start + rows[r].planks.length) return start;
+        start += rows[r].planks.length;
+      }
+      return start;
+    }
+
+    /* 把還留在手上的木板重新洗好：橋上已有的不再放回河岸 */
+    function refillPool() {
+      var used = {};
+      state.laid.forEach(function (plank) { used[plank.key] = true; });
+      state.pool = shuffled((stage().planks || []).filter(function (plank) {
+        return !used[plank.key];
+      }));
+    }
+
     function bridgeHtml() {
       var index = 0;
       var rail = plankRows(stage()).map(function (row) {
@@ -298,16 +319,24 @@
             null, wasScene === 'build');
       } else if (scene === 'wrong') {
         var wrong = cfg.wrong || {};
+        var kept = state.laid.length;
         setArt(wrong.image || 'slip');
         say(kicker(pick(wrong.kicker_zh, wrong.kicker_en), 'bad') +
-            '<h2 class="cave-subtitle">' + esc(pick(wrong.title_zh, wrong.title_en)) + '</h2>' +
-            lines(isEn() ? toLines(wrong.lead_en || wrong.lead_zh) : toLines(wrong.lead_zh), 'small') +
+            '<h2 class="cave-subtitle">' + esc(pick(wrong.title_row_zh || wrong.title_zh,
+                                                    wrong.title_row_en || wrong.title_en)) + '</h2>' +
+            lines(isEn() ? toLines(wrong.lead_row_en || wrong.lead_en || wrong.lead_zh)
+                         : toLines(wrong.lead_row_zh || wrong.lead_zh), 'small') +
+            (kept
+              ? '<p class="cave-line small">' + esc(fill(
+                  pick(L.wrong_kept_zh, L.wrong_kept_en) ||
+                    '橋上已鋪好的 {n} 塊木板保留不變。', { n: kept })) + '</p>'
+              : '') +
             '<h3 class="cave-subtitle bridge-recap-title">' + esc(pick(wrong.recap_title_zh, wrong.recap_title_en)) + '</h3>' +
             '<h4 class="bridge-recap-head">' + esc(pick((stage().teach || {}).title_zh, (stage().teach || {}).title_en)) + '</h4>' +
             wordingBox(stage().teach, { details: true, label: false }) +
             '<p class="cave-line small">' + esc(fill(pick(wrong.note_zh, wrong.note_en), { chain: chainOf(stage().teach) })) + '</p>' +
             '<div class="cave-actions"><button class="btn primary big" type="button" data-bridge-go="retry">' +
-            esc(pick(wrong.retry_zh, wrong.retry_en)) + '</button></div>');
+            esc(pick(wrong.retry_row_zh || wrong.retry_zh, wrong.retry_row_en || wrong.retry_en)) + '</button></div>');
       } else if (scene === 'built') {
         var built = cfg.built || {};
         var last = state.stage + 1 >= total;
@@ -359,10 +388,12 @@
       if (!plank || !wanted) return;
       /* 同樣文字的木板可以互換：次序對了就扣得住，用哪一塊都可以 */
       if (plankLabel(plank) !== plankLabel(wanted)) {
-        /* the board tips off the wet rock into the water */
+        /* the board tips off the wet rock into the water: only the line being
+           laid is taken up again, so the rows already pinned stay put */
+        var rowStart = rowStartFor(state.laid.length);
         state.wrongKey = key;
-        state.laid = [];
-        state.pool = shuffled(stage().planks || []);
+        state.laid = state.laid.slice(0, rowStart);
+        refillPool();
         thud();
         show('wrong');
         return;
@@ -384,8 +415,7 @@
     }
 
     function retry() {
-      state.laid = [];
-      state.pool = shuffled(stage().planks || []);
+      refillPool();
       state.wrongKey = '';
       show('build');
     }

@@ -2441,20 +2441,26 @@ body.is-game main { padding-top: 6px; }
 }
 .bridge-slot.is-laid .bridge-slot-no { color: #3c2a14; }
 .bridge-board {
-  color: #241705; font-weight: 800; font-size: .88rem; line-height: 1.2;
+  color: #241705; font-weight: 800; font-size: .95rem; line-height: 1.2;
   overflow-wrap: anywhere;
 }
-.bridge-slot.is-laid.has-long .bridge-board { font-size: .74rem; }
+.bridge-slot.is-laid.has-long .bridge-board { font-size: .8rem; }
 .bridge-slot.is-empty { background: rgba(255, 255, 255, .04); }
 
 /* the pile of planks still on the bank */
-.bridge-planks { display: flex; flex-wrap: wrap; gap: .4rem; margin: .1rem 0 .5rem; }
+/* 河岸上的木板：手指要按得準，所以每一塊都做得大 —— 最少 3.4rem 高、
+   8rem 闊，字也放大，不必貼著螢幕看。 */
+.bridge-planks {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: .55rem; margin: .15rem 0 .6rem;
+}
 .bridge-plank {
-  font: inherit; font-weight: 800; font-size: .86rem; line-height: 1.3; text-align: left;
+  font: inherit; font-weight: 800; font-size: 1.02rem; line-height: 1.3; text-align: center;
   color: #2b1d0c; cursor: pointer; overflow-wrap: anywhere;
-  padding: .45rem .65rem; border-radius: .45rem; border: 1px solid #6f4e28;
+  min-height: 3.4rem; padding: .7rem .8rem; border-radius: .55rem; border: 1px solid #6f4e28;
+  display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, #e2b877, #c3904f);
-  box-shadow: 0 3px 0 #6f4e28, 0 6px 14px rgba(0, 0, 0, .3);
+  box-shadow: 0 4px 0 #6f4e28, 0 7px 16px rgba(0, 0, 0, .3);
 }
 .bridge-plank:hover { background: linear-gradient(180deg, #f0ca8d, #cfa061); transform: translateY(-1px); }
 .bridge-plank:active { transform: translateY(2px); box-shadow: 0 1px 0 #6f4e28; }
@@ -2486,7 +2492,8 @@ body.is-game main { padding-top: 6px; }
   .bridge-line { flex-direction: column; gap: .2rem; }
   .bridge-line-label { flex: none; align-self: flex-start; padding: .1rem .5rem; }
   /* 一格木板在窄屏仍然是上編號、下字詞：改成左右排會把字擠成一條直線 */
-  .bridge-plank { font-size: .82rem; }
+  .bridge-planks { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: .45rem; }
+  .bridge-plank { font-size: .95rem; min-height: 3.2rem; padding: .6rem .55rem; }
 }
 
 

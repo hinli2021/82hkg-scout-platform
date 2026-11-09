@@ -63,7 +63,19 @@
     "retry_zh": "明白了，再排一次",
     "retry_en": "Understood — lay them again",
     "note_zh": "次序照著上列原文再排一次：{chain}",
-    "note_en": "Lay the boards again in the order of the words above: {chain}"
+    "note_en": "Lay the boards again in the order of the words above: {chain}",
+    "title_row_zh": "這一行要重排",
+    "title_row_en": "This line comes up again",
+    "lead_row_zh": [
+      "木板要順着次序放。放錯的一塊，只把這一行收回河岸 —— 上面已經釘好的行留在橋上，不用由頭再排。",
+      "上面的教學牌再講一次這一段，之後只排這一行。"
+    ],
+    "lead_row_en": [
+      "The boards only hold in order. A board laid out of turn takes up just this line — the rows already pinned above stay on the bridge.",
+      "The teaching card goes through the passage once more; then lay this line again."
+    ],
+    "retry_row_zh": "明白了，再排這一行",
+    "retry_row_en": "Understood — lay this line"
   },
   "built": {
     "image": "bank",
@@ -167,7 +179,9 @@
     "leave_stay_zh": "繼續過橋",
     "leave_stay_en": "Stay and finish",
     "leave_go_zh": "離開遊戲",
-    "leave_go_en": "Leave the game"
+    "leave_go_en": "Leave the game",
+    "wrong_kept_zh": "橋上已鋪好的 {n} 塊木板保留不變。",
+    "wrong_kept_en": "The {n} boards already pinned stay on the bridge."
   },
   "stages": [
     {
