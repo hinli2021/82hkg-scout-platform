@@ -606,7 +606,7 @@ def _wall_current(config: dict, n: int, groups: list[dict]) -> tuple[dict, bool]
     return base, False
 
 
-def _rows(text: str, label_zh: str, label_en: str) -> list[list[str]]:
+def _rows(text: str) -> list[list[str]]:
     """Split a textarea into `left | right` rows, forgiving about the bar used."""
     rows = []
     for line in str(text or "").splitlines():
@@ -619,46 +619,83 @@ def _rows(text: str, label_zh: str, label_en: str) -> list[list[str]]:
                 rows.append([left.strip(), right.strip()])
                 break
         else:
-            raise ValueError(label_zh if label_zh else label_en)
+            raise ValueError("row without a bar")
     return rows
 
 
-def _wall_from_form(form, defaults: dict) -> dict | None:
-    """Read the wall form. Returns None when the wording is not usable."""
+WALL_CAPS = {"lead": 8, "timeline": 20, "facts": 12, "cell": 600}
+
+
+def _wall_from_form(form) -> tuple[dict | None, str]:
+    """Read the wall form. Returns (wall, "") or (None, reason).
+
+    The caps are deliberately generous: the troop's own history wall carries
+    eight key facts and the promise wall seven, so a tight limit here would
+    quietly make a wall impossible to save at all.
+    """
     def text(name, limit):
         return (form.get(name) or "").strip()[:limit]
 
     wall = {}
     for key in ("title_zh", "title_en", "note_zh", "note_en"):
-        value = text(key, 400)
-        if key.startswith("title") and not value:
-            return None
-        wall[key] = value
+        wall[key] = text(key, WALL_CAPS["cell"])
+    if not wall["title_zh"] or not wall["title_en"]:
+        return None, "title"
 
     for lang in ("zh", "en"):
         paras = [line.strip() for line in (form.get(f"lead_{lang}") or "").splitlines() if line.strip()]
-        if not paras or len(paras) > 8 or any(len(line) > 600 for line in paras):
-            return None
+        if (not paras or len(paras) > WALL_CAPS["lead"]
+                or any(len(line) > WALL_CAPS["cell"] for line in paras)):
+            return None, "lead"
         wall[f"lead_{lang}"] = paras
 
     try:
-        when_zh = _rows(form.get("timeline_zh"), "時間線", "timeline")
-        text_zh = _rows(form.get("timeline_en"), "時間線", "timeline")
-        fact_zh = _rows(form.get("facts_zh"), "重點", "facts")
-        fact_en = _rows(form.get("facts_en"), "重點", "facts")
+        when_zh = _rows(form.get("timeline_zh"))
+        when_en = _rows(form.get("timeline_en"))
+        fact_zh = _rows(form.get("facts_zh"))
+        fact_en = _rows(form.get("facts_en"))
     except ValueError:
-        return None
-    if len(when_zh) != len(text_zh) or len(fact_zh) != len(fact_en):
-        return None
-    if len(when_zh) > 12 or len(fact_zh) > 6:
-        return None
-    if any(len(cell) > 400 for row in when_zh + text_zh + fact_zh + fact_en for cell in row):
-        return None
+        return None, "rows"
+    if len(when_zh) != len(when_en) or len(fact_zh) != len(fact_en):
+        return None, "rows"
+    if (len(when_zh) > WALL_CAPS["timeline"] or len(fact_zh) > WALL_CAPS["facts"]):
+        return None, "limit"
+    if any(len(cell) > WALL_CAPS["cell"]
+           for row in when_zh + when_en + fact_zh + fact_en for cell in row):
+        return None, "limit"
     wall["timeline"] = [{"when_zh": a[0], "when_en": b[0], "text_zh": a[1], "text_en": b[1]}
-                        for a, b in zip(when_zh, text_zh)]
+                        for a, b in zip(when_zh, when_en)]
     wall["facts"] = [{"label_zh": a[0], "label_en": b[0], "value_zh": a[1], "value_en": b[1]}
                      for a, b in zip(fact_zh, fact_en)]
-    return {k: wall[k] for k in WALL_FIELDS}
+    return {k: wall[k] for k in WALL_FIELDS}, ""
+
+
+WALL_ERRORS = {
+    "title": ("請填寫中文及英文標題。", "Both the Chinese and the English title are required."),
+    "lead": ("引言至少要有一段；每段一行，最多八段。", "Give at least one line of lead text (up to eight lines)."),
+    "rows": ("時間線與重點每行要寫成「甲 ｜ 乙」，而且中文與英文的行數要相同。",
+             "Each timeline and key-fact line needs a “left | right” pair, with the same number of Chinese and English rows."),
+    "limit": ("時間線最多 20 行、重點最多 12 行，每個欄位不超過 600 字。",
+              "Up to 20 timeline rows and 12 key facts, 600 characters per cell."),
+}
+
+
+def _wall_view(wall: dict) -> dict:
+    """The form's textareas, as the leader should see them."""
+    return {
+        "title_zh": wall.get("title_zh", ""), "title_en": wall.get("title_en", ""),
+        "lead_zh": "\n".join(wall.get("lead_zh") or []),
+        "lead_en": "\n".join(wall.get("lead_en") or []),
+        "timeline_zh": "\n".join(f"{r.get('when_zh', '')} ｜ {r.get('text_zh', '')}"
+                                  for r in (wall.get("timeline") or [])),
+        "timeline_en": "\n".join(f"{r.get('when_en', '')} ｜ {r.get('text_en', '')}"
+                                  for r in (wall.get("timeline") or [])),
+        "facts_zh": "\n".join(f"{r.get('label_zh', '')} ｜ {r.get('value_zh', '')}"
+                               for r in (wall.get("facts") or [])),
+        "facts_en": "\n".join(f"{r.get('label_en', '')} ｜ {r.get('value_en', '')}"
+                               for r in (wall.get("facts") or [])),
+        "note_zh": wall.get("note_zh", ""), "note_en": wall.get("note_en", ""),
+    }
 
 
 @leader_routes.get("/leader/content/tasks/<task_id>/cave-walls")
@@ -678,25 +715,36 @@ def cave_walls(task_id: str):
               "customised": bool((config.get("walls") or {}).get(str(g["n"])))}
              for g in groups]
     return render_template("leader/cave_walls.html", task=task, badge=badge,
-                           walls=walls, wall=wall, n=n, customised=customised)
+                           walls=walls, wall=wall, n=n, customised=customised,
+                           fields=_wall_view(wall["wall"]), error=None, draft=None)
 
 
 @leader_routes.post("/leader/content/tasks/<task_id>/cave-walls/<int:n>")
 @leader_required
 def save_cave_wall(task_id: str, n: int):
     """Save, or reset, one wall's teaching text. Questions are untouched."""
-    st, task, _, config, groups = _cave_editor_data(task_id)
+    st, task, badge, config, groups = _cave_editor_data(task_id)
     base = _wall_defaults(groups, n)
     walls = dict(config.get("walls") or {})
     if request.form.get("action") == "reset":
         walls.pop(str(n), None)
     else:
-        wall = _wall_from_form(request.form, base["wall"])
+        wall, reason = _wall_from_form(request.form)
         if wall is None:
-            return fail(400, "cave_wall_wording",
-                        "請檢查：標題必填；時間線與重點每行須為「甲 ｜ 乙」，中英行數要相同。",
-                        "Check the wall: the title is required, and every timeline / fact line "
-                        "needs a “left | right” pair with matching Chinese and English row counts.")
+            message = WALL_ERRORS[reason]
+            if wants_json():
+                return fail(400, "cave_wall_wording", *message)
+            # a plain form post must never dump JSON at a leader — hand the page
+            # back with the typing intact and a sentence saying what to fix
+            summary = [{"n": g["n"], "icon": g.get("icon", ""),
+                        "name_zh": g.get("name_zh", ""), "name_en": g.get("name_en", ""),
+                        "customised": bool((config.get("walls") or {}).get(str(g["n"])))}
+                       for g in groups]
+            typed = {key: (request.form.get(key) or "") for key in _wall_view({})}
+            return render_template(
+                "leader/cave_walls.html", task=task, badge=badge, walls=summary,
+                wall=base, n=n, customised=bool((config.get("walls") or {}).get(str(n))),
+                fields=typed, error=message, draft=True), 400
         walls[str(n)] = wall
     config["walls"] = walls
     st.update("tasks", task_id, {"config_json": config, "updated_at": now_iso()})

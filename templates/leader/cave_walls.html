@@ -17,6 +17,11 @@
 {% if request.args.get('saved') %}
   <div class="alert ok" role="status">✅ {{ L('壁畫已儲存；新開始的山洞遊戲會顯示更新後的文字。', 'Wall saved. Newly started cave games will show your wording.') }}</div>
 {% endif %}
+{% if error %}
+  <div class="alert" role="alert" style="border-color:#8a4a3a">⚠️ {{ L(error[0], error[1]) }}
+    {% if draft %}<div class="small muted" style="margin-top:.25rem">{{ L('你輸入的內容仍在下面的欄位，改好再儲存便可。', 'Your text is still in the boxes below — fix it and save again.') }}</div>{% endif %}
+  </div>
+{% endif %}
 <div class="card small muted" style="margin-bottom:.8rem">
   {{ L('格式：時間線與重點每行寫「左 ｜ 右」，例如「1857 年 2 月 22 日 ｜ 貝登堡出生」。中文與英文的行數要一樣，第 1 行對第 1 行。引言一段一行。圖片本身不在此修改。', 'Format: one “left | right” pair per line for the timeline and the key facts, e.g. “22 February 1857 | Baden-Powell is born”. Chinese and English must have the same number of rows, matched row by row. One paragraph per line in the lead. The paintings themselves are not changed here.') }}
 </div>
@@ -44,41 +49,37 @@
 
       <div class="form-grid">
         <label class="field"><span>{{ L('標題（中文）', 'Title (Chinese)') }}</span>
-          <input type="text" name="title_zh" maxlength="400" required value="{{ wall.wall.title_zh }}"></label>
+          <input type="text" name="title_zh" maxlength="400" required value="{{ fields.title_zh }}"></label>
         <label class="field"><span>{{ L('標題（英文）', 'Title (English)') }}</span>
-          <input type="text" name="title_en" maxlength="400" required value="{{ wall.wall.title_en }}"></label>
+          <input type="text" name="title_en" maxlength="400" required value="{{ fields.title_en }}"></label>
       </div>
 
       <div class="form-grid">
         <label class="field"><span>{{ L('引言（中文，一段一行）', 'Lead (Chinese, one paragraph per line)') }}</span>
-          <textarea name="lead_zh" rows="5" required>{{ (wall.wall.lead_zh or []) | join('\n') }}</textarea></label>
+          <textarea name="lead_zh" rows="5" required>{{ fields.lead_zh }}</textarea></label>
         <label class="field"><span>{{ L('引言（英文，一段一行）', 'Lead (English, one paragraph per line)') }}</span>
-          <textarea name="lead_en" rows="5" required>{{ (wall.wall.lead_en or []) | join('\n') }}</textarea></label>
+          <textarea name="lead_en" rows="5" required>{{ fields.lead_en }}</textarea></label>
       </div>
 
       <div class="form-grid">
         <label class="field"><span>{{ L('時間線（中文）「年份 ｜ 說明」', 'Timeline (Chinese) “when | what happened”') }}</span>
-          <textarea name="timeline_zh" rows="9" required>{% for row in wall.wall.timeline or [] %}{{ row.when_zh }} ｜ {{ row.text_zh }}
-{% endfor %}</textarea></label>
+          <textarea name="timeline_zh" rows="9" required>{{ fields.timeline_zh }}</textarea></label>
         <label class="field"><span>{{ L('時間線（英文）「年份 ｜ 說明」', 'Timeline (English) “when | what happened”') }}</span>
-          <textarea name="timeline_en" rows="9" required>{% for row in wall.wall.timeline or [] %}{{ row.when_en }} ｜ {{ row.text_en }}
-{% endfor %}</textarea></label>
+          <textarea name="timeline_en" rows="9" required>{{ fields.timeline_en }}</textarea></label>
       </div>
 
       <div class="form-grid">
         <label class="field"><span>{{ L('重點（中文）「標籤 ｜ 內容」', 'Key facts (Chinese) “label | value”') }}</span>
-          <textarea name="facts_zh" rows="4" required>{% for row in wall.wall.facts or [] %}{{ row.label_zh }} ｜ {{ row.value_zh }}
-{% endfor %}</textarea></label>
+          <textarea name="facts_zh" rows="4" required>{{ fields.facts_zh }}</textarea></label>
         <label class="field"><span>{{ L('重點（英文）「標籤 ｜ 內容」', 'Key facts (English) “label | value”') }}</span>
-          <textarea name="facts_en" rows="4" required>{% for row in wall.wall.facts or [] %}{{ row.label_en }} ｜ {{ row.value_en }}
-{% endfor %}</textarea></label>
+          <textarea name="facts_en" rows="4" required>{{ fields.facts_en }}</textarea></label>
       </div>
 
       <div class="form-grid">
         <label class="field"><span>{{ L('筆記（中文）', 'Closing note (Chinese)') }}</span>
-          <textarea name="note_zh" rows="3" maxlength="400">{{ wall.wall.note_zh }}</textarea></label>
+          <textarea name="note_zh" rows="3" maxlength="400">{{ fields.note_zh }}</textarea></label>
         <label class="field"><span>{{ L('筆記（英文）', 'Closing note (English)') }}</span>
-          <textarea name="note_en" rows="3" maxlength="400">{{ wall.wall.note_en }}</textarea></label>
+          <textarea name="note_en" rows="3" maxlength="400">{{ fields.note_en }}</textarea></label>
       </div>
 
       <div class="cave-actions">

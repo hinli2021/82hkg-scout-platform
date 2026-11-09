@@ -107,6 +107,36 @@ def test_malformed_wall_text_is_refused(app, store, leader_client, scout_client)
     assert response.status_code == 400
 
 
+def test_every_wall_can_be_saved(app, store, leader_client):
+    """The troop's own history wall carries eight key facts and the promise
+    wall seven — a cap tighter than the real content made those walls
+    impossible to save at all."""
+    task = cave(store)
+    for group in cave_adventure()["groups"]:
+        response = leader_client.post(
+            f"/leader/content/tasks/{task['id']}/cave-walls/{group['n']}",
+            data=wall_form(group["wall"]))
+        assert response.status_code in (200, 302), group["name_zh"]
+    config = engine.as_json(store.get("tasks", task["id"])["config_json"], {})
+    assert sorted(config["walls"]) == ["1", "2", "3", "4"]
+    # the widest wall keeps every fact, in order
+    assert len(config["walls"]["3"]["facts"]) == len(cave_adventure()["groups"][2]["wall"]["facts"])
+
+
+def test_a_bad_wall_post_returns_the_page_not_json(app, store, leader_client):
+    """A leader posting the plain HTML form must see a sentence, not an API error."""
+    task = cave(store)
+    group = cave_adventure()["groups"][2]
+    form = wall_form(group["wall"], timeline_en="only one row")
+    response = leader_client.client.post(
+        f"/leader/content/tasks/{task['id']}/cave-walls/3", data=form)
+    body = response.get_data(as_text=True)
+    assert response.status_code == 400
+    assert "<html" in body[:400]
+    assert "中文與英文的行數要相同" in body
+    assert "only one row" in body          # nothing the leader typed is thrown away
+
+
 def test_only_leaders_reach_the_wall_editor(app, store, leader_client, scout_client):
     task = cave(store)
     url = f"/leader/content/tasks/{task['id']}/cave-walls"
