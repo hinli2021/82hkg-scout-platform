@@ -12,6 +12,7 @@
     <h1 style="margin:0">🕯️ {{ L('編輯山洞題目', 'Edit cave questions') }}</h1>
     <p class="muted small" style="margin:.3rem 0 0">{{ L('四段壁畫 · 50 題。一次修改及儲存一題；題號與分組保持不變。', 'Four walls · 50 questions. Edit and save one question at a time; its ID and group stay fixed.') }}</p>
   </div>
+  <a class="btn ghost" href="{{ url_for('leader_routes.cave_walls', task_id=task.id, wall=section.n) }}">🖼️ {{ L('編輯這幅壁畫', 'Edit this wall') }}</a>
   <a class="btn ghost" href="{{ url_for('leader_routes.content') }}">{{ L('返回內容', 'Back to content') }}</a>
 </div>
 {% if request.args.get('saved') %}

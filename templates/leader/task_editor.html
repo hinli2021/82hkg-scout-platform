@@ -44,6 +44,7 @@
       <div class="alert info">{{ L('山洞的 50 題分屬四面壁畫，不能在此貼上普通測驗清單；請使用下方專用編輯頁，逐題修改內容與答案，題號及分組會自動保留。',
                                   'The cave’s 50 questions are linked to four walls. Do not paste a normal quiz list here. Use the dedicated editor to update questions and answers while preserving their IDs and groups.') }}</div>
       <a class="btn primary" href="{{ url_for('leader_routes.cave_questions', task_id=task.id) }}">🕯️ {{ L('編輯山洞題目與答案', 'Edit cave questions & answers') }}</a>
+      <a class="btn ghost" href="{{ url_for('leader_routes.cave_walls', task_id=task.id) }}">🖼️ {{ L('編輯山洞壁畫文字', 'Edit cave wall text') }}</a>
     {% elif task.type == 'quiz' %}
       <p class="small muted">{{ L('一行一題，格式：題目｜答案（1 = 第一個選項）｜選項一｜選項二｜…', 'One question per line: question | answer (1 = first option) | option one | …') }}</p>
       <label class="field" style="margin-bottom:.4rem">

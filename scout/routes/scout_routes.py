@@ -395,10 +395,15 @@ def task_cave(task_id: str):
     adventure = cave_adventure()
 
     config = as_json(task.get("config_json"), {})
+    # the leader may have rewritten a wall's teaching text; lay it over the story
+    wall_text = config.get("walls") if isinstance(config.get("walls"), dict) else {}
     bank = [q for q in (config.get("questions") or []) if isinstance(q, dict)]
     by_id = {q.get("id"): (index, q) for index, q in enumerate(bank)}
     groups = []
     for group in adventure["groups"]:
+        override = wall_text.get(str(group.get("n")))
+        if isinstance(override, dict) and override:
+            group = {**group, "wall": {**(group.get("wall") or {}), **override}}
         questions = []
         for qid in group.get("questions") or []:
             found = by_id.get(qid)

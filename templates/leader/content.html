@@ -165,6 +165,7 @@
                 <a class="btn small" href="{{ url_for('leader_routes.edit_task', task_id=task.id) }}">✏️</a>
                 {% if badge.code == 'SC-01' and task.code == 'M04' %}
                   <a class="btn small primary" href="{{ url_for('leader_routes.cave_questions', task_id=task.id) }}">🕯️ {{ L('編輯題目與答案', 'Edit questions & answers') }}</a>
+                  <a class="btn small ghost" href="{{ url_for('leader_routes.cave_walls', task_id=task.id) }}">🖼️ {{ L('編輯壁畫文字', 'Edit wall text') }}</a>
                 {% endif %}
                 {% if task.code in builtin_games %}
                   <span class="btn small ghost" style="cursor:default;opacity:.55"

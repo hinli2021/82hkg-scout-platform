@@ -578,6 +578,135 @@ def save_cave_question(task_id: str, bank_index: int):
                  "leader_routes.cave_questions", task_id=task_id, q=bank_index, saved=1)
 
 
+
+# ── the wall paintings: the teaching text beside the questions ───────────────
+
+WALL_FIELDS = ("title_zh", "title_en", "lead_zh", "lead_en",
+               "timeline", "facts", "note_zh", "note_en")
+
+
+def _wall_defaults(groups: list[dict], n: int) -> dict:
+    """The four walls as written in `cave.json` — the text a scout reads before
+    answering that stretch's questions."""
+    group = next((g for g in groups if int(g.get("n") or 0) == n), None)
+    if not group:
+        abort(404)
+    wall = group.get("wall") or {}
+    return {"n": n, "name_zh": group.get("name_zh") or "", "name_en": group.get("name_en") or "",
+            "icon": group.get("icon") or "", "wall": dict(wall)}
+
+
+def _wall_current(config: dict, n: int, groups: list[dict]) -> tuple[dict, bool]:
+    """The wall as it will play: the leader's saved text laid over cave.json."""
+    base = _wall_defaults(groups, n)
+    saved = (config.get("walls") or {}).get(str(n))
+    if isinstance(saved, dict) and saved:
+        wall = {**base["wall"], **saved}
+        return {**base, "wall": wall}, True
+    return base, False
+
+
+def _rows(text: str, label_zh: str, label_en: str) -> list[list[str]]:
+    """Split a textarea into `left | right` rows, forgiving about the bar used."""
+    rows = []
+    for line in str(text or "").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        for bar in ("｜", "|"):
+            if bar in line:
+                left, right = line.split(bar, 1)
+                rows.append([left.strip(), right.strip()])
+                break
+        else:
+            raise ValueError(label_zh if label_zh else label_en)
+    return rows
+
+
+def _wall_from_form(form, defaults: dict) -> dict | None:
+    """Read the wall form. Returns None when the wording is not usable."""
+    def text(name, limit):
+        return (form.get(name) or "").strip()[:limit]
+
+    wall = {}
+    for key in ("title_zh", "title_en", "note_zh", "note_en"):
+        value = text(key, 400)
+        if key.startswith("title") and not value:
+            return None
+        wall[key] = value
+
+    for lang in ("zh", "en"):
+        paras = [line.strip() for line in (form.get(f"lead_{lang}") or "").splitlines() if line.strip()]
+        if not paras or len(paras) > 8 or any(len(line) > 600 for line in paras):
+            return None
+        wall[f"lead_{lang}"] = paras
+
+    try:
+        when_zh = _rows(form.get("timeline_zh"), "時間線", "timeline")
+        text_zh = _rows(form.get("timeline_en"), "時間線", "timeline")
+        fact_zh = _rows(form.get("facts_zh"), "重點", "facts")
+        fact_en = _rows(form.get("facts_en"), "重點", "facts")
+    except ValueError:
+        return None
+    if len(when_zh) != len(text_zh) or len(fact_zh) != len(fact_en):
+        return None
+    if len(when_zh) > 12 or len(fact_zh) > 6:
+        return None
+    if any(len(cell) > 400 for row in when_zh + text_zh + fact_zh + fact_en for cell in row):
+        return None
+    wall["timeline"] = [{"when_zh": a[0], "when_en": b[0], "text_zh": a[1], "text_en": b[1]}
+                        for a, b in zip(when_zh, text_zh)]
+    wall["facts"] = [{"label_zh": a[0], "label_en": b[0], "value_zh": a[1], "value_en": b[1]}
+                     for a, b in zip(fact_zh, fact_en)]
+    return {k: wall[k] for k in WALL_FIELDS}
+
+
+@leader_routes.get("/leader/content/tasks/<task_id>/cave-walls")
+@leader_required
+def cave_walls(task_id: str):
+    """Edit the four teaching wall paintings that sit beside the cave questions."""
+    _, task, badge, config, groups = _cave_editor_data(task_id)
+    try:
+        n = int(request.args.get("wall", "1"))
+    except ValueError:
+        abort(404)
+    if not (1 <= n <= len(groups)):
+        abort(404)
+    wall, customised = _wall_current(config, n, groups)
+    walls = [{"n": g["n"], "icon": g.get("icon", ""), "name_zh": g.get("name_zh", ""),
+              "name_en": g.get("name_en", ""),
+              "customised": bool((config.get("walls") or {}).get(str(g["n"])))}
+             for g in groups]
+    return render_template("leader/cave_walls.html", task=task, badge=badge,
+                           walls=walls, wall=wall, n=n, customised=customised)
+
+
+@leader_routes.post("/leader/content/tasks/<task_id>/cave-walls/<int:n>")
+@leader_required
+def save_cave_wall(task_id: str, n: int):
+    """Save, or reset, one wall's teaching text. Questions are untouched."""
+    st, task, _, config, groups = _cave_editor_data(task_id)
+    base = _wall_defaults(groups, n)
+    walls = dict(config.get("walls") or {})
+    if request.form.get("action") == "reset":
+        walls.pop(str(n), None)
+    else:
+        wall = _wall_from_form(request.form, base["wall"])
+        if wall is None:
+            return fail(400, "cave_wall_wording",
+                        "請檢查：標題必填；時間線與重點每行須為「甲 ｜ 乙」，中英行數要相同。",
+                        "Check the wall: the title is required, and every timeline / fact line "
+                        "needs a “left | right” pair with matching Chinese and English row counts.")
+        walls[str(n)] = wall
+    config["walls"] = walls
+    st.update("tasks", task_id, {"config_json": config, "updated_at": now_iso()})
+    audit(g.user, "edit_cave_wall", "tasks", task_id, {"wall": n,
+          "action": "reset" if request.form.get("action") == "reset" else "save"})
+    return _done("壁畫已儲存；新開始的山洞遊戲會顯示更新後的文字。",
+                 "Wall saved; newly started cave games will show your wording.",
+                 "leader_routes.cave_walls", task_id=task_id, wall=n, saved=1)
+
+
 def _config_from_form(task_type: str, form, existing: dict) -> dict | None:
     """Turn the leader's plain-text task box into the structured config.
 

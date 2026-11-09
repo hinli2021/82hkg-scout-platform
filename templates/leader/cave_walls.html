@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('編輯山洞壁畫', 'Edit cave walls') }}{% endblock %}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('leader_routes.content') }}">{{ L('內容', 'Content') }}</a>
+  <span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('leader_routes.edit_task', task_id=task.id) }}">{{ L(task.title_zh, task.title_en) }}</a>
+  <span class="breadcrumb-arrow">›</span>{{ L('壁畫文字', 'Wall text') }}
+</div>
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">🖼️ {{ L('編輯山洞壁畫', 'Edit cave walls') }}</h1>
+    <p class="muted small" style="margin:.3rem 0 0">{{ L('四幅壁畫的標題、引言、時間線、重點與筆記。這正是童軍答題前讀到的那段文字；改題目時記得一起改壁畫。', 'The four walls’ titles, lead text, timeline, key facts and closing note — the words a scout reads before answering. Keep them in step with the questions.') }}</p>
+  </div>
+  <a class="btn ghost" href="{{ url_for('leader_routes.cave_questions', task_id=task.id) }}">🕯️ {{ L('編輯題目與答案', 'Edit questions & answers') }}</a>
+</div>
+{% if request.args.get('saved') %}
+  <div class="alert ok" role="status">✅ {{ L('壁畫已儲存；新開始的山洞遊戲會顯示更新後的文字。', 'Wall saved. Newly started cave games will show your wording.') }}</div>
+{% endif %}
+<div class="card small muted" style="margin-bottom:.8rem">
+  {{ L('格式：時間線與重點每行寫「左 ｜ 右」，例如「1857 年 2 月 22 日 ｜ 貝登堡出生」。中文與英文的行數要一樣，第 1 行對第 1 行。引言一段一行。圖片本身不在此修改。', 'Format: one “left | right” pair per line for the timeline and the key facts, e.g. “22 February 1857 | Baden-Powell is born”. Chinese and English must have the same number of rows, matched row by row. One paragraph per line in the lead. The paintings themselves are not changed here.') }}
+</div>
+<div class="cave-editor-layout">
+  <nav class="card cave-editor-index" aria-label="{{ L('壁畫清單', 'Wall list') }}">
+    <strong>🖼️ {{ L('選擇壁畫', 'Choose a wall') }}</strong>
+    {% for item in walls %}
+      <a href="{{ url_for('leader_routes.cave_walls', task_id=task.id, wall=item.n) }}"
+         class="btn ghost" style="display:block;margin:.35rem 0;text-align:left"
+         {% if item.n == n %}aria-current="page"{% endif %}>
+        {{ item.icon }} {{ L('壁畫', 'Wall') }} {{ item.n }} · {{ L(item.name_zh, item.name_en) }}
+        {% if item.customised %}<span class="chip light" style="margin-left:.3rem">{{ L('已修改', 'edited') }}</span>{% endif %}
+      </a>
+    {% endfor %}
+  </nav>
+
+  <div>
+    <form class="card cave-editor-form" method="post"
+          action="{{ url_for('leader_routes.save_cave_wall', task_id=task.id, n=n) }}">
+      <span class="chip light">{{ wall.icon }} {{ L(wall.name_zh, wall.name_en) }} · {{ L('壁畫', 'Wall') }} {{ n }}</span>
+      <h2>{{ L('修改壁畫文字', 'Edit the wall') }}</h2>
+      {% if customised %}
+        <p class="small muted">{{ L('這一幅已由領袖修改，現正顯示你的版本。', 'This wall is showing your saved wording.') }}</p>
+      {% endif %}
+
+      <div class="form-grid">
+        <label class="field"><span>{{ L('標題（中文）', 'Title (Chinese)') }}</span>
+          <input type="text" name="title_zh" maxlength="400" required value="{{ wall.wall.title_zh }}"></label>
+        <label class="field"><span>{{ L('標題（英文）', 'Title (English)') }}</span>
+          <input type="text" name="title_en" maxlength="400" required value="{{ wall.wall.title_en }}"></label>
+      </div>
+
+      <div class="form-grid">
+        <label class="field"><span>{{ L('引言（中文，一段一行）', 'Lead (Chinese, one paragraph per line)') }}</span>
+          <textarea name="lead_zh" rows="5" required>{{ (wall.wall.lead_zh or []) | join('\n') }}</textarea></label>
+        <label class="field"><span>{{ L('引言（英文，一段一行）', 'Lead (English, one paragraph per line)') }}</span>
+          <textarea name="lead_en" rows="5" required>{{ (wall.wall.lead_en or []) | join('\n') }}</textarea></label>
+      </div>
+
+      <div class="form-grid">
+        <label class="field"><span>{{ L('時間線（中文）「年份 ｜ 說明」', 'Timeline (Chinese) “when | what happened”') }}</span>
+          <textarea name="timeline_zh" rows="9" required>{% for row in wall.wall.timeline or [] %}{{ row.when_zh }} ｜ {{ row.text_zh }}
+{% endfor %}</textarea></label>
+        <label class="field"><span>{{ L('時間線（英文）「年份 ｜ 說明」', 'Timeline (English) “when | what happened”') }}</span>
+          <textarea name="timeline_en" rows="9" required>{% for row in wall.wall.timeline or [] %}{{ row.when_en }} ｜ {{ row.text_en }}
+{% endfor %}</textarea></label>
+      </div>
+
+      <div class="form-grid">
+        <label class="field"><span>{{ L('重點（中文）「標籤 ｜ 內容」', 'Key facts (Chinese) “label | value”') }}</span>
+          <textarea name="facts_zh" rows="4" required>{% for row in wall.wall.facts or [] %}{{ row.label_zh }} ｜ {{ row.value_zh }}
+{% endfor %}</textarea></label>
+        <label class="field"><span>{{ L('重點（英文）「標籤 ｜ 內容」', 'Key facts (English) “label | value”') }}</span>
+          <textarea name="facts_en" rows="4" required>{% for row in wall.wall.facts or [] %}{{ row.label_en }} ｜ {{ row.value_en }}
+{% endfor %}</textarea></label>
+      </div>
+
+      <div class="form-grid">
+        <label class="field"><span>{{ L('筆記（中文）', 'Closing note (Chinese)') }}</span>
+          <textarea name="note_zh" rows="3" maxlength="400">{{ wall.wall.note_zh }}</textarea></label>
+        <label class="field"><span>{{ L('筆記（英文）', 'Closing note (English)') }}</span>
+          <textarea name="note_en" rows="3" maxlength="400">{{ wall.wall.note_en }}</textarea></label>
+      </div>
+
+      <div class="cave-actions">
+        <button class="btn primary" type="submit">{{ L('儲存這幅壁畫', 'Save this wall') }}</button>
+        {% if customised %}
+          <button class="btn ghost" type="submit" name="action" value="reset"
+                  formnovalidate>{{ L('還原為原稿', 'Reset to the original') }}</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
