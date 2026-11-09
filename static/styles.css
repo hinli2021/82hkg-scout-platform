@@ -3710,7 +3710,10 @@ body.is-game main { padding-top: 6px; }
   border: 1px solid rgba(255, 255, 255, .14);
 }
 .memory-back { font-size: 1.55rem; color: #cfe8d8; line-height: 1; }
-.badge-svg { display: block; width: 100%; height: 100%; }
+.badge-img {
+  display: block; width: 88%; height: 88%; object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25));
+}
 .memory-card.is-up { background: var(--paper); border-color: var(--brass); }
 .memory-card.is-matched { background: #eef8f1; border-color: var(--ok); }
 
@@ -3721,8 +3724,13 @@ body.is-game main { padding-top: 6px; }
   color: var(--ink-soft);
 }
 .badge-book-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; }
-.badge-book-list li { display: flex; align-items: baseline; gap: .4rem; font-size: .88rem; }
-.badge-dot { width: .55rem; height: .55rem; border-radius: 50%; flex: 0 0 auto; }
+.badge-book-list li { display: flex; align-items: center; gap: .5rem; font-size: .88rem; }
+.badge-book-art { width: 26px; height: 26px; object-fit: contain; flex: 0 0 auto; }
+.badge-group {
+  font-size: .62rem; font-weight: 800; letter-spacing: .02em; padding: .05rem .3rem;
+  border-radius: .3rem; background: var(--paper-2); border: 1px solid var(--line);
+  color: var(--ink-soft); vertical-align: middle;
+}
 
 /* 側欄 */
 .daily-how { margin: 0; padding-left: 1.1rem; display: grid; gap: .3rem; }

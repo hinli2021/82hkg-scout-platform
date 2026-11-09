@@ -70,14 +70,23 @@ def test_every_board_is_fair_and_finishable():
             assert sorted(board["cards"].count(i) for i in range(8)) == [2] * 8
             badges = board["badges"]
             assert len(badges) == 8 == len({b["id"] for b in badges})
-            assert all(b["zh"] and b["what_zh"] and b["colour"] for b in badges)
+            assert all(b["zh"] and b["what_zh"] and b["group_zh"] for b in badges)
+            # the official badge artwork must actually be in the repo
+            import pathlib
+            root = pathlib.Path(__file__).resolve().parents[1]
+            for badge in badges:
+                art = root / "static" / "img" / "badges" / badge["art"]
+                assert art.exists(), f"missing badge art {badge['art']}"
+                assert art.stat().st_size > 1000
 
 
 def test_the_matching_deck_is_proficiency_badges_and_changes_by_day():
     from scout import daily as d
     assert len(d.MEMORY_BADGES) >= 12
-    names = {"露營", "烹飪", "急救", "地圖閱讀", "繩結", "天文", "游泳", "單車"}
+    names = {"露營", "烹飪", "急救", "地圖閱讀", "天象", "游泳", "單車", "運動"}
     assert names <= {b["zh"] for b in d.MEMORY_BADGES}
+    groups = {b["group_zh"] for b in d.MEMORY_BADGES}
+    assert {"興趣組", "技能組", "服務組"} <= groups, "badges should span the training scheme's groups"
     decks = []
     for offset in range(40):
         p = d.puzzle(date(2026, 10, 13) + timedelta(days=offset))

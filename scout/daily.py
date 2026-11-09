@@ -89,36 +89,89 @@ GAMES: dict[str, dict] = {
 
 ORDER = ["pipes", "fifteen", "mines", "memory"]
 
-#: 專科徽章 — the proficiency badges the matching game is played with. The day
-#: draws eight of them, so the deck changes from day to day.
-#: Each entry: id (drawn by the browser), the name, the badge's colour, and one
-#: line saying what a scout actually does to earn it.
+#: 專科徽章 — the proficiency badges the matching game is played with.
+#:
+#: The artwork is the official badge image from the Hong Kong Scout Association's
+#: 童軍訓練綱要 (scoutsinfohub.org.hk / ScoutTrainingScheme/img), copied into
+#: `static/img/badges/` rather than hot-linked, with the white frame knocked out
+#: so the diamond sits on the card. The day draws eight of them, so the deck
+#: changes from day to day.
+#:
+#: Each entry: art (file under static/img/badges), the official name in Chinese
+#: and English, the badge's group in the training scheme, and one line saying
+#: what a scout does to earn it.
 MEMORY_BADGES = [
-    {"id": "camping", "zh": "露營", "en": "Camping", "colour": "#2c7d4f",
-     "what_zh": "在野外紮營，過一晚", "what_en": "Pitch a tent and spend the night out"},
-    {"id": "cooking", "zh": "烹飪", "en": "Cooking", "colour": "#b6822a",
-     "what_zh": "用營火煮一餐", "what_en": "Cook a meal over a fire"},
-    {"id": "firstaid", "zh": "急救", "en": "First Aid", "colour": "#b3261e",
+    {"id": "camper", "art": "camper.webp", "group_zh": "技能組", "group_en": "Pursuit",
+     "zh": "露營", "en": "Camper", "colour": "#1f4b8f",
+     "what_zh": "在野外露營，起營、收營", "what_en": "Camp out — pitch the tent and strike it"},
+    {"id": "cook", "art": "cook.webp", "group_zh": "技能組", "group_en": "Pursuit",
+     "zh": "烹飪", "en": "Cook", "colour": "#1f4b8f",
+     "what_zh": "煮一餐，兼顧衞生與安全", "what_en": "Cook a meal, safely and cleanly"},
+    {"id": "firstaider", "art": "firstaider.webp", "group_zh": "服務組", "group_en": "Service",
+     "zh": "急救", "en": "First Aider", "colour": "#b3261e",
      "what_zh": "包紮傷口，處理意外", "what_en": "Dress a wound and handle an accident"},
-    {"id": "mapreading", "zh": "地圖閱讀", "en": "Map Reading", "colour": "#23527c",
-     "what_zh": "讀地圖，找方向", "what_en": "Read a map and find your way"},
-    {"id": "knotting", "zh": "繩結", "en": "Knotting", "colour": "#6f4e28",
-     "what_zh": "打結、綁紮營架", "what_en": "Tie knots and build a lashing"},
-    {"id": "astronomy", "zh": "天文", "en": "Astronomy", "colour": "#4b3f8f",
-     "what_zh": "認星，看月相", "what_en": "Find the stars and the phases of the moon"},
-    {"id": "swimming", "zh": "游泳", "en": "Swimming", "colour": "#1f7a8a",
-     "what_zh": "游一段距離，懂救生", "what_en": "Swim a set distance and know water safety"},
-    {"id": "cycling", "zh": "單車", "en": "Cycling", "colour": "#8a4a00",
-     "what_zh": "安全騎行，保養單車", "what_en": "Ride safely and look after your bike"},
-    {"id": "birdwatching", "zh": "觀鳥", "en": "Bird Watching", "colour": "#1f5c3a",
+    {"id": "mapreader", "art": "mapreader.webp", "group_zh": "技能組", "group_en": "Pursuit",
+     "zh": "地圖閱讀", "en": "Map Reader", "colour": "#1f4b8f",
+     "what_zh": "讀地圖、用指南針找方向", "what_en": "Read a map and take a bearing with a compass"},
+    {"id": "pioneer", "art": "pioneer.webp", "group_zh": "技能組", "group_en": "Pursuit",
+     "zh": "先鋒工程", "en": "Pioneer", "colour": "#1f4b8f",
+     "what_zh": "用繩與木紮營架", "what_en": "Lash spars and ropes into a camp structure"},
+    {"id": "astronomer", "art": "astronomer.webp", "group_zh": "技能組", "group_en": "Pursuit",
+     "zh": "天象", "en": "Astronomer", "colour": "#1f4b8f",
+     "what_zh": "認星座，看月相", "what_en": "Know the constellations and the phases of the moon"},
+    {"id": "swimmer", "art": "swimmer.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "游泳", "en": "Swimmer", "colour": "#1f4b8f",
+     "what_zh": "游一段距離，懂水上安全", "what_en": "Swim a set distance and know water safety"},
+    {"id": "cyclist", "art": "cyclist.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "單車", "en": "Cyclist", "colour": "#1f4b8f",
+     "what_zh": "安全騎行，保養單車", "what_en": "Ride safely and keep the bike in order"},
+    {"id": "birdwatcher", "art": "birdwatcher.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "觀鳥", "en": "Birdwatcher", "colour": "#1f4b8f",
      "what_zh": "辨認常見雀鳥", "what_en": "Recognise the birds around you"},
-    {"id": "photography", "zh": "攝影", "en": "Photography", "colour": "#4a5a53",
+    {"id": "photographer", "art": "photographer.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "攝影", "en": "Photographer", "colour": "#1f4b8f",
      "what_zh": "用照片記錄旅程", "what_en": "Tell the trip in photographs"},
-    {"id": "gardening", "zh": "園藝", "en": "Gardening", "colour": "#5c7a1f",
-     "what_zh": "種植，照顧植物", "what_en": "Plant something and keep it alive"},
-    {"id": "weather", "zh": "氣象", "en": "Weather", "colour": "#3f6f8f",
+    {"id": "meteorologist", "art": "meteorologist.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "氣象", "en": "Meteorologist", "colour": "#1f4b8f",
      "what_zh": "看雲識天氣，記錄氣象", "what_en": "Read the clouds and keep a weather log"},
+    {"id": "campfirehost", "art": "campfirehost.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "營火", "en": "Campfire Host", "colour": "#1f4b8f",
+     "what_zh": "主持營火會，帶唱帶玩", "what_en": "Host a campfire — songs, stunts and all"},
+    {"id": "lifesaver", "art": "lifesaver.webp", "group_zh": "服務組", "group_en": "Service",
+     "zh": "拯溺", "en": "Lifesaver", "colour": "#b3261e",
+     "what_zh": "水上救援，救人自救", "what_en": "Rescue in the water, and keep yourself safe"},
+    {"id": "fireman", "art": "fireman.webp", "group_zh": "服務組", "group_en": "Service",
+     "zh": "消防", "en": "Fireman", "colour": "#b3261e",
+     "what_zh": "防火、滅火、疏散", "what_en": "Prevent fires, put them out, get people clear"},
+    {"id": "orienteer", "art": "orienteer.webp", "group_zh": "技能組", "group_en": "Pursuit",
+     "zh": "野外定向", "en": "Orienteer", "colour": "#1f4b8f",
+     "what_zh": "按地圖找控制點", "what_en": "Find the checkpoints from the map"},
+    {"id": "footdrill", "art": "footdrill.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "步操", "en": "Footdrill", "colour": "#b3261e",
+     "what_zh": "步操口令與動作", "what_en": "Answer the drill commands smartly"},
+    {"id": "archery", "art": "archery.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "射箭", "en": "Archery", "colour": "#1f4b8f",
+     "what_zh": "安全射箭，射中靶心", "what_en": "Shoot safely and group your arrows"},
+    {"id": "campcook", "art": "campcook.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "營地烹飪", "en": "Camp Cook", "colour": "#14402a",
+     "what_zh": "用營火煮一餐", "what_en": "Cook a meal over the fire"},
+    {"id": "athlete", "art": "athlete.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "運動", "en": "Athlete", "colour": "#1f4b8f",
+     "what_zh": "練好體能，參加比賽", "what_en": "Train your body and take part in a sport"},
+    {"id": "canoeist", "art": "canoeist.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "獨木舟", "en": "Canoeist", "colour": "#1f4b8f",
+     "what_zh": "划獨木舟，懂水上安全", "what_en": "Paddle a canoe and keep safe on the water"},
+    {"id": "angler", "art": "angler.webp", "group_zh": "興趣組", "group_en": "Interest",
+     "zh": "釣魚", "en": "Angler", "colour": "#14402a",
+     "what_zh": "釣魚，認識魚類", "what_en": "Fish, and know what you catch"},
+    {"id": "worldfriendshipambassador", "art": "worldfriendshipambassador.webp",
+     "group_zh": "服務組", "group_en": "Service",
+     "zh": "國際友誼", "en": "World Friendship Ambassador", "colour": "#b3261e",
+     "what_zh": "與外地童軍交流", "what_en": "Make friends with Scouts abroad"},
 ]
+
+#: the badge art lives here, beside the other platform images
+BADGE_ART = "img/badges"
 
 N, E, S, W = 1, 2, 4, 8
 STEPS = {N: (-1, 0), E: (0, 1), S: (1, 0), W: (0, -1)}
@@ -208,7 +261,7 @@ def _memory(rng: random.Random) -> dict:
     chosen = rng.sample(MEMORY_BADGES, 8)
     deck = [i for i in range(len(chosen)) for _ in range(2)]
     rng.shuffle(deck)
-    return {"cards": deck, "badges": chosen}, None
+    return {"cards": deck, "badges": chosen, "art": BADGE_ART}, None
 
 
 BUILDERS = {"pipes": _pipes, "fifteen": _fifteen, "mines": _mines, "memory": _memory}

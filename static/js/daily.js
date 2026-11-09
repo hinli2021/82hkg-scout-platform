@@ -23,6 +23,7 @@
   var cfg;
   try { cfg = JSON.parse(configEl.textContent); } catch (e) { return; }
   if (!cfg || !cfg.kind) return;
+  window.DAILY_ART = (cfg.board && cfg.board.art) || 'img/badges';
 
   var clockEl = document.querySelector('[data-daily-clock]');
   var panel = document.querySelector('[data-daily-panel]');
@@ -478,56 +479,16 @@
   }
 
   /* ── 專科徽章配對 ───────────────────────────────────────────────────────
-     八枚專科徽章，每枚兩張。徽章是畫出來的（不是圖片）：外圈用該專科的
-     顏色，中間是本行的小圖案，下面寫徽章名字。配成一對之後，桌上的徽章
-     簿會寫出這一枚要考甚麼。 */
+     八枚專科徽章，每枚兩張。圖是香港童軍總會《童軍訓練綱要》的官方徽章
+     圖樣（static/img/badges/），服務器每天抽八枚。配成一對之後，桌上的
+     徽章簿會寫出這一枚屬於哪一組、要考甚麼。 */
 
-  var EMBLEMS = {
-    /* each: a small, readable mark for the badge's subject, in a 100×100 box */
-    camping: '<path d="M50 24 L74 72 L26 72 Z" fill="none" stroke-width="6"/>' +
-             '<path d="M50 46 L59 72 L41 72 Z" stroke-width="4"/>',
-    cooking: '<path d="M28 46 h44 v16 a10 10 0 0 1 -10 10 h-24 a10 10 0 0 1 -10 -10 z" stroke-width="5" fill="none"/>' +
-             '<path d="M24 46 h52" stroke-width="5"/><path d="M40 36 q4 -8 0 -14 M52 36 q4 -8 0 -14 M64 36 q4 -8 0 -14" stroke-width="4" fill="none"/>',
-    firstaid: '<rect x="41" y="24" width="18" height="52" rx="4" stroke-width="4"/>' +
-              '<rect x="24" y="41" width="52" height="18" rx="4" stroke-width="4"/>',
-    mapreading: '<path d="M22 30 l18 -8 l20 8 l18 -8 v44 l-18 8 l-20 -8 l-18 8 z" fill="none" stroke-width="5"/>' +
-                '<path d="M40 22 v44 M60 30 v44" stroke-width="4"/>',
-    knotting: '<circle cx="40" cy="42" r="16" fill="none" stroke-width="6"/>' +
-              '<circle cx="60" cy="58" r="16" fill="none" stroke-width="6"/>',
-    /* a crescent moon with three stars — a star alone reads as “generic badge” */
-    astronomy: '<path d="M58 20 a26 26 0 1 0 0 46 a20 20 0 1 1 0 -46 z" stroke-width="4" fill="none"/>' +
-               '<path d="M74 26 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" stroke-width="2.5"/>' +
-               '<path d="M80 50 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 z" stroke-width="2"/>' +
-               '<path d="M68 60 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6 z" stroke-width="1.8"/>',
-    swimming: '<path d="M20 46 q10 -10 20 0 t20 0 t20 0" stroke-width="6" fill="none"/>' +
-              '<path d="M20 63 q10 -10 20 0 t20 0 t20 0" stroke-width="6" fill="none"/>',
-    cycling: '<circle cx="34" cy="60" r="15" fill="none" stroke-width="5"/>' +
-             '<circle cx="68" cy="60" r="15" fill="none" stroke-width="5"/>' +
-             '<path d="M34 60 l14 -18 h12 M48 42 l16 18" stroke-width="4" fill="none"/>',
-    birdwatching: '<path d="M24 56 q14 -22 30 -10 q8 -14 22 -6 q-10 4 -12 16 q-16 14 -40 0 z" stroke-width="4" fill="none"/>',
-    photography: '<rect x="24" y="34" width="52" height="36" rx="6" fill="none" stroke-width="5"/>' +
-                 '<circle cx="50" cy="52" r="11" fill="none" stroke-width="5"/><path d="M38 34 l5 -8 h14 l5 8" stroke-width="4" fill="none"/>',
-    gardening: '<path d="M50 74 v-30" stroke-width="5"/><path d="M50 46 q-20 -4 -20 -22 q20 0 20 22 z" stroke-width="4" fill="none"/>' +
-               '<path d="M50 56 q20 -4 20 -22 q-20 0 -20 22 z" stroke-width="4" fill="none"/>',
-    weather: '<circle cx="50" cy="42" r="15" fill="none" stroke-width="5"/>' +
-             '<path d="M50 18 v8 M50 58 v8 M26 42 h8 M66 42 h8 M33 25 l6 6 M67 25 l-6 6" stroke-width="4"/>' +
-             '<path d="M30 74 q10 -10 20 0 t20 0" stroke-width="4" fill="none"/>'
-  };
-
-  function badgeSvg(badge, big) {
-    var mark = EMBLEMS[badge.id] || EMBLEMS.camping;
-    var size = big ? '100%' : '100%';
-    return '<svg viewBox="0 0 100 100" class="badge-svg" width="' + size + '" height="' + size + '" ' +
-      'role="img" aria-label="' + badge.zh + '">' +
-      '<circle cx="50" cy="50" r="47" fill="#f7f1e2"/>' +
-      '<circle cx="50" cy="50" r="47" fill="none" stroke="' + badge.colour + '" stroke-width="8"/>' +
-      '<circle cx="50" cy="50" r="37" fill="none" stroke="' + badge.colour + '" stroke-width="1.5" ' +
-        'stroke-dasharray="3 4" opacity=".55"/>' +
-      '<g stroke="' + badge.colour + '" fill="' + badge.colour + '" stroke-linejoin="round" ' +
-        'stroke-linecap="round" transform="translate(0,-6)">' + mark + '</g>' +
-      '<text x="50" y="86" text-anchor="middle" font-size="13" font-weight="800" ' +
-        'fill="#2b1d0c" font-family="inherit">' + badge.zh + '</text>' +
-      '</svg>';
+  function badgeImg(badge, faceDown) {
+    if (faceDown) return '<span class="memory-back">⚜</span>';
+    var src = (badge.art || '') ? ('/static/' + (window.DAILY_ART || 'img/badges') + '/' + badge.art) : '';
+    if (!src) return '<span class="memory-back">⚜</span>';
+    return '<img class="badge-img" src="' + src + '" alt="' + badge.zh + '" ' +
+           'width="133" height="133" loading="lazy" draggable="false">';
   }
 
   function memory(board) {
@@ -551,9 +512,11 @@
       book.innerHTML = '<p class="badge-book-title">🎖️ 徽章簿 · ' + got.length + ' / 8</p>' +
         '<ul class="badge-book-list">' + got.map(function (b) {
           var badge = badges[b];
-          return '<li><span class="badge-dot" style="background:' + badge.colour + '"></span>' +
-                 '<strong>' + badge.zh + '</strong> ' +
-                 '<span class="muted small">' + badge.what_zh + '</span></li>';
+          return '<li><img class="badge-book-art" src="/static/' + (window.DAILY_ART || 'img/badges') +
+                 '/' + badge.art + '" alt="" width="133" height="133">' +
+                 '<span><strong>' + badge.zh + '</strong> ' +
+                 '<span class="badge-group">' + (badge.group_zh || '') + '</span> ' +
+                 '<span class="muted small">' + badge.what_zh + '</span></span></li>';
         }).join('') + '</ul>';
     }
 
@@ -563,7 +526,7 @@
         var card = el('button', 'memory-card');
         card.type = 'button';
         var faceUp = up[i] || matched[i];
-        card.innerHTML = faceUp ? badgeSvg(badges[badgeIndex]) : '<span class="memory-back">⚜</span>';
+        card.innerHTML = badgeImg(badges[badgeIndex], !faceUp);
         if (faceUp) card.classList.add('is-up');
         if (matched[i]) card.classList.add('is-matched');
         card.setAttribute('aria-label', faceUp ? badges[badgeIndex].zh : '未翻開');
