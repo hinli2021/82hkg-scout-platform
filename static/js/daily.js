@@ -247,11 +247,88 @@
 
   /* ── 數字滑塊 ───────────────────────────────────────────────────────────── */
 
+  /* ── 營地滑塊拼圖 ───────────────────────────────────────────────────────
+     15 格滑塊，但拼的不是數字，而是一幅營地圖畫：太陽、旗、營帳、營火、
+     樹林。每一格是圖畫的一塊（用同一張 SVG 做背景，按位置裁剪），角落
+     留一個很小的號碼，方便小朋友記位置。旁邊放一張完成圖作對照。 */
+
+  function campScene() {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">' +
+      // sky
+      '<rect width="400" height="400" fill="#0e2a1e"/>' +
+      '<rect y="0" width="400" height="210" fill="#123726"/>' +
+      // sun + rays
+      '<circle cx="86" cy="78" r="40" fill="#f6d68a"/>' +
+      '<circle cx="86" cy="78" r="54" fill="#f6d68a" opacity=".18"/>' +
+      '<g stroke="#f6d68a" stroke-width="4" stroke-linecap="round" opacity=".85">' +
+        '<path d="M86 10 v-16 M86 146 v16 M18 78 h-16 M154 78 h16"/>' +
+        '<path d="M40 32 l-11 -11 M132 32 l11 -11 M40 124 l-11 11 M132 124 l11 11"/>' +
+      '</g>' +
+      // birds
+      '<g stroke="#cfe8d8" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".8">' +
+        '<path d="M186 62 q10 -9 20 0 q10 -9 20 0"/>' +
+        '<path d="M236 92 q8 -7 16 0 q8 -7 16 0"/>' +
+      '</g>' +
+      // far hills
+      '<path d="M0 210 q60 -46 128 -16 q52 24 104 6 q76 -28 168 8 v46 H0 z" fill="#17452c"/>' +
+      // trees on the ridge
+      '<g fill="#0b2317">' +
+        '<path d="M28 196 l13 -30 l13 30 z"/><path d="M62 200 l10 -24 l10 24 z"/>' +
+        '<path d="M188 186 l12 -28 l12 28 z"/><path d="M214 190 l9 -22 l9 22 z"/>' +
+        '<path d="M352 198 l13 -30 l13 30 z"/>' +
+      '</g>' +
+      // near ground
+      '<path d="M0 256 q120 -22 232 -4 q92 14 168 -6 v154 H0 z" fill="#1f5c3a"/>' +
+      '<path d="M0 300 q140 -16 250 2 q84 12 150 -4 v102 H0 z" fill="#14402a"/>' +
+      // flag pole + banner
+      '<rect x="316" y="74" width="7" height="132" rx="3" fill="#d9a441"/>' +
+      '<path d="M323 84 h66 v54 h-66 z" fill="#9e2b25"/>' +
+      '<path d="M323 84 h66 v54 h-66 z" fill="none" stroke="#7a1f1a" stroke-width="3"/>' +
+      // fleur-de-lis on the banner
+      '<g fill="#f6d68a" transform="translate(356,111)">' +
+        '<path d="M0 -19 c7 0 10 6 8 12 c-2 5 -6 7 -8 7 c-2 0 -6 -2 -8 -7 c-2 -6 1 -12 8 -12 z"/>' +
+        '<path d="M-15 -6 c6 -2 10 2 9 8 c-1 4 -4 6 -7 6 c-4 -1 -6 -5 -4 -9 z" transform="rotate(-18)"/>' +
+        '<path d="M15 -6 c6 -2 10 2 9 8 c-1 4 -4 6 -7 6 c-4 -1 -6 -5 -4 -9 z" transform="rotate(18)"/>' +
+        '<rect x="-3" y="6" width="6" height="15" rx="3"/>' +
+      '</g>' +
+      // tent — kept clear of the bottom-right corner, which the gap hides
+      '<path d="M138 336 l52 -80 l52 80 z" fill="#e0b268"/>' +
+      '<path d="M138 336 l52 -80 l52 80 z" fill="none" stroke="#8a6134" stroke-width="4"/>' +
+      '<path d="M190 336 l0 -44 l-16 44 z" fill="#6f4e28"/>' +
+      '<path d="M170 256 l-8 -18 M210 256 l8 -18" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/>' +
+      // campfire
+      '<g transform="translate(66,342)">' +
+        '<path d="M-30 18 l60 -14 M-30 4 l60 14" stroke="#6f4e28" stroke-width="9" stroke-linecap="round"/>' +
+        '<path d="M0 -30 c14 12 20 22 20 30 c0 11 -9 18 -20 18 c-11 0 -20 -7 -20 -18 c0 -8 6 -18 20 -30 z" fill="#f0a83c"/>' +
+        '<path d="M0 -8 c7 7 10 12 10 17 c0 7 -4 11 -10 11 c-6 0 -10 -4 -10 -11 c0 -5 3 -10 10 -17 z" fill="#f6d68a"/>' +
+      '</g>' +
+      // ground detail: stones, grass, and a small copse in the far corner
+      '<g fill="#0f3423">' +
+        '<circle cx="128" cy="360" r="7"/><circle cx="146" cy="366" r="5"/>' +
+        '<path d="M112 330 q6 -14 12 0 z"/><path d="M238 322 q6 -14 12 0 z"/>' +
+      '</g>' +
+      '<g fill="#0b2317" opacity=".9">' +
+        '<path d="M330 372 l16 -34 l16 34 z"/><path d="M362 380 l12 -26 l12 26 z"/>' +
+        '<path d="M306 384 l11 -24 l11 24 z"/>' +
+      '</g>' +
+      '</svg>';
+  }
+
+  var SCENE_URI = 'url("data:image/svg+xml,' + encodeURIComponent(campScene()) + '")';
+
   function fifteen(board) {
     var size = board.size;
     var tiles = board.board.slice();
+    var outer = el('div', 'fifteen-wrap');
     var wrap = el('div', 'fifteen-grid');
     wrap.style.setProperty('--n', size);
+
+    // the finished picture, small, so the scout knows what to build
+    var ref = el('figure', 'fifteen-ref');
+    var refPic = el('span', 'fifteen-ref-pic');
+    refPic.style.backgroundImage = SCENE_URI;
+    ref.appendChild(refPic);
+    ref.appendChild(el('figcaption', 'fifteen-ref-cap', '營地 · 完成圖'));
 
     function solved() {
       for (var i = 0; i < tiles.length - 1; i++) if (tiles[i] !== i + 1) return false;
@@ -260,9 +337,22 @@
     function paint() {
       wrap.innerHTML = '';
       tiles.forEach(function (value, index) {
-        if (!value) { wrap.appendChild(el('span', 'fifteen-gap')); return; }
-        var tile = el('button', 'fifteen-tile', String(value));
+        if (!value) {
+          var gap = el('span', 'fifteen-gap');
+          gap.innerHTML = '<span class="fifteen-gap-mark">⚜</span>';
+          wrap.appendChild(gap);
+          return;
+        }
+        var tile = el('button', 'fifteen-tile');
         tile.type = 'button';
+        var slot = value - 1;                       // where this piece belongs
+        var row = Math.floor(slot / size), col = slot % size;
+        tile.style.backgroundImage = SCENE_URI;
+        tile.style.backgroundSize = (size * 100) + '% ' + (size * 100) + '%';
+        tile.style.backgroundPosition =
+          (col / (size - 1) * 100).toFixed(4) + '% ' + (row / (size - 1) * 100).toFixed(4) + '%';
+        tile.appendChild(el('span', 'fifteen-num', String(value)));
+        tile.setAttribute('aria-label', '第 ' + value + ' 塊');
         tile.addEventListener('click', function () { move(index); });
         wrap.appendChild(tile);
       });
@@ -279,7 +369,9 @@
       if (solved()) finish(true);
     }
     paint();
-    return wrap;
+    outer.appendChild(wrap);
+    outer.appendChild(ref);
+    return outer;
   }
 
   /* ── 掃雷 ───────────────────────────────────────────────────────────────── */

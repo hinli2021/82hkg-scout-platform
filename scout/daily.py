@@ -48,14 +48,18 @@ GAMES: dict[str, dict] = {
         "emoji": "🚰",
     },
     "fifteen": {
-        "name_zh": "數字滑塊", "name_en": "Slide fifteen",
-        "short_zh": "把 1 至 15 順序排好，右下角留空。",
-        "short_en": "Slide 1 to 15 into order, leaving the bottom-right corner empty.",
-        "how_zh": ["點空格旁邊的方塊，它就會滑進空格。",
-                   "把 1 至 15 由左上角起順序排好，右下角留空即完成。"],
-        "how_en": ["Tap a tile beside the gap and it slides in.",
-                   "Finish with 1–15 in order from the top left and the gap in the bottom-right corner."],
-        "emoji": "🔢",
+        "name_zh": "營地拼圖", "name_en": "Camp picture slide",
+        "short_zh": "滑動方塊，把營地圖畫拼回原位。",
+        "short_en": "Slide the pieces until the camp picture is whole again.",
+        "how_zh": ["點空格旁邊的一塊，它就會滑進空格。",
+                   "把整幅營地圖畫拼回原位（右下角留空）就完成 —— 太陽、旗、營帳、營火、樹林都要歸位。",
+                   "每塊右下角有一個很小的號碼，記不住圖案時可以照號碼排；旁邊有完成圖可以對照。"],
+        "how_en": ["Tap a piece beside the gap and it slides in.",
+                   "Restore the camp picture — sun, flag, tent, fire and trees all back in place — "
+                   "with the gap in the bottom-right corner.",
+                   "Each piece keeps a tiny number in its corner if you lose track, and the finished "
+                   "picture sits beside the board to compare with."],
+        "emoji": "🏕️",
     },
     "mines": {
         "name_zh": "掃雷", "name_en": "Mines",
