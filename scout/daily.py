@@ -35,16 +35,17 @@ MAX_MS = 60 * 60 * 1000
 
 GAMES: dict[str, dict] = {
     "pipes": {
-        "name_zh": "水管接駁", "name_en": "Pipework",
-        "short_zh": "轉動每一段水管，把整條水路接成一個網絡。",
-        "short_en": "Turn each pipe until the whole net joins up.",
+        "name_zh": "營地水管", "name_en": "Camp water line",
+        "short_zh": "轉動每一段水管，把水由河邊接到營地。",
+        "short_en": "Turn each length of pipe until the water reaches camp.",
         "how_zh": ["點一下水管，它會順時針轉 90 度。",
-                   "當所有接口都與鄰居對上，而且全部連在一起，就完成。",
-                   "沒有計步限制，慢慢想。"],
-        "how_en": ["Tap a pipe to turn it a quarter turn clockwise.",
-                   "The net is done when every opening meets a neighbour's and the whole lot is one piece.",
-                   "No move limit — take your time."],
-        "emoji": "🔧",
+                   "所有接口都要與鄰居對上，整條水路連成一體，水才到得了營地。",
+                   "沒有計步限制，慢慢想 —— 就像在營地實地鋪水管一樣，接錯一節就漏水。"],
+        "how_en": ["Tap a length to turn it a quarter turn clockwise.",
+                   "Every opening must meet its neighbour's and the whole run must be one piece — "
+                   "that is when the water reaches camp.",
+                   "No move limit; take your time, exactly as you would laying a real line at camp."],
+        "emoji": "🚰",
     },
     "fifteen": {
         "name_zh": "數字滑塊", "name_en": "Slide fifteen",
@@ -69,20 +70,51 @@ GAMES: dict[str, dict] = {
         "emoji": "💣",
     },
     "memory": {
-        "name_zh": "記憶配對", "name_en": "Memory pairs",
-        "short_zh": "翻開兩張一樣的童軍圖案，配成八對。",
-        "short_en": "Turn up matching Scout pictures — eight pairs.",
-        "how_zh": ["每次翻開兩張，圖案一樣就配成一對，留在桌上。",
-                   "八對全部配好就完成；記住位置會快好多。"],
-        "how_en": ["Turn two cards at a time; a matching pair stays face up.",
-                   "Eight pairs finishes the game — remembering where things were is the whole trick."],
-        "emoji": "🃏",
+        "name_zh": "專科徽章配對", "name_en": "Proficiency badge pairs",
+        "short_zh": "翻開兩張一樣的專科徽章，配成八對。",
+        "short_en": "Turn up matching proficiency badges — eight pairs.",
+        "how_zh": ["每次翻開兩張，同一個專科徽章就配成一對，留在桌上。",
+                   "八對全部配好就完成；配對後會顯示這枚徽章要考甚麼。",
+                   "每次玩的徽章都不同：專科徽章共有十多枚。"],
+        "how_en": ["Turn two cards at a time; the same proficiency badge makes a pair, face up.",
+                   "Eight pairs finishes the game — and each match tells you what the badge asks for.",
+                   "The badges change from day to day; there are more than a dozen of them."],
+        "emoji": "🎖️",
     },
 }
 
 ORDER = ["pipes", "fifteen", "mines", "memory"]
 
-MEMORY_FACES = ["⚜️", "🏕️", "🔥", "🧭", "🪢", "⛺", "🌲", "🛶"]
+#: 專科徽章 — the proficiency badges the matching game is played with. The day
+#: draws eight of them, so the deck changes from day to day.
+#: Each entry: id (drawn by the browser), the name, the badge's colour, and one
+#: line saying what a scout actually does to earn it.
+MEMORY_BADGES = [
+    {"id": "camping", "zh": "露營", "en": "Camping", "colour": "#2c7d4f",
+     "what_zh": "在野外紮營，過一晚", "what_en": "Pitch a tent and spend the night out"},
+    {"id": "cooking", "zh": "烹飪", "en": "Cooking", "colour": "#b6822a",
+     "what_zh": "用營火煮一餐", "what_en": "Cook a meal over a fire"},
+    {"id": "firstaid", "zh": "急救", "en": "First Aid", "colour": "#b3261e",
+     "what_zh": "包紮傷口，處理意外", "what_en": "Dress a wound and handle an accident"},
+    {"id": "mapreading", "zh": "地圖閱讀", "en": "Map Reading", "colour": "#23527c",
+     "what_zh": "讀地圖，找方向", "what_en": "Read a map and find your way"},
+    {"id": "knotting", "zh": "繩結", "en": "Knotting", "colour": "#6f4e28",
+     "what_zh": "打結、綁紮營架", "what_en": "Tie knots and build a lashing"},
+    {"id": "astronomy", "zh": "天文", "en": "Astronomy", "colour": "#4b3f8f",
+     "what_zh": "認星，看月相", "what_en": "Find the stars and the phases of the moon"},
+    {"id": "swimming", "zh": "游泳", "en": "Swimming", "colour": "#1f7a8a",
+     "what_zh": "游一段距離，懂救生", "what_en": "Swim a set distance and know water safety"},
+    {"id": "cycling", "zh": "單車", "en": "Cycling", "colour": "#8a4a00",
+     "what_zh": "安全騎行，保養單車", "what_en": "Ride safely and look after your bike"},
+    {"id": "birdwatching", "zh": "觀鳥", "en": "Bird Watching", "colour": "#1f5c3a",
+     "what_zh": "辨認常見雀鳥", "what_en": "Recognise the birds around you"},
+    {"id": "photography", "zh": "攝影", "en": "Photography", "colour": "#4a5a53",
+     "what_zh": "用照片記錄旅程", "what_en": "Tell the trip in photographs"},
+    {"id": "gardening", "zh": "園藝", "en": "Gardening", "colour": "#5c7a1f",
+     "what_zh": "種植，照顧植物", "what_en": "Plant something and keep it alive"},
+    {"id": "weather", "zh": "氣象", "en": "Weather", "colour": "#3f6f8f",
+     "what_zh": "看雲識天氣，記錄氣象", "what_en": "Read the clouds and keep a weather log"},
+]
 
 N, E, S, W = 1, 2, 4, 8
 STEPS = {N: (-1, 0), E: (0, 1), S: (1, 0), W: (0, -1)}
@@ -168,9 +200,11 @@ def _mines(rng: random.Random) -> dict:
 
 
 def _memory(rng: random.Random) -> dict:
-    deck = [i for i in range(len(MEMORY_FACES)) for _ in range(2)]
+    """Eight 專科徽章 out of the pool, twice each, shuffled."""
+    chosen = rng.sample(MEMORY_BADGES, 8)
+    deck = [i for i in range(len(chosen)) for _ in range(2)]
     rng.shuffle(deck)
-    return {"cards": deck, "faces": MEMORY_FACES}, None
+    return {"cards": deck, "badges": chosen}, None
 
 
 BUILDERS = {"pipes": _pipes, "fifteen": _fifteen, "mines": _mines, "memory": _memory}

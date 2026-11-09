@@ -68,6 +68,23 @@ def test_every_board_is_fair_and_finishable():
         elif p["kind"] == "memory":
             assert len(board["cards"]) == 16
             assert sorted(board["cards"].count(i) for i in range(8)) == [2] * 8
+            badges = board["badges"]
+            assert len(badges) == 8 == len({b["id"] for b in badges})
+            assert all(b["zh"] and b["what_zh"] and b["colour"] for b in badges)
+
+
+def test_the_matching_deck_is_proficiency_badges_and_changes_by_day():
+    from scout import daily as d
+    assert len(d.MEMORY_BADGES) >= 12
+    names = {"露營", "烹飪", "急救", "地圖閱讀", "繩結", "天文", "游泳", "單車"}
+    assert names <= {b["zh"] for b in d.MEMORY_BADGES}
+    decks = []
+    for offset in range(40):
+        p = d.puzzle(date(2026, 10, 13) + timedelta(days=offset))
+        if p["kind"] == "memory":
+            decks.append(tuple(sorted(b["zh"] for b in p["board"]["badges"])))
+    assert len(decks) >= 5 and len(set(decks)) >= 4, "the badge deck should vary from day to day"
+    assert all(len(deck) == 8 for deck in decks)
 
 
 def test_points_are_three_for_finishing_and_five_for_a_quick_run():

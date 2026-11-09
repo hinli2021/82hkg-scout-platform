@@ -67,7 +67,7 @@ def play(page):
                 continue
             cell.click()
     elif kind == 'memory':
-        cards = board['cards']
+        cards = board['cards']          # badge indices; a pair is the same index
         seen = {}
         pairs = []
         for index, face in enumerate(cards):
