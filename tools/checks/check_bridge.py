@@ -344,8 +344,13 @@ def verify_english(page):
             page.click(f'[data-bridge-plank="{take}"]')
         wait_scene(page, 'built')
         if index == 2:
-            check(swapped > 0,
-                  f'EN stage 3: {swapped} copies of the same word swapped — the span still holds')
+            # the Law's boards carry their first word (童軍信用, 童軍待人 …), so a
+            # line no longer repeats 童軍: every board reads differently
+            labels = [plank['zh'] for plank in stage['planks']]
+            check(len(set(labels)) == len(labels),
+                  f'EN stage 3: every board reads differently ({len(labels)} words)')
+            check(swapped == 0 or len(set(labels)) < len(labels),
+                  f'EN stage 3: no board had to be swapped — the span still holds')
             shoot(page, 'bridge-en-law.png')
         click(page, '[data-bridge-go="finish"]' if index + 1 == len(RIVER['stages'])
               else '[data-bridge-go="next"]')

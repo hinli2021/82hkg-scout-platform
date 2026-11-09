@@ -386,7 +386,8 @@
       var wanted = (stage().planks || [])[state.laid.length];
       var plank = (stage().planks || []).filter(function (row) { return row.key === key; })[0];
       if (!plank || !wanted) return;
-      /* 同樣文字的木板可以互換：次序對了就扣得住，用哪一塊都可以 */
+      /* 同樣文字的木板可以互換：次序對了就扣得住，用哪一塊都可以
+         （現時的木板每塊都不同，這一條是給日後改字留下來的餘地） */
       if (plankLabel(plank) !== plankLabel(wanted)) {
         /* the board tips off the wet rock into the water: only the line being
            laid is taken up again, so the rows already pinned stay put */

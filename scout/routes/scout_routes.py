@@ -652,9 +652,10 @@ def bridge_submit(task_id: str):
         return fail(503, "bridge_unavailable", "渡口遊戲正在準備中", "The crossing is not ready yet")
 
     # The client reports each stage's laid order as plank keys. A stage may carry
-    # planks that read the same — all seven points of the Law begin with 童軍 —
-    # so the board is judged by what each plank says, not by which copy was
-    # lifted: any copy of the right word is the right word. Every stage must
+    # planks that read the same, so the board is judged by what each plank says,
+    # not by which copy was lifted: any copy of the right word is the right word.
+    # (The Law's boards now carry their first word — 童軍信用, 童軍待人 … — so a
+    # line no longer repeats 童軍, but the tolerant rule is kept for edits.) Every stage must
     # still arrive complete, with no key lifted twice: a half-filled bridge
     # cannot be handed in as a crossing.
     for stage in stages:

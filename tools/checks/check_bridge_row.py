@@ -19,7 +19,7 @@ import sys
 from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-BASE = sys.argv[1] if len(sys.argv) > 1 else 'http://127.0.0.1:5054'
+BASE = sys.argv[1] if len(sys.argv) > 1 else 'http://127.0.0.1:5001'
 RIVER = json.loads((ROOT / 'content' / 'member-badge' / 'river.json').read_text(encoding='utf-8'))
 TASKS = json.loads((ROOT / 'data' / 'db' / 'tasks.json').read_text(encoding='utf-8'))
 BRIDGE_ID = next(row['id'] for row in TASKS if row.get('code') == 'M05')
