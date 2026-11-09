@@ -35,7 +35,8 @@
         {% if user.role == 'scout' %}
           {% set nav = [
             ('scout_routes.home', '🏠', '主頁', 'Home'),
-            ('scout_routes.badges', '🎖', '獎章', 'Badges')
+            ('scout_routes.badges', '🎖', '獎章', 'Badges'),
+            ('daily_routes.daily_page', '🎲', '每日挑戰', 'Daily')
           ] + ([('scout_routes.rewards', '🎁', '獎品', 'Rewards')] if flags.get('redeem') else [])
             + ([('scout_routes.leaderboard_page', '🏆', '龍虎榜', 'Board')] if flags.get('leaderboard') else [])
             + [('scout_routes.history', '📜', '我的紀錄', 'History')] %}

@@ -57,6 +57,21 @@
             'Password and email saved! Next time, sign in with your new password.') }}
   </div>
 {% endif %}
+{# ── 每日挑戰 ── one small game a day, on the way past ─────────────────── #}
+{% if daily %}
+<a class="card daily-teaser {{ 'is-done' if daily.played }}" href="{{ url_for('daily_routes.daily_page') }}">
+  <span class="daily-teaser-emoji">{{ daily.meta.emoji }}</span>
+  <span class="daily-teaser-text">
+    <strong>{{ L('每日挑戰', 'Daily challenge') }} · {{ L(daily.meta.name_zh, daily.meta.name_en) }}</strong>
+    <small class="muted">
+      {% if daily.played %}{{ L('今天已完成 — 明天再來', 'Done for today — back tomorrow') }}
+      {% else %}{{ L('五分鐘內完成可賺 ' ~ daily.points ~ ' 分', 'Finish inside five minutes for ' ~ daily.points ~ ' points') }}{% endif %}
+    </small>
+  </span>
+  <span class="chip {{ 'ok' if daily.played else 'brass' }}">{{ L('已玩', 'done') if daily.played else L('去玩', 'play') }}</span>
+</a>
+{% endif %}
+
 {# ── 我的獎章 ── the first section on the page ──────────────────────────── #}
 <div class="section-title">
   <h2>🎖 {{ L('我的獎章', 'My badges') }}</h2>

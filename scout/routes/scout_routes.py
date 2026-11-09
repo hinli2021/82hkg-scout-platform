@@ -62,7 +62,21 @@ def _home_context(user: dict) -> dict:
         "suggestions": suggestions,
         "announcements": _active_announcements(st, "scout"),
         "next_task": progress["overall"]["next_task"],
+        "daily": _daily_teaser(st, user["id"]),
     }
+
+
+
+def _daily_teaser(st, user_id: str) -> dict:
+    """The one-line card on Home: today's game, and whether it is still unpaid."""
+    from .. import daily
+    today = daily.today_key()
+    meta = daily.GAMES[daily.puzzle()["kind"]]
+    key = daily.ref_id(today)
+    played = any(row.get("user_id") == user_id and row.get("entry_type") == "daily"
+                 and row.get("ref_id") == key for row in st.list("points_ledger"))
+    return {"date": today, "kind": daily.puzzle()["kind"], "meta": meta,
+            "played": played, "points": daily.POINTS_FAST}
 
 
 # ── 主頁 ────────────────────────────────────────────────────────────────────

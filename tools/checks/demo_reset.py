@@ -34,6 +34,23 @@ def complete_setup(base: str, ctx, password: str = "tiger777") -> None:
         raise SystemExit(f"first-time setup refused: {response.status}")
 
 
+def blank_daily() -> int:
+    """Clear scout07's 每日挑戰 pays so the daily check can run again today.
+
+    Only that account's `daily` ledger rows are removed; every other entry —
+    task points, manual adjustments, other scouts — is left alone.
+    """
+    st = Store.from_env()
+    scout = next(u for u in st.list("users") if u.get("username") == "scout07")
+    removed = 0
+    for row in st.list("points_ledger"):
+        if row.get("user_id") == scout["id"] and row.get("entry_type") == "daily":
+            st.remove("points_ledger", row["id"])
+            removed += 1
+    st.rebuild_stats(scout["id"])
+    return removed
+
+
 def blank_slate() -> int:
     st = Store.from_env()
     scout = next(u for u in st.list("users") if u.get("username") == "scout07")

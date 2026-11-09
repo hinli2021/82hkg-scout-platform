@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import streak_chip with context %}
+{% block title %}{{ L('每日挑戰', 'Daily challenge') }}{% endblock %}
+{% block hud_chips %}
+  <div class="hud-chips">
+    <span class="chip brass">🪙 {{ balance }}</span>
+    {% if streak > 1 %}<span class="chip">🔥 {{ L('連續', 'Streak') }} {{ streak }} {{ L('天', 'days') }}</span>{% endif %}
+  </div>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a>
+      <span class="breadcrumb-arrow">›</span>{{ L('每日挑戰', 'Daily challenge') }}</div>
+    <h1 style="margin:0">🎲 {{ L('每日挑戰', 'Daily challenge') }}</h1>
+    <p class="muted small" style="margin:.2rem 0 0">
+      {{ L('每天一款小遊戲，五分鐘內玩完。完成 ' ~ points.done ~ ' 分，五分鐘內完成 ' ~ points.fast ~ ' 分。',
+           'One small game a day, five minutes or less. Finish for ' ~ points.done ~ ' points, or ' ~ points.fast ~ ' if you beat five minutes.') }}
+    </p>
+  </div>
+  <span class="chip">{{ config.date }}</span>
+</div>
+
+<div class="daily-layout">
+  <section class="card pad-lg daily-stage">
+    <div class="daily-head">
+      <span class="daily-emoji">{{ meta.emoji }}</span>
+      <div>
+        <h2 style="margin:0">{{ L(meta.name_zh, meta.name_en) }}</h2>
+        <p class="muted small" style="margin:.15rem 0 0">{{ L(meta.short_zh, meta.short_en) }}</p>
+      </div>
+      <div class="daily-clock" data-daily-clock>0:00</div>
+    </div>
+
+    <div id="daily-game" class="daily-game"></div>
+    <script id="daily-config" type="application/json">{{ config | tojson }}</script>
+
+    <div class="daily-foot" data-daily-panel hidden>
+      <p data-daily-result class="daily-result"></p>
+      <div class="cave-actions">
+        <button class="btn primary" type="button" data-daily-again>{{ L('再玩一次（不計分）', 'Play again (no points)') }}</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="stack" style="gap:1rem">
+    <section class="card">
+      <h3 style="margin:0 0 .4rem">📖 {{ L('怎樣玩', 'How to play') }}</h3>
+      <ol class="daily-how">
+        {% for line in (meta.how_en if request.cookies.get('scout_lang') == 'en' else meta.how_zh) %}
+          <li>{{ line }}</li>
+        {% endfor %}
+      </ol>
+      <p class="muted small" style="margin:.5rem 0 0">
+        {{ L('整個童軍團今天玩同一個棋盤，所以可以互相比較。', 'Everyone in the troop gets the same board today, so the times compare.') }}
+      </p>
+    </section>
+
+    <section class="card">
+      <h3 style="margin:0 0 .4rem">📅 {{ L('這一個星期', 'This week') }}</h3>
+      <ul class="daily-history">
+        {% for row in history %}
+          <li class="{{ 'is-today' if row.today }}">
+            <span class="daily-history-date">{{ row.date[5:] }}</span>
+            {% if row.done %}
+              <span class="chip ok">＋{{ row.points }}</span>
+            {% elif row.today %}
+              <span class="chip">{{ L('今日', 'today') }}</span>
+            {% else %}
+              <span class="daily-history-miss">—</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="card">
+      <h3 style="margin:0 0 .4rem">🕹 {{ L('遊戲輪流出現', 'The games') }}</h3>
+      <div class="daily-games">
+        {% for key in order %}
+          <span class="chip {{ 'is-now' if key == config.kind }}">{{ games[key].emoji }} {{ L(games[key].name_zh, games[key].name_en) }}</span>
+        {% endfor %}
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/daily.js') }}?v={{ asset_v('js/daily.js') }}"></script>{% endblock %}

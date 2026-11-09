@@ -3606,3 +3606,109 @@ body.is-game main { padding-top: 6px; }
     max-width: 100%;
   }
 }
+
+/* ══ 每日挑戰 — the daily puzzle ══════════════════════════════════════════ */
+.daily-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 1rem; align-items: start; }
+@media (max-width: 940px) { .daily-layout { grid-template-columns: minmax(0, 1fr); } }
+
+.daily-stage { padding: 1rem; }
+.daily-head { display: flex; align-items: center; gap: .7rem; margin-bottom: .8rem; }
+.daily-head h2 { font-size: 1.15rem; }
+.daily-emoji { font-size: 1.9rem; line-height: 1; }
+.daily-clock {
+  margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 800;
+  font-size: 1.1rem; padding: .3rem .6rem; border-radius: .5rem;
+  background: var(--paper-2); border: 1px solid var(--line); color: var(--ink);
+}
+.daily-game { display: grid; place-items: center; min-height: 320px; }
+.daily-foot { margin-top: .9rem; border-top: 1px dashed var(--line); padding-top: .8rem; }
+.daily-result { font-weight: 800; font-size: 1rem; margin: 0 0 .5rem; color: var(--ink-soft); }
+.daily-result.is-good { color: var(--ok); }
+
+/* 水管 */
+.pipes-grid {
+  --n: 6; display: grid; gap: 6px; width: min(100%, 460px);
+  grid-template-columns: repeat(var(--n), 1fr);
+}
+.pipe {
+  aspect-ratio: 1; padding: 0; border-radius: .45rem; cursor: pointer;
+  background: linear-gradient(180deg, #21382c, #16261d);
+  border: 1px solid rgba(255, 255, 255, .1);
+  display: grid; place-items: center; transition: transform .12s ease;
+}
+.pipe:active { transform: scale(.96); }
+.pipe-svg { width: 100%; height: 100%; display: block; }
+.pipe-arm { stroke: #9fd2b4; stroke-width: 15; stroke-linecap: round; }
+.pipe-joint { fill: #9fd2b4; }
+.pipes-grid.is-solved .pipe-arm { stroke: var(--brass-light); }
+.pipes-grid.is-solved .pipe-joint { fill: var(--brass-light); }
+.pipes-grid.is-solved .pipe { background: linear-gradient(180deg, #2f5138, #1e3a26); }
+
+/* 數字滑塊 */
+.fifteen-grid {
+  --n: 4; display: grid; gap: 7px; width: min(100%, 380px);
+  grid-template-columns: repeat(var(--n), 1fr);
+}
+.fifteen-tile, .fifteen-gap { aspect-ratio: 1; border-radius: .55rem; }
+.fifteen-tile {
+  font: inherit; font-weight: 800; font-size: 1.35rem; cursor: pointer; color: #22150a;
+  background: linear-gradient(180deg, #f0ca8d, #cfa061);
+  border: 1px solid #8a6134; box-shadow: 0 3px 0 #6f4e28;
+}
+.fifteen-tile:active { transform: translateY(2px); box-shadow: 0 1px 0 #6f4e28; }
+.fifteen-gap { background: rgba(0, 0, 0, .06); border: 1px dashed var(--line); }
+
+/* 掃雷 */
+.mines-wrap { width: min(100%, 420px); }
+.mines-bar { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+.mines-bar .is-on { background: var(--brass-light); border-color: var(--brass-dark); color: #2b1d0c; }
+.mines-grid {
+  --n: 8; display: grid; gap: 4px; grid-template-columns: repeat(var(--n), 1fr);
+}
+.mine-cell {
+  aspect-ratio: 1; display: grid; place-items: center; cursor: pointer;
+  font: inherit; font-weight: 800; font-size: .95rem; border-radius: .35rem;
+  color: #1d2a22; background: linear-gradient(180deg, #cfe0d3, #a9c2b1);
+  border: 1px solid #7f9a88;
+}
+.mine-cell.is-open { background: var(--paper-2); border-color: var(--line); cursor: default; }
+.mine-cell.is-flag { background: #f6d68a; border-color: var(--brass-dark); }
+.mine-cell.n1 { color: #1f5c9a; } .mine-cell.n2 { color: #1f7a45; }
+.mine-cell.n3 { color: #b3261e; } .mine-cell.n4 { color: #5b2d8e; }
+.mine-cell.n5 { color: #8a4a00; } .mine-cell.n6 { color: #0f6b6b; }
+.mine-cell.n7, .mine-cell.n8 { color: #333; }
+.mines-grid.is-dead .mine-cell { background: #f3cfc9; }
+
+/* 記憶配對 */
+.memory-grid {
+  display: grid; gap: 8px; width: min(100%, 400px);
+  grid-template-columns: repeat(4, 1fr);
+}
+.memory-card {
+  aspect-ratio: 1; cursor: pointer; border-radius: .5rem; font-size: 1.6rem;
+  background: linear-gradient(180deg, #21503a, #17382a);
+  border: 1px solid rgba(255, 255, 255, .14); color: #cfe8d8;
+}
+.memory-card.is-up { background: var(--paper); border-color: var(--brass); }
+.memory-card.is-matched { background: #e7f6ec; border-color: var(--ok); opacity: .95; }
+
+/* 側欄 */
+.daily-how { margin: 0; padding-left: 1.1rem; display: grid; gap: .3rem; }
+.daily-how li { line-height: 1.45; }
+.daily-history { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }
+.daily-history li { display: flex; align-items: center; gap: .5rem; padding: .25rem .4rem; border-radius: .4rem; }
+.daily-history li.is-today { background: var(--paper-2); font-weight: 700; }
+.daily-history-date { font-variant-numeric: tabular-nums; color: var(--ink-soft); min-width: 3rem; }
+.daily-history-miss { color: var(--muted); }
+.daily-games { display: flex; flex-wrap: wrap; gap: .35rem; }
+.daily-games .chip.is-now { background: var(--brass-light); border-color: var(--brass-dark); color: #2b1d0c; font-weight: 800; }
+
+/* Home: the daily-challenge strip */
+.daily-teaser {
+  display: flex; align-items: center; gap: .8rem; text-decoration: none;
+  padding: .8rem 1rem; margin: .8rem 0;
+}
+.daily-teaser-emoji { font-size: 1.8rem; line-height: 1; }
+.daily-teaser-text { display: grid; gap: .15rem; flex: 1 1 auto; }
+.daily-teaser-text strong { color: var(--ink); }
+.daily-teaser.is-done { opacity: .75; }

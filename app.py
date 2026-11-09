@@ -30,6 +30,7 @@ from scout.schema import TASK_TYPES, patrol_label
 from scout.mascots import MASCOTS, mascot_for
 from scout.store import Store, storage_advice
 from scout.routes.auth_routes import auth_routes
+from scout.routes.daily_routes import daily_routes
 from scout.routes.leader_routes import leader_routes
 from scout.routes.scout_routes import scout_routes
 
@@ -147,6 +148,7 @@ def create_app(config: dict | None = None) -> Flask:
 
     app.register_blueprint(auth_routes)
     app.register_blueprint(scout_routes)
+    app.register_blueprint(daily_routes)
     app.register_blueprint(leader_routes)
 
     # Every link/form in every template goes through url_for, so carrying the
