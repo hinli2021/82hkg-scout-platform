@@ -258,6 +258,7 @@
 
     var MOVEMENT_CHOICE_LIMIT = 5;
     var state = {
+      startedAt: 0,              /* 第一個動作關卡出現那一刻 — 榜上的完成時間由這裡計 */
       scene: 'intro',            /* intro · flip · drill · review · stage-done ·
                                     section-done · studied · result · save-error */
       section: 1,                /* 1 = hand signs on the cliff; 2 = movements below */
@@ -1152,6 +1153,8 @@
     function show(scene) {
       state.scene = scene;
       mark(scene);
+      /* 讀完介紹、真正開始操練才計時；榜上的完成時間由這裡起 */
+      if (!state.startedAt && scene !== 'intro') state.startedAt = Date.now();
       if (scene === 'intro') {
         state.section = section1Passed() && movementStages.length ? 2 : 1;
         state.stage = state.section === 2 ? firstOpenMovementStage() : firstOpenStage();
@@ -1182,6 +1185,7 @@
     function finish() {
       if (state.busy) return;
       state.busy = true;
+      var elapsed = state.startedAt ? Date.now() - state.startedAt : 0;
       show('studied');
       var url = cfg.submit_url;
       if (!url) {                      // self-contained offline preview: it
@@ -1194,6 +1198,7 @@
         return;
       }
       var body = new FormData();
+      if (elapsed) body.append('elapsed_ms', String(elapsed));
       requiredMoves.forEach(function (m) {
         body.append('check_' + m.id, String(answers[m.id] !== undefined ? answers[m.id] : (m.check || {}).answer));
       });

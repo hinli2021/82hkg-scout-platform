@@ -572,18 +572,46 @@ def _rank(rows: list[dict], key) -> list[dict]:
     return rows
 
 
+# 遊戲 2、3 的完成時間：快過 8 秒不是過橋，是誤按；長過 6 小時不是一局。
+GAME_MIN_MS = 8_000
+GAME_MAX_MS = 6 * 60 * 60 * 1000
+GAME_FINISHED_STATUSES = ("completed", "crossed", "studied")
+_MEDAL_EMOJI = {"cave": "🕳", "bridge": "🌉", "drill": "🥁"}
+
+
+def _game_elapsed_ms(record: dict) -> int | None:
+    """遊戲 2、3 的完成時間（毫秒），存在 `answers_json` 的 `_ms` 裡。
+
+    舊記錄沒有計時 → None；不可能的數值一律當作沒有，免得一個壞鐘長霸榜首。
+    """
+    blob = as_json(record.get("answers_json"), None)
+    if not isinstance(blob, dict):
+        return None
+    value = as_int(blob.get("_ms"))
+    return value if GAME_MIN_MS <= value <= GAME_MAX_MS else None
+
+
 def leaderboard_sections(store, *, scope: str = "unit", patrol: str = "",
                          period: str = "all", current_user_id: str = "") -> dict:
-    """三張榜一次算好：遊戲得分、積分、獎章。"""
-    settings = store.settings()
+    """三張榜一次算好：會員章的遊戲、積分、獎章。
+
+    第一張榜不是一張總表：每個遊戲各自排名，各用自己那把尺 —— 山洞看答對
+    百分比（高分為先），渡口與步操訓練場看完成時間（快者為先）。**玩完就
+    上榜**，不必等領袖批准：`crossed`（橋已鋪好）與 `studied`（手冊已讀完）
+    一樣計，重玩取最好的一次。
+    """
     users = [u for u in store.list("users")
              if u.get("role") == "scout" and u.get("status") == "active"
              and u.get("show_on_leaderboard", True) is not False]
+    if scope == "patrol" and patrol:
+        users = [u for u in users if u.get("patrol") == patrol]
+    users_by_id = {u["id"]: u for u in users}
     records = store.list("progress_records")
     awards = store.list("badge_awards")
     ledger = store.list("points_ledger")
     badges_by_id = {b["id"]: b for b in store.list("badges")}
     columns = _membership_game_columns(store)
+    column_by_task = {col["task_id"]: col for col in columns}
 
     if period == "all":
         since = 0.0
@@ -593,81 +621,125 @@ def leaderboard_sections(store, *, scope: str = "unit", patrol: str = "",
     def in_range(value: str) -> bool:
         return parse_time(value) >= since
 
-    game_rows, point_rows, badge_rows = [], [], []
-    for user in users:
-        if scope == "patrol" and patrol and user.get("patrol") != patrol:
+    # ── 1. 每個遊戲的最好一次（玩完就算，不必等批准） ────────────────────
+    best: dict[str, dict[str, dict]] = {col["task_id"]: {} for col in columns}
+    for record in records:
+        task_id = str(record.get("task_id") or "")
+        if task_id not in column_by_task or record.get("user_id") not in users_by_id:
             continue
-        stats = store.stats_for(user["id"])
-        base = {
+        if record.get("status") not in GAME_FINISHED_STATUSES:
+            continue
+        when = record.get("decided_at") or record.get("submitted_at") or ""
+        if period != "all" and not in_range(when):
+            continue
+        metric = "percent" if column_by_task[task_id].get("kind") == "cave" else "time"
+        holder = best[task_id].setdefault(
+            record["user_id"], {"percent": None, "ms": None, "done": False})
+        if record.get("status") == "completed":
+            holder["done"] = True
+        if metric == "percent":
+            value = as_int(record.get("score"))
+            holder["percent"] = value if holder["percent"] is None else max(holder["percent"], value)
+        else:
+            ms = _game_elapsed_ms(record)
+            if ms is not None:
+                holder["ms"] = ms if holder["ms"] is None else min(holder["ms"], ms)
+
+    name_key = lambda row: str(row.get("display_name_en") or row.get("display_name_zh") or "")  # noqa: E731
+    bases: dict[str, dict] = {}
+    game_boards: list[dict] = []
+    for column in columns:
+        metric = "percent" if column.get("kind") == "cave" else "time"
+        rows: list[dict] = []
+        for user in users:
+            holder = best[column["task_id"]].get(user["id"])
+            if not holder:
+                continue
+            value = holder["percent"] if metric == "percent" else holder["ms"]
+            base = bases.setdefault(user["id"], {
+                "user_id": user["id"],
+                "display_name_zh": user.get("display_name_zh", ""),
+                "display_name_en": user.get("display_name_en", ""),
+                "patrol": user.get("patrol", ""),
+                "avatar": user.get("avatar", "🦊"),
+                "is_me": user["id"] == current_user_id,
+            })
+            rows.append({**base, "value": value, "done": holder["done"]})
+        ranked = [row for row in rows if row["value"] is not None]
+        unranked = [row for row in rows if row["value"] is None]
+        if metric == "percent":
+            ranked.sort(key=lambda row: (-row["value"], name_key(row)))
+        else:
+            ranked.sort(key=lambda row: (row["value"], name_key(row)))
+        for index, row in enumerate(ranked, start=1):
+            row["rank"] = index
+        for row in unranked:                    # 完成了但沒有計時（舊記錄）
+            row["rank"] = None
+        top = ranked[0]["value"] if ranked else None
+        game_boards.append({
+            **column, "metric": metric, "rows": ranked + unranked,
+            "top": top, "played": len(rows),
+            "medal": _MEDAL_EMOJI.get(column.get("kind"), "🎮"),
+        })
+
+    # ── 2. 積分與 3. 獎章 ───────────────────────────────────────────────
+    point_rows, badge_rows = [], []
+    for user in users:
+        base = bases.setdefault(user["id"], {
             "user_id": user["id"],
             "display_name_zh": user.get("display_name_zh", ""),
             "display_name_en": user.get("display_name_en", ""),
             "patrol": user.get("patrol", ""),
             "avatar": user.get("avatar", "🦊"),
             "is_me": user["id"] == current_user_id,
-        }
-
-        # 1. 會員章：每個遊戲取最好的一次（重玩不會令人跌名次）
-        scores: dict[str, int | None] = {col["task_id"]: None for col in columns}
-        for record in records:
-            if record.get("user_id") != user["id"] or record.get("status") != "completed":
-                continue
-            if record.get("task_id") not in scores:
-                continue
-            when = record.get("decided_at") or record.get("submitted_at") or ""
-            if period != "all" and not in_range(when):
-                continue
-            value = as_int(record.get("score"))
-            best = scores[record["task_id"]]
-            scores[record["task_id"]] = value if best is None else max(best, value)
-        played = [value for value in scores.values() if value is not None]
-        game_rows.append({
-            **base,
-            "scores": scores,
-            "module_total": sum(played),
-            "played": len(played),
-            "of": len(columns),
         })
-
-        # 2. 積分：賺到的（正數），不是餘額
+        stats = store.stats_for(user["id"])
         earned = sum(as_int(row.get("points_delta")) for row in ledger
                      if row.get("user_id") == user["id"]
                      and as_int(row.get("points_delta")) > 0
                      and (period == "all" or in_range(row.get("created_at") or "")))
-        point_rows.append({
-            **base,
-            "earned": earned,
-            "balance": as_int(stats.get("points_balance")),
-        })
-
-        # 3. 獎章
+        point_rows.append({**base, "earned": earned,
+                           "balance": as_int(stats.get("points_balance"))})
         if period == "all":
             count = as_int(stats.get("badges_done"))
         else:
             count = sum(1 for a in awards if a.get("user_id") == user["id"]
                         and in_range(a.get("awarded_at") or ""))
-        mine = sorted([a for a in awards if a.get("user_id") == user["id"]],
-                      key=lambda a: str(a.get("awarded_at") or ""), reverse=True)
+        mine_awards = sorted([a for a in awards if a.get("user_id") == user["id"]],
+                             key=lambda a: str(a.get("awarded_at") or ""), reverse=True)
         badge_rows.append({
             **base,
             "badges": count,
             "tasks_done": as_int(stats.get("tasks_done")),
             "emojis": [(badges_by_id.get(a.get("badge_id")) or {}).get("emoji", "🎖")
-                       for a in mine[:6]],
+                       for a in mine_awards[:6]],
         })
 
-    name_key = lambda row: str(row.get("display_name_en") or row.get("display_name_zh") or "")  # noqa: E731
-    _rank(game_rows, lambda r: (-r["module_total"], -r["played"], name_key(r)))
     _rank(point_rows, lambda r: (-r["earned"], -r["balance"], name_key(r)))
     _rank(badge_rows, lambda r: (-r["badges"], -r["tasks_done"], name_key(r)))
+
+    mine_games = []
+    for board in game_boards:
+        row = next((r for r in board["rows"] if r["is_me"]), None)
+        mine_games.append({"n": board["n"], "rank": (row or {}).get("rank"),
+                           "value": (row or {}).get("value"), "metric": board["metric"],
+                           "title_zh": board["game_zh"], "title_en": board["game_en"]})
 
     return {
         "period": period, "scope": scope, "patrol": patrol,
         "columns": columns,
-        "games": {"key": "games", "rows": game_rows},
+        "games": {
+            "key": "games", "columns": game_boards,
+            "played": len({r["user_id"] for board in game_boards for r in board["rows"]}),
+        },
         "points": {"key": "points", "rows": point_rows},
         "badges": {"key": "badges", "rows": badge_rows},
-        "scouts": len(game_rows),
+        "scouts": len(users),
+        "mine": {
+            "games": mine_games,
+            "points": next((r for r in point_rows if r["is_me"]), None),
+            "badges": next((r for r in badge_rows if r["is_me"]), None),
+        },
     }
 
 

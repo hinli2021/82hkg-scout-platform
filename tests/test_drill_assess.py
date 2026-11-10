@@ -128,3 +128,21 @@ def test_the_wording_names_the_leader_not_a_code():
     assert '批准' in assess['after_zh'] and '領袖帳戶' in assess['after_zh']
     assert '代碼' not in json.dumps(assess, ensure_ascii=False)
     assert '批准' in DRILL['studied']['pass_zh']
+
+
+def test_the_drill_files_the_finish_time(store, new_scout):
+    """步操訓練場榜看完成時間：記錄帶 `_ms`，自查答案照舊保留。"""
+    task = task_of(store)
+    data = {**drill_data(), 'elapsed_ms': '485000'}
+    assert new_scout.post(f"/tasks/{task['id']}/drill-submit", data=data).status_code == 200
+    record = records_of(store, new_scout, task['id'])[-1]
+    blob = json.loads(record['answers_json'])
+    assert blob['_ms'] == 485000
+    assert len([key for key in blob if key != '_ms']) == len(drill_data())   # 每個動作的自查答案
+
+    from scout import engine
+
+    rows = next(board for board in engine.leaderboard_sections(store)['games']['columns']
+                if board['code'] == 'M06')['rows']
+    row = next(r for r in rows if r['user_id'] == new_scout.id)
+    assert row['value'] == 485000 and row['rank'] == 1 and row['done'] is False

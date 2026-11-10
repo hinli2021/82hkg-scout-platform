@@ -3844,6 +3844,18 @@ body.is-game main { padding-top: 6px; }
 .lb-score-game { opacity: .8; }
 .lb-score-n { display: none; font-weight: 800; opacity: .7; }
 .lb-score-count { margin-left: .15rem; align-self: center; }
+/* 榜 1：每個遊戲自己一張小榜（各有各的量尺） */
+.lb-game { margin-top: .95rem; }
+.lb-game-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .5rem .8rem; flex-wrap: wrap; margin: 0 0 .4rem .1rem;
+}
+.lb-game-head h3 {
+  margin: 0; font-size: 1.02rem; font-weight: 700;
+  display: inline-flex; align-items: center; gap: .4rem;
+}
+.lb-g-n { color: var(--green-700, #2f6f4a); font-weight: 800; letter-spacing: .02em; }
+.lb-pending { font-weight: 600; }
 .lb-line { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
 .lb-line .grow { flex: 1 1 9rem; min-width: 0; }
 .lb-line .chip { flex: 0 0 auto; }
@@ -3863,4 +3875,6 @@ body.is-game main { padding-top: 6px; }
   .lb-row-games .lb-of { display: none; }
   .lb-score-count { display: none; }
   .lb-mine .row.wrap { gap: .3rem; }
+  .lb-game-head h3 { font-size: .95rem; }
+  .lb-game-head .chip { font-size: .72rem; }
 }

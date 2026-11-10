@@ -75,7 +75,8 @@
       laid: [],                // planks already on the bridge, this stage
       pool: [],                // planks still lying on the bank
       wrongKey: '',
-      busy: false
+      busy: false,
+      startedAt: 0            /* 開始鋪第一塊木板那一刻 — 榜上的完成時間由這裡計 */
     };
 
     var shuffled = function (list) {
@@ -308,6 +309,8 @@
         setArt(stageArt());
         say(teachHtml(false));
       } else if (scene === 'build') {
+        /* 第一次落到橋面才開始計時：讀教學牌的時間不入鐘 */
+        if (!state.startedAt) state.startedAt = Date.now();
         setArt(stageArt());
         /* 鋪木板不重覆次序：次序要記在腦裡。想再看，按下面的「再看一次教學牌」。 */
         say(kicker(fill(pick((cfg.planks || {}).kicker_zh, (cfg.planks || {}).kicker_en), { n: st.n })) +
@@ -447,6 +450,7 @@
         return;
       }
       var body = new FormData();
+      if (state.startedAt) body.append('elapsed_ms', String(Date.now() - state.startedAt));
       cfg.stages.forEach(function (stage_) {
         var wanted = (stage_.planks || []).map(function (p) { return p.key; });
         wanted.forEach(function (key) { body.append('stage' + stage_.n, key); });

@@ -301,3 +301,25 @@ def test_the_assess_wording_teaches_the_two_halves():
     crossed = RIVER['crossed']
     assert '考核通過' in crossed['pass_title_zh']
     assert '領袖' in crossed['paras_zh'][1], 'the far bank names the next step'
+
+
+def test_the_crossing_files_the_finish_time(store, new_scout):
+    """渡口榜看完成時間：過橋的記錄帶 `_ms`，木板照舊留在 answers_json。"""
+    task = task_of(store)
+    data = {**bridge_data(), 'elapsed_ms': '312000'}
+    assert new_scout.post(f"/tasks/{task['id']}/bridge-submit", data=data).status_code == 200
+    record = records_of(store, new_scout, task['id'])[-1]
+    blob = json.loads(record['answers_json'])
+    assert blob['_ms'] == 312000
+    assert sum(1 for key in blob if key.startswith('stage')) == len(RIVER['stages'])
+
+
+def test_an_impossible_clock_keeps_the_scout_off_the_time_board(store, new_scout):
+    """3 秒鐘的「過橋」不是過橋：仍然記錄通關，但榜上不給名次。"""
+    task = task_of(store)
+    data = {**bridge_data(), 'elapsed_ms': '3000'}
+    assert new_scout.post(f"/tasks/{task['id']}/bridge-submit", data=data).status_code == 200
+    boards = engine.leaderboard_sections(store)
+    rows = next(board for board in boards['games']['columns'] if board['code'] == 'M05')['rows']
+    row = next(r for r in rows if r['user_id'] == new_scout.id)
+    assert row['value'] is None and row['rank'] is None and row['done'] is False

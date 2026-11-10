@@ -235,6 +235,15 @@ def create_app(config: dict | None = None) -> Flask:
                                     samesite="Lax", secure=request.is_secure)
         return response
 
+    @app.template_filter("mmss")
+    def mmss(value):
+        """毫秒 → 分:秒（遊戲 2、3 的完成時間；60 分鐘以上照樣是 63:05）。"""
+        try:
+            seconds = max(0, int(float(value or 0) / 1000))
+        except (TypeError, ValueError):
+            return "—"
+        return f"{seconds // 60}:{seconds % 60:02d}"
+
     @app.template_filter("status_word")
     def status_word(value):
         words = {

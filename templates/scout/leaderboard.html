@@ -30,18 +30,19 @@
   </div>
 
   {# ── 你在三張榜的位置：一眼看到，不用逐張找 ── #}
-  {% if mine.games or mine.points or mine.badges %}
+  {% set me = mine.points or mine.badges %}
+  {% if me %}
     <div class="lb-mine card">
       <div class="spread wrap">
         <div class="row">
-          <span style="font-size:1.6rem">{{ (mine.games or mine.points or mine.badges).avatar }}</span>
+          <span style="font-size:1.6rem">{{ me.avatar }}</span>
           <div>
             <div class="small muted">{{ L('你在三張榜的位置', 'Your place on each board') }}</div>
-            <strong>{{ name_of(mine.games or mine.points or mine.badges) }}</strong>
+            <strong>{{ name_of(me) }}</strong>
           </div>
         </div>
         <div class="row wrap">
-          {% if mine.games %}<a class="chip light lb-mine-chip" href="#board-games">🎮 {{ L('遊戲得分', 'Game score') }} #{{ mine.games.rank }}</a>{% endif %}
+          {% for game in mine.games %}<a class="chip light lb-mine-chip" href="#board-game-{{ game.n }}">🎮 G{{ game.n }} {{ ('#' ~ game.rank) if game.rank else L('未上榜', '—') }}</a>{% endfor %}
           {% if mine.points %}<a class="chip light lb-mine-chip" href="#board-points">🪙 {{ L('積分', 'Points') }} #{{ mine.points.rank }}</a>{% endif %}
           {% if mine.badges %}<a class="chip light lb-mine-chip" href="#board-badges">🎖 {{ L('獎章', 'Badges') }} #{{ mine.badges.rank }}</a>{% endif %}
         </div>
@@ -49,49 +50,54 @@
     </div>
   {% endif %}
 
-  {# ══ 榜 1：會員章 · 各遊戲的得分 ══════════════════════════════════════ #}
+  {# ══ 榜 1：會員章 · 每個遊戲各自排名 ══════════════════════════════════ #}
   <section class="lb-board" id="board-games">
     <div class="section-title">
       <h2>🎮 {{ L('會員章 · 各遊戲得分', 'Membership badge · game scores') }}</h2>
-      <span class="count">{{ boards.games.rows | length }} {{ L('位童軍', 'scouts') }}</span>
+      <span class="count">{{ boards.games.played }} {{ L('位童軍', 'scouts') }}</span>
     </div>
     <p class="muted small lb-sub">
-      {{ L('每個遊戲 0–100 分；五個遊戲的分數加起來排名，重玩取最好的一次。', 'Each game scores 0–100; the boards add the five games up, and a replay keeps the best score.') }}
+      {{ L('每個遊戲各自排名：山洞看答對百分比，渡口與步操訓練場看完成時間（愈快愈好）。玩完就上榜，不必等領袖批准；重玩取最好的一次。',
+           'Each game is ranked on its own: the cave on the percentage answered correctly, the crossing and the drill ground on the time taken (faster first). Finishing puts you on the board — no leader approval needed; a replay keeps your best.') }}
     </p>
-    {% if boards.games.rows %}
-      <div class="panel">
-        <div class="panel-body stack">
-          {% set top = (boards.games.rows[0].module_total) or 1 %}
-          {% for row in boards.games.rows %}
-            <div class="lb-row lb-row-games {{ 'me' if row.is_me }}" style="position:relative">
-              <span class="lb-fill" style="width: {{ (row.module_total / top * 100) | round }}%"></span>
-              <div class="lb-line">
-                <strong class="lb-rank">#{{ row.rank }}</strong>
-                <span class="lb-avatar">{{ row.avatar }}</span>
-                <span class="grow">
-                  <strong>{{ name_of(row) }}</strong>
-                  <div class="small muted">{{ L(patrol_label(row.patrol).zh, patrol_label(row.patrol).en) }}</div>
-                </span>
-                <span class="chip brass">🎮 {{ row.module_total }}<span class="lb-of">/ {{ 100 * row.of }}</span></span>
-              </div>
-              <div class="lb-scores">
-                {% for column in columns %}
-                  {% set score = row.scores.get(column.task_id) %}
-                  <span class="lb-score {{ 'is-empty' if score is none }}" title="{{ L(column.area_zh ~ ' · ' ~ column.game_zh, column.area_en ~ ' · ' ~ column.game_en) }}">
-                    <span class="lb-score-n" aria-hidden="true">G{{ column.n }}</span>
-                    <span class="lb-score-game">{{ L(column.game_zh, column.game_en) }}</span>
-                    <b>{{ score if score is not none else '—' }}</b>
-                  </span>
-                {% endfor %}
-                <span class="lb-score-count small muted">{{ L('已玩 ', 'Played ') }}{{ row.played }}/{{ row.of }}</span>
-              </div>
-            </div>
-          {% endfor %}
+
+    {% for game in boards.games.columns %}
+      <div class="lb-game" id="board-game-{{ game.n }}">
+        <div class="lb-game-head">
+          <h3>{{ game.medal }} <span class="lb-g-n">G{{ game.n }}</span> {{ L(game.game_zh, game.game_en) }}</h3>
+          <span class="chip light">{{ L('答對百分比', 'Answered right') if game.metric == 'percent' else L('完成時間 · 分:秒', 'Finish time · m:ss') }}</span>
         </div>
+        {% if game.rows %}
+          <div class="panel">
+            <div class="panel-body stack">
+              {% for row in game.rows %}
+                <div class="lb-row {{ 'me' if row.is_me }}">
+                  {% if row.value is not none %}
+                    <span class="lb-fill" style="width: {{ ((row.value / game.top * 100) if game.metric == 'percent' else (game.top / row.value * 100)) | round }}%"></span>
+                  {% endif %}
+                  <div class="lb-line">
+                    <strong class="lb-rank">{{ ('#' ~ row.rank) if row.rank else '–' }}</strong>
+                    <span class="lb-avatar">{{ row.avatar }}</span>
+                    <span class="grow">
+                      <strong>{{ name_of(row) }}</strong>
+                      <div class="small muted">{{ L(patrol_label(row.patrol).zh, patrol_label(row.patrol).en) }}</div>
+                    </span>
+                    {% if row.value is not none %}
+                      <span class="chip brass">{{ ('🎯 ' ~ row.value ~ '%') if game.metric == 'percent' else ('⏱ ' ~ (row.value | mmss)) }}</span>
+                    {% else %}
+                      <span class="chip">{{ L('沒有計時', 'No time') }}</span>
+                    {% endif %}
+                    {% if not row.done %}<span class="chip light lb-pending">{{ L('等批准', 'Awaiting') }}</span>{% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% else %}
+          {{ empty_state(game.medal, '還沒有人玩完這個遊戲。', 'Nobody has finished this game yet.') }}
+        {% endif %}
       </div>
-    {% else %}
-      {{ empty_state('🎮', '還沒有遊戲成績。', 'No game scores yet.') }}
-    {% endif %}
+    {% endfor %}
   </section>
 
   {# ══ 榜 2：賺到的積分 ════════════════════════════════════════════════ #}

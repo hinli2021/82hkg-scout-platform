@@ -1586,7 +1586,8 @@ def _describe_answers(value) -> tuple[str, int]:
     """一份存起來的答案長甚麼樣：渡口存 stage1…3，石室／測驗存答案清單。"""
     if isinstance(value, dict):
         stages = [key for key in value if str(key).startswith("stage")]
-        return ("bridge", len(stages)) if len(stages) >= 2 else ("dict", len(value))
+        filled = [key for key in value if not str(key).startswith("_")]   # `_ms` 是計時，不是答案
+        return ("bridge", len(stages)) if len(stages) >= 2 else ("dict", len(filled))
     if isinstance(value, list):
         return "list", len(value)
     return "", 0

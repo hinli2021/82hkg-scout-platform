@@ -265,25 +265,83 @@ def board_ids(page):
 
 
 def test_the_leaderboard_is_three_boards(scout_client, store, extras_on):
-    """遊戲得分、積分、獎章 —— 三張榜，各自排名。"""
+    """遊戲、積分、獎章 —— 三張榜，各自排名。"""
     page = scout_client.get("/leaderboard").get_data(as_text=True)
     assert "龍虎榜" in page and "lb-row" in page
     assert board_ids(page) == ["games", "points", "badges"]
     assert "會員章 · 各遊戲得分" in page
     assert "積分" in page and "獎章" in page
+    # 第一張榜再分三張小榜：一個遊戲一張，各有各的量尺
+    assert re.findall(r'id="board-game-(\d)"', page) == ["1", "2", "3"]
+    assert "答對百分比" in page and "完成時間" in page
 
     boards = engine.leaderboard_sections(store, current_user_id=scout_client.id)
-    # each board is ranked on its own number, highest first
-    for key, field in (("games", "module_total"), ("points", "earned"), ("badges", "badges")):
+    for key, field in (("points", "earned"), ("badges", "badges")):
         values = [row[field] for row in boards[key]["rows"]]
         assert values == sorted(values, reverse=True), key
         assert [row["rank"] for row in boards[key]["rows"]] == list(range(1, len(values) + 1))
 
-    # the game board carries one column per game that exists, and no more
+    # 每個遊戲自己排名：山洞高分先，渡口與步操訓練場快者先
     codes = [column["code"] for column in boards["columns"]]
-    assert codes[:3] == ["M04", "M05", "M06"] and "" not in codes
-    assert all(set(row["scores"]) == {c["task_id"] for c in boards["columns"]}
-               for row in boards["games"]["rows"])
+    assert codes[:3] == ["M04", "M05", "M06"]
+    for game in boards["games"]["columns"]:
+        ranked = [row for row in game["rows"] if row["value"] is not None]
+        values = [row["value"] for row in ranked]
+        assert values == sorted(values, reverse=game["metric"] == "percent"), game["code"]
+        assert [row["rank"] for row in ranked] == list(range(1, len(ranked) + 1))
+
+
+def test_a_finished_game_counts_before_the_leader_approves(store):
+    """玩完就上榜：crossed / studied 一樣計，不必等領袖批准。"""
+    scout = next(u for u in store.list("users") if u["username"] == "scout04")
+    tasks = {t["code"]: t for t in store.list("tasks")}
+    for code, ms, status in (("M05", 312_000, "crossed"), ("M06", 285_000, "studied")):
+        store.insert("progress_records", {
+            "user_id": scout["id"], "badge_id": tasks[code]["badge_id"],
+            "task_id": tasks[code]["id"], "attempt_no": 1, "status": status,
+            "score": None, "answers_json": json.dumps({"_ms": ms}),
+            "points_awarded": 0, "submitted_at": "2026-10-01T09:00:00+00:00",
+            "decided_at": "", "decided_by": "",
+        })
+    boards = engine.leaderboard_sections(store)
+    bridge_board, drill_board = boards["games"]["columns"][1], boards["games"]["columns"][2]
+    bridge = next(row for row in bridge_board["rows"] if row["user_id"] == scout["id"])
+    drill = next(row for row in drill_board["rows"] if row["user_id"] == scout["id"])
+    assert bridge["value"] == 312_000 and bridge["rank"] == 1 and bridge["done"] is False
+    assert drill["value"] == 285_000 and drill["done"] is False
+
+
+def test_the_cave_board_ranks_by_percentage_and_keeps_the_best(store):
+    """遊戲 1 看答對百分比；重玩取最高的一次。"""
+    scout = next(u for u in store.list("users") if u["username"] == "scout05")
+    task = next(t for t in store.list("tasks") if t["code"] == "M04")
+    for score in (60, 92):
+        store.insert("progress_records", {
+            "user_id": scout["id"], "badge_id": task["badge_id"], "task_id": task["id"],
+            "attempt_no": 1, "status": "completed", "score": score,
+            "answers_json": None, "points_awarded": 0,
+            "submitted_at": "2026-10-01T09:00:00+00:00",
+            "decided_at": "2026-10-01T09:00:00+00:00", "decided_by": "auto",
+        })
+    cave_board = engine.leaderboard_sections(store)["games"]["columns"][0]
+    row = next(r for r in cave_board["rows"] if r["user_id"] == scout["id"])
+    assert row["value"] == 92 and row["done"] is True
+    assert cave_board["metric"] == "percent"
+
+
+def test_a_finish_without_a_clock_is_listed_but_not_ranked(store):
+    """舊記錄沒有計時：仍然見到玩完了，但不排名次。"""
+    scout = next(u for u in store.list("users") if u["username"] == "scout06")
+    task = next(t for t in store.list("tasks") if t["code"] == "M05")
+    store.insert("progress_records", {
+        "user_id": scout["id"], "badge_id": task["badge_id"], "task_id": task["id"],
+        "attempt_no": 1, "status": "crossed", "score": None, "answers_json": None,
+        "points_awarded": 0, "submitted_at": "2026-10-01T09:00:00+00:00",
+        "decided_at": "", "decided_by": "",
+    })
+    row = next(r for r in engine.leaderboard_sections(store)["games"]["columns"][1]["rows"]
+               if r["user_id"] == scout["id"])
+    assert row["value"] is None and row["rank"] is None
 
 
 def test_leaderboard_periods_and_patrols(scout_client, extras_on):

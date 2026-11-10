@@ -17,8 +17,8 @@ from ..auth import needs_first_time, public_user, scout_required
 from ..content import (cave_adventure, cave_images, drill_images, drill_manual,
                        drill_required_moves, river_adventure, river_images)
 from ..engine import (
-    as_int, as_json, award_task_completion, build_suggestions, credit_opening_stages,
-    evaluate_submission, game_areas, points_summary, progress_for,
+    GAME_MAX_MS, GAME_MIN_MS, as_int, as_json, award_task_completion, build_suggestions,
+    credit_opening_stages, evaluate_submission, game_areas, points_summary, progress_for,
     stage_list, touch_streak,
 )
 from ..content import member_badge_guide
@@ -240,6 +240,16 @@ def as_int_or(value, default=None):
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def _elapsed_ms(raw) -> int:
+    """遊戲 2、3 交回來的完成時間（毫秒）—— 只收合理的鐘。
+
+    少於 8 秒（誤按）或長過 6 小時（開了頁走開）一律記 0，即「沒有計時」；
+    榜上仍然見到這個童軍玩完了，只是不排名次。
+    """
+    value = as_int_or(raw, 0)
+    return value if GAME_MIN_MS <= value <= GAME_MAX_MS else 0
 
 
 def _cave_option_text(option) -> tuple[str, str]:
@@ -694,7 +704,9 @@ def bridge_submit(task_id: str):
             "leader_comment": "",
             "answers_json": json.dumps(
                 {f"stage{stage['n']}": request.form.getlist(f"stage{stage['n']}")
-                 for stage in stages}, ensure_ascii=False),
+                 for stage in stages}
+                | {"_ms": _elapsed_ms(request.form.get("elapsed_ms"))},
+                ensure_ascii=False),
             "checklist_json": None, "evidence_url": "", "reflection_text": "",
             "points_awarded": 0, "submitted_at": now_iso(),
             "decided_at": "", "decided_by": "",
@@ -854,7 +866,9 @@ def drill_submit(task_id: str):
             "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
             "attempt_no": len(mine) + 1, "status": "studied", "score": None,
             "leader_comment": "",
-            "answers_json": json.dumps(answers, ensure_ascii=False),
+            "answers_json": json.dumps(
+                {**answers, "_ms": _elapsed_ms(request.form.get("elapsed_ms"))},
+                ensure_ascii=False),
             "checklist_json": None, "evidence_url": "", "reflection_text": "",
             "points_awarded": 0, "submitted_at": now_iso(),
             "decided_at": "", "decided_by": "",
@@ -1173,8 +1187,8 @@ def leaderboard_page():
 
     boards = leaderboard_sections(st, scope=scope, patrol=patrol, period=period,
                                   current_user_id=g.user["id"])
-    mine = {key: next((row for row in boards[key]["rows"] if row["is_me"]), None)
-            for key in ("games", "points", "badges")}
+    # the scout's own place on each board: three game mini-ranks + points + badges
+    mine = boards["mine"]
     return render_template("scout/leaderboard.html", disabled=False, boards=boards, mine=mine,
                            columns=boards["columns"], period=period, scope=scope, patrol=patrol,
                            patrols=settings.get("patrols") or [])
