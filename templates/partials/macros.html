@@ -120,7 +120,7 @@
   {%- set en = person.get('display_name_en', '') if person is mapping else person.display_name_en -%}
   <span class="nm {{ cls }}">
     <span class="nm-en">{{ en or zh }}</span>
-    {%- if zh and en %}<span class="nm-zh">{{ zh }}</span>{% endif %}
+    {%- if zh and en and lang != 'en' %}<span class="nm-zh">{{ zh }}</span>{% endif %}
   </span>
 {% endmacro %}
 
@@ -129,7 +129,7 @@
   {%- set label = patrol_label(value) -%}
   <span class="nm {{ cls }}">
     <span class="nm-en">{{ label.en or label.zh }}</span>
-    {%- if label.zh and label.en %}<span class="nm-zh">{{ label.zh }}</span>{% endif %}
+    {%- if label.zh and label.en and lang != 'en' %}<span class="nm-zh">{{ label.zh }}</span>{% endif %}
   </span>
 {% endmacro %}
 

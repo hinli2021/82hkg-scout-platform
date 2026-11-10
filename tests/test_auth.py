@@ -25,8 +25,9 @@ def test_health_reports_storage_mode(client):
 def test_login_page_is_just_the_scene_and_the_leader_door(client):
     """Front page: the three animals, one line of coaching, the leader door.
 
-    No title, no demo shortcuts, no "forgot password", no language switch —
-    those live elsewhere (see the name picker and the password pages).
+    No title, no demo shortcuts, no "forgot password" — but there IS a small
+    中／English pill in the top-left, so a scout can read the platform in
+    English before signing in.
     """
     page = client.get("/login").get_data(as_text=True)
     for patrol in ("Tiger", "Otter", "Seagull"):                    # the patrols, in English
@@ -35,9 +36,10 @@ def test_login_page_is_just_the_scene_and_the_leader_door(client):
     assert "領袖登入" in page                                       # bottom-right door
     assert "demo1" not in page and "demo3" not in page              # no demo buttons
     assert "忘記密碼" not in page                                    # no reset link here
-    assert "/set-language/" not in page                             # no language switch
+    assert "scene-lang" in page                                     # the 中／English pill
+    assert "set-language/en" in page and "set-language/zh" in page
     assert "<h1" not in page.split('class="scene-hud bc"')[0]  # no title over the camp scene
-    assert "scene-hud tl" not in page                               # …and no top-left HUD
+    assert "scene-hud tl" not in page.replace("scene-hud tl scene-lang", "")  # only the language pill
     assert "scene-leader" in page                                   # styled as a button
 
 

@@ -25,6 +25,11 @@
   if (!cfg || !cfg.kind) return;
   window.DAILY_ART = (cfg.board && cfg.board.art) || 'img/badges';
 
+  /* 語言：整頁由 /set-language 設定，遊戲自己畫的字也跟着轉。
+     T('中文', 'English') —— 英文版永遠不會掉出中文。 */
+  var EN = (document.documentElement.lang || '').slice(0, 2) === 'en' || cfg.language === 'en';
+  function T(zh, en) { return EN ? (en || zh) : zh; }
+
   var clockEl = document.querySelector('[data-daily-clock]');
   var panel = document.querySelector('[data-daily-panel]');
   var resultEl = document.querySelector('[data-daily-result]');
@@ -74,7 +79,8 @@
     }).then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
       .then(function (data) {
         if (data && data.ok) show(true, data.points || 0, used, data.already ? 'already' : 'paid');
-        else show(true, 0, used, 'refused', (data && data.message_zh) || '');
+        else show(true, 0, used, 'refused',
+                  (data && (EN ? (data.message_en || data.message_zh) : data.message_zh)) || '');
       })
       .catch(function () { show(true, 0, used, 'refused', ''); });
   }
@@ -85,16 +91,19 @@
     host.classList.add('is-done');
     var line;
     if (!won) {
-      line = '未完成 — 再試一次（不計分）。';
+      line = T('未完成 — 再試一次（不計分）。', 'Not finished — try again (no points this time).');
     } else if (note === 'paid') {
-      line = '完成！＋' + points + ' 分，用時 ' + mmss(used) + '。';
+      line = T('完成！＋' + points + ' 分，用時 ' + mmss(used) + '。',
+              'Done! +' + points + ' points in ' + mmss(used) + '.');
     } else if (note === 'already') {
-      line = '完成！今天的分數已入帳，這次是練習。';
+      line = T('完成！今天的分數已入帳，這次是練習。',
+              'Done! Today\'s points are already in — this one was a practice run.');
     } else if (note === 'refused') {
       /* the server said no — its sentence explains why (clock, old ticket, …) */
-      line = message || '完成了，但分數未能記下，請重新整理再試。';
+      line = message || T('完成了，但分數未能記下，請重新整理再試。',
+                'Finished, but the points were not saved — reload and try again.');
     } else {
-      line = '完成！用時 ' + mmss(used) + '。';
+      line = T('完成！用時 ' + mmss(used) + '。', 'Done in ' + mmss(used) + '.');
     }
     resultEl.textContent = line;
     resultEl.classList.toggle('is-good', note === 'paid' || note === 'already');
@@ -331,7 +340,7 @@
     var refPic = el('span', 'fifteen-ref-pic');
     refPic.style.backgroundImage = SCENE_URI;
     ref.appendChild(refPic);
-    ref.appendChild(el('figcaption', 'fifteen-ref-cap', '營地 · 完成圖'));
+    ref.appendChild(el('figcaption', 'fifteen-ref-cap', T('營地 · 完成圖', 'Camp · finished')));
 
     function solved() {
       for (var i = 0; i < tiles.length - 1; i++) if (tiles[i] !== i + 1) return false;
@@ -355,7 +364,7 @@
         tile.style.backgroundPosition =
           (col / (size - 1) * 100).toFixed(4) + '% ' + (row / (size - 1) * 100).toFixed(4) + '%';
         tile.appendChild(el('span', 'fifteen-num', String(value)));
-        tile.setAttribute('aria-label', '第 ' + value + ' 塊');
+        tile.setAttribute('aria-label', T('第 ' + value + ' 塊', 'Piece ' + value));
         tile.addEventListener('click', function () { move(index); });
         wrap.appendChild(tile);
       });
@@ -416,11 +425,13 @@
     var open = {}, flagged = {}, starts = true, dead = false;
     var wrap = el('div', 'mines-wrap');
     var bar = el('div', 'mines-bar');
-    var flagButton = el('button', 'btn ghost small', '🚩 標記危險');
+    var flagButton = el('button', 'btn ghost small', T('🚩 標記危險', '🚩 Mark a hazard'));
     flagButton.type = 'button';
     var count = el('span', 'chip', '⚠️ 0 / ' + board.count);
     bar.appendChild(flagButton); bar.appendChild(count);
-    var note = el('p', 'mines-note', '起營前先清場：撥開草，插旗標出草地上的危險物。');
+    var note = el('p', 'mines-note',
+      T('起營前先清場：撥開草，插旗標出草地上的危險物。',
+        'Clear the ground before the tents go up: part the grass, plant a pennant on anything dangerous.'));
     var grid = el('div', 'mines-grid');
     grid.style.setProperty('--n', size);
     wrap.appendChild(bar); wrap.appendChild(grid); wrap.appendChild(note);
@@ -429,7 +440,7 @@
     flagButton.addEventListener('click', function () {
       flagging = !flagging;
       flagButton.classList.toggle('is-on', flagging);
-      flagButton.textContent = flagging ? '🚩 標記中…' : '🚩 標記危險';
+      flagButton.textContent = flagging ? T('🚩 標記中…', '🚩 Marking…') : T('🚩 標記危險', '🚩 Mark a hazard');
     });
 
     function neighbours(i) {
@@ -478,7 +489,7 @@
           if (isMine) {
             cell.classList.add('is-hazard');
             cell.innerHTML = hazardSvg(kinds[String(i)]);
-            cell.setAttribute('aria-label', '危險物');
+            cell.setAttribute('aria-label', T('危險物', 'Hazard'));
           } else {
             var n = mineCount(i);
             if (n) { cell.textContent = String(n); cell.classList.add('n' + n); }
@@ -486,7 +497,7 @@
         } else if (flagged[i]) {
           cell.classList.add('is-flag');
           cell.innerHTML = pennantSvg();
-          cell.setAttribute('aria-label', '已標記');
+          cell.setAttribute('aria-label', T('已標記', 'Marked'));
         } else {
           cell.innerHTML = '<span class="mine-grass"></span>';
         }
@@ -511,7 +522,8 @@
           open[index] = true;
           paint();
           grid.classList.add('is-dead');
-          note.textContent = '踩中危險物！場地未清好，營帳不能落地 —— 再清一次。';
+          note.textContent = T('踩中危險物！場地未清好，營帳不能落地 —— 再清一次。',
+            'You stood on a hazard! The ground is not clear, so no tent — clear it again.');
           if (window.FX && FX.sfx) { try { FX.sfx('wrong'); } catch (e) {} }
           finish(false);
           return;
@@ -520,7 +532,7 @@
         paint();
         if (window.FX && FX.sfx) { try { FX.sfx('tap'); } catch (e) {} }
         if (Object.keys(open).length === total - board.count) {
-          note.textContent = '場地清好了 —— 可以落營。';
+          note.textContent = T('場地清好了 —— 可以落營。', 'Ground clear — the tents can go up.');
           finish(true);
         }
       };
@@ -534,11 +546,15 @@
      圖樣（static/img/badges/），服務器每天抽八枚。配成一對之後，桌上的
      徽章簿會寫出這一枚屬於哪一組、要考甚麼。 */
 
+  function badgeName(badge) {
+    return EN ? (badge.en || badge.zh) : badge.zh;
+  }
+
   function badgeImg(badge, faceDown) {
     if (faceDown) return '<span class="memory-back">⚜</span>';
     var src = (badge.art || '') ? ('/static/' + (window.DAILY_ART || 'img/badges') + '/' + badge.art) : '';
     if (!src) return '<span class="memory-back">⚜</span>';
-    return '<img class="badge-img" src="' + src + '" alt="' + badge.zh + '" ' +
+    return '<img class="badge-img" src="' + src + '" alt="' + badgeName(badge) + '" ' +
            'width="133" height="133" loading="lazy" draggable="false">';
   }
 
@@ -557,17 +573,18 @@
         .filter(function (v, i, all) { return all.indexOf(v) === i; });
       if (!got.length) {
         book.innerHTML = '<p class="muted small" style="margin:.4rem 0 0">' +
-          '配對後，這裡會寫出每枚專科徽章要考甚麼。</p>';
+          T('配對後，這裡會寫出每枚專科徽章要考甚麼。',
+            'Match the pairs and this book says what each badge asks for.') + '</p>';
         return;
       }
-      book.innerHTML = '<p class="badge-book-title">🎖️ 徽章簿 · ' + got.length + ' / 8</p>' +
+      book.innerHTML = '<p class="badge-book-title">🎖️ ' + T('徽章簿', 'Badge book') + ' · ' + got.length + ' / 8</p>' +
         '<ul class="badge-book-list">' + got.map(function (b) {
           var badge = badges[b];
           return '<li><img class="badge-book-art" src="/static/' + (window.DAILY_ART || 'img/badges') +
                  '/' + badge.art + '" alt="" width="133" height="133">' +
-                 '<span><strong>' + badge.zh + '</strong> ' +
-                 '<span class="badge-group">' + (badge.group_zh || '') + '</span> ' +
-                 '<span class="muted small">' + badge.what_zh + '</span></span></li>';
+                 '<span><strong>' + badgeName(badge) + '</strong> ' +
+                 '<span class="badge-group">' + (EN ? (badge.group_en || badge.group_zh || '') : (badge.group_zh || '')) + '</span> ' +
+                 '<span class="muted small">' + (EN ? (badge.what_en || badge.what_zh) : badge.what_zh) + '</span></span></li>';
         }).join('') + '</ul>';
     }
 
@@ -580,7 +597,7 @@
         card.innerHTML = badgeImg(badges[badgeIndex], !faceUp);
         if (faceUp) card.classList.add('is-up');
         if (matched[i]) card.classList.add('is-matched');
-        card.setAttribute('aria-label', faceUp ? badges[badgeIndex].zh : '未翻開');
+        card.setAttribute('aria-label', faceUp ? badgeName(badges[badgeIndex]) : T('未翻開', 'Face down'));
         card.addEventListener('click', function () { flip(i); });
         grid.appendChild(card);
       });

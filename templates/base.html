@@ -28,7 +28,7 @@
   {# a page that needs a few rules of its own (the adventure's stage board) #}
   {% block head %}{% endblock %}
 </head>
-<body data-build="{{ BUILD }}" {% block body_attrs %}{% endblock %}>
+<body data-build="{{ BUILD }}" data-lang="{{ lang }}" {% block body_attrs %}{% endblock %}>
 {% block shell %}
   {% if user %}
   <header class="topbar">
@@ -72,8 +72,17 @@
         {# 只在遊戲頁出現（那裏 HUD 收起了），見 .topbar-points 的樣式 #}
         {{ points_chip('topbar-points') }}
         <button class="icon-btn" type="button" data-sound-toggle title="{{ L('遊戲音效', 'Game sound') }}">🔊</button>
-        {# 平台以中文為主：不再顯示語言切換按鈕（雙語內容與 /set-language 仍在）。
-           若要在英文環境查看，直接開 /set-language/en。 #}
+        {# 語言切換：中／EN 兩格，按完留在同一頁（/set-language/<code>?next=…）。
+           中文版保留英文（小隊名、英文名），英文版不顯示中文。 #}
+        {% set here = request.full_path if request.query_string else request.path %}
+        <span class="lang-switch" role="group" aria-label="{{ L('語言', 'Language') }}">
+          <a href="{{ url_for('set_language', code='zh', next=here) }}"
+             class="{{ 'active' if lang != 'en' else '' }}" lang="zh-Hant"
+             title="{{ L('中文', 'Chinese') }}">中</a>
+          <a href="{{ url_for('set_language', code='en', next=here) }}"
+             class="{{ 'active' if lang == 'en' else '' }}" lang="en"
+             title="{{ L('英文', 'English') }}">EN</a>
+        </span>
         <form method="post" action="{{ url_for('auth_routes.logout') }}" class="nowrap">
           <button class="btn ghost small" type="submit" title="{{ L('登出', 'Sign out') }}">🚪</button>
         </form>

@@ -565,12 +565,12 @@ def test_there_is_only_one_line_of_text_on_the_front_page(client):
 def test_bilingual_pages(client, app):
     """Traditional Chinese by default; the EN switch re-renders the page.
 
-    The front page carries no language control of its own, but the switch still
-    works — leaders reach it from inside the platform.
+    The front page carries its own small 中／English pill (top-left), and inside
+    the platform the same switch sits in the top bar of every page.
     """
     zh = client.get("/login").get_data(as_text=True)
     assert "選擇你的小隊" in zh
-    assert "/set-language/" not in zh
+    assert "/set-language/en" in zh
     client.get("/set-language/en")
     en = client.get("/login").get_data(as_text=True)
     assert 'lang="en">Choose your patrol' in en
@@ -586,6 +586,27 @@ def test_bilingual_inside_the_app(scout_client):
     en = scout_client.get("/home").get_data(as_text=True)
     assert "My badges" in en
     assert "積分" not in en
+
+
+def test_the_language_switch_is_on_every_page(scout_client):
+    """中／EN lives in the top bar, so it is on every page — games included.
+
+    Chinese is the default and keeps the English glosses (patrol names, English
+    names); English hides the Chinese half of each bilingual pair.
+    """
+    for path in ("/home", "/badges", "/daily", "/history"):
+        page = scout_client.get(path).get_data(as_text=True)
+        assert 'class="lang-switch"' in page, f"{path} has no language switch"
+        assert 'data-lang="zh"' in page
+        assert "url_for" not in page
+    zh = scout_client.get("/home").get_data(as_text=True)
+    # 中文版：小隊名照舊英文行先、中文在後
+    assert "Otter" in zh and "水獺" in zh
+    scout_client.get("/set-language/en")
+    en = scout_client.get("/home").get_data(as_text=True)
+    assert 'data-lang="en"' in en
+    assert "Otter" in en
+    assert "水獺" not in en                       # the second-language gloss is hidden
 
 
 def test_language_switch_keeps_the_same_page(scout_client):

@@ -28,7 +28,7 @@ from scout import auth as auth_module
 from scout.auth import public_user
 from scout.schema import TASK_TYPES, patrol_label
 from scout.mascots import MASCOTS, mascot_for
-from scout.store import Store, storage_advice
+from scout.store import Store, storage_advice, storage_advice_en
 from scout.routes.auth_routes import auth_routes
 from scout.routes.daily_routes import daily_routes
 from scout.routes.leader_routes import leader_routes
@@ -40,31 +40,53 @@ def setup_health_checks(store, counts: dict, on_sheets: bool) -> list[dict]:
     """健康檢查頁上的幾行：每一行都說「現在怎樣」和「怎樣做」。"""
     badge_count = counts.get("badges", 0)
     task_count = counts.get("tasks", 0)
-    reason, advice = storage_advice(getattr(store, "config", {}).get("storage_error", ""))
+    error = getattr(store, "config", {}).get("storage_error", "")
+    reason, advice = storage_advice(error)
+    reason_en, advice_en = storage_advice_en(error)
     return [
         {
             "ok": on_sheets,
             "title": ("資料儲存在 Google 試算表" if on_sheets else
                       "試算表連不上，暫時寫在執行個體空間" if reason else
                       "資料暫存在執行個體空間"),
+            "title_en": ("Data lives in your Google Sheet" if on_sheets else
+                         "The Sheet is unreachable — writing to instance storage for now" if reason else
+                         "Data is held in instance storage"),
             "detail": ("帳戶、進度、積分都存在你的試算表，重新部署不會影響。"
                        if on_sheets else
                        reason + " 現在寫在執行個體的 /tmp，一段時間沒有流量就會被回收 —— 帳戶與進度會消失。"
                        if reason else
                        "現在寫在執行個體的 /tmp，一段時間沒有流量就會被回收 —— 帳戶與進度會消失。"),
+            "detail_en": ("Accounts, progress and points all live in your Sheet; redeploying will not touch them."
+                          if on_sheets else
+                          reason_en + " For now everything is written to /tmp on the instance, which is "
+                          "reclaimed after a quiet spell — accounts and progress will be lost."
+                          if reason else
+                          "Everything is written to /tmp on the instance, which is reclaimed after a quiet "
+                          "spell — accounts and progress will be lost."),
             "fix": ("", advice if reason else
                         "在 Vercel → Settings → Environment Variables 加入 GOOGLE_SHEET_ID 與 "
                         "GOOGLE_SERVICE_ACCOUNT_JSON，然後到 Deployments → ⋯ → Redeploy。"),
+            "fix_en": ("", advice_en if reason else
+                       "Add GOOGLE_SHEET_ID and GOOGLE_SERVICE_ACCOUNT_JSON in Vercel → Settings → Environment "
+                       "Variables, then Deployments → ⋯ → Redeploy."),
         },
         {
             "ok": badge_count >= 5 and task_count >= 11,
             "title": "獎章目錄與遊戲項目" if badge_count >= 5 and task_count >= 11
                      else "獎章目錄還未建立",
+            "title_en": "Badge catalogue and game items" if badge_count >= 5 and task_count >= 11
+                        else "The badge catalogue is not built yet",
             "detail": f"獎章 {badge_count}／任務 {task_count}。"
                       + ("已完成，之後不會被更新覆蓋。" if badge_count >= 5 else
                          "連上試算表後，第一次開啟會自動建立一次。"),
+            "detail_en": f"{badge_count} badges / {task_count} tasks. "
+                         + ("Done — later updates will not overwrite them." if badge_count >= 5 else
+                            "It is built once, the first time the platform opens with the Sheet connected."),
             "fix": ("", "確認 Vercel 正在執行最新版本（Deployments → Redeploy），"
                         "再重新打開平台一次。"),
+            "fix_en": ("", "Make sure Vercel is running the latest version (Deployments → Redeploy), "
+                           "then open the platform once more."),
         },
     ]
 
@@ -241,6 +263,7 @@ def create_app(config: dict | None = None) -> Flask:
             "ok": True,
             "storage": store.driver.name,
             "unit": store.settings_cached().get("unit_name_zh", ""),
+            "unit_en": store.settings_cached().get("unit_name_en", ""),
             "demo": bool(store.config.get("demo_login") or store.config.get("seed_demo")),
             "counts": counts,
             "setup_ready": counts.get("badges", 0) >= 5 and counts.get("tasks", 0) >= 11,

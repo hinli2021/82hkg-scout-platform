@@ -172,6 +172,65 @@ def storage_advice(error: str) -> tuple[str, str]:
             "檢查 GOOGLE_SHEET_ID、GOOGLE_SERVICE_ACCOUNT_JSON 與共用設定，然後 Redeploy。")
 
 
+def storage_advice_en(error: str) -> tuple[str, str]:
+    """(English reason, English fix) — the same branches as `storage_advice`.
+
+    Kept beside it rather than in the template, so a new failure mode is added
+    once in each language and the two can be read side by side.
+    """
+    text = str(error or "")
+    if not text.strip():
+        return ("", "")
+    if "ModuleNotFoundError" in text or "No module named" in text:
+        missing = text.split("'")[1] if "'" in text else "a package"
+        return (f"The deployment is missing a package ({missing}), so it cannot reach Google.",
+                "requirements.txt does not list it; deploy the latest version (google-auth is included now).")
+    if "deserialize" in text.lower() or "Could not parse" in text or "InvalidKey" in text:
+        return ("The service account's private_key is incomplete (cut short when pasting, or wrapped in quotes).",
+                "Paste the whole JSON file into Vercel again — from { to } — with the entire private_key "
+                "(including -----BEGIN…-----), no stray line breaks, no surrounding quotes, then Redeploy.")
+    if "JSONDecodeError" in text or "服務帳戶金鑰不完整" in text:
+        return ("GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON.",
+                "Paste the whole JSON file into Vercel again, from { to }, with no surrounding quotes, then Redeploy. "
+                "(You can check it first in tools/check-service-account.html.)")
+    if "GOOGLE_SHEET_ID" in text:
+        return ("GOOGLE_SHEET_ID is not set.",
+                "Paste the part of the sheet URL between /d/ and /edit into GOOGLE_SHEET_ID in Vercel, then Redeploy.")
+    if ("has not been used in project" in text or "SERVICE_DISABLED" in text
+            or "is disabled" in text or "accessNotConfigured" in text):
+        api = "Google Drive API" if "drive" in text.lower() else "Google Sheets API"
+        return (f"{api} is not enabled in the Google Cloud project.",
+                "Go to console.cloud.google.com → APIs & Services → Library, search for Google Sheets API and "
+                "Google Drive API and press Enable on each (the error message above has direct links too). "
+                "Wait a minute or two, then Redeploy in Vercel.")
+    if "Unable to parse range" in text:
+        return ("The sheet is reachable but its tabs are not built yet (the app creates them).",
+                "Open the platform once more; it builds the 15 tabs the first time it connects. "
+                "If it keeps happening, deploy the latest version from Vercel → Deployments → Redeploy.")
+    if "Invalid spreadsheet id" in text or "invalid spreadsheet id" in text:
+        return ("GOOGLE_SHEET_ID is incomplete or malformed.",
+                "Copy the whole part between /d/ and /edit in the sheet URL (about 44 characters: letters, digits, - and _), "
+                "paste it back into GOOGLE_SHEET_ID, then Redeploy.")
+    if "400" in text:
+        return ("Google answered 400: the request is malformed — usually an incomplete GOOGLE_SHEET_ID.",
+                "Copy the part between /d/ and /edit again, paste it into GOOGLE_SHEET_ID, then Redeploy.")
+    if "insufficient" in text.lower() and "scope" in text.lower():
+        return ("The service account key has insufficient scopes.",
+                "Download the key again (Google Cloud → IAM & Admin → Service Accounts → Keys → JSON), "
+                "paste it in and Redeploy.")
+    if "403" in text:
+        return ("Google refused access: the sheet (or Drive folder) is not shared with the service account.",
+                "Open the sheet → Share → add the service-account email (…@….iam.gserviceaccount.com) as Editor.")
+    if "404" in text:
+        return ("That sheet was not found: GOOGLE_SHEET_ID may not be this file's ID.",
+                "Copy the part between /d/ and /edit again, paste it into GOOGLE_SHEET_ID, then Redeploy.")
+    if "401" in text or "invalid_grant" in text or "credentials" in text.lower():
+        return ("The service account key was refused: it may have been deleted or copied incompletely.",
+                "Go to Google Cloud → IAM & Admin → Service Accounts → Keys, create a new JSON key and paste it in.")
+    return ("Cannot reach the Google Sheet: " + text[:160],
+            "Check GOOGLE_SHEET_ID, GOOGLE_SERVICE_ACCOUNT_JSON and the sharing settings, then Redeploy.")
+
+
 class Store:
     def __init__(self, driver, config: dict):
         self.driver = driver

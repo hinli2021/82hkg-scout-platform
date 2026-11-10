@@ -37,6 +37,16 @@
     </h2>
   </div>
 
+  {# 語言：營地場景上唯一的一粒小字，左上角，未登入都轉得 #}
+  <div class="scene-hud tl scene-lang">
+    <span class="lang-switch">
+      <a href="{{ url_for('set_language', code='zh', next='/login') }}"
+         class="{{ 'active' if lang != 'en' else '' }}" lang="zh-Hant">{{ L('中文', 'Chinese') }}</a>
+      <a href="{{ url_for('set_language', code='en', next='/login') }}"
+         class="{{ 'active' if lang == 'en' else '' }}" lang="en">English</a>
+    </span>
+  </div>
+
   <div class="scene-hud tr">
     <span class="scene-logo">
       <img src="{{ url_for('static', filename='img/brand/82hkg-logo.webp') }}"

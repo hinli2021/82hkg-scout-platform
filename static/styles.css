@@ -744,13 +744,27 @@ tbody tr:hover { background: #fcfdfb; }
   border: 1px solid var(--line); background: var(--white); color: var(--ink-soft);
 }
 .lang-switch a.active { background: var(--brass); border-color: var(--brass); color: #36250a; }
-.topbar-right .lang-switch a { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); color: #dfeae3; }
+.topbar-right .lang-switch { margin: 0; gap: .18rem; }
+.topbar-right .lang-switch a {
+  background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); color: #dfeae3;
+  padding: .26rem .5rem; font-size: .74rem; line-height: 1.15; min-width: 1.9rem; text-align: center;
+}
 .topbar-right .lang-switch a.active { background: var(--brass); border-color: var(--brass); color: #36250a; }
 .icon-btn {
   appearance: none; border: 1px solid var(--line); background: var(--white); border-radius: 999px;
   width: 40px; height: 40px; display: grid; place-items: center; font-size: 1.05rem; cursor: pointer;
 }
 .topbar-right .icon-btn { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); color: #fff; }
+
+/* 英文版：雙語顯示中的「第二行中文」全部收起；中文版仍然保留英文（小隊名、英文名） */
+body[data-lang="en"] .nm-zh { display: none; }
+
+/* 登入畫面的那句提示：中文版是「中文大、英文小」，英文版只留英文並放大 */
+body[data-lang="en"] .scene-prompt .zh { display: none; }
+body[data-lang="en"] .scene-prompt .en {
+  margin-top: 0; font-size: clamp(.95rem, 2.2vw, 1.32rem); letter-spacing: .16em;
+  color: rgba(230, 214, 255, .95);
+}
 
 /* ── page chrome ──────────────────────────────────────────────────────── */
 .page { max-width: 1180px; margin: 0 auto; padding: 1.1rem .9rem 3rem; }
@@ -1227,6 +1241,14 @@ body.scene-body .topbar { display: none; }
 
 /* ── the few words that live on the picture ──────────────────────────── */
 .scene-hud { position: absolute; z-index: 4; color: #fff; }   /* above the hotspots */
+/* 場景左上角的語言切換：細細一粒，不搶走營地畫面的注意力 */
+.scene-lang { top: .9rem; left: 1.2rem; }
+.scene-lang .lang-switch a {
+  background: rgba(9, 26, 18, .42); border-color: rgba(255, 255, 255, .3); color: #eef6ef;
+  font-size: .72rem; padding: .24rem .55rem; backdrop-filter: blur(4px);
+}
+.scene-lang .lang-switch a.active { background: var(--brass); border-color: var(--brass); color: #36250a; }
+@media (max-width: 720px) { .scene-lang { top: .6rem; left: .7rem; } }
 .scene-hud.tl { top: 1rem; left: 1.2rem; text-shadow: 0 3px 12px rgba(0,0,0,.5); }
 .scene-hud.tl h1 { margin: 0; font-size: 1.35rem; letter-spacing: .01em; }
 .scene-hud.tl p { margin: .15rem 0 0; font-size: .82rem; color: #d9ead9; }
