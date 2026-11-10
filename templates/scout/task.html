@@ -48,8 +48,12 @@
     <div class="alert ok">✓ {{ L('你已完成這個任務。', 'You have completed this task.') }}
       {% if task.leader_comment %}<div class="small">{{ L('領袖評語：', 'Leader: ') }}{{ task.leader_comment }}</div>{% endif %}
     </div>
-  {% elif task.status == 'pending' %}
-    <div class="alert info">⏳ {{ L('已提交，等待領袖核實。', 'Submitted — waiting for a leader to verify.') }}</div>
+  {% elif task.status in ('pending', 'crossed', 'studied') %}
+    <div class="alert info">⏳ {{ L('已提交，等待領袖核實。', 'Submitted — waiting for a leader to verify.') }}
+      {% if task.status in ('crossed', 'studied') %}
+        <div class="small">{{ L('你在遊戲裡已經完成。領袖會在領袖帳戶看到這項紀錄，按「批准」之後，這裡就會變成 ✓。', 'You have finished the game. Your leader sees this in the leader account — once they press approve, this page turns into a ✓.') }}</div>
+      {% endif %}
+    </div>
   {% elif task.status == 'rejected' %}
     <div class="alert warn">↩ {{ L('可以再做一次！', 'You can try again!') }}
       {% if task.leader_comment %}<div class="small">{{ L('領袖評語：', 'Leader: ') }}{{ task.leader_comment }}</div>{% endif %}
@@ -68,7 +72,7 @@
 
 {# the review is for any submitted attempt — a paper you failed is exactly
    the one you want to read back before sitting it again                #}
-{% if task.status in ['completed', 'pending'] or task.answers_json %}
+{% if task.status in ['completed', 'pending', 'crossed', 'studied'] or task.answers_json %}
   {# Everything the scout handed in, so the page is a record and not a blank form. #}
   <section class="card" style="margin-top:.8rem">
     <h3 style="margin-top:0">
@@ -158,7 +162,7 @@
 {% endif %}
 
 
-{% if task.status not in ['completed', 'pending'] and not badge.locked %}
+{% if task.status not in ['completed', 'pending', 'crossed', 'studied'] and not badge.locked %}
 <section class="card pad-lg" style="margin-top:.8rem">
   <form method="post" action="{{ url_for('scout_routes.submit', task_id=task.id) }}"
         data-task-submit data-quiz="{{ '1' if task.type == 'quiz' else '0' }}"

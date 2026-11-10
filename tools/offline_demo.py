@@ -177,23 +177,20 @@ panes.append(("cave", "遊戲 1 · 童軍歷史山洞", body_of(cave_page)))
 
 # ── game 2: 迷霧渡口 — the bridge the scout builds plank by plank ──────────
 # Same treatment as the cave: no endpoint in the offline copy, so the game
-# checks the planks itself — and the leader's 考核 code is checked here too
-# (the live page never ships the code to the browser; the offline file has no
-# server, so it carries the same code and the same two halves of the game).
+# checks the planks itself. Live, a finished crossing waits for the leader's
+# approval in the leader account; the offline file has no leader account, so
+# its assess card carries one clearly-labelled button that stands in for it.
 bridge_task = next((t for t in store.list("tasks")
                     if t["badge_id"] == membership["id"] and t.get("code") == "M05"), None)
 if bridge_task is None:
     print("offline bridge: M05 is missing from this database; the demo skips game 2")
 
-from scout.routes.scout_routes import _bridge_assess_code   # noqa: E402
-BRIDGE_CODE = _bridge_assess_code(store)
-
 def clear_bridge_submit(match: re.Match) -> str:
     config = json.loads(html.unescape(match.group(2)))
     config["submit_url"] = ""
-    config["code_url"] = ""
+    config["status_url"] = ""
     config.pop("run_key", None)
-    config.setdefault("assess", {})["code"] = BRIDGE_CODE
+    config.setdefault("assess", {})["demo_approve"] = True
     return match.group(1) + html.escape(json.dumps(config, ensure_ascii=False), quote=True) + match.group(3)
 
 if bridge_task is not None:
@@ -204,21 +201,17 @@ if bridge_task is not None:
 
 # ── game 3: 步操訓練場 — the manual the scout reads chapter by chapter ────
 # Same treatment again: no endpoint offline, the checks are answered in the
-# browser and the leader's 考核 code is carried in the file (the live page
-# never ships it) — the demo keeps the same two halves of the game.
+# browser, and the same stand-in button plays the leader's approval.
 drill_task = next((t for t in store.list("tasks")
                    if t["badge_id"] == membership["id"] and t.get("code") == "M06"), None)
 if drill_task is None:
     print("offline drill: M06 is missing from this database; the demo skips game 3")
 
-from scout.routes.scout_routes import _drill_assess_code   # noqa: E402
-DRILL_CODE = _drill_assess_code(store)
-
 def clear_drill_submit(match: re.Match) -> str:
     config = json.loads(html.unescape(match.group(2)))
     config["submit_url"] = ""
-    config["code_url"] = ""
-    config.setdefault("assess", {})["code"] = DRILL_CODE
+    config["status_url"] = ""
+    config.setdefault("assess", {})["demo_approve"] = True
     return match.group(1) + html.escape(json.dumps(config, ensure_ascii=False), quote=True) + match.group(3)
 
 if drill_task is not None:
@@ -473,9 +466,9 @@ router = """
   }
 
   // The crossing is laid, but game 2 is two halves: the chip now reads
-  // 「已過橋 · 找領袖考核」 (not done), the scout stands on area 3 — the walk may
+  // 「已提交 · 等領袖批准」 (not done), the scout stands on area 3 — the walk may
   // carry on to the drill ground — and the counters stay where they were until
-  // the leader's code is typed into the assess card.
+  // the leader approves.
   document.addEventListener('bridge:crossed', function (event) {
     if (!event.detail || event.detail.cleared || game2Cleared) return;
     bridgeCrossed = true;
@@ -485,7 +478,7 @@ router = """
       var third = pane.querySelector('.stage-chip[data-stage="3"]');
       if (second) {
         var crossedState = second.querySelector('[data-game-state]');
-        if (crossedState) crossedState.textContent = '🧭 已過橋 · 找領袖考核';
+        if (crossedState) crossedState.textContent = '⏳ 已提交 · 等領袖批准';
         var me = second.querySelector('.stage-chip-me');
         if (me && third) third.querySelector('.stage-chip-card').appendChild(me);
       }
@@ -502,8 +495,8 @@ router = """
     }
   });
 
-  // The code is in: game 2 really is cleared. Clear area 2, stand the scout on
-  // area 3, and move both counters one step on.
+  // The leader has approved: game 2 really is cleared. Clear area 2, stand the
+  // scout on area 3, and move both counters one step on.
   document.addEventListener('bridge:result', function (event) {
     if (!event.detail || !event.detail.cleared || game2Cleared) return;
     game2Cleared = true;
@@ -550,9 +543,9 @@ router = """
   });
 
   // The manual is studied, but game 3 is two halves too: the chip reads
-  // 「已學完 · 找領袖考核」 (not done), the scout stands on area 4, and the
-  // counters wait for the leader's code. Game 4 is not built yet, so the one
-  // button goes and the lock note returns — now naming game 4.
+  // 「已提交 · 等領袖批准」 (not done), the scout stands on area 4, and the
+  // counters wait for the leader's approval. Game 4 is not built yet, so the
+  // one button goes and the lock note returns — now naming game 4.
   document.addEventListener('drill:studied', function (event) {
     if (!event.detail || event.detail.cleared || game3Cleared) return;
     drillStudied = true;
@@ -562,7 +555,7 @@ router = """
       var fourth = pane.querySelector('.stage-chip[data-stage="4"]');
       if (third) {
         var studiedState = third.querySelector('[data-game-state]');
-        if (studiedState) studiedState.textContent = '🥁 已學完 · 找領袖考核';
+        if (studiedState) studiedState.textContent = '⏳ 已提交 · 等領袖批准';
         var me = third.querySelector('.stage-chip-me');
         if (me && fourth) fourth.querySelector('.stage-chip-card').appendChild(me);
       }
@@ -840,12 +833,8 @@ def switch_off_forms(markup: str) -> str:
 
     def handle(match: re.Match) -> str:
         block = match.group(0)
-        if any(key in block for key in ("data-leadercode", "data-demo", "data-offline-setup",
-                                        "data-bridge-code", "data-drill-code")):
+        if any(key in block for key in ("data-leadercode", "data-demo", "data-offline-setup")):
             # keep it, and make sure its submit buttons still submit
-            # (data-bridge-code / data-drill-code are the assess cards of
-            #  games 2 and 3: the codes are checked locally in this file, so
-            #  those forms must stay real forms)
             block = re.sub(r'(<button\b[^>]*?)\s+type="button"\s+data-dead="1"',
                            lambda m: m.group(1) + ' type="submit"', block)
             block = block.replace(' data-dead="1"', '') if "data-demo" in block else block

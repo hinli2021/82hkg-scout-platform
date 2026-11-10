@@ -60,15 +60,14 @@ body = body.replace(f'href="/badges/{membership["id"]}"', 'href="#" data-off="1"
 # revision links stay (in this file they are ordinary external links)
 body = re.sub(r'<a data-bridge-link="badge"[^>]*>[^<]*</a>', "", body, count=1)
 # this copy is self-contained: it grades the planks itself, with no endpoint —
-# and the leader's 考核 code is checked on the spot (same two halves as live)
-from scout.routes.scout_routes import _bridge_assess_code   # noqa: E402
-
+# and one labelled button stands in for the leader's approval (same two halves
+# as live, where the leader presses approve in the leader account)
 def clear_submit(match: re.Match) -> str:
     config = json.loads(html.unescape(match.group(2)))
     config["submit_url"] = ""
-    config["code_url"] = ""
+    config["status_url"] = ""
     config.pop("run_key", None)
-    config.setdefault("assess", {})["code"] = _bridge_assess_code(store)
+    config.setdefault("assess", {})["demo_approve"] = True
     return match.group(1) + html.escape(json.dumps(config, ensure_ascii=False), quote=True) + match.group(3)
 
 

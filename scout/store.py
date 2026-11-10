@@ -270,6 +270,7 @@ class Store:
             try:
                 store.settle_catalog()              # 先合併重複（例如首次啟動撞在一起）
                 store.ensure_catalog()              # 再補上缺少的項目
+                store.refresh_game_copy()           # 遊戲 2、3 改了完成方式：換掉未改動過的舊說明
             except Exception as exc:                # noqa: BLE001
                 config["catalog_error"] = f"{type(exc).__name__}: {exc}"
         return store
@@ -502,6 +503,71 @@ class Store:
             if target and str(row.get("badge_id")) != str(target["id"]):
                 self.update("tasks", row["id"], {"badge_id": target["id"]})
         return merged
+
+    # 遊戲 2、3 的完成方式改了（不再由童軍輸入領袖代碼，改在領袖帳戶批准）。
+    # 說明文字原本跟隨第一次建立的種子寫入資料庫，所以舊部署仍會說「輸入代碼」。
+    # 只有「仍是原封不動的舊版」那一句才會被換掉；領袖改過的文字一個字都不碰。
+    GAME_COPY_REFRESH = {
+        "M05": {
+            "instruction_zh": (
+                "明瞭及接納童軍誓詞、規律和銘言。第二個區域只有這一個遊戲：先讀教學牌，"
+                "再把木板按正確次序鋪成橋。三關全部鋪好即完成第 5 項，無須另做考核；"
+                "宣誓時領袖仍會聽你親口講出誓詞、規律和銘言。",
+            ),
+            "instruction_en": (
+                "Understand and accept the Scout Promise, Law and Motto. The second area's "
+                "only game: read each teaching card, then lay the planks across the river in "
+                "the right order. Laying all three stages completes item 5 — there is no "
+                "separate paper. Your leader will still hear you say them aloud when you are "
+                "invested.",
+            ),
+        },
+        "M06": {
+            "instruction_zh": (
+                "認識宣誓時應有之童軍禮儀，以及隊列之基本動作。第三個區域只有這一個遊戲，"
+                "分兩節：第 1 節在斷崖學七類集隊手號與領袖位置；第 2 節在閱兵場分三階段學步操"
+                "動作——立正、稍息、敬禮；四方向移步與向左、向右、後轉；原地踏步、齊步、停步、"
+                "看齊。每階段先翻卡學口令、打數和動作要點，再看動作限時選出正確口令。全部通過後"
+                "找領袖親身考核；考核通過，輸入領袖代碼即完成第 6 項。",
+            ),
+            "instruction_en": (
+                "Know the Scout customs for the investiture ceremony and the basic drill "
+                "movements. The third area's only game has two sections: on the cliff, learn "
+                "the seven fall-in hand signs and where the leader stands; then, on the parade "
+                "ground, learn drill movements in three stages — alert, stand at ease and "
+                "salute; pacing in four directions with left, right and about turns; and mark "
+                "time, quick march, halt and dressing. In every stage, study the command, count "
+                "and key points on the cards first, then watch each movement and choose its "
+                "command inside the count. Then perform them for a leader; the leader's code "
+                "completes item 6.",
+            ),
+        },
+    }
+
+    def refresh_game_copy(self) -> int:
+        """把兩款遊戲的舊說明文字換成現行版本（只換未改動過的種子句）。
+
+        A leader's own wording is left alone: the swap only happens when the
+        stored sentence is byte-for-byte the old seed. Returns the number of
+        rows changed; a healthy deploy changes nothing.
+        """
+        seed = {str(task["code"]): task
+                for badge in SEED_BADGES for task in badge["tasks"] if task.get("code")}
+        changed = 0
+        for row in self.list("tasks"):
+            code = str(row.get("code") or "")
+            old = self.GAME_COPY_REFRESH.get(code)
+            if not old or code not in seed:
+                continue
+            patch: dict[str, str] = {}
+            for field, versions in old.items():
+                current = str(row.get(field) or "")
+                if current in versions and current != seed[code].get(field):
+                    patch[field] = seed[code][field]
+            if patch:
+                self.update("tasks", row["id"], patch)
+                changed += 1
+        return changed
 
     def ensure_catalog(self, preferred_ids: dict[str, str] | None = None) -> bool:
         """建立缺少的獎章與任務 —— 只新增，永不改寫已有的列。

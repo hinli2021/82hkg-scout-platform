@@ -240,6 +240,8 @@ def create_app(config: dict | None = None) -> Flask:
         words = {
             "completed": {"zh": "已完成", "en": "Completed"},
             "pending": {"zh": "待領袖核實", "en": "Waiting for a leader"},
+            "crossed": {"zh": "已提交 · 等領袖批准", "en": "Sent · waiting for the leader"},
+            "studied": {"zh": "已提交 · 等領袖批准", "en": "Sent · waiting for the leader"},
             "rejected": {"zh": "可重做", "en": "Redo"},
             "todo": {"zh": "未開始", "en": "Not started"},
         }

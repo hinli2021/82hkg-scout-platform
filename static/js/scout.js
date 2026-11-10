@@ -159,10 +159,13 @@
         }
       }
 
-      fetch(form.action, {
+      var payload = new FormData(form);
+      // the pressed button's own name/value (some forms put the choice there)
+      if (ev.submitter && ev.submitter.name) payload.append(ev.submitter.name, ev.submitter.value);
+      fetch(form.getAttribute('action') || window.location.href, {
         method: 'POST',
         headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' },
-        body: new FormData(form)
+        body: payload
       }).then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
         .then(function (result) {
           var data = result.data || {};

@@ -412,8 +412,8 @@
      "task_code": "M06",
      "name_zh": "步操訓練場",
      "name_en": "The drill ground",
-     "blurb_zh": "兩節訓練：第 1 節學七類集隊手號與領袖位置；第 2 節分三階段學基本步操動作。先翻卡記口令、打數和動作要點，再看動作限時選出正確口令；全部通過後找領袖親身考核，輸入領袖代碼完成遊戲 3。",
-     "blurb_en": "Two sections: learn the seven fall-in hand signs and the leader's position, then three stages of basic drill movements. Study each command, count and key point on the cards, watch each movement and choose its command inside the count, then perform them for a leader and bring back the code to finish game 3."
+     "blurb_zh": "兩節訓練：第 1 節學七類集隊手號與領袖位置；第 2 節分三階段學基本步操動作。先翻卡記口令、打數和動作要點，再看動作限時選出正確口令；全部通過後找領袖親身考核；領袖在領袖帳戶按批准，就完成遊戲 3。",
+     "blurb_en": "Two sections: learn the seven fall-in hand signs and the leader's position, then three stages of basic drill movements. Study each command, count and key point on the cards, watch each movement and choose its command inside the count, then perform them for a leader; their approval in the leader account finishes game 3."
     }
    },
    {
@@ -514,8 +514,8 @@
     "kicker_en": "STOP 2 · GAME 2",
     "title_zh": "迷霧小徑",
     "title_en": "The misty trail",
-    "text_zh": "霧中有河，河上無橋。把正確的木板放到橋架上鋪出一條路，再找領袖考核，換取渡河代碼。",
-    "text_en": "A river runs in the mist, and there is no bridge. Lay the right planks across the frame, then find a leader for the crossing code.",
+    "text_zh": "霧中有河，河上無橋。把正確的木板放到橋架上鋪出一條路，再找領袖考核；領袖批准，就完成渡口。",
+    "text_en": "A river runs in the mist, and there is no bridge. Lay the right planks across the frame, then find a leader for the check — their approval finishes the crossing.",
     "alt_zh": "迷霧河岸",
     "alt_en": "The misty river bank"
    },

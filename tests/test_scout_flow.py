@@ -53,11 +53,17 @@ def practice_quiz(store):
 
 
 def approve_everything(app, store, user_id, points=None):
-    """A leader signs in and approves every pending submission."""
+    """A leader signs in and approves every waiting record.
+
+    That includes a finished game 2/3 (`crossed` / `studied`): those wait on the
+    same approve button, and approving them is what puts the tick on the
+    scout's badge page.
+    """
     leader = app.test_client()
     leader.post("/login/leader", data={"username": "leader1", "password": "0082"})
     for record in [r for r in store.list("progress_records")
-                   if r["user_id"] == user_id and r["status"] == "pending"]:
+                   if r["user_id"] == user_id
+                   and r["status"] in ("pending", "crossed", "studied")]:
         data = {"action": "approve"}
         if points is not None:
             data["points"] = str(points)
@@ -451,7 +457,7 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
             assert new_scout.post(f"/tasks/{task['id']}/cave-submit", data=answer).get_json()['passed']
         elif task['code'] == 'M05':
             # game 2 has two halves: lay every plank of every stage (that
-            # crosses the river), then bring the leader's 考核 code
+            # crosses the river), then the leader approves after the 考核
             river = (pathlib.Path(__file__).resolve().parent.parent / 'content'
                      / 'member-badge' / 'river.json')
             bridge = json.loads(river.read_text(encoding='utf-8'))
@@ -461,12 +467,9 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
             # the keys here are the canonical ones, in order
             result = new_scout.post(f"/tasks/{task['id']}/bridge-submit", data=data).get_json()
             assert result['status'] == 'crossed', result
-            code = new_scout.post(f"/tasks/{task['id']}/bridge-code",
-                                  data={'code': '82BP'}).get_json()
-            assert code['passed'] and code['status'] == 'completed', code
         elif task['code'] == 'M06':
             # game 3 also has two halves: answer every check of the manual
-            # (that studies it), then bring the leader's 考核 code
+            # (that studies it), then the leader approves after the 考核
             drill = (pathlib.Path(__file__).resolve().parent.parent / 'content'
                      / 'member-badge' / 'drill.json')
             manual = json.loads(drill.read_text(encoding='utf-8'))
@@ -480,9 +483,6 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
             result = new_scout.post(f"/tasks/{task['id']}/drill-submit", data=data).get_json()
             assert result['status'] == 'studied', result
             assert result['detail']['moves'] == len(required), result
-            code = new_scout.post(f"/tasks/{task['id']}/drill-code",
-                                  data={'code': '82DR'}).get_json()
-            assert code['passed'] and code['status'] == 'completed', code
         elif task['type'] == 'checklist':
             new_scout.post(f"/tasks/{task['id']}/submit",
                            data={f"item{i}": '1' for i in range(len(config['items']))})

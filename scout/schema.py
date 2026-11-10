@@ -297,8 +297,8 @@ SEED_BADGES = [
                 "code": "M05",
                 "title_zh": "第 5 項：迷霧渡口（遊戲 2）",
                 "title_en": "Item 5 — the misty crossing (game 2)",
-                "instruction_zh": "明瞭及接納童軍誓詞、規律和銘言。第二個區域只有這一個遊戲：先讀教學牌，再把木板按正確次序鋪成橋。三關全部鋪好即完成第 5 項，無須另做考核；宣誓時領袖仍會聽你親口講出誓詞、規律和銘言。",
-                "instruction_en": "Understand and accept the Scout Promise, Law and Motto. The second area's only game: read each teaching card, then lay the planks across the river in the right order. Laying all three stages completes item 5 — there is no separate paper. Your leader will still hear you say them aloud when you are invested.",
+                "instruction_zh": "明瞭及接納童軍誓詞、規律和銘言。第二個區域只有這一個遊戲：先讀教學牌，再把木板按正確次序鋪成橋。三關全部鋪好，再找領袖考核（背誦誓詞、規律、銘言，並講出日常生活怎樣實行）；領袖在領袖帳戶按『批准』之後，第 5 項就完成。",
+                "instruction_en": "Understand and accept the Scout Promise, Law and Motto. The second area's only game: read each teaching card, then lay the planks across the river in the right order. Lay all three stages, then see your leader for the check — recite the Promise, Law and Motto and say how you live them. Item 5 is finished when your leader approves it in the leader account.",
                 "type": "quiz", "points": 15, "pass_score": 0,
                 "config_json": {"kind": "bridge", "require_all": True,
                                 "links": [
@@ -311,8 +311,8 @@ SEED_BADGES = [
                 "code": "M06",
                 "title_zh": "第 6 項：步操訓練場（遊戲 3）",
                 "title_en": "Item 6 — the drill ground (game 3)",
-                "instruction_zh": "認識宣誓時應有之童軍禮儀，以及隊列之基本動作。第三個區域只有這一個遊戲，分兩節：第 1 節在斷崖學七類集隊手號與領袖位置；第 2 節在閱兵場分三階段學步操動作——立正、稍息、敬禮；四方向移步與向左、向右、後轉；原地踏步、齊步、停步、看齊。每階段先翻卡學口令、打數和動作要點，再看動作限時選出正確口令。全部通過後找領袖親身考核；考核通過，輸入領袖代碼即完成第 6 項。",
-                "instruction_en": "Know the Scout customs for the investiture ceremony and the basic drill movements. The third area's only game has two sections: on the cliff, learn the seven fall-in hand signs and where the leader stands; then, on the parade ground, learn drill movements in three stages — alert, stand at ease and salute; pacing in four directions with left, right and about turns; and mark time, quick march, halt and dressing. In every stage, study the command, count and key points on the cards first, then watch each movement and choose its command inside the count. Then perform them for a leader; the leader's code completes item 6.",
+                "instruction_zh": "認識宣誓時應有之童軍禮儀，以及隊列之基本動作。第三個區域只有這一個遊戲，分兩節：第 1 節在斷崖學七類集隊手號與領袖位置；第 2 節在閱兵場分三階段學步操動作——立正、稍息、敬禮；四方向移步與向左、向右、後轉；原地踏步、齊步、停步、看齊。每階段先翻卡學口令、打數和動作要點，再看動作限時選出正確口令。全部通過後找領袖親身考核；領袖在領袖帳戶按批准，就完成第 6 項。",
+                "instruction_en": "Know the Scout customs for the investiture ceremony and the basic drill movements. The third area's only game has two sections: on the cliff, learn the seven fall-in hand signs and where the leader stands; then, on the parade ground, learn drill movements in three stages — alert, stand at ease and salute; pacing in four directions with left, right and about turns; and mark time, quick march, halt and dressing. In every stage, study the command, count and key points on the cards first, then watch each movement and choose its command inside the count. Then perform them for a leader; their approval in the leader account completes item 6.",
                 "type": "quiz", "points": 15, "pass_score": 0,
                 "config_json": {"kind": "drill", "require_all": True,
                                 "links": [

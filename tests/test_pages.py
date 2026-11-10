@@ -8,6 +8,8 @@ import pathlib
 import re
 import urllib.parse
 
+import pytest
+
 from scout import engine
 
 
@@ -790,3 +792,16 @@ def test_scout_detail_urls_are_guessable_and_stable(scout_client, store):
     task = next(t for t in store.list("tasks") if t["badge_id"] == badge["id"])
     assert scout_client.get(f"/badges/{badge['id']}").status_code == 200
     assert scout_client.get(f"/tasks/{task['id']}").status_code == 200
+
+def test_a_named_submit_button_cannot_break_the_form_target():
+    """`<button name="action">` shadows `form.action` — the scripts must read the attribute.
+
+    The review queue posts 批准/退回/稍後 through one form whose buttons are all
+    named `action`. Reading `form.action` there yields a RadioNodeList, so the
+    fetch went to /leader/[object RadioNodeList] and every approval failed.
+    """
+    root = pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
+    for name in ("leader.js", "scout.js"):
+        source = (root / name).read_text(encoding="utf-8")
+        assert "fetch(form.action" not in source, f"{name} must not read form.action"
+        assert "getAttribute('action')" in source

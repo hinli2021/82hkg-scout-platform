@@ -7,10 +7,11 @@ Walks the scout through the three stages — 銘言, 誓詞, 規律: reads each 
 card, lays one plank out of order first (the recap must come back, not the
 answer), then builds the whole span. The crossing is only the first half of
 game 2: the card that greets the scout sends them to the leader for the 考核
-(recite, and explain how the Law is lived) and holds the code box. The check
-proves the crossing alone ticks nothing, that the map moves on to area 3
-anyway, that a wrong code is refused and 82BP (typed however it comes) clears
-item 5 — with the badge counter, the pill and the map all following.
+(recite, and explain how the Law is lived) and waits there — no code is typed
+any more. The check proves the crossing alone ticks nothing, that the map moves
+on to area 3 anyway, and that the leader pressing 批准 in the leader account
+turns the waiting card into the tick — with the badge counter, the pill and the
+map all following.
 Screenshots land in docs/screens/.
 """
 import json
@@ -238,20 +239,23 @@ def play(page):
     # brief; the assess card is what the scout is left holding
     wait_scene(page, 'result')
     card = page.inner_text('[data-bridge-card]')
-    check('橋過了' in card or '對岸' in card,
+    check('過了橋' in card or '對岸' in card,
           'the far bank is reached once all three spans hold')
-    check('請找領袖考核' in card, 'the far bank sends the scout to the leader')
+    check('等領袖批准' in card, 'the far bank sends the scout to the leader')
     check('背誦' in card and '講解' in card,
           'the check is named: recite, and explain how the Law is lived')
-    check(page.query_selector('[data-bridge-code-input]') is not None,
-          "the code box is waiting for the leader's word")
+    check(page.query_selector('[data-bridge-wait]') is not None
+          and page.query_selector('[data-bridge-code-input]') is None,
+          'the card waits for the approval — there is no code to type')
+    check(page.query_selector('[data-bridge-go="check"]') is not None,
+          'and it offers 「重新檢查」 while the leader decides')
     check(page.query_selector('[data-bridge-link="badge"]') is not None,
           'the assess card shows the way back to the badge')
     shoot(page, 'bridge-assess.png')
 
 
 def crossed_state(page, before):
-    """The crossing is on file, but item 5 is not done until the code arrives."""
+    """The crossing is on file, but item 5 is not done until the leader approves."""
     entry = progress(page)
     check(entry['progress_done'] == before['progress_done'],
           f"the crossing alone does not tick a game ({before['progress_done']}"
@@ -263,104 +267,75 @@ def crossed_state(page, before):
     page.goto(f'{BASE}/badges/{BADGE_ID}')
     page.wait_for_load_state('networkidle')
     area2 = page.inner_text('.stage-chip[data-stage="2"]')
-    check('已過橋 · 找領袖考核' in area2, 'the map reads the crossed state on area 2')
+    check('已提交 · 等領袖批准' in area2, 'the map reads the waiting state on area 2')
     check(page.locator('.stage-chip[data-stage="2"] .stage-chip-replay[data-code]').count() == 1,
-          'the map offers the code door on area 2')
+          'the map still offers a door into area 2 while it waits')
 
     page.goto(f'{BASE}/badges/{BADGE_ID}/requirements')
     page.wait_for_load_state('networkidle')
-    check(page.query_selector(f'form[action*="/tasks/{BRIDGE_ID}/bridge-code"]') is not None,
-          'the requirements page holds a code form for the crossed scout')
+    check('等領袖批准' in page.inner_text('body'),
+          'the requirements page says the item waits on the leader')
+    check(page.query_selector(f'form[action*="/tasks/{BRIDGE_ID}/bridge-code"]') is None,
+          'and holds no code form any more')
 
     # a crossed scout who re-opens the game lands on the assess card, not the bank
     page.goto(BRIDGE_URL)
     page.wait_for_load_state('networkidle')
     check(scene(page) == 'result', 're-entry opens straight onto the assess card')
-    check(page.query_selector('[data-bridge-code-input]') is not None,
-          'no planks need re-laying to reach the code box')
+    check(page.query_selector('[data-bridge-wait]') is not None,
+          'no planks need re-laying to reach the waiting card')
 
 
-def enter_the_code(page):
-    """The last plank of game 2: a wrong word changes nothing; 82bp clears it."""
-    page.fill('[data-bridge-code-input]', '9999')
-    page.click('[data-bridge-code] button[type="submit"]')
-    page.wait_for_selector('[data-bridge-code-note].is-bad')
-    check('代碼不對' in page.inner_text('[data-bridge-code-note]'),
-          'a wrong code is refused, in so many words')
-    shoot(page, 'bridge-code-wrong.png')
+def leader_approves(page, browser):
+    """The last step of game 2: the leader presses 批准 in the leader account.
 
-    page.fill('[data-bridge-code-input]', ' 82bp ')
-    page.click('[data-bridge-code] button[type="submit"]')
-    # the ticked headline alone (the assess card also says 考核通過 in passing)
+    The scout waits on the assess card; the same record stands in the leader's
+    review queue (marked 已完成遊戲 · 等考核); one press and 「重新檢查」 finds
+    the tick. Nothing is typed anywhere.
+    """
+    lctx = browser.new_context(locale='zh-HK', viewport={'width': 1180, 'height': 940})
+    lctx.request.post(f'{BASE}/login/leader', form={'password': '0082'})
+    lp = lctx.new_page()
+    lp.goto(f'{BASE}/leader/review')
+    lp.wait_for_load_state('networkidle')
+    card = lp.locator('.review-card', has_text='已完成遊戲 · 等考核').first
+    check(card.count() == 1, 'the finished crossing stands in the leader queue')
+    check('背誦' in card.inner_text() and '變成 ✓' in card.inner_text(),
+          'the queue card says what to check and what the press does')
+    shoot(lp, 'leader-queue-bridge.png')
+    card.locator('button[value="approve"]').click()
+    lp.wait_for_timeout(1200)
+    check(lp.locator('.review-card', has_text='已完成遊戲 · 等考核').count() == 0,
+          'the approval clears the card out of the queue')
+    lctx.close()
+
+    page.click('[data-bridge-go="check"]')
     page.wait_for_function(
         "() => { var c = document.querySelector('[data-bridge-card]');"
         "        return c && c.innerText.indexOf('第 5 項完成') >= 0; }")
-    card = page.inner_text('[data-bridge-card]')
-    check('考核通過' in card and '遊戲 2 通關' in card,
-          'the right code — typed lowercase, padded with spaces — clears the item')
+    card_text = page.inner_text('[data-bridge-card]')
+    check('領袖批准了' in card_text and '第 5 項完成' in card_text,
+          'the waiting card turns into the tick once the leader approves')
     check(page.query_selector('[data-bridge-link="badge"]') is not None,
           'the win shows the way back to the badge')
     shoot(page, 'bridge-result.png')
 
 
 def verify_english(page):
-    """The same crossing in English.
-
-    The boards keep the Chinese wording (English explains itself on the card),
-    so the pieces split the same way — and seven identical 童軍 boards must still
-    take one another's place. A crossed scout opens straight onto the English
-    assess card; the replay behind it walks the bank again.
-    """
+    """The same waiting card in English: both halves of the 考核, no code box."""
     page.goto(f'{BASE}/set-language/en?next=/tasks/{BRIDGE_ID}/bridge')
     page.wait_for_load_state('networkidle')
-    check(scene(page) == 'result', 'the crossed game opens on the assess card in English too')
     card = page.inner_text('[data-bridge-card]')
-    check('leader' in card.lower() and 'Recite' in card and 'Explain' in card,
+    check('Sent' in card and 'waiting for your leader' in card,
+          'the crossed game opens on the English waiting card')
+    check('Recite' in card and 'Explain' in card,
           'the English card names both halves of the check')
-    page.fill('[data-bridge-code-input]', '9999')
-    page.click('[data-bridge-code] button[type="submit"]')
-    page.wait_for_selector('[data-bridge-code-note].is-bad')
-    check('match' in page.inner_text('[data-bridge-code-note]').lower(),
-          'the refusal is written in English as well')
-    click(page, '[data-bridge-go="restart"]')
-    check(scene(page) == 'teach', 'the replay begins at the first teaching card')
-    for index, stage in enumerate(RIVER['stages']):
-        wait_scene(page, 'teach')                     # every stage opens on its card
-        click(page, '[data-bridge-go="build"]')
-        wait_scene(page, 'build')
-        swapped = 0
-        for expected in stage['planks']:
-            copies = page.evaluate("""(want) => {
-                return [...document.querySelectorAll('[data-bridge-plank]')]
-                    .map(b => ({key: b.getAttribute('data-bridge-plank'),
-                                text: b.textContent.trim()}))
-                    .filter(row => row.text === want).map(row => row.key);
-            }""", expected['zh'])
-            check(bool(copies), f'EN stage {index + 1}: "{expected["zh"]}" is on the bank')
-            other = [key for key in copies if key != expected['key']]
-            take = other[0] if other else copies[0]
-            if take != expected['key']:
-                swapped += 1
-            page.click(f'[data-bridge-plank="{take}"]')
-        wait_scene(page, 'built')
-        if index == 2:
-            # the Law's boards carry their first word (童軍信用, 童軍待人 …), so a
-            # line no longer repeats 童軍: every board reads differently
-            labels = [plank['zh'] for plank in stage['planks']]
-            check(len(set(labels)) == len(labels),
-                  f'EN stage 3: every board reads differently ({len(labels)} words)')
-            check(swapped == 0 or len(set(labels)) < len(labels),
-                  f'EN stage 3: no board had to be swapped — the span still holds')
-            shoot(page, 'bridge-en-law.png')
-        click(page, '[data-bridge-go="finish"]' if index + 1 == len(RIVER['stages'])
-              else '[data-bridge-go="next"]')
-    wait_scene(page, 'result')
-    card = page.inner_text('[data-bridge-card]')
-    check('leader' in card.lower(),
-          'the English replay ends on the assess card as well')
+    check(page.query_selector('[data-bridge-code-input]') is None,
+          'and offers no code box in English either')
+    shoot(page, 'bridge-assess-en.png')
     page.goto(f'{BASE}/set-language/zh?next=/tasks/{BRIDGE_ID}/bridge')
     page.wait_for_load_state('networkidle')
-    check(scene(page) == 'result', 'back in Chinese, the assess card is waiting')
+    check(scene(page) == 'result', 'back in Chinese, the waiting card is still there')
 
 
 def progress(page):
@@ -389,10 +364,22 @@ def verify_records(page, before):
     check('已完成' in area2, 'area 2 reads as cleared on the map')
 
 
+def begin_again(page):
+    """From wherever the game opens, stand on the first teaching card.
+
+    An approved item opens on its tick, so 「再走一次渡口」 comes first; a
+    fresh one opens on the river bank, so its own button does the same job.
+    """
+    page.goto(BRIDGE_URL)
+    if page.query_selector('[data-bridge-go="restart"]') is not None:
+        click(page, '[data-bridge-go="restart"]')     # the tick → stage 1's card
+    else:
+        click(page, '[data-bridge-go="teach"]')       # the bank → stage 1's card
+
+
 def verify_leaving(page):
     """Leaving an unfinished crossing asks first and restarts at stage 1."""
-    page.goto(BRIDGE_URL)
-    click(page, '[data-bridge-go="teach"]')
+    begin_again(page)
     click(page, '[data-bridge-go="build"]')
     wait_scene(page, 'build')
     page.click(f'.cave-hud-link[href$="/badges/{BADGE_ID}"]')
@@ -401,8 +388,7 @@ def verify_leaving(page):
     shoot(page, 'bridge-leave.png')
     page.click('[data-bridge-leave]')
     page.wait_for_load_state('networkidle')
-    page.goto(BRIDGE_URL)
-    click(page, '[data-bridge-go="teach"]')
+    begin_again(page)
     wait_scene(page, 'teach')
     check(RIVER['stages'][0]['teach']['title_zh'] in page.inner_text('[data-bridge-card]'),
           're-entering starts again from the first stage')
@@ -423,7 +409,7 @@ def main():
         play(page)                      # the crossing → the assess card
         crossed_state(page, before)     # nothing ticked; the map and form in place
         verify_english(page)            # the same two halves in English
-        enter_the_code(page)            # wrong word refused; 82bp clears item 5
+        leader_approves(page, browser)  # the leader's press clears item 5
         verify_records(page, before)    # only now does the game count
         verify_leaving(page)
         # leave the demo account as we found it: this walker wrote a real result

@@ -364,6 +364,15 @@
 
     function paintProgress() {
       if (!progress) return;
+      /* on the assess card (and the tick) the stage counter would lie: the
+         planks are all laid, but the item is not finished yet */
+      if (state.scene === 'result') {
+        var a = cfg.assess || {};
+        progress.textContent = state.ticked
+          ? pick((cfg.crossed || {}).pass_zh, (cfg.crossed || {}).pass_en) || ''
+          : pick(a.waiting_zh, a.waiting_en) || '';
+        return;
+      }
       var planks = (cfg.planks || {});
       var text = fill(pick(planks.progress_zh, planks.progress_en) || '', {
         n: state.stage + 1, total: total, done: laidCount(), planks: plankTotal()
@@ -468,6 +477,13 @@
 
     /* ── the assess card: the crossing is laid, the leader's word is next ──── */
 
+    function demoApprove() {
+      /* the offline demo file has no leader account behind it: it shows one
+         clearly-labelled button that stands in for the leader's approval.
+         The live page never sets this flag. */
+      return !!(cfg.assess && cfg.assess.demo_approve);
+    }
+
     function assessHtml() {
       var a = cfg.assess || {};
       var points = toLines(isEn() ? (a.points_en || a.points_zh) : a.points_zh)
@@ -485,19 +501,17 @@
         '<p class="cave-line small">' + esc(pick(a.lead_zh, a.lead_en)) + '</p>' +
         points +
         '<p class="cave-line small">' + esc(pick(a.after_zh, a.after_en)) + '</p>' +
-        '<form class="bridge-code" data-bridge-code action="" method="post" ' +
-              'autocomplete="off">' +
-          '<label class="bridge-code-label" for="bridge-code-input">' +
-            esc(pick(a.code_label_zh, a.code_label_en)) + '</label>' +
-          '<span class="bridge-code-row">' +
-            '<input id="bridge-code-input" data-bridge-code-input type="text" ' +
-                   'inputmode="latin" maxlength="24" ' +
-                   'placeholder="' + esc(pick(a.code_placeholder_zh, a.code_placeholder_en)) + '">' +
-            '<button class="btn primary" type="submit">' +
-              esc(pick(a.code_button_zh, a.code_button_en)) + '</button>' +
+        '<div class="bridge-wait" data-bridge-wait>' +
+          '<span class="bridge-wait-row">' +
+            '<button class="btn" type="button" data-bridge-go="check">🔄 ' +
+              esc(pick(a.refresh_zh, a.refresh_en)) + '</button>' +
+            (demoApprove() ? '<button class="btn primary" type="button" data-bridge-go="demo-approve">🔓 ' +
+              esc(pick(a.demo_approve_zh, a.demo_approve_en)) + '</button>' : '') +
           '</span>' +
-          '<p class="bridge-code-note" data-bridge-code-note hidden></p>' +
-        '</form>' +
+          (demoApprove() ? '<p class="cave-line small bridge-wait-demo">' +
+            esc(pick(a.demo_note_zh, a.demo_note_en)) + '</p>' : '') +
+          '<p class="bridge-code-note" data-bridge-wait-note hidden></p>' +
+        '</div>' +
         '<div class="cave-actions cave-actions-split">' +
           '<button class="btn ghost" type="button" data-bridge-go="restart">' +
             esc(pick((cfg.crossed || {}).again_zh, (cfg.crossed || {}).again_en)) + '</button>' +
@@ -518,58 +532,56 @@
       state.scene = 'result';
       mark('result');
       paintProgress();
+      startWaiting();
     }
 
-    function codeNote(text, bad) {
+    function waitNote(text, bad) {
       if (!card) return;
-      var slot = card.querySelector('[data-bridge-code-note]');
+      var slot = card.querySelector('[data-bridge-wait-note]');
       if (!slot) return;
       slot.textContent = text || '';
       slot.classList.toggle('is-bad', !!bad);
       slot.hidden = !text;
     }
 
-    function submitCode(form) {
-      if (state.busy) return;
-      var input = form.querySelector('[data-bridge-code-input]');
-      var given = (input && input.value || '').trim();
-      if (!given) { codeNote(pick('請輸入領袖給你的代碼。', 'Type the code your leader gave you.'), true); return; }
+    /* ── the wait: ask the server whether the leader has approved yet ─────── */
+
+    function stopWaiting() {
+      if (state.waitTimer) { window.clearInterval(state.waitTimer); state.waitTimer = 0; }
+    }
+
+    function checkStatus(manual) {
       var a = cfg.assess || {};
-      state.busy = true;
-      codeNote(pick(a.code_checking_zh, a.code_checking_en), false);
-      var normalise = function (value) {
-        return String(value == null ? '' : value).normalize('NFKC').replace(/\s+/g, '').toUpperCase();
-      };
-      var url = cfg.code_url;
-      if (!url) {
-        /* the offline demo file has no server: it carries the code itself and
-           checks it here, so the demo teaches the same two halves as the live
-           game (the live page never ships the code to the browser) */
-        window.setTimeout(function () {
-          state.busy = false;
-          if (normalise(given) === normalise((a || {}).code)) { result(); return; }
-          codeNote(pick(a.code_wrong_zh, a.code_wrong_en), true);
-        }, 300);
+      var url = cfg.status_url;
+      if (!url) {                       // offline demo: nothing to ask
+        if (manual) waitNote(pick(a.refresh_waiting_zh, a.refresh_waiting_en));
         return;
       }
-      var body = new FormData();
-      body.append('code', given);
-      fetch(url, { method: 'POST', body: body, credentials: 'same-origin',
-                   headers: { 'X-Requested-With': 'fetch' } })
+      if (state.busy) return;
+      state.busy = true;
+      if (manual) waitNote(pick(a.refresh_checking_zh, a.refresh_checking_en));
+      fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
         .then(function (response) {
-          return response.json().catch(function () { return { ok: false }; })
-            .then(function (data) { return { status: response.status, data: data }; });
+          return response.json().catch(function () { return { ok: false }; });
         })
-        .then(function (answer) {
+        .then(function (data) {
           state.busy = false;
-          if (answer.data && answer.data.ok) { result(); return; }
-          codeNote(pick((answer.data && answer.data.message_zh) || a.code_wrong_zh,
-                        (answer.data && answer.data.message_en) || a.code_wrong_en), true);
+          if (data && data.ok && data.status === 'completed') { stopWaiting(); result(); return; }
+          if (manual) waitNote(pick(a.refresh_waiting_zh, a.refresh_waiting_en));
         })
         .catch(function () {
           state.busy = false;
-          codeNote(pick('核對不到代碼，請再試一次。', 'Could not check the code — please try again.'), true);
+          if (manual) waitNote(pick(a.refresh_error_zh, a.refresh_error_en), true);
         });
+    }
+
+    function startWaiting() {
+      stopWaiting();
+      if (!cfg.status_url) return;      // the offline demo approves by its button
+      state.waitTimer = window.setInterval(function () {
+        if (state.scene !== 'result') { stopWaiting(); return; }
+        checkStatus(false);
+      }, 20000);
     }
 
     function saveProblem(message) {
@@ -586,6 +598,7 @@
     function result() {
       var crossed = cfg.crossed || {};
       state.ticked = true;
+      stopWaiting();
       document.dispatchEvent(new CustomEvent('bridge:result', { detail: { cleared: true } }));
       var badgeLink = root.querySelector('[data-bridge-link="badge"]');
       /* the task's own revision links, offered while the words are still fresh */
@@ -615,6 +628,7 @@
       state.pool = [];
       state.wrongKey = '';
       state.busy = false;
+      stopWaiting();
     }
 
     /* ── the warning before leaving ────────────────────────────────────────── */
@@ -729,21 +743,17 @@
       if (where === 'retry') { tap(); retry(); return; }
       if (where === 'next') { tap(); startStage(state.stage + 1); return; }
       if (where === 'finish') { finish(); return; }
-      if (where === 'restart') { reset(); startStage(0); return; }
-    });
-
-    /* the leader's 考核 code: the last plank of game 2 */
-    root.addEventListener('submit', function (event) {
-      var form = event.target.closest('[data-bridge-code]');
-      if (!form) return;
-      event.preventDefault();
-      submitCode(form);
+      if (where === 'restart') { stopWaiting(); reset(); startStage(0); return; }
+      if (where === 'check') { tap(); checkStatus(true); return; }
+      if (where === 'demo-approve') { chime(); stopWaiting(); result(); return; }
     });
 
     state.pool = shuffled((cfg.stages[0].planks) || []);
-    /* a crossing that is already on file opens on the assess card, so the code
-       can be typed without laying the planks a second time */
+    /* a crossing that is already on file opens on the assess card, so the wait
+       is visible without laying the planks again; an approved one opens on the
+       tick, and 「再走一次渡口」 still starts a fresh crossing */
     if (cfg.crossed_now && !cfg.completed_now) { assess(); }
+    else if (cfg.completed_now) { state.ticked = true; result(); }
     else { show('intro'); }
   }
 

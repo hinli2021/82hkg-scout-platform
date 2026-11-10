@@ -20,7 +20,7 @@ from flask import Blueprint, Response, abort, flash, g, redirect, render_templat
 from .. import mailer
 from ..auth import create_reset_token, leader_required, public_user, reset_password as clear_password
 from ..content import (cave_adventure, drill_manual, item4_meta, item4_questions,
-                       member_badge_guide)
+                       member_badge_guide, river_adventure)
 from ..engine import (
     as_json, award_task_completion, check_badge_completion, leaderboard, progress_for,
     public_badge, public_task, write_ledger,
@@ -47,6 +47,34 @@ def _setting_switch(key: str) -> None:
     store().save_setting(key, checkbox(key))
 
 
+# ── the review queue's states ───────────────────────────────────────────────
+# `pending`     an ordinary submission waiting to be verified;
+# `crossed`     game 2 is played — the scout crossed the river, the leader has
+#               not heard the 考核 yet;
+# `studied`     game 3 is played — the manual is learned, the movements have not
+#               been performed in front of the leader yet.
+# All three wait on the same pair of buttons in /leader/review.
+AWAITING_APPROVAL = ("crossed", "studied")
+REVIEW_STATUSES = ("pending",) + AWAITING_APPROVAL
+
+
+def _awaiting_points(task: dict) -> list[dict]:
+    """What the leader should check before approving a finished game."""
+    code = str(task.get("code") or "")
+    try:
+        if code == "M05":
+            assess = river_adventure().get("assess") or {}
+        elif code == "M06":
+            assess = drill_manual().get("assess") or {}
+        else:
+            return []
+    except Exception:                          # noqa: BLE001 — a broken file must not 500
+        return []
+    zh = assess.get("points_zh") or []
+    en = assess.get("points_en") or []
+    return [{"zh": zh[i], "en": en[i] if i < len(en) else zh[i]} for i in range(len(zh))]
+
+
 # ══ overview ═══════════════════════════════════════════════════════════════
 
 def _overview_context() -> dict:
@@ -55,7 +83,7 @@ def _overview_context() -> dict:
     scouts = [u for u in users if u.get("role") == "scout"]
     records = st.list("progress_records")
     resets = st.list("password_reset_requests")
-    pending = [r for r in records if r.get("status") == "pending"]
+    pending = [r for r in records if r.get("status") in REVIEW_STATUSES]
     badges = st.list("badges")
     tasks = st.list("tasks")
     awards = st.list("badge_awards")
@@ -68,6 +96,7 @@ def _overview_context() -> dict:
         row["_who"] = users_by_id.get(row.get("user_id"), {})
         row["_task"] = tasks_by_id.get(row.get("task_id"), {})
         row["_badge"] = badges_by_id.get(row.get("badge_id"), {})
+        row["_awaiting"] = row.get("status") in AWAITING_APPROVAL
 
     patrol_rows = []
     for patrol in (st.settings_cached().get("patrols") or ["Tiger", "Otter", "Seagull"]):
@@ -940,11 +969,16 @@ def review():
                 "answers": _as_list(row.get("answers_json")),
                 "checklist": _as_list(row.get("checklist_json")),
                 "task_type": task.get("type", ""),
+                "awaiting": row.get("status") in AWAITING_APPROVAL,
+                "check_points": _awaiting_points(task),
             })
         return out
 
-    pending = decorate(sorted([r for r in records if r.get("status") == "pending"],
-                              key=lambda r: str(r.get("submitted_at") or "")))
+    # a finished game is a scout standing at the leader's elbow: those cards
+    # come first, then the ordinary submissions in the order they arrived
+    pending = decorate(sorted([r for r in records if r.get("status") in REVIEW_STATUSES],
+                              key=lambda r: (0 if r.get("status") in AWAITING_APPROVAL else 1,
+                                             str(r.get("submitted_at") or ""))))
     decided = decorate(sorted([r for r in records if r.get("status") in ("completed", "rejected") and r.get("decided_by") not in ("auto", "")],
                               key=lambda r: str(r.get("decided_at") or r.get("submitted_at") or ""), reverse=True)[:25])
     return render_template("leader/review.html", pending=pending, decided=decided,
@@ -992,14 +1026,30 @@ def review_action(record_id: str):
         return _done("已退回並附上評語", "Sent back with a comment", "leader_routes.review")
 
     if action == "reset":
+        if record.get("status") in AWAITING_APPROVAL:
+            # a finished game is already standing in the queue — nothing to move
+            return _done("仍然在待審批", "Still in the queue", "leader_routes.review")
         st.update("progress_records", record_id, {
             "status": "pending", "leader_comment": "", "decided_at": "", "decided_by": "",
         })
         audit(g.user, "reset", "progress_records", record_id, {})
         return _done("已重新放入待審批", "Moved back to the queue", "leader_routes.review")
 
-    # approve → pay out now (this is where evidence/reflection/signoff earn points)
-    st.update("progress_records", record_id, {"status": "completed", "leader_comment": comment})
+    # approve → pay out now (this is where evidence/reflection/signoff earn
+    # points, and where a finished game 2/3 becomes the tick the scout sees)
+    awaiting = record.get("status") in AWAITING_APPROVAL
+    patch = {"status": "completed", "leader_comment": comment}
+    if awaiting:
+        # a game the scout finished on their own: the leader has now seen the
+        # 考核 in person, so the record is a pass — score 100, and a sentence
+        # in the file saying what was checked unless the leader wrote their own
+        patch["score"] = 100
+        if not comment:
+            patch["leader_comment"] = (
+                "領袖考核通過：已背誦銘言、誓詞、規律，並講解日常生活怎樣實行。"
+                if str(task.get("code") or "") == "M05" else
+                "領袖考核通過：已親身做出各項步操動作與集隊手號。")
+    st.update("progress_records", record_id, patch)
     events = []
     if record.get("status") != "completed":
         override_task = task if points_override in (None, "") else {**task, "points": int(float(points_override))}
@@ -1009,9 +1059,13 @@ def review_action(record_id: str):
         from ..engine import touch_streak
 
         touch_streak(st, user.get("id", ""))
-    audit(g.user, "approve", "progress_records", record_id, {"comment": comment, "points": points_override})
+    audit(g.user, "approve", "progress_records", record_id,
+          {"comment": comment, "points": points_override, "from": record.get("status")})
     if wants_json():
         return ok(status="completed", events=events)
+    if awaiting:
+        return _done("已批准：童軍的任務已完成，會見到 ✓", "Approved — the scout now sees the tick",
+                     "leader_routes.review")
     return _done("已批准並加分", "Approved — points awarded", "leader_routes.review")
 
 

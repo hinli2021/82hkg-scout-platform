@@ -1187,12 +1187,12 @@
     }
   ],
   "assess": {
-    "kicker_zh": "遊戲 3 · 還差一步",
-    "kicker_en": "Game 3 · one step more",
-    "title_zh": "手冊學完了，請找領袖考核",
-    "title_en": "The manual is learned — now see your leader",
-    "lead_zh": "第 6 項要在領袖面前親身考核。準備好這些：",
-    "lead_en": "Item 6 is assessed in person, in front of a leader. Be ready with:",
+    "kicker_zh": "遊戲 3 · 已提交",
+    "kicker_en": "Game 3 · sent",
+    "title_zh": "已提交，等領袖批准",
+    "title_en": "Sent — waiting for your leader",
+    "lead_zh": "手冊學完了。找領袖親身考核這些：",
+    "lead_en": "The manual is learned. See your leader for the check:",
     "points_zh": [
       "基本姿勢與敬禮：立正、稍息、原地向前敬禮",
       "移步與轉法：前、後、左、右移一步，以及向左轉、向右轉、後轉",
@@ -1205,22 +1205,24 @@
       "Marching and dressing: mark time, quick march, halt, right dress",
       "Formations: the seven fall-in hand signs, including where the leader (commander) stands"
     ],
-    "after_zh": "考核通過，領袖會給你一個代碼；在下面輸入，遊戲 3 才算完成。想先繼續行程也可以 —— 代碼遲些輸入。",
-    "after_en": "Pass the assessment and your leader gives you a code — type it in below to finish game 3. Or walk on first: the code can wait.",
-    "code_label_zh": "領袖代碼",
-    "code_label_en": "The leader's code",
-    "code_placeholder_zh": "領袖給你的代碼",
-    "code_placeholder_en": "The code your leader gave you",
-    "code_button_zh": "輸入代碼，完成遊戲 3",
-    "code_button_en": "Enter the code — finish game 3",
-    "code_checking_zh": "正在核對代碼…",
-    "code_checking_en": "Checking the code…",
-    "code_wrong_zh": "代碼不對。請向領袖再問一次。",
-    "code_wrong_en": "That code does not match. Ask your leader again.",
-    "code_hint_zh": "代碼由領袖提供（考核通過後）",
-    "code_hint_en": "The code comes from your leader, after the assessment",
+    "after_zh": "領袖在領袖帳戶看到你的訓練紀錄；按「批准」之後，第 6 項就會變成 ✓。",
+    "after_en": "Your leader sees your training in the leader account; once they press approve, item 6 turns into a ✓.",
     "go_next_zh": "繼續歷險 →",
-    "go_next_en": "Carry on the adventure →"
+    "go_next_en": "Carry on the adventure →",
+    "refresh_zh": "重新檢查",
+    "refresh_en": "Check again",
+    "refresh_checking_zh": "正在查看領袖批了沒有…",
+    "refresh_checking_en": "Checking whether your leader has approved…",
+    "refresh_waiting_zh": "領袖還未批准 — 稍後再按一次。",
+    "refresh_waiting_en": "Your leader has not approved yet — try again in a moment.",
+    "refresh_error_zh": "檢查不到，請再按一次。",
+    "refresh_error_en": "Could not check — press again.",
+    "demo_approve_zh": "示範：模擬領袖批准",
+    "demo_approve_en": "Demo: simulate the leader’s approval",
+    "demo_note_zh": "離線示範沒有領袖帳戶；按一下，就當作領袖在帳戶裡批准了。",
+    "demo_note_en": "The offline demo has no leader account — one press stands in for the leader’s approval.",
+    "waiting_zh": "⏳ 已提交 · 等領袖批准",
+    "waiting_en": "⏳ Sent · waiting for your leader"
   },
   "studied": {
     "kicker_zh": "全部通過",
@@ -1243,8 +1245,8 @@
     "retry_en": "Try again",
     "again_zh": "再讀一次手冊",
     "again_en": "Read the manual again",
-    "pass_zh": "✓ 代碼正確",
-    "pass_en": "✓ The code is right",
+    "pass_zh": "領袖批准了 ✓",
+    "pass_en": "Your leader approved it ✓",
     "pass_title_zh": "遊戲 3 通關，第 6 項完成！",
     "pass_title_en": "Game 3 cleared — and item 6 with it!",
     "pass_note_zh": "步操的口令和動作都記住了。山下的路繼續走：還有兩個區域，就到沙灘。",
@@ -1385,8 +1387,9 @@
     "flip_walk_next_en": "Next card →"
   },
   "assess_note": {
-    "code_setting": "drill_assess_code",
-    "code_default": "82DR"
+    "approve_via": "leader_routes.review",
+    "note_zh": "第 6 項由領袖在領袖帳戶的「審批」頁面按批准；不再由童軍輸入代碼。",
+    "note_en": "Item 6 is finished by the leader pressing approve in the leader account's review queue; the scout no longer types a code."
   },
   "game": {
     "sign_stages": [

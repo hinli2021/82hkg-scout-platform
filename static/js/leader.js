@@ -6,6 +6,16 @@
   'use strict';
   var FX = window.FX;
 
+  /* `new FormData(form)` leaves out the button that was pressed, and in the
+     review queue the whole action (批准 / 退回 / 稍後) lives in that button's
+     value. Put it back by hand. */
+  function submitted(form, ev) {
+    var body = new FormData(form);
+    var submitter = ev && (ev.submitter || null);
+    if (submitter && submitter.name) body.append(submitter.name, submitter.value);
+    return body;
+  }
+
   /* ── approve / reject / send back without leaving the queue ───────────── */
   function initReview() {
     document.querySelectorAll('[data-review]').forEach(function (form) {
@@ -13,10 +23,10 @@
         ev.preventDefault();
         var button = form.querySelector('button[type=submit]');
         if (button) button.disabled = true;
-        fetch(form.action, {
+        fetch(form.getAttribute('action') || window.location.href, {
           method: 'POST',
           headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' },
-          body: new FormData(form)
+          body: submitted(form, ev)
         }).then(function (res) { return res.json(); })
           .then(function (data) {
             var card = form.closest('.review-card');
@@ -54,7 +64,7 @@
         var note = form.querySelector('[data-inline-note]');
         var button = form.querySelector('button[type=submit]');
         if (button) button.disabled = true;
-        fetch(form.action, {
+        fetch(form.getAttribute('action') || window.location.href, {
           method: 'POST',
           headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' },
           body: new FormData(form)

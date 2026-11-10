@@ -41,7 +41,7 @@
   <div id="review-queue" class="stack">
     {% if pending %}
       {% for row in pending %}
-        <div class="review-card">
+        <div class="review-card{{ ' review-awaiting' if row.awaiting else '' }}">
           <div class="review-head">
             <span style="font-size:1.5rem">{{ row.who.get('avatar', '🦊') }}</span>
             <div class="grow">
@@ -51,7 +51,11 @@
                 {{ L(row.badge.get('title_zh', ''), row.badge.get('title_en', '')) }}
               </div>
             </div>
-            <span class="chip light">{{ L((TASK_TYPES.get(row.task_type) or {}).get('label_zh', ''), (TASK_TYPES.get(row.task_type) or {}).get('label_en', '')) }}</span>
+            {% if row.awaiting %}
+              <span class="chip warn">🎮 {{ L('已完成遊戲 · 等考核', 'Game finished · assess') }}</span>
+            {% else %}
+              <span class="chip light">{{ L((TASK_TYPES.get(row.task_type) or {}).get('label_zh', ''), (TASK_TYPES.get(row.task_type) or {}).get('label_en', '')) }}</span>
+            {% endif %}
             <span class="timeline-when">{{ (row.submitted_at or '')[:16].replace('T', ' ') }}</span>
           </div>
           <div class="review-body">
@@ -59,7 +63,24 @@
             <div class="small muted">{{ L(row.task.get('instruction_zh', ''), row.task.get('instruction_en', '')) }}</div>
             <div class="divider"></div>
 
-            {% if row.task_type == 'evidence' %}
+            {% if row.awaiting %}
+              {# 遊戲 2／3：童軍在遊戲裡已完成，這次是親身考核。按批准就完成。 #}
+              <p class="small" style="margin:0 0 .4rem">
+                {% if row.status == 'crossed' %}
+                  🧭 {{ L('渡口三關木板都排對了 —— 現在聽他背誦銘言、誓詞、規律，並講解日常生活怎樣實行。', 'Every plank of the crossing is laid. Hear the motto, the Promise and the Law, and how the Law is lived.') }}
+                {% else %}
+                  🥁 {{ L('步操訓練場兩節都完成了 —— 現在看他親身做出各個動作與集隊手號。', 'Both sections of the drill ground are done. Watch the movements and fall-in signs in person.') }}
+                {% endif %}
+              </p>
+              {% if row.check_points %}
+                <ul class="small" style="margin:.1rem 0 .35rem 1.1rem">
+                  {% for point in row.check_points %}<li>{{ L(point.zh, point.en) }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+              <p class="small muted" style="margin:0">
+                {{ L('按「批准」之後：這個任務在他的會員章頁面變成 ✓，積分同時入帳。', 'Press Approve: the item turns into a ✓ on the scout’s badge page, and the points are paid in the same go.') }}
+              </p>
+            {% elif row.task_type == 'evidence' %}
               {% if row.evidence_url %}
                 <a href="{{ row.evidence_url }}" target="_blank" rel="noopener">
                   <img src="{{ row.evidence_url }}" alt="evidence" style="max-width:280px; border-radius:10px; border:1px solid var(--line)">

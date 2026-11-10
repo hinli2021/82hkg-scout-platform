@@ -411,41 +411,37 @@ with sync_playwright() as pw:
     page.locator("#pane-bridge [data-bridge-scene='result']").wait_for()
     # ── the first half: the assess card, not the tick ──────────────────────
     card = page.locator("#pane-bridge [data-bridge-card]")
-    assert "請找領袖考核" in card.inner_text(), card.inner_text()[:120]
+    assert "等領袖批准" in card.inner_text(), card.inner_text()[:120]
     assert "背誦" in card.inner_text() and "講解" in card.inner_text(), \
         "the check is named: recite, and explain how the Law is lived"
-    assert page.locator("#pane-bridge [data-bridge-code-input]").count() == 1, \
-        "the code box is waiting for the leader's word"
+    assert page.locator("#pane-bridge [data-bridge-code-input]").count() == 0, \
+        "no code box any more — the leader approves in the leader account"
+    assert page.locator("#pane-bridge [data-bridge-go='demo-approve']").count() == 1, \
+        "the offline demo offers its labelled stand-in for the leader's approval"
     page.screenshot(path=os.path.join(SHOTS, "offline-bridge-assess.png"), full_page=False)
     # the map chip knows the two halves: crossed, standing on area 3, still 1/5
     page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
     chip2 = page.locator("#pane-quest-map .stage-chip[data-stage='2']").inner_text()
-    assert "已過橋 · 找領袖考核" in chip2, chip2
+    assert "已提交 · 等領袖批准" in chip2, chip2
     assert page.locator("#pane-quest-map .stage-chip.is-here[data-stage='3']").count() == 1, \
         "the walk has moved on to area 3 while the code waits"
     assert page.locator("#pane-quest-map .stage-chip[data-stage='2'].is-done").count() == 0, \
-        "a crossing without the code is not a cleared game"
+        "a crossing without the approval is not a cleared game"
     meter_mid = page.locator("#pane-quest-map .quest-progress").inner_text()
     assert "1 / 5 個遊戲已完成" in meter_mid, meter_mid
     print("  crossed, code waiting:", meter_mid.replace("\n", " "))
     # wandering away and back re-opens the assess card, not the river bank
     page.evaluate("window.OFFLINE_DEMO.go('bridge')"); page.wait_for_timeout(300)
     assert page.get_attribute("#pane-bridge [data-bridge]", "data-bridge-scene") == "result"
-    assert page.locator("#pane-bridge [data-bridge-code-input]").count() == 1, \
-        "no planks need re-laying to reach the code box"
-    # ── the second half: the code ──────────────────────────────────────────
-    page.fill("#pane-bridge [data-bridge-code-input]", "9999")
-    page.click("#pane-bridge [data-bridge-code] button[type='submit']")
-    page.wait_for_selector("#pane-bridge [data-bridge-code-note].is-bad")
-    assert "代碼不對" in page.locator("#pane-bridge [data-bridge-code-note]").inner_text()
-    page.screenshot(path=os.path.join(SHOTS, "offline-bridge-code-wrong.png"), full_page=False)
-    page.fill("#pane-bridge [data-bridge-code-input]", " 82bp ")
-    page.click("#pane-bridge [data-bridge-code] button[type='submit']")
+    assert page.locator("#pane-bridge [data-bridge-wait]").count() == 1, \
+        "no planks need re-laying to reach the waiting card"
+    # ── the second half: the (simulated) leader's approval ─────────────────
+    page.click("#pane-bridge [data-bridge-go='demo-approve']")
     page.wait_for_function(
         "() => { var c = document.querySelector('#pane-bridge [data-bridge-card]');"
         "        return c && c.innerText.indexOf('第 5 項完成') >= 0; }")
     card_text = card.inner_text()
-    assert "考核通過" in card_text and "遊戲 2 通關" in card_text, card_text[:120]
+    assert "領袖批准了" in card_text and "考核通過" in card_text and "第 5 項完成" in card_text, card_text[:120]
     assert page.locator("#pane-bridge [data-bridge-link='badge']").count() >= 1
     back = page.locator("#pane-bridge [data-bridge-card] a[data-nav='quest-intro']")
     assert back.count() == 1, "the win offers the badge, and offline that is the map pane"
@@ -585,8 +581,8 @@ with sync_playwright() as pw:
     card3 = page.locator("#pane-drill [data-drill-card]").inner_text()
     assert "石階齊了" in card3 and "第 2 節" in card3 and "步操動作" in card3, card3[:160]
     assert "即將開放" not in card3, "section 2 is open, not a placeholder"
-    assert page.locator("#pane-drill [data-drill-code-input]").count() == 0, \
-        "no code box until both sections are cleared"
+    assert page.locator("#pane-drill [data-drill-wait]").count() == 0, \
+        "no waiting card until both sections are cleared"
     print("  drill: section 1 done, the parade ground opens below")
 
     # section 2: cumulative command pools 3/10/14; stages 2–3 show 5 choices
@@ -622,26 +618,22 @@ with sync_playwright() as pw:
 
     # both sections clear: the offline studying is filed, the code still waits
     page.click("#pane-drill [data-drill-go='finish']")
-    page.wait_for_selector("#pane-drill [data-drill-code-input]")
+    page.wait_for_selector("#pane-drill [data-drill-wait]")
     assess3 = page.locator("#pane-drill [data-drill-card]").inner_text()
-    assert "找領袖考核" in assess3 and "前、後、左、右移一步" in assess3, assess3[:180]
+    assert "等領袖批准" in assess3 and "前、後、左、右移一步" in assess3, assess3[:180]
     page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
     meter = page.locator("#pane-quest-map .quest-progress").inner_text()
     assert "2 / 5 個遊戲已完成" in meter, meter
     chip3 = page.locator("#pane-quest-map .stage-chip[data-stage='3']").inner_text()
-    assert "已學完" in chip3 and "找領袖考核" in chip3, chip3
+    assert "已提交" in chip3 and "等領袖批准" in chip3, chip3
     page.evaluate("window.OFFLINE_DEMO.go('home')"); page.wait_for_timeout(200)
     assert "2 / 5" in page.locator("#pane-home [data-badge-meter]").first.inner_text()
     print("  drill: both sections studied, counters still wait →", meter.replace("\n", " "))
 
-    # back on the assess card: a wrong code is refused, 82DR clears game 3
+    # back on the assess card: the demo's stand-in approval clears game 3
     page.evaluate("window.OFFLINE_DEMO.go('drill')"); page.wait_for_timeout(300)
-    page.wait_for_selector("#pane-drill [data-drill-code-input]")
-    page.fill("#pane-drill [data-drill-code-input]", "0000")
-    page.click("#pane-drill [data-drill-code] button[type='submit']"); page.wait_for_timeout(500)
-    assert "代碼不對" in page.locator("#pane-drill [data-drill-card]").inner_text()
-    page.fill("#pane-drill [data-drill-code-input]", "82DR")
-    page.click("#pane-drill [data-drill-code] button[type='submit']"); page.wait_for_timeout(600)
+    page.wait_for_selector("#pane-drill [data-drill-wait]")
+    page.click("#pane-drill [data-drill-go='demo-approve']"); page.wait_for_timeout(600)
     result3 = page.locator("#pane-drill [data-drill-card]").inner_text()
     assert "遊戲 3 通關" in result3 and "第 6 項完成" in result3, result3[:180]
     page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
@@ -651,7 +643,7 @@ with sync_playwright() as pw:
     assert "已完成" in chip3, chip3
     page.evaluate("window.OFFLINE_DEMO.go('home')"); page.wait_for_timeout(200)
     assert "3 / 5" in page.locator("#pane-home [data-badge-meter]").first.inner_text()
-    print("  drill: leader code accepted, game 3 cleared →", meter.replace("\n", " "))
+    print("  drill: leader approval played, game 3 cleared →", meter.replace("\n", " "))
 
     for pane in ("quest-map", "guide", "cave", "bridge", "drill", "badges", "history"):
         page.evaluate(f"window.OFFLINE_DEMO.go('{pane}')")

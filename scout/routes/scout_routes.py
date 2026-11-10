@@ -9,7 +9,6 @@ redirect.
 from __future__ import annotations
 
 import json
-import unicodedata
 
 from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for
 from itsdangerous import BadSignature, URLSafeTimedSerializer
@@ -285,7 +284,7 @@ def _journey_next(user: dict, task: dict) -> dict | None:
     This is the map's own rule — walk the five areas in order and offer the first
     one whose game is built and not yet cleared — so the button at the cave mouth
     says exactly what the treasure map says next. A crossing that is laid or a
-    manual that is studied but still waiting on the leader's code counts as
+    manual that is studied but still waiting on the leader's approval counts as
     played: the walk moves on, and the code can be typed in any time afterwards.
     """
     st = store()
@@ -583,9 +582,10 @@ def task_bridge(task_id: str):
     The route hands over the three teaching cards, their planks and every line of
     text. Finishing all three stages crosses the river, but the crossing is only
     the first half of game 2: the scout then sees the leader for the 考核
-    (recite the motto, Promise and Law, and say how the Law is lived), and brings
-    back the leader's code. `POST /tasks/<id>/bridge-submit` files the crossing;
-    `POST /tasks/<id>/bridge-code` files the completion.
+    (recite the motto, Promise and Law, and say how the Law is lived); the leader
+    approves it in the leader account. `POST /tasks/<id>/bridge-submit` files the
+    crossing, and `GET /tasks/<id>/status` tells the assess card when the leader
+    has approved.
     """
     st = store()
     task = st.get("tasks", task_id)
@@ -619,7 +619,7 @@ def task_bridge(task_id: str):
         "labels": adventure.get("labels") or {},
         "assess": adventure.get("assess") or {},
         "submit_url": url_for("scout_routes.bridge_submit", task_id=task_id),
-        "code_url": url_for("scout_routes.bridge_code", task_id=task_id),
+        "status_url": url_for("scout_routes.task_status", task_id=task_id),
         "badge_url": url_for("scout_routes.badge_detail", badge_id=task["badge_id"]),
         "plank_total": sum(len(stage["planks"]) for stage in stages),
         "crossed_now": crossed_now,
@@ -649,7 +649,7 @@ def bridge_submit(task_id: str):
 
     The record goes in as `crossed`: the words are proven in order, and the scout
     is sent to the leader for the 考核 (recite, and explain how the Law is lived).
-    Item 5 is cleared only when the leader's code arrives at bridge-code below.
+    Item 5 is cleared when the leader approves the crossing in the leader account.
     """
     st = store()
     task = st.get("tasks", task_id)
@@ -703,90 +703,36 @@ def bridge_submit(task_id: str):
               {"status": "crossed", "stages": len(stages)})
     return ok(passed=already_done, status="completed" if already_done else "crossed",
               already_done=already_done, detail={"stages": len(stages)},
-              message_zh="橋鋪好了！請找領袖考核：背誦銘言、誓詞、規律，並講出日常生活怎樣實行；考核後輸入領袖代碼，第 5 項就完成。",
-              message_en="The bridge holds! Now see your leader: recite the motto, the Promise and the Law, say how you live them, then enter the leader's code to finish item 5.")
+              message_zh="橋鋪好了！請找領袖考核：背誦銘言、誓詞、規律，並講出日常生活怎樣實行。領袖在領袖帳戶按批准之後，第 5 項就完成。",
+              message_en="The bridge holds! Now see your leader: recite the motto, the Promise and the Law, and say how you live them. Item 5 is finished once your leader approves it in the leader account.")
 
 
-def _bridge_assess_code(st) -> str:
-    """The leader's word that finishes game 2 — given by hand after the 考核.
-
-    Default 82BP. A `bridge_assess_code` row in settings can change it (the
-    leader edits the settings sheet); the comparison ignores case, spaces and
-    full-width typing, so ８２ｂｐ works just as well as 82BP.
-    """
-    raw = (st.settings().get("bridge_assess_code") or "82BP")
-    return unicodedata.normalize("NFKC", str(raw)).replace(" ", "").upper().strip()
+def _latest_record(st, user_id: str, task_id: str) -> dict | None:
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == user_id and r.get("task_id") == task_id]
+    if any(r.get("status") == "completed" for r in mine):
+        return next(r for r in mine if r.get("status") == "completed")
+    return mine[-1] if mine else None
 
 
-def _bridge_code_normalise(value: str) -> str:
-    return unicodedata.normalize("NFKC", str(value or "")).replace(" ", "").upper().strip()
-
-
-@scout_routes.post("/tasks/<task_id>/bridge-code")
+@scout_routes.get("/tasks/<task_id>/status")
 @scout_required
-def bridge_code(task_id: str):
-    """領袖考核後的代碼 — the second half of game 2.
+def task_status(task_id: str):
+    """一個任務的最新狀態 —— 遊戲 2、3 的考核卡用它等領袖批准。
 
-    The crossing (bridge-submit) proves the words can be laid in order; this
-    proves a leader heard the scout recite them and explain how the Law is
-    lived. The code only counts once the crossing is on file — a code alone
-    cannot skip the bridge — and only the right code completes the item.
+    `todo` nothing on file · `crossed` / `studied` the game is finished and the
+    leader has not pressed approve yet · `completed` the tick is in. The assess
+    card asks every few seconds; nothing here changes any data.
     """
     st = store()
     task = st.get("tasks", task_id)
-    context = _task_context(g.user, task_id) if task else None
-    if not context or not context["bridge_ready"] or task.get("status") != "published":
-        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
-    if context["badge"].get("locked"):
-        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
-    assess = (river_adventure().get("assess") or {})
+    if not task:
+        return fail(404, "task_not_found", "找不到任務", "Task not found")
 
-    mine = [r for r in st.list("progress_records")
-            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
-    if any(r.get("status") == "completed" for r in mine):
-        return ok(passed=True, status="completed", already_done=True,
-                  message_zh="第 5 項已完成，不用再輸入代碼。",
-                  message_en="Item 5 is already complete — no code needed.")
-    crossed = next((r for r in mine if r.get("status") == "crossed"), None)
-    if crossed is None:
-        return fail(400, "bridge_not_crossed",
-                    "請先完成渡口遊戲（鋪好三關木板），再找領袖考核。",
-                    "Finish the crossing first — lay all three stages — then see your leader.")
-
-    given = _bridge_code_normalise(request.form.get("code"))
-    if given != _bridge_assess_code(st):
-        audit(g.user, "bridge_code_wrong", "tasks", task_id, {})
-        zh = assess.get("code_wrong_zh") or "代碼不對。請向領袖再問一次。"
-        en = assess.get("code_wrong_en") or "That code does not match. Ask your leader again."
-        if wants_json():
-            return fail(400, "bridge_code_wrong", zh, en)
-        return redirect(url_for("scout_routes.badge_requirements",
-                                badge_id=task["badge_id"], assess="wrong"))
-
-    progress = progress_for(st, g.user["id"])
-    badge = next((b for b in progress["badges"] if b["id"] == task.get("badge_id")), None)
-    decorated = next((t for t in (badge or {}).get("tasks", []) if t["id"] == task_id), None)
-    record = st.insert("progress_records", {
-        "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
-        "attempt_no": len(mine) + 1, "status": "completed", "score": 100,
-        "leader_comment": "領袖考核通過：已背誦銘言、誓詞、規律，並講解日常生活怎樣實行。",
-        "answers_json": crossed.get("answers_json"),
-        "checklist_json": None, "evidence_url": "", "reflection_text": "",
-        "points_awarded": 0, "submitted_at": now_iso(),
-        "decided_at": now_iso(), "decided_by": "leader-code",
-    })
-    if decorated:
-        award_task_completion(st, user=g.user, task=decorated, badge=badge,
-                              record=record, awarded_by="leader-code")
-        touch_streak(st, g.user["id"])
-    audit(g.user, "bridge_code", "tasks", task_id, {"status": "completed"})
-    if wants_json():
-        return ok(passed=True, status="completed", already_done=False,
-                  detail={"code": True},
-                  message_zh="✓ 代碼正確 — 遊戲 2 通關，第 5 項完成！",
-                  message_en="✓ The code is right — game 2 cleared, and item 5 with it!")
-    return redirect(url_for("scout_routes.badge_requirements",
-                            badge_id=task["badge_id"], assess="ok"))
+    record = _latest_record(st, g.user["id"], task_id)
+    status = str((record or {}).get("status") or "todo")
+    return ok(status=status, decided_at=(record or {}).get("decided_at") or "",
+              comment=(record or {}).get("leader_comment") or "")
 
 
 # ── 遊戲 3：石壁山嶺 · 步操訓練場 (the drill ground, item 6) ────────────────
@@ -802,9 +748,10 @@ def task_drill(task_id: str):
     section and page, every line of interface text, and the stage lists for
     section 1 (hand signs) and section 2 (drill movements). Passing every
     required stage prompt is only the first half of game 3: the scout
-    then sees the leader and performs the movements in person (考核), and brings
-    back the leader's code. `POST /tasks/<id>/drill-submit` files the studying;
-    `POST /tasks/<id>/drill-code` files the completion.
+    then sees the leader and performs the movements in person (考核); the leader
+    approves it in the leader account. `POST /tasks/<id>/drill-submit` files the
+    studying, and `GET /tasks/<id>/status` tells the assess card when the leader
+    has approved.
     """
     st = store()
     task = st.get("tasks", task_id)
@@ -839,7 +786,7 @@ def task_drill(task_id: str):
         "assess": manual.get("assess") or {},
         "studied_card": manual.get("studied") or {},
         "submit_url": url_for("scout_routes.drill_submit", task_id=task_id),
-        "code_url": url_for("scout_routes.drill_code", task_id=task_id),
+        "status_url": url_for("scout_routes.task_status", task_id=task_id),
         "badge_url": url_for("scout_routes.badge_detail", badge_id=task["badge_id"]),
         "move_total": len(drill_required_moves({**manual, "sections": sections})),
         "studied_now": studied_now,
@@ -868,10 +815,10 @@ def drill_submit(task_id: str):
     """Every required stage answered — the manual is studied, not yet done.
 
     The record goes in as `studied`: the browser posts every movement's chosen
-    answer and the server re-checks each one against `drill.json`, so a code
-    cannot be hunted without the learning. Item 6 is cleared only when the
-    leader has seen the movements performed and handed over the code
-    (drill-code below).
+    answer and the server re-checks each one against `drill.json`, so the
+    approval cannot be reached without the learning. Item 6 is cleared only
+    when the leader has seen the movements performed and pressed approve in
+    the leader account.
     """
     st = store()
     task = st.get("tasks", task_id)
@@ -916,87 +863,8 @@ def drill_submit(task_id: str):
               {"status": "studied", "moves": len(answers)})
     return ok(passed=already_done, status="completed" if already_done else "studied",
               already_done=already_done, detail={"moves": len(answers)},
-              message_zh="手冊讀完了！請找領袖親身考核：做出各個動作與集隊手號；考核後輸入領袖代碼，第 6 項就完成。",
-              message_en="The manual is learned! Now see your leader: perform the movements and hand signs in person, then enter the leader's code to finish item 6.")
-
-
-def _drill_assess_code(st) -> str:
-    """The leader's word that finishes game 3 — given by hand after the 考核.
-
-    Default 82DR. A `drill_assess_code` row in settings can change it (the
-    leader edits the settings sheet); the comparison ignores case, spaces and
-    full-width typing, so ８２ｄｒ works just as well as 82DR.
-    """
-    raw = (st.settings().get("drill_assess_code") or "82DR")
-    return unicodedata.normalize("NFKC", str(raw)).replace(" ", "").upper().strip()
-
-
-@scout_routes.post("/tasks/<task_id>/drill-code")
-@scout_required
-def drill_code(task_id: str):
-    """領袖考核後的代碼 — the second half of game 3.
-
-    The studying (drill-submit) proves the manual was read and every check
-    answered; this proves a leader watched the scout perform the movements and
-    the fall-in signs. The code only counts once the studying is on file — a
-    code alone cannot skip the manual — and only the right code completes the
-    item.
-    """
-    st = store()
-    task = st.get("tasks", task_id)
-    context = _task_context(g.user, task_id) if task else None
-    if not context or not context["drill_ready"] or task.get("status") != "published":
-        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
-    if context["badge"].get("locked"):
-        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
-    assess = (drill_manual().get("assess") or {})
-
-    mine = [r for r in st.list("progress_records")
-            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
-    if any(r.get("status") == "completed" for r in mine):
-        return ok(passed=True, status="completed", already_done=True,
-                  message_zh="第 6 項已完成，不用再輸入代碼。",
-                  message_en="Item 6 is already complete — no code needed.")
-    studied = next((r for r in mine if r.get("status") == "studied"), None)
-    if studied is None:
-        return fail(400, "drill_not_studied",
-                    "請先完成步操訓練場（答對全部自查題），再找領袖考核。",
-                    "Finish the drill ground first — every check answered — then see your leader.")
-
-    given = _bridge_code_normalise(request.form.get("code"))
-    if given != _drill_assess_code(st):
-        audit(g.user, "drill_code_wrong", "tasks", task_id, {})
-        zh = assess.get("code_wrong_zh") or "代碼不對。請向領袖再問一次。"
-        en = assess.get("code_wrong_en") or "That code does not match. Ask your leader again."
-        if wants_json():
-            return fail(400, "drill_code_wrong", zh, en)
-        return redirect(url_for("scout_routes.badge_requirements",
-                                badge_id=task["badge_id"], assess="wrong"))
-
-    progress = progress_for(st, g.user["id"])
-    badge = next((b for b in progress["badges"] if b["id"] == task.get("badge_id")), None)
-    decorated = next((t for t in (badge or {}).get("tasks", []) if t["id"] == task_id), None)
-    record = st.insert("progress_records", {
-        "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
-        "attempt_no": len(mine) + 1, "status": "completed", "score": 100,
-        "leader_comment": "領袖考核通過：已親身做出各項步操動作與集隊手號。",
-        "answers_json": studied.get("answers_json"),
-        "checklist_json": None, "evidence_url": "", "reflection_text": "",
-        "points_awarded": 0, "submitted_at": now_iso(),
-        "decided_at": now_iso(), "decided_by": "leader-code",
-    })
-    if decorated:
-        award_task_completion(st, user=g.user, task=decorated, badge=badge,
-                              record=record, awarded_by="leader-code")
-        touch_streak(st, g.user["id"])
-    audit(g.user, "drill_code", "tasks", task_id, {"status": "completed"})
-    if wants_json():
-        return ok(passed=True, status="completed", already_done=False,
-                  detail={"code": True},
-                  message_zh="✓ 代碼正確 — 遊戲 3 通關，第 6 項完成！",
-                  message_en="✓ The code is right — game 3 cleared, and item 6 with it!")
-    return redirect(url_for("scout_routes.badge_requirements",
-                            badge_id=task["badge_id"], assess="ok"))
+              message_zh="手冊讀完了！請找領袖親身考核：做出各個動作與集隊手號。領袖在領袖帳戶按批准之後，第 6 項就完成。",
+              message_en="The manual is learned! Now see your leader and perform the movements and hand signs in person. Item 6 is finished once your leader approves it in the leader account.")
 
 
 @scout_routes.post("/tasks/<task_id>/submit")
@@ -1026,8 +894,14 @@ def submit(task_id: str):
                     "Play the cave in area one to finish item 4; no separate paper is needed.")
     if _is_badge_bridge_task(task, badge):
         return fail(403, "play_the_bridge",
-                    "第 5 項請在第二個區域完成渡口遊戲：過橋後找領袖考核（背誦及講解規律），輸入領袖代碼即完成。",
-                    "Cross the river in area two to finish item 5: after the crossing, see your leader and enter the leader's code.")
+                    "第 5 項請在第二個區域完成渡口遊戲：過橋後找領袖考核（背誦及講解規律），領袖批准即完成。",
+                    "Cross the river in area two to finish item 5: after the crossing, see your leader for the check — their approval finishes it.")
+    if _is_badge_drill_task(task, badge):
+        # No paper for item 6 either: the drill ground files the studying, and
+        # the leader approves it after watching the movements in person.
+        return fail(403, "play_the_drill",
+                    "第 6 項請在第三個區域完成步操訓練場：學完找領袖親身考核，領袖批准即完成。",
+                    "Play the drill ground in area three to finish item 6: study the manual, perform it for your leader — their approval finishes it.")
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == user["id"] and r.get("task_id") == task_id]

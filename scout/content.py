@@ -124,7 +124,8 @@ def drill_manual() -> dict:
     movement carrying its manual page, its points and one self-check question.
     Everything a leader may rewrite lives in `drill.json`; the game only knows
     how to turn the pages. Finishing every check sends the scout to a leader
-    for the 考核 in person, and the leader's code completes the item.
+    for the 考核 in person, and the leader's approval in the leader account
+    completes the item.
     """
     manual = _read_json(os.path.join(MEMBER_BADGE_DIR, "drill.json")) or {}
     sections = []

@@ -861,6 +861,8 @@ body[data-lang="en"] .scene-prompt .en {
 [data-inline-note].saved { color: var(--ok); font-weight: 700; }
 .review-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); padding: 1rem; margin-bottom: .8rem; }
 .review-card.review-done { opacity: .35; transform: scale(.98); transition: all .4s ease; }
+/* 遊戲 2／3 完成等考核：左邊一條銅色邊，與一般提交分得開 */
+.review-card.review-awaiting { border-left: 6px solid var(--brass, #b08d3f); background: #fffdf6; }
 .review-head { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-bottom: .5rem; }
 .review-body { background: var(--paper-2); border-radius: var(--radius-sm); padding: .7rem .8rem; font-size: .9rem; }
 .answer-key { font-size: .8rem; color: var(--muted); }
@@ -2507,6 +2509,10 @@ body.is-game main { padding-top: 6px; }
 .bridge-assess-point { color: #e8dcc8; }
 .bridge-assess-point::before { content: '— '; color: #ffe4a8; }
 .bridge-code { margin: .55rem 0 .2rem; display: flex; flex-direction: column; gap: .35rem; }
+/* 等領袖批准：一枚狀態 chip，一顆「重新檢查」，離線示範多一顆模擬批准 */
+.bridge-wait, .drill-wait { margin: .55rem 0 .15rem; display: flex; flex-direction: column; gap: .45rem; align-items: flex-start; }
+.bridge-wait-row, .drill-wait-row { display: flex; gap: .45rem; flex-wrap: wrap; }
+.bridge-wait-demo, .drill-wait-demo { margin: 0; color: rgba(255, 255, 255, .68); }
 .bridge-code-label {
   font-size: .78rem; font-weight: 800; letter-spacing: .04em; color: #ffe4a8;
 }
