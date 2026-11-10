@@ -3638,11 +3638,22 @@ body.is-game main { padding-top: 6px; }
 }
 .pipe:active { transform: scale(.96); }
 .pipe-svg { width: 100%; height: 100%; display: block; }
-.pipe-arm { stroke: #9fd2b4; stroke-width: 15; stroke-linecap: round; }
-.pipe-joint { fill: #9fd2b4; }
-.pipes-grid.is-solved .pipe-arm { stroke: var(--brass-light); }
-.pipes-grid.is-solved .pipe-joint { fill: var(--brass-light); }
+/* 帆布水喉：深色外皮 + 淺色內芯，接好之後一道水由頭流到尾 */
+.pipe-arm { stroke: rgba(0, 0, 0, .38); stroke-width: 21; stroke-linecap: round; }
+.pipe-core { stroke: #9fd2b4; stroke-width: 13; stroke-linecap: round; }
+.pipe-water { stroke: #eaf9ff; stroke-width: 4.5; stroke-linecap: round; opacity: 0; }
+.pipe-joint { fill: #9fd2b4; stroke: rgba(0, 0, 0, .38); stroke-width: 8; }
+.pipes-grid.is-solved .pipe-arm { stroke: var(--brass-dark); }
+.pipes-grid.is-solved .pipe-core { stroke: var(--brass-light); }
+.pipes-grid.is-solved .pipe-joint { fill: var(--brass-light); stroke: var(--brass-dark); }
+.pipes-grid.is-solved .pipe-water {
+  opacity: .95; stroke-dasharray: 9 27; animation: pipe-flow .85s linear infinite;
+}
 .pipes-grid.is-solved .pipe { background: linear-gradient(180deg, #2f5138, #1e3a26); }
+@keyframes pipe-flow { to { stroke-dashoffset: -36; } }
+@media (prefers-reduced-motion: reduce) {
+  .pipes-grid.is-solved .pipe-water { animation: none; opacity: .55; }
+}
 
 /* 營地滑塊拼圖 */
 .fifteen-wrap { display: grid; gap: .9rem; justify-items: center; width: 100%; }
@@ -3677,26 +3688,41 @@ body.is-game main { padding-top: 6px; }
 }
 .fifteen-ref-cap { font-size: .68rem; color: var(--muted); margin-top: .2rem; }
 
-/* 掃雷 */
+/* 營地排險 —— 未撥開的是草地，撥開的是泥地 */
 .mines-wrap { width: min(100%, 420px); }
 .mines-bar { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
 .mines-bar .is-on { background: var(--brass-light); border-color: var(--brass-dark); color: #2b1d0c; }
+.mines-note {
+  margin: .5rem 0 0; font-size: .78rem; color: var(--muted); text-align: center;
+}
 .mines-grid {
   --n: 8; display: grid; gap: 4px; grid-template-columns: repeat(var(--n), 1fr);
 }
 .mine-cell {
-  aspect-ratio: 1; display: grid; place-items: center; cursor: pointer;
+  position: relative; aspect-ratio: 1; display: grid; place-items: center; cursor: pointer;
   font: inherit; font-weight: 800; font-size: .95rem; border-radius: .35rem;
-  color: #1d2a22; background: linear-gradient(180deg, #cfe0d3, #a9c2b1);
-  border: 1px solid #7f9a88;
+  color: #3b2f1f; background: linear-gradient(180deg, #b9d3ba, #93b598);
+  border: 1px solid #6f8f78; padding: 0; overflow: hidden;
 }
-.mine-cell.is-open { background: var(--paper-2); border-color: var(--line); cursor: default; }
-.mine-cell.is-flag { background: #f6d68a; border-color: var(--brass-dark); }
+.mine-grass {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='%236f9b76' stroke-width='1.7' stroke-linecap='round'><path d='M5 21c.6-4 2-6.4 3.2-7.6'/><path d='M11 21c0-5.2 1-8.6 2.2-11'/><path d='M17 21c-.8-3.6-.4-6.2.8-8'/></g></svg>");
+  background-size: 100% 100%; background-repeat: no-repeat; opacity: .75;
+  pointer-events: none;
+}
+.mine-cell.is-open {
+  background: linear-gradient(180deg, #f0e8d6, #ded2b8);
+  border-color: #c3b494; cursor: default;
+}
+.mine-cell.is-hazard { background: linear-gradient(180deg, #f7ded8, #e9c2b9); border-color: #b9857a; }
+.mine-cell.is-flag { background: linear-gradient(180deg, #f6d68a, #e7c169); border-color: var(--brass-dark); }
+.mine-art { width: 78%; height: 78%; display: block; }
+.mine-pennant { width: 74%; height: 74%; display: block; }
 .mine-cell.n1 { color: #1f5c9a; } .mine-cell.n2 { color: #1f7a45; }
 .mine-cell.n3 { color: #b3261e; } .mine-cell.n4 { color: #5b2d8e; }
 .mine-cell.n5 { color: #8a4a00; } .mine-cell.n6 { color: #0f6b6b; }
 .mine-cell.n7, .mine-cell.n8 { color: #333; }
-.mines-grid.is-dead .mine-cell { background: #f3cfc9; }
+.mines-grid.is-dead .mine-cell:not(.is-open) { background: linear-gradient(180deg, #dcbcb4, #c9a49a); }
 
 /* 專科徽章配對 */
 .memory-wrap { width: min(100%, 420px); }

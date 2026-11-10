@@ -209,11 +209,13 @@
         var ns = 'http://www.w3.org/2000/svg';
         DIRS.forEach(function (d) {
           if (!(mask & d[0])) return;
-          var line = document.createElementNS(ns, 'line');
-          line.setAttribute('x1', 50); line.setAttribute('y1', 50);
-          line.setAttribute('x2', d[1]); line.setAttribute('y2', d[2]);
-          line.setAttribute('class', 'pipe-arm');
-          svg.appendChild(line);
+          ['pipe-arm', 'pipe-core', 'pipe-water'].forEach(function (cls) {
+            var line = document.createElementNS(ns, 'line');
+            line.setAttribute('x1', 50); line.setAttribute('y1', 50);
+            line.setAttribute('x2', d[1]); line.setAttribute('y2', d[2]);
+            line.setAttribute('class', cls);
+            svg.appendChild(line);
+          });
         });
         var joint = document.createElementNS(ns, 'circle');
         joint.setAttribute('cx', 50); joint.setAttribute('cy', 50);
@@ -377,27 +379,57 @@
 
   /* ── 掃雷 ───────────────────────────────────────────────────────────────── */
 
+  /* ── 營地排險 ───────────────────────────────────────────────────────────
+     規則同掃雷一樣，但畫的是童軍起營前要做的第一件事：清場。草地下面
+     藏了鐵釘、玻璃碎和未熄的炭火；撥開草、數一數旁邊有幾件，插旗標出
+     有危險的格。踩中就要重新清一次。 */
+
+  var HAZARD_ART = {
+    nail: '<g stroke="#4a3a2a" stroke-width="2.8" stroke-linecap="round" fill="none">' +
+          '<path d="M5 7h14"/><path d="M12 7v12"/>' +
+          '<path d="M12 19l-2.4-3M12 19l2.4-3"/></g>',
+    glass: '<g fill="#cfeaf2" stroke="#6f9fae" stroke-width="1.4" stroke-linejoin="round">' +
+           '<path d="M4 19l6-14 4 8-4 6z"/><path d="M14 19l4-7 2 7z"/></g>' +
+           '<path d="M9 9.5l1.6 3" stroke="#fff" stroke-width="1.2" opacity=".8"/>',
+    ember: '<g><path d="M12 4c3.2 2.8 4.6 5.6 3 8.6-1 1.9-2.6 3-4.6 3-2.6 0-4.4-1.9-4.4-4.3 0-2 1.1-3.4 2.4-4.4.3 1 .9 1.8 1.8 2.2.3-2.1 1-3.6 1.8-5.1z" fill="#e2743a"/>' +
+           '<path d="M12 11c1.1 1.2 1.4 2.4.5 3.4-.7.8-2 .8-2.7 0-.8-1-.3-2.2.6-3.2.4.4.8.6 1.2.6z" fill="#f7c948"/></g>'
+  };
+
+  function hazardSvg(kind) {
+    return '<svg class="mine-art" viewBox="0 0 24 24" aria-hidden="true">' +
+           (HAZARD_ART[kind] || HAZARD_ART.nail) + '</svg>';
+  }
+
+  function pennantSvg() {
+    return '<svg class="mine-pennant" viewBox="0 0 24 24" aria-hidden="true">' +
+           '<path d="M7 3.5v17" stroke="#7a5a2c" stroke-width="2.2" stroke-linecap="round"/>' +
+           '<path d="M7 4.6l10 3.6-10 3.6z" fill="#b3261e"/>' +
+           '<path d="M4 20.6h6" stroke="#7a5a2c" stroke-width="2" stroke-linecap="round"/></svg>';
+  }
+
   function mines(board) {
     var size = board.size;
     var total = size * size;
+    var kinds = board.hazards || {};
     var mineAt = {};
     board.mines.forEach(function (i) { mineAt[i] = true; });
-    var open = {}, flagged = {}, starts = true;
+    var open = {}, flagged = {}, starts = true, dead = false;
     var wrap = el('div', 'mines-wrap');
     var bar = el('div', 'mines-bar');
-    var flagButton = el('button', 'btn ghost small', '🚩 插旗');
+    var flagButton = el('button', 'btn ghost small', '🚩 標記危險');
     flagButton.type = 'button';
-    var count = el('span', 'chip', '💣 ' + board.count);
+    var count = el('span', 'chip', '⚠️ 0 / ' + board.count);
     bar.appendChild(flagButton); bar.appendChild(count);
+    var note = el('p', 'mines-note', '起營前先清場：撥開草，插旗標出草地上的危險物。');
     var grid = el('div', 'mines-grid');
     grid.style.setProperty('--n', size);
-    wrap.appendChild(bar); wrap.appendChild(grid);
+    wrap.appendChild(bar); wrap.appendChild(grid); wrap.appendChild(note);
 
     var flagging = false;
     flagButton.addEventListener('click', function () {
       flagging = !flagging;
       flagButton.classList.toggle('is-on', flagging);
-      flagButton.textContent = flagging ? '🚩 插旗中' : '🚩 插旗';
+      flagButton.textContent = flagging ? '🚩 標記中…' : '🚩 標記危險';
     });
 
     function neighbours(i) {
@@ -414,8 +446,11 @@
     function mineCount(i) {
       return neighbours(i).filter(function (n) { return mineAt[n]; }).length;
     }
+    function flaggedCount() {
+      return Object.keys(flagged).filter(function (k) { return flagged[k]; }).length;
+    }
     function firstClickSafe(index) {
-      // the first tap is always safe: move a mine out of the way if need be
+      // the first tap is always safe: move a hazard out of the way if need be
       if (!mineAt[index]) return;
       delete mineAt[index];
       for (var i = 0; i < total; i++) {
@@ -437,23 +472,34 @@
       for (var i = 0; i < total; i++) {
         var cell = el('button', 'mine-cell');
         cell.type = 'button';
-        if (open[i]) {
+        var isMine = !!mineAt[i];
+        if (open[i] || (dead && isMine)) {
           cell.classList.add('is-open');
-          var n = mineCount(i);
-          if (n) { cell.textContent = String(n); cell.classList.add('n' + n); }
+          if (isMine) {
+            cell.classList.add('is-hazard');
+            cell.innerHTML = hazardSvg(kinds[String(i)]);
+            cell.setAttribute('aria-label', '危險物');
+          } else {
+            var n = mineCount(i);
+            if (n) { cell.textContent = String(n); cell.classList.add('n' + n); }
+          }
         } else if (flagged[i]) {
           cell.classList.add('is-flag');
-          cell.textContent = '🚩';
+          cell.innerHTML = pennantSvg();
+          cell.setAttribute('aria-label', '已標記');
+        } else {
+          cell.innerHTML = '<span class="mine-grass"></span>';
         }
         cell.addEventListener('click', onCell(i));
         grid.appendChild(cell);
       }
       var opened = Object.keys(open).length;
-      count.textContent = '💣 ' + board.count + ' · ' + opened + '/' + (total - board.count);
+      count.textContent = '⚠️ ' + flaggedCount() + ' / ' + board.count +
+                          '　🌿 ' + opened + '/' + (total - board.count);
     }
     function onCell(index) {
       return function () {
-        if (finished) return;
+        if (finished || dead) return;
         if (flagging) {
           if (!open[index]) flagged[index] = !flagged[index];
           paint(); return;
@@ -461,9 +507,11 @@
         if (open[index] || flagged[index]) return;
         if (starts) { starts = false; firstClickSafe(index); }
         if (mineAt[index]) {
+          dead = true;
           open[index] = true;
           paint();
           grid.classList.add('is-dead');
+          note.textContent = '踩中危險物！場地未清好，營帳不能落地 —— 再清一次。';
           if (window.FX && FX.sfx) { try { FX.sfx('wrong'); } catch (e) {} }
           finish(false);
           return;
@@ -471,7 +519,10 @@
         reveal(index);
         paint();
         if (window.FX && FX.sfx) { try { FX.sfx('tap'); } catch (e) {} }
-        if (Object.keys(open).length === total - board.count) finish(true);
+        if (Object.keys(open).length === total - board.count) {
+          note.textContent = '場地清好了 —— 可以落營。';
+          finish(true);
+        }
       };
     }
     paint();

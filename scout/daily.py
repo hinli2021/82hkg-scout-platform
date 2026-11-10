@@ -10,7 +10,8 @@ Four games, each one pure data — the browser draws and judges it:
   pipes    旋轉水管   a net of pipes turned out of place; turn every piece
                       until the whole net joins up (6×6)
   fifteen  數字滑塊   the 15-puzzle, 4×4
-  mines    掃雷       8×8 with ten mines
+  mines    營地排險   8×8; ten hazards hidden in the grass to clear before
+                     the tents go up
   memory   記憶配對   4×4, eight pairs of Scout pictures
 
 The daily seed also picks the game, so the order is the same for everybody and
@@ -62,16 +63,18 @@ GAMES: dict[str, dict] = {
         "emoji": "🏕️",
     },
     "mines": {
-        "name_zh": "掃雷", "name_en": "Mines",
-        "short_zh": "翻開所有安全格，避開十個地雷。",
-        "short_en": "Open every safe square without hitting one of the ten mines.",
-        "how_zh": ["點一格翻開；數字表示四周有幾個地雷。",
-                   "長按（或先按 🚩 再點）可以插旗。",
-                   "第一次點的一定安全。"],
-        "how_en": ["Tap a square to open it; the number counts the mines around it.",
-                   "Press and hold (or tap 🚩 first) to flag a square.",
-                   "Your first tap is always safe."],
-        "emoji": "💣",
+        "name_zh": "營地排險", "name_en": "Camp clearance",
+        "short_zh": "起營之前，把草地上的鐵釘、玻璃碎和炭火一一標出來。",
+        "short_en": "Before the tents go up, mark every nail, shard and live ember in the grass.",
+        "how_zh": ["點一格撥開草；數字表示四周有幾件危險物。",
+                   "按 🚩（或先按「標記」再點）插上小旗，標出你認為有危險的格。",
+                   "第一次點的一定安全；踩中危險物就要重新清一次場。",
+                   "這是童軍起營前的指定動作：場地未清好，營帳不落地。"],
+        "how_en": ["Tap a square to part the grass; the number counts the hazards around it.",
+                   "Tap 🚩 (or switch on “Mark” first) to plant a pennant on a square you think is dangerous.",
+                   "Your first tap is always safe; stand on a hazard and the field has to be cleared again.",
+                   "This is the Scouts' rule before camp: no ground cleared, no tent pitched."],
+        "emoji": "🧹",
     },
     "memory": {
         "name_zh": "專科徽章配對", "name_en": "Proficiency badge pairs",
@@ -250,10 +253,18 @@ def _fifteen(rng: random.Random) -> dict:
     return {"size": 4, "board": board}, history
 
 
+#: 起營前草地上最常見的三種危險物，每一格地雷用其中一種畫出來。
+HAZARDS = ("nail", "glass", "ember")
+
+
 def _mines(rng: random.Random) -> dict:
+    """Ten hazards in the grass, each drawn as a nail, a shard or a live ember."""
     size, count = 8, 10
-    spots = rng.sample(range(size * size), count)
-    return {"size": size, "mines": sorted(spots), "count": count}, None
+    spots = sorted(rng.sample(range(size * size), count))
+    kinds = [HAZARDS[i % len(HAZARDS)] for i in range(count)]
+    rng.shuffle(kinds)
+    return {"size": size, "mines": spots, "count": count,
+            "hazards": {str(spot): kind for spot, kind in zip(spots, kinds)}}, None
 
 
 def _memory(rng: random.Random) -> dict:
