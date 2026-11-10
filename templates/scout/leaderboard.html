@@ -7,7 +7,9 @@
   <div>
     <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>{{ L('龍虎榜', 'Leaderboard') }}</div>
     <h1 style="margin:0">🏆 {{ L('龍虎榜', 'Leaderboard') }}</h1>
-    <p class="muted small" style="margin:0">{{ L('先比考獲獎章，再比完成任務。', 'Ranked by badges earned first, then tasks done.') }}</p>
+    <p class="muted small" style="margin:0">
+      {{ L('三張榜，各比各的：會員章的遊戲得分、賺到的積分、考獲的獎章數。', 'Three boards, each on its own: membership game scores, points earned, and badges won.') }}
+    </p>
   </div>
 </div>
 
@@ -27,46 +29,142 @@
     {% endfor %}
   </div>
 
-  {% if current %}
-    <div class="card" style="margin-bottom:.9rem">
+  {# ── 你在三張榜的位置：一眼看到，不用逐張找 ── #}
+  {% if mine.games or mine.points or mine.badges %}
+    <div class="lb-mine card">
       <div class="spread wrap">
         <div class="row">
-          <span style="font-size:1.6rem">{{ current.avatar }}</span>
+          <span style="font-size:1.6rem">{{ (mine.games or mine.points or mine.badges).avatar }}</span>
           <div>
-            <div class="small muted">{{ L('你的排名', 'Your rank') }}</div>
-            <strong>#{{ current.rank }} · {{ name_of(current) }}</strong>
+            <div class="small muted">{{ L('你在三張榜的位置', 'Your place on each board') }}</div>
+            <strong>{{ name_of(mine.games or mine.points or mine.badges) }}</strong>
           </div>
         </div>
         <div class="row wrap">
-          <span class="chip brass">🎖 {{ current.badges_done }}</span>
-          <span class="chip light">{{ L('任務', 'Tasks') }} {{ current.tasks_done }}</span>
+          {% if mine.games %}<a class="chip light lb-mine-chip" href="#board-games">🎮 {{ L('遊戲得分', 'Game score') }} #{{ mine.games.rank }}</a>{% endif %}
+          {% if mine.points %}<a class="chip light lb-mine-chip" href="#board-points">🪙 {{ L('積分', 'Points') }} #{{ mine.points.rank }}</a>{% endif %}
+          {% if mine.badges %}<a class="chip light lb-mine-chip" href="#board-badges">🎖 {{ L('獎章', 'Badges') }} #{{ mine.badges.rank }}</a>{% endif %}
         </div>
       </div>
     </div>
   {% endif %}
 
-  {% if rows %}
-    <div class="panel">
-      <div class="panel-head"><strong>{{ L('排名', 'Ranking') }}</strong><span class="small muted">{{ rows | length }} {{ L('位童軍', 'scouts') }}</span></div>
-      <div class="panel-body stack">
-        {% set top = rows[0].badges_done or 1 %}
-        {% for row in rows %}
-          <div class="lb-row {{ 'me' if row.is_me }}" style="position:relative; display:flex; align-items:center; gap:.6rem; padding:.5rem .6rem; border-radius:10px">
-            <span class="lb-fill" style="width: {{ (row.badges_done / top * 100) | round }}%"></span>
-            <strong style="min-width:2.2rem">#{{ row.rank }}</strong>
-            <span style="font-size:1.3rem">{{ row.avatar }}</span>
-            <span class="grow">
-              <strong>{{ name_of(row) }}</strong>
-              <div class="small muted">{{ L(patrol_label(row.patrol).zh, patrol_label(row.patrol).en) }}</div>
-            </span>
-            <span class="chip brass">🎖 {{ row.badges_done }}</span>
-            <span class="chip light">✓ {{ row.tasks_done }}</span>
-          </div>
-        {% endfor %}
-      </div>
+  {# ══ 榜 1：會員章 · 各遊戲的得分 ══════════════════════════════════════ #}
+  <section class="lb-board" id="board-games">
+    <div class="section-title">
+      <h2>🎮 {{ L('會員章 · 各遊戲得分', 'Membership badge · game scores') }}</h2>
+      <span class="count">{{ boards.games.rows | length }} {{ L('位童軍', 'scouts') }}</span>
     </div>
-  {% else %}
-    {{ empty_state('🏁', '還沒有排名資料。', 'No rankings yet.') }}
-  {% endif %}
+    <p class="muted small lb-sub">
+      {{ L('每個遊戲 0–100 分；五個遊戲的分數加起來排名，重玩取最好的一次。', 'Each game scores 0–100; the boards add the five games up, and a replay keeps the best score.') }}
+    </p>
+    {% if boards.games.rows %}
+      <div class="panel">
+        <div class="panel-body stack">
+          {% set top = (boards.games.rows[0].module_total) or 1 %}
+          {% for row in boards.games.rows %}
+            <div class="lb-row lb-row-games {{ 'me' if row.is_me }}" style="position:relative">
+              <span class="lb-fill" style="width: {{ (row.module_total / top * 100) | round }}%"></span>
+              <div class="lb-line">
+                <strong class="lb-rank">#{{ row.rank }}</strong>
+                <span class="lb-avatar">{{ row.avatar }}</span>
+                <span class="grow">
+                  <strong>{{ name_of(row) }}</strong>
+                  <div class="small muted">{{ L(patrol_label(row.patrol).zh, patrol_label(row.patrol).en) }}</div>
+                </span>
+                <span class="chip brass">🎮 {{ row.module_total }}<span class="lb-of">/ {{ 100 * row.of }}</span></span>
+              </div>
+              <div class="lb-scores">
+                {% for column in columns %}
+                  {% set score = row.scores.get(column.task_id) %}
+                  <span class="lb-score {{ 'is-empty' if score is none }}" title="{{ L(column.area_zh ~ ' · ' ~ column.game_zh, column.area_en ~ ' · ' ~ column.game_en) }}">
+                    <span class="lb-score-n" aria-hidden="true">G{{ column.n }}</span>
+                    <span class="lb-score-game">{{ L(column.game_zh, column.game_en) }}</span>
+                    <b>{{ score if score is not none else '—' }}</b>
+                  </span>
+                {% endfor %}
+                <span class="lb-score-count small muted">{{ L('已玩 ', 'Played ') }}{{ row.played }}/{{ row.of }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      {{ empty_state('🎮', '還沒有遊戲成績。', 'No game scores yet.') }}
+    {% endif %}
+  </section>
+
+  {# ══ 榜 2：賺到的積分 ════════════════════════════════════════════════ #}
+  <section class="lb-board" id="board-points">
+    <div class="section-title">
+      <h2>🪙 {{ L('積分', 'Points earned') }}</h2>
+      <span class="count">{{ boards.points.rows | length }} {{ L('位童軍', 'scouts') }}</span>
+    </div>
+    <p class="muted small lb-sub">
+      {{ L('按賺到的積分排名；換獎品用了積分，名次不會跌。', 'Ranked by points earned — spending them on a reward never costs you a place.') }}
+    </p>
+    {% if boards.points.rows %}
+      <div class="panel">
+        <div class="panel-body stack">
+          {% set top_points = (boards.points.rows[0].earned) or 1 %}
+          {% for row in boards.points.rows %}
+            <div class="lb-row {{ 'me' if row.is_me }}">
+              <span class="lb-fill" style="width: {{ (row.earned / top_points * 100) | round }}%"></span>
+              <div class="lb-line">
+                <strong class="lb-rank">#{{ row.rank }}</strong>
+                <span class="lb-avatar">{{ row.avatar }}</span>
+                <span class="grow">
+                  <strong>{{ name_of(row) }}</strong>
+                  <div class="small muted">{{ L(patrol_label(row.patrol).zh, patrol_label(row.patrol).en) }}</div>
+                </span>
+                <span class="chip brass">🪙 {{ row.earned }}</span>
+                <span class="chip light" title="{{ L('餘額（扣除換獎品）', 'Balance after rewards') }}">{{ L('餘', 'Bal') }} {{ row.balance }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      {{ empty_state('🪙', '還沒有積分紀錄。', 'No points yet.') }}
+    {% endif %}
+  </section>
+
+  {# ══ 榜 3：考獲的獎章數 ══════════════════════════════════════════════ #}
+  <section class="lb-board" id="board-badges">
+    <div class="section-title">
+      <h2>🎖 {{ L('獎章', 'Badges won') }}</h2>
+      <span class="count">{{ boards.badges.rows | length }} {{ L('位童軍', 'scouts') }}</span>
+    </div>
+    <p class="muted small lb-sub">
+      {{ L('按考獲的獎章數排名。', 'Ranked by the number of badges won.') }}
+    </p>
+    {% if boards.badges.rows %}
+      <div class="panel">
+        <div class="panel-body stack">
+          {% set top_badges = (boards.badges.rows[0].badges) or 1 %}
+          {% for row in boards.badges.rows %}
+            <div class="lb-row {{ 'me' if row.is_me }}">
+              <span class="lb-fill" style="width: {{ (row.badges / top_badges * 100) | round }}%"></span>
+              <div class="lb-line">
+                <strong class="lb-rank">#{{ row.rank }}</strong>
+                <span class="lb-avatar">{{ row.avatar }}</span>
+                <span class="grow">
+                  <strong>{{ name_of(row) }}</strong>
+                  <div class="small muted">
+                    {{ L(patrol_label(row.patrol).zh, patrol_label(row.patrol).en) }}
+                    {% if row.emojis %}· {{ row.emojis | join(' ') }}{% endif %}
+                  </div>
+                </span>
+                <span class="chip brass">🎖 {{ row.badges }}</span>
+                <span class="chip light">{{ L('任務', 'Tasks') }} {{ row.tasks_done }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      {{ empty_state('🎖', '還沒有獎章。', 'No badges yet.') }}
+    {% endif %}
+  </section>
 {% endif %}
 {% endblock %}

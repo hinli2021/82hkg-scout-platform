@@ -259,14 +259,31 @@ def test_history_lists_completions(scout_client, store):
     assert "第 1 項" in page                   # scout03 has finished item 1 of 會員章
 
 
-def test_leaderboard_ranks_by_badges_then_tasks(scout_client, store, extras_on):
+def board_ids(page):
+    """The three boards of /leaderboard, in the order they appear."""
+    return re.findall(r'id="board-(games|points|badges)"', page)
+
+
+def test_the_leaderboard_is_three_boards(scout_client, store, extras_on):
+    """遊戲得分、積分、獎章 —— 三張榜，各自排名。"""
     page = scout_client.get("/leaderboard").get_data(as_text=True)
     assert "龍虎榜" in page and "lb-row" in page
-    assert "先比考獲獎章，再比完成任務" in page
-    board = engine.leaderboard(store, current_user_id=scout_client.id)
-    pairs = [(row["badges_done"], row["tasks_done"]) for row in board["rows"]]
-    assert pairs == sorted(pairs, key=lambda pair: (-pair[0], -pair[1]))
-    assert board["rows"][0]["rank"] == 1
+    assert board_ids(page) == ["games", "points", "badges"]
+    assert "會員章 · 各遊戲得分" in page
+    assert "積分" in page and "獎章" in page
+
+    boards = engine.leaderboard_sections(store, current_user_id=scout_client.id)
+    # each board is ranked on its own number, highest first
+    for key, field in (("games", "module_total"), ("points", "earned"), ("badges", "badges")):
+        values = [row[field] for row in boards[key]["rows"]]
+        assert values == sorted(values, reverse=True), key
+        assert [row["rank"] for row in boards[key]["rows"]] == list(range(1, len(values) + 1))
+
+    # the game board carries one column per game that exists, and no more
+    codes = [column["code"] for column in boards["columns"]]
+    assert codes[:3] == ["M04", "M05", "M06"] and "" not in codes
+    assert all(set(row["scores"]) == {c["task_id"] for c in boards["columns"]}
+               for row in boards["games"]["rows"])
 
 
 def test_leaderboard_periods_and_patrols(scout_client, extras_on):

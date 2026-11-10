@@ -3819,3 +3819,48 @@ body.is-game main { padding-top: 6px; }
 .daily-teaser-text { display: grid; gap: .15rem; flex: 1 1 auto; }
 .daily-teaser-text strong { color: var(--ink); }
 .daily-teaser.is-done { opacity: .75; }
+
+/* ── 龍虎榜：三張榜 ───────────────────────────────────────────────────── */
+.lb-mine { margin-bottom: 1.1rem; }
+.lb-mine .chip { text-decoration: none; }
+.lb-mine-chip:hover { background: var(--green-100); }
+.lb-board { scroll-margin-top: 1.2rem; margin-bottom: 1.6rem; }
+.lb-sub { margin: -.35rem 0 .55rem; }
+.lb-line { display: flex; align-items: center; gap: .6rem; }
+.lb-line .grow { min-width: 0; }
+.lb-of { font-weight: 600; opacity: .65; margin-left: .15rem; }
+/* 分數一列放在名次下面（100% 寬），不然它會與姓名爭位 */
+.lb-row-games { flex-wrap: wrap; }
+.lb-scores { display: flex; flex-wrap: wrap; gap: .3rem; flex: 1 0 100%;
+             margin: .45rem 0 0 3.15rem; }
+.lb-score {
+  display: inline-flex; align-items: baseline; gap: .3rem;
+  padding: .16rem .5rem; border-radius: 999px;
+  background: var(--green-100); color: var(--green-800, #1d4b31);
+  font-size: .78rem; font-weight: 600; white-space: nowrap;
+}
+.lb-score b { font-size: .86rem; font-weight: 800; }
+.lb-score.is-empty { background: #f1efe8; color: var(--muted); }
+.lb-score-game { opacity: .8; }
+.lb-score-n { display: none; font-weight: 800; opacity: .7; }
+.lb-score-count { margin-left: .15rem; align-self: center; }
+.lb-line { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+.lb-line .grow { flex: 1 1 9rem; min-width: 0; }
+.lb-line .chip { flex: 0 0 auto; }
+@media (max-width: 560px) {
+  /* 窄螢幕：收起頭像，讓名與分數各有空間，不互相擠 */
+  .lb-board .lb-row { padding: .6rem .7rem; }
+  .lb-line { gap: .45rem; }
+  .lb-line .lb-avatar { display: none; }
+  .lb-line .lb-rank { width: auto; min-width: 1.8rem; }
+  .lb-line .grow { flex: 1 1 8rem; }
+  /* 手機：只留排名與名次分數；餘額、任務數是次要，桌面版再看 */
+  .lb-board .lb-line .chip.light { display: none; }
+  .lb-board .lb-line .nm { flex-wrap: nowrap; }
+  .lb-scores { margin-left: 0; }
+  .lb-score-game { display: none; }
+  .lb-score-n { display: inline; }
+  .lb-row-games .lb-of { display: none; }
+  .lb-score-count { display: none; }
+  .lb-mine .row.wrap { gap: .3rem; }
+}

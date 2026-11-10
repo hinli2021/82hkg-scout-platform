@@ -1169,12 +1169,14 @@ def leaderboard_page():
     period = request.args.get("period", "all")
     scope = request.args.get("scope", "unit")
     patrol = request.args.get("patrol", "")
-    from ..engine import leaderboard as build_board
+    from ..engine import leaderboard_sections
 
-    board = build_board(st, scope=scope, patrol=patrol, period=period, current_user_id=g.user["id"])
-    current = next((row for row in board["rows"] if row["is_me"]), None)
-    return render_template("scout/leaderboard.html", disabled=False, rows=board["rows"], current=current,
-                           period=period, scope=scope, patrol=patrol,
+    boards = leaderboard_sections(st, scope=scope, patrol=patrol, period=period,
+                                  current_user_id=g.user["id"])
+    mine = {key: next((row for row in boards[key]["rows"] if row["is_me"]), None)
+            for key in ("games", "points", "badges")}
+    return render_template("scout/leaderboard.html", disabled=False, boards=boards, mine=mine,
+                           columns=boards["columns"], period=period, scope=scope, patrol=patrol,
                            patrols=settings.get("patrols") or [])
 
 
@@ -1219,9 +1221,18 @@ def api_next_task():
 @scout_routes.get("/api/leaderboard")
 @scout_required
 def api_leaderboard():
-    from ..engine import leaderboard as build_board
+    from ..engine import leaderboard_sections
 
-    board = build_board(store(), scope=request.args.get("scope", "unit"),
-                        patrol=request.args.get("patrol", ""), period=request.args.get("period", "all"),
+    st = store()
+    boards = leaderboard_sections(st, scope=request.args.get("scope", "unit"),
+                                  patrol=request.args.get("patrol", ""),
+                                  period=request.args.get("period", "all"),
+                                  current_user_id=g.user["id"])
+    # the old shape (one ranked list) is kept for anything still reading it
+    from ..engine import leaderboard
+
+    board = leaderboard(st, scope=request.args.get("scope", "unit"),
+                        patrol=request.args.get("patrol", ""),
+                        period=request.args.get("period", "all"),
                         current_user_id=g.user["id"])
-    return ok(**board)
+    return ok(**board, boards=boards)
