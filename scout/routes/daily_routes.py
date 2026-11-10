@@ -105,7 +105,10 @@ def daily_page():
         fast_ms=daily.FAST_MS,
         played=played_today,
         last_points=as_int((claimed or {}).get("points_delta")),
-        streak=_streak(st, g.user["id"], day),
+        # 頂欄那粒火要與主頁一致：用同一個 streak（stats 的活躍連續天數）；
+        # 每日遊戲自己的連續紀錄，留在下面的「這一個星期」顯示。
+        streak=as_int(stats.get("streak_current")),
+        daily_streak=_streak(st, g.user["id"], day),
         balance=as_int(stats.get("points_balance")),
         history=history,
         games=daily.GAMES,
@@ -157,7 +160,10 @@ def daily_finish():
     )
     audit(g.user, "daily_finish", "daily", day, {"kind": today_puzzle["kind"], "points": points,
                                                  "elapsed_ms": elapsed})
-    balance = as_int(st.stats_for(g.user["id"]).get("points_balance"))
+    stats_row = st.stats_for(g.user["id"])
+    balance = as_int(stats_row.get("points_balance"))
     return ok(points=points, balance=balance, elapsed_ms=elapsed,
-              streak=_streak(st, g.user["id"], day), already=False,
+              # 同一個 streak 定義，回應與頂欄、主頁一致
+              streak=as_int(stats_row.get("streak_current")),
+              daily_streak=_streak(st, g.user["id"], day), already=False,
               points_max=daily.POINTS_FAST, finished_at=now_iso())

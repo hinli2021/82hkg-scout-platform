@@ -2,10 +2,8 @@
 {% from 'partials/macros.html' import streak_chip with context %}
 {% block title %}{{ L('每日挑戰', 'Daily challenge') }}{% endblock %}
 {% block hud_chips %}
-  <div class="hud-chips">
-    <span class="chip brass">🪙 {{ balance }}</span>
-    {% if streak > 1 %}<span class="chip">🔥 {{ L('連續', 'Streak') }} {{ streak }} {{ L('天', 'days') }}</span>{% endif %}
-  </div>
+  {# 與主頁同一粒火、同一個數字（活躍連續天數） #}
+  {{ streak_chip(streak) }}
 {% endblock %}
 
 {% block content %}
@@ -59,6 +57,11 @@
 
     <section class="card">
       <h3 style="margin:0 0 .4rem">📅 {{ L('這一個星期', 'This week') }}</h3>
+      {% if daily_streak %}
+        <p class="muted small" style="margin:0 0 .45rem">
+          {{ L('每日挑戰連續玩了', 'Played the daily game') }} <strong>{{ daily_streak }}</strong> {{ L('天', 'days in a row') }}
+        </p>
+      {% endif %}
       <ul class="daily-history">
         {% for row in history %}
           <li class="{{ 'is-today' if row.today }}">

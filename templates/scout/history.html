@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% from 'partials/macros.html' import empty_state, streak_chip with context %}
 {% block title %}{{ L('我的紀錄', 'My history') }}{% endblock %}
-{% block hud_chips %}<div class="hud-chips"><span class="chip brass">🎖 {{ stats.badges_done }}</span>{{ streak_chip(stats.streak_current) }}</div>{% endblock %}
+{% block hud_chips %}<span class="chip brass">🎖 {{ stats.badges_done }}</span>{{ streak_chip(stats.streak_current) }}{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>

@@ -68,6 +68,21 @@ def setup_health_checks(store, counts: dict, on_sheets: bool) -> list[dict]:
         },
     ]
 
+def _hud_points(store, user: dict | None):
+    """The 積分 number in the top bar — a scout's own balance, nobody else's.
+
+    Reads the cached stats row without creating one: a leader, or a scout who
+    has not earned anything yet, simply shows 0.
+    """
+    if not user or user.get("role") != "scout":
+        return None
+    row = store.driver.get("stats", user["id"]) or {}
+    try:
+        return max(0, int(float(row.get("points_balance") or 0)))
+    except (TypeError, ValueError):
+        return 0
+
+
 def create_app(config: dict | None = None) -> Flask:
     app = Flask(__name__, static_folder="static", template_folder="templates")
     app.config.update(
@@ -112,6 +127,8 @@ def create_app(config: dict | None = None) -> Flask:
             # Templates never see password columns — only the public view.
             "user": public_user(g.get("user")),
             "raw_user": g.get("user"),
+            # 積分：頂欄每一頁都要顯示，所以每次 render 都讀一次快取的 stats（不建立新行）
+            "points_balance": _hud_points(store, g.get("user")),
             "storage_mode": store.driver.name,
             # 領袖後台要知道資料放在哪裡：試算表模式顯示連結，暫存模式顯示警告
             "storage_sheet_id": getattr(store.driver, "spreadsheet_id", ""),

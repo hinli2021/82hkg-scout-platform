@@ -133,13 +133,25 @@ def test_no_show_all_button_when_there_are_four_or_fewer(app, store):
     assert "suggest-rest" not in page
 
 
-def test_home_never_shows_points(scout_client):
-    page = scout_client.get("/home").get_data(as_text=True)
-    assert "積分" not in page
-    assert "wallet" not in page
-    assert "🪙" not in page
+def test_every_page_shows_the_points_balance_in_the_top_bar(scout_client):
+    """積分在頂欄，每一頁都見到 —— 但只有一粒銅牌，不會到處都是數字。
 
+    (2026-11-10 起：原本「主頁永不顯示積分」的規則由領袖改為「每頁頂欄都顯示」。
+    獎章頁上的「🪙 100 獎章積分」是獎章本身的獎分，不算餘額。)
+    """
+    checked = 0
+    for path in ("/home", "/badges", "/daily", "/history", "/leaderboard", "/rewards"):
+        page = scout_client.get(path, follow_redirects=True).get_data(as_text=True)
+        if 'class="topbar"' not in page:
+            continue                      # kept behind a feature flag: nothing to check
+        checked += 1
+        assert page.count('class="chip brass topbar-points"') == 1, f"{path} chip"
+        assert "wallet" not in page
+    assert checked >= 5
 
+    home = scout_client.get("/home").get_data(as_text=True)
+    # 銅牌要在品牌那一行，而不是 HUD —— 遊戲頁會收起 HUD，品牌行不會。
+    assert home.index("topbar-points") < home.index('class="hud"')
 def test_no_xp_or_levels_anywhere(scout_client):
     for path in ("/home", "/badges", "/rewards", "/history", "/leaderboard"):
         page = scout_client.get(path).get_data(as_text=True).lower()

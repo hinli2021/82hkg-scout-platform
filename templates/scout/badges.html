@@ -2,11 +2,9 @@
 {% from 'partials/macros.html' import empty_state, quest_node, ring, streak_chip with context %}
 {% block title %}{{ L('獎章', 'Badges') }}{% endblock %}
 {% block hud_chips %}
-  <div class="hud-chips">
-    <span class="chip brass">🎖 {{ stats.badges_done }} {{ L('個獎章', 'badges') }}</span>
-    <span class="chip">{{ L('任務', 'Tasks') }} {{ overall.tasks_done }}/{{ overall.tasks_total }}</span>
-    {{ streak_chip(stats.streak_current) }}
-  </div>
+  <span class="chip brass">🎖 {{ stats.badges_done }} {{ L('個獎章', 'badges') }}</span>
+  <span class="chip">{{ L('任務', 'Tasks') }} {{ overall.tasks_done }}/{{ overall.tasks_total }}</span>
+  {{ streak_chip(stats.streak_current) }}
 {% endblock %}
 {% block content %}
 <div class="page-head">

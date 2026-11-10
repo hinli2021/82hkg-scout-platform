@@ -2,10 +2,8 @@
 {% from 'partials/macros.html' import empty_state, name_of, patrol_name, status_pill, streak_chip with context %}
 {% block title %}{{ L('總覽', 'Overview') }}{% endblock %}
 {% block hud_chips %}
-  <div class="hud-chips">
-    <span class="chip light">{{ storage_mode }}</span>
-    <span class="chip {{ 'warn' if counts.pending else 'ok' }}">{{ L('待審批', 'Pending') }} {{ counts.pending }}</span>
-  </div>
+  <span class="chip light">{{ storage_mode }}</span>
+  <span class="chip {{ 'warn' if counts.pending else 'ok' }}">{{ L('待審批', 'Pending') }} {{ counts.pending }}</span>
 {% endblock %}
 {% block content %}
 <div class="page-head">

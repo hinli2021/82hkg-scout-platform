@@ -56,6 +56,17 @@
         {% endfor %}
       </nav>
       <div class="topbar-right">
+        {# 積分：每一頁（包括遊戲頁）右上角都見到自己的分數。
+           「獎品」開著的話，點一下就直接去換禮物。 #}
+        {% if user.role == 'scout' %}
+          {% if (settings.feature_flags or {}).get('redeem') %}
+            <a class="chip brass topbar-points" href="{{ url_for('scout_routes.rewards') }}"
+               title="{{ L('積分：可到獎品頁換禮物', 'Your points — spend them on the rewards page') }}">🪙 <b>{{ points_balance }}</b></a>
+          {% else %}
+            <span class="chip brass topbar-points"
+                  title="{{ L('你目前的積分', 'Your points balance') }}">🪙 <b>{{ points_balance }}</b></span>
+          {% endif %}
+        {% endif %}
         <button class="icon-btn" type="button" data-sound-toggle title="{{ L('遊戲音效', 'Game sound') }}">🔊</button>
         {# 平台以中文為主：不再顯示語言切換按鈕（雙語內容與 /set-language 仍在）。
            若要在英文環境查看，直接開 /set-language/en。 #}
@@ -74,7 +85,7 @@
           {% else %}{{ L('領袖', 'Leader') }} · {{ user.unit or L(settings.unit_name_zh, settings.unit_name_en) }}{% endif %}
         </div>
       </div>
-      {% block hud_chips %}{% endblock %}
+      <div class="hud-chips">{% block hud_chips %}{% endblock %}</div>
     </div>
     {% endblock %}
   </header>

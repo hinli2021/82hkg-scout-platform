@@ -3,7 +3,8 @@
 {% block title %}{{ L('獎品', 'Rewards') }}{% endblock %}
 {% block hud_chips %}{% endblock %}
 {% block content %}
-{# The ONLY place a scout sees their points balance — by design. #}
+{# The wallet: the full balance, its history and the things to spend it on.
+   (The balance itself also rides along in the top bar on every page.) #}
 <div class="page-head">
   <div>
     <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>{{ L('獎品', 'Rewards') }}</div>

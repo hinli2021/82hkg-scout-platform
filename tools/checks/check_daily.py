@@ -102,7 +102,7 @@ def main():
         check(page.locator('.daily-game > *').count() == 1, 'the board is drawn')
         check(cfg.get('already') is False, 'the day is not paid yet')
 
-        balance_before = page.inner_text('.hud-chips .chip.brass')
+        balance_before = page.inner_text('.topbar-points')
 
         # a real scout cannot finish inside the clock floor; neither should the
         # check, or it would trip the server's “this run was too quick” guard
@@ -121,7 +121,7 @@ def main():
         today_row = page.locator('.daily-history li.is-today .chip.ok')
         check(today_row.count() == 1 and '＋' in today_row.first.inner_text(),
               f"the week strip marks today as paid ({today_row.first.inner_text() if today_row.count() else 'missing'})")
-        balance_after = page.inner_text('.hud-chips .chip.brass')
+        balance_after = page.inner_text('.topbar-points')
         check(balance_after != balance_before,
               f'the balance moved once ({balance_before} → {balance_after})')
 
