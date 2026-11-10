@@ -193,15 +193,18 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--green-400);
 .tabbar button.active { background: var(--brass); color: #36250a; }
 .topbar-right { display: flex; align-items: center; gap: .4rem; }
 /* 積分：頂欄的一粒銅牌，每一頁都在（遊戲頁也留著，因為那一行不隱藏） */
-.topbar-points {
+.topbar-points, .hud-points {
   display: inline-flex; align-items: center; gap: .3rem; text-decoration: none;
   background: var(--brass); color: #36250a; border: 1px solid rgba(0, 0, 0, .12);
   border-radius: 999px; padding: .26rem .7rem; font-size: .82rem; font-weight: 700;
   white-space: nowrap; line-height: 1.2;
 }
+/* 正常頁由 HUD 裏緊貼着火的那粒負責；遊戲頁收起了 HUD，才由頂欄這粒補上 */
+.topbar-right .topbar-points { display: none; }              /* .chip 本身設了 flex，呢條要更具體 */
+body.is-game .topbar-right .topbar-points { display: inline-flex; }
 .topbar-points b { font-size: .88rem; font-variant-numeric: tabular-nums; }
 a.topbar-points:hover { background: var(--brass-light); }
-@media (max-width: 560px) { .topbar-points { padding: .22rem .55rem; font-size: .76rem; } }
+@media (max-width: 560px) { .topbar-points, .hud-points { padding: .22rem .55rem; font-size: .76rem; } }
 .topbar-right .lang-switch { margin: 0; }
 .topbar-right .lang-switch button { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); color: #dfeae3; }
 .topbar-right .lang-switch button.active { background: var(--brass); border-color: var(--brass); color: #36250a; }

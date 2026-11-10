@@ -133,10 +133,10 @@ def test_no_show_all_button_when_there_are_four_or_fewer(app, store):
     assert "suggest-rest" not in page
 
 
-def test_every_page_shows_the_points_balance_in_the_top_bar(scout_client):
-    """積分在頂欄，每一頁都見到 —— 但只有一粒銅牌，不會到處都是數字。
+def test_every_page_shows_the_points_balance_beside_the_streak(scout_client):
+    """積分銅牌緊貼連續天數那粒火；遊戲頁收起 HUD，就由頂欄的同一個銅牌補上。
 
-    (2026-11-10 起：原本「主頁永不顯示積分」的規則由領袖改為「每頁頂欄都顯示」。
+    (2026-11-10：領袖把積分由「只在獎品頁」改為「每頁都見到，而且貼着火」。
     獎章頁上的「🪙 100 獎章積分」是獎章本身的獎分，不算餘額。)
     """
     checked = 0
@@ -145,13 +145,14 @@ def test_every_page_shows_the_points_balance_in_the_top_bar(scout_client):
         if 'class="topbar"' not in page:
             continue                      # kept behind a feature flag: nothing to check
         checked += 1
-        assert page.count('class="chip brass topbar-points"') == 1, f"{path} chip"
+        assert page.count('class="chip brass hud-points"') == 1, f"{path} has no points chip"
         assert "wallet" not in page
+        # the chip sits in the same row as the streak — i.e. inside .hud-chips
+        chips = page[page.index('class="hud-chips"'):]
+        chips = chips[:chips.index('</div>')]
+        assert 'hud-points' in chips, f"{path}: points not beside the streak"
     assert checked >= 5
-
-    home = scout_client.get("/home").get_data(as_text=True)
-    # 銅牌要在品牌那一行，而不是 HUD —— 遊戲頁會收起 HUD，品牌行不會。
-    assert home.index("topbar-points") < home.index('class="hud"')
+    assert 'topbar-points' in scout_client.get("/home").get_data(as_text=True)
 def test_no_xp_or_levels_anywhere(scout_client):
     for path in ("/home", "/badges", "/rewards", "/history", "/leaderboard"):
         page = scout_client.get(path).get_data(as_text=True).lower()
