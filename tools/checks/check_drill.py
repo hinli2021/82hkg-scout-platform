@@ -635,7 +635,8 @@ def main():
 
             page.click('[data-drill-go="start-stage"]')
             page.wait_for_selector('[data-drill-scene="drill"]')
-            page.wait_for_timeout(250)
+            # the statue holds, plays once, then the commands and the count appear
+            page.wait_for_selector('[data-drill-answers]:not(.is-waiting)', timeout=12000)
             check(page.locator('.drill.drill-command-full').count() == 1,
                   f'section 2 stage {index + 1} movement questions take the whole screen')
             pool_ids = [mid for stage in MOVE_STAGES[:index + 1] for mid in stage]
@@ -743,49 +744,34 @@ def main():
             check(f'第 {index + 1} 階段操練完成' in done,
                   f'section 2 stage {index + 1} completion is named on its card')
 
-        # ── both sections clear: studying is filed, then the leader approves
+        # ── both sections clear: studying is filed, then the leader's code
         click(page, '[data-drill-go="finish"]')
-        page.wait_for_selector('[data-drill-wait]', timeout=10000)
+        page.wait_for_selector('[data-drill-code-input]', timeout=10000)
         assess = page.inner_text('[data-drill-card]')
-        check('等領袖批准' in assess and '四方向' not in assess and '前、後、左、右移一步' in assess,
+        check('找領袖考核' in assess and '四方向' not in assess and '前、後、左、右移一步' in assess,
               'finishing section 2 opens the leader assessment card')
         check('原地踏步' in assess and '停步' in assess and '向右看齊' in assess,
               'the assessment card names the stage 3 movements to perform')
-        check(page.query_selector('[data-drill-code-input]') is None,
-              'there is no leader code to type any more')
         shoot(page, 'drill-assess.png')
         badge, task = progress(page)
         check(task['status'] == 'studied', 'both sections file the studying, not completion')
         check(badge['progress_done'] == before,
-              'the game counter still waits for the leader')
-        expected_bad_code_errors = 0
-
-        # the leader presses 批准 in the leader account
-        lctx = browser.new_context(locale='zh-HK', viewport={'width': 1180, 'height': 940})
-        lctx.request.post(f'{BASE}/login/leader', form={'password': '0082'})
-        lp = lctx.new_page()
-        lp.goto(f'{BASE}/leader/review')
-        lp.wait_for_load_state('networkidle')
-        lcard = lp.locator('.review-card', has_text='已完成遊戲 · 等考核').first
-        check(lcard.count() == 1, 'the finished drill ground stands in the leader queue')
-        check('看他親身做出各個動作' in lcard.inner_text(),
-              'the queue card says what to watch for')
-        lcard.locator('button[value="approve"]').click()
-        lp.wait_for_timeout(1200)
-        check(lp.locator('.review-card', has_text='已完成遊戲 · 等考核').count() == 0,
-              'the approval clears the card out of the queue')
-        lctx.close()
-
-        click(page, '[data-drill-go="check"]')
-        page.wait_for_function(
-            "() => { var c = document.querySelector('[data-drill-card]');"
-            "        return c && c.innerText.indexOf('第 6 項完成') >= 0; }")
+              'the game counter still waits for the leader code')
+        page.fill('[data-drill-code-input]', '0000')
+        page.click('[data-drill-code] button[type="submit"]')
+        page.wait_for_timeout(700)
+        check('代碼不對' in page.inner_text('[data-drill-card]'),
+              'a wrong leader code is refused')
+        expected_bad_code_errors = 1  # Chromium logs the deliberate 400 as a resource error
+        page.fill('[data-drill-code-input]', '82DR')
+        page.click('[data-drill-code] button[type="submit"]')
+        page.wait_for_timeout(900)
         result = page.inner_text('[data-drill-card]')
-        check('領袖批准了' in result and '第 6 項完成' in result,
-              'the waiting card turns into the tick once the leader approves')
+        check('遊戲 3 通關' in result and '第 6 項完成' in result,
+              'the right leader code clears game 3 and item 6')
         shoot(page, 'drill-result.png')
         badge, task = progress(page)
-        check(task['status'] == 'completed', 'item 6 is completed after the leader approves')
+        check(task['status'] == 'completed', 'item 6 is completed after the leader code')
         check(badge['progress_done'] == before + 1,
               f'the game counter moves once ({before} → {badge["progress_done"]} of {total})')
         page.goto(drill_url)

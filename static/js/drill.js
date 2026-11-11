@@ -259,6 +259,8 @@
     var MOVEMENT_CHOICE_LIMIT = 5;
     var state = {
       startedAt: 0,              /* 第一個動作關卡出現那一刻 — 榜上的完成時間由這裡計 */
+      watchFrom: 0,              /* 石像播放中：這段不計入完成時間，倒數也未開始 */
+      armPrompt: false,          /* 題目正在等石像播完，才放出口令按鈕 */
       scene: 'intro',            /* intro · flip · drill · review · stage-done ·
                                     section-done · studied · result · save-error */
       section: 1,                /* 1 = hand signs on the cliff; 2 = movements below */
@@ -280,10 +282,12 @@
     var beatTimer = null;
     var advanceTimer = null;
     var statueTimer = null;
+    var armTimer = null;          /* the one-second pause before a question animation */
     function clearTimers() {
       if (beatTimer) { window.clearInterval(beatTimer); beatTimer = null; }
       if (advanceTimer) { window.clearTimeout(advanceTimer); advanceTimer = null; }
       if (statueTimer) { window.clearInterval(statueTimer); statueTimer = null; }
+      if (armTimer) { window.clearTimeout(armTimer); armTimer = null; }
     }
 
     function movesOfSection(i) { return sections[i].moves || []; }
@@ -359,6 +363,7 @@
     }
 
     function say(html, emoji) {
+      endWatch();                                 /* a card change closes the untimed watch */
       clearTimers();                              /* a new card ends any running beat */
       /* the flip cards are the whole screen — no cliff above, no small panel */
       root.classList.toggle('drill-flip-full', state.scene === 'flip');
@@ -380,12 +385,45 @@
       window.setTimeout(fitFlipCard, 240);
     }
 
+    function frameSteps(node) {
+      return Array.prototype.slice.call(node.querySelectorAll('[data-drill-frame]'));
+    }
+    function frameHolds(steps) {
+      return steps.map(function (step) {
+        return Math.max(180, Number(step.getAttribute('data-hold-ms')) || 900);
+      });
+    }
+    function frameAt(holds, at) {
+      var active = 0;
+      var cursor = 0;
+      holds.forEach(function (hold, index) {
+        if (at >= cursor) active = index;
+        cursor += hold;
+      });
+      return active;
+    }
+    function paintFrame(node, steps, index) {
+      var last = node._frameOn;
+      var incoming = steps[index];
+      var img = incoming && incoming.querySelector('img');
+      var ready = !img || img.complete;
+      /* hold the picture already on screen until the next one has decoded */
+      var show = ready || last === undefined ? index : last;
+      if (last === show) return show;
+      steps.forEach(function (step, i) {
+        step.classList.toggle('is-active', i === show);
+        /* the pose that is leaving stays fully opaque under the one arriving */
+        step.classList.toggle('is-under', last !== undefined && i === last && i !== show);
+      });
+      node._frameOn = show;
+      return show;
+    }
+
     function startStatueAnimations() {
       if (!card) return;
       var nodes = Array.prototype.slice.call(card.querySelectorAll('[data-drill-animation]'));
       if (!nodes.length) return;
       var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var startedAt = Date.now();
       /* decode every pose before the first change, so a frame is never swapped
          in while its picture is still blank */
       nodes.forEach(function (node) {
@@ -393,46 +431,107 @@
           if (img.decode) img.decode().catch(function () {});
         });
       });
+      /* a question holds the opening pose, then plays the movement once.
+         Teaching cards and reviews keep looping straight away. */
+      var promptNode = null;
+      if (state.armPrompt) {
+        nodes.forEach(function (node) {
+          if (node.classList.contains('is-prompt')) promptNode = node;
+        });
+      }
+      var looping = nodes.filter(function (node) { return node !== promptNode; });
+      if (looping.length) runStatueLoop(looping, reduce);
+      if (promptNode) armPromptPlayback(promptNode, reduce);
+      else state.armPrompt = false;
+    }
+
+    function runStatueLoop(nodes, reduce) {
+      var startedAt = Date.now();
       function apply() {
         nodes.forEach(function (node) {
-          var steps = Array.prototype.slice.call(node.querySelectorAll('[data-drill-frame]'));
+          var steps = frameSteps(node);
           if (!steps.length) return;
           if (reduce) {
             steps.forEach(function (step, index) {
               step.classList.toggle('is-active', index === steps.length - 1);
               step.classList.remove('is-under');
             });
+            node._frameOn = steps.length - 1;
             return;
           }
-          var holds = steps.map(function (step) {
-            return Math.max(180, Number(step.getAttribute('data-hold-ms')) || 900);
-          });
+          var holds = frameHolds(steps);
           var total = holds.reduce(function (sum, hold) { return sum + hold; }, 0);
           var at = (Date.now() - startedAt) % total;
-          var active = 0;
-          var cursor = 0;
-          holds.forEach(function (hold, index) {
-            if (at >= cursor) active = index;
-            cursor += hold;
-          });
-          var last = node._frameOn;
-          var incoming = steps[active];
-          var incomingImg = incoming && incoming.querySelector('img');
-          var ready = !incomingImg || incomingImg.complete;
-          /* hold the picture already on screen until the next one has decoded,
-             so a slow frame cannot open a blank gap */
-          var show = ready || last === undefined ? active : last;
-          if (last === show) return;
-          steps.forEach(function (step, index) {
-            step.classList.toggle('is-active', index === show);
-            /* the pose that is leaving stays fully opaque under the one arriving */
-            step.classList.toggle('is-under', last !== undefined && index === last && index !== show);
-          });
-          node._frameOn = show;
+          paintFrame(node, steps, frameAt(holds, at));
         });
       }
       apply();
       if (!reduce) statueTimer = window.setInterval(apply, 40);
+    }
+
+    function armPromptPlayback(node, reduce) {
+      /* one quiet second on the opening pose, then the movement itself */
+      armTimer = window.setTimeout(function () {
+        armTimer = null;
+        if (!state.armPrompt || state.scene !== 'drill') return;
+        if (reduce) {
+          var steps = frameSteps(node);
+          if (steps.length) paintFrame(node, steps, steps.length - 1);
+          openAnswers();
+          return;
+        }
+        playPromptOnce(node, openAnswers);
+      }, 1000);
+    }
+
+    function playPromptOnce(node, onDone) {
+      var steps = frameSteps(node);
+      if (!steps.length) { onDone(); return; }
+      var holds = frameHolds(steps);
+      var total = holds.reduce(function (sum, hold) { return sum + hold; }, 0);
+      var startedAt = Date.now();
+      var finished = false;
+      function apply() {
+        if (finished) return;
+        var at = Date.now() - startedAt;
+        var index = at >= total ? steps.length - 1 : frameAt(holds, at);
+        var shown = paintFrame(node, steps, index);
+        /* a slow picture may hold the previous pose a moment past the last
+           frame; never block the answers for more than a blink after that */
+        if (at >= total && (shown === steps.length - 1 || at >= total + 800)) {
+          finished = true;
+          if (statueTimer) { window.clearInterval(statueTimer); statueTimer = null; }
+          onDone();
+        }
+      }
+      apply();
+      statueTimer = window.setInterval(apply, 40);
+    }
+
+    /* the watch is not timed: neither the leaderboard clock nor the count
+       runs while the statue is still playing */
+    function endWatch() {
+      if (state.watchFrom && state.startedAt) {
+        state.startedAt += Date.now() - state.watchFrom;
+      }
+      state.watchFrom = 0;
+    }
+
+    function openAnswers() {
+      if (!state.armPrompt || state.scene !== 'drill') return;
+      state.armPrompt = false;
+      endWatch();
+      var side = card && card.querySelector('[data-drill-answers]');
+      if (side) {
+        side.classList.remove('is-waiting');
+        side.removeAttribute('aria-busy');
+        Array.prototype.forEach.call(side.querySelectorAll('button'), function (btn) {
+          btn.disabled = false;
+        });
+      }
+      var fillBar = card && card.querySelector('[data-drill-beat-fill]');
+      if (fillBar) fillBar.style.width = '100%';
+      startBeats();
     }
     function kicker(text, kind) {
       return '<span class="cave-kicker' + (kind ? ' cave-kicker-' + kind : '') + '">' + esc(text) + '</span>';
@@ -892,11 +991,11 @@
       return text.length > 32 ? ' is-very-long' : text.length > 20 ? ' is-long' : '';
     }
 
-    function commandBtn(m) {
+    function commandBtn(m, locked) {
       var command = m.command || pick(m.title_zh, m.title_en);
       return '<button class="drill-command-btn' + commandLengthClass(command) +
              '" type="button" data-drill-form="' + esc(m.id) + '"' +
-             ' data-drill-answer-kind="command">' +
+             ' data-drill-answer-kind="command"' + (locked ? ' disabled' : '') + '>' +
         '<span class="drill-command-answer">' + esc(command) + '</span>' +
       '</button>';
     }
@@ -943,6 +1042,7 @@
 
     function movePromptHtml(m) {
       var beats = beatCountFor(m);
+      var waiting = animationFrames(m).length > 0;
       return kicker(fill(pick(L.move_prompt_kicker_zh, L.move_prompt_kicker_en),
                          { stage: state.stage + 1, stages: movementStages.length })) +
         '<p class="drill-command-say">' +
@@ -950,9 +1050,14 @@
                    L.move_prompt_watch_en || 'Watch the statue’s movement')) + '</p>' +
         '<div class="drill-move-prompt-layout">' +
           movementPromptVisualHtml(m) +
-          '<div class="drill-move-prompt-side">' +
+          '<div class="drill-move-prompt-side' + (waiting ? ' is-waiting' : '') + '" data-drill-answers' +
+            (waiting ? ' aria-busy="true"' : '') + '>' +
             '<h3 class="cave-subtitle drill-move-question">' +
               esc(pick(L.move_prompt_q_zh, L.move_prompt_q_en)) + '</h3>' +
+            '<p class="drill-watch-note">' +
+              esc(pick(L.move_prompt_wait_zh || '看完動作才可作答，時間那時才開始',
+                       L.move_prompt_wait_en || 'Answers and the count start when the movement finishes')) +
+            '</p>' +
             '<div class="drill-beat" data-drill-beat aria-hidden="true">' +
               '<div class="drill-beat-fill" data-drill-beat-fill></div>' +
             '</div>' +
@@ -965,7 +1070,7 @@
             '<div class="drill-form-row is-commands is-count-' + state.forms.length + '" data-drill-forms' +
               ' data-answer-kind="command" data-answer-count="' + state.forms.length + '"' +
               ' style="--answer-count:' + state.forms.length + '">' +
-              state.forms.map(commandBtn).join('') +
+              state.forms.map(function (choice) { return commandBtn(choice, waiting); }).join('') +
             '</div>' +
           '</div>' +
         '</div>';
@@ -1009,11 +1114,15 @@
       /* section 1: the leader statue shows the sign in the picture frame.
          Section 2: the large movement prompt lives inside the full-screen card,
          with the commands below it (or beside it on a wide screen). */
+      var waiting = state.section === 2 && animationFrames(m).length > 0;
+      state.armPrompt = waiting;
       say(promptHtml(m));
       mark('drill');
       bringStageIntoView();
       paintProgress();
-      startBeats();
+      /* the count, and the finish clock, wait until the movement has played */
+      if (waiting) state.watchFrom = Date.now();
+      else startBeats();
     }
 
     function beginStage(section, stageIndex) {
@@ -1036,7 +1145,8 @@
     }
 
     function answerPick(pickedId) {
-      if (state.busy || state.scene !== 'drill' || !state.current) return;
+      /* the commands are not a choice until the statue has finished */
+      if (state.busy || state.armPrompt || state.scene !== 'drill' || !state.current) return;
       var m = state.current;
       if (pickedId === m.id) {
         state.busy = true;

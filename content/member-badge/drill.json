@@ -1653,6 +1653,8 @@
     "move_prompt_kicker_en": "Section 2 · drill movements · stage {stage} / {stages}",
     "move_prompt_watch_zh": "看石像動作",
     "move_prompt_watch_en": "Watch the statue’s movement",
+    "move_prompt_wait_zh": "看完動作才可作答，時間那時才開始",
+    "move_prompt_wait_en": "Answers and the count start when the movement finishes",
     "move_prompt_visual_zh": "石像示範的步操動作",
     "move_prompt_visual_en": "The drill movement shown by the statue",
     "move_prompt_beat_zh": "在打數之內選出口令",

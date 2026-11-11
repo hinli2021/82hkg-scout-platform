@@ -3005,6 +3005,15 @@ body.is-game main { padding-top: 6px; }
   display: flex; flex-direction: column; justify-content: flex-end;
 }
 .drill-move-prompt-side .drill-move-question { margin: 0; text-align: center; }
+/* while the statue plays, the commands and the count stay off the card */
+.drill-watch-note {
+  display: none; margin: .4rem 0 0; text-align: center;
+  color: #ffe4a8; font-size: .86rem; font-weight: 800; line-height: 1.4;
+}
+.drill-move-prompt-side.is-waiting .drill-watch-note { display: block; }
+.drill-move-prompt-side.is-waiting .drill-beat,
+.drill-move-prompt-side.is-waiting .drill-beat-note,
+.drill-move-prompt-side.is-waiting [data-drill-forms] { display: none; }
 .drill-move-prompt-side .drill-beat { margin-top: .4rem; }
 .drill-move-prompt-side .drill-beat-note { margin-bottom: .3rem; }
 .drill-form-row.is-commands {
