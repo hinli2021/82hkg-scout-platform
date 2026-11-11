@@ -76,6 +76,7 @@
             }
           ],
           "manual": "手冊 p.30",
+          "manual_en": "p.30",
           "points_zh": [
             "起步為稍息：雙腳分開 305 毫米（12 吋），雙手在身後中央",
             "聽到「Alert!」：提起左腳至大腿與地面平行，左小腿放鬆；雙手同時沿身體回到兩側握拳",
@@ -163,6 +164,7 @@
             }
           ],
           "manual": "手冊 p.31",
+          "manual_en": "p.31",
           "points_zh": [
             "由立正：提起左腳直至大腿與地面平行，然後向外踏下",
             "雙腳分開 305 毫米（12 吋），約與肩膊同寬",
@@ -202,6 +204,7 @@
           "command": "Stand—easy!",
           "img": "img/quest/drill/manual/p032-stand-easy.jpg",
           "manual": "手冊 p.32",
+          "manual_en": "p.32",
           "points_zh": [
             "由稍息：雙手手指自然放鬆",
             "身體其他部分與稍息完全相同",
@@ -293,6 +296,7 @@
             }
           ],
           "manual": "手冊 p.34–35",
+          "manual_en": "pp.34–35",
           "points_zh": [
             "第一分部：微微提高右腳尖及左腳跟，以右腳掌及左腳尖為軸心，用頭、肩膊及身體的力量向右轉 90 度",
             "第二分部：左腳提起並靠攏右腳，回復立正",
@@ -332,6 +336,7 @@
           "img": "img/quest/drill/manual/p036-left-turn.jpg",
           "img2": "img/quest/drill/manual/p037-left-turn-2.jpg",
           "manual": "手冊 p.36–37",
+          "manual_en": "pp.36–37",
           "points_zh": [
             "與向右轉相同，方向相反：以左腳掌及右腳尖為軸心向左轉 90 度",
             "第二分部：右腳提起並靠攏左腳，回復立正"
@@ -413,6 +418,7 @@
           "img": "img/quest/drill/manual/p038-about-turn.jpg",
           "img2": "img/quest/drill/manual/p039-about-turn-2.jpg",
           "manual": "手冊 p.38–39",
+          "manual_en": "pp.38–39",
           "points_zh": [
             "與向右轉相同，但轉 180 度",
             "以右腳掌及左腳尖為軸心，向右轉半圈",
@@ -551,6 +557,7 @@
             }
           ],
           "manual": "手冊 p.41–42",
+          "manual_en": "pp.41–42",
           "points_zh": [
             "第一分部（Up!）：右手向橫提升至與肩膊平，握成童軍敬禮手號，隨即儘快用力將右前臂舉起，至食指於右眼對上的位置",
             "右手前臂與指尖成一直線；右食指放於右眼眼球中心上方 25 毫米（1 吋）位置",
@@ -787,6 +794,7 @@
           "img": "img/quest/drill/manual/p043-side-pace.jpg",
           "img2": "img/quest/drill/manual/p044-side-pace-2.jpg",
           "manual": "手冊 p.43–44",
+          "manual_en": "pp.43–44",
           "points_zh": [
             "第一分部：左腳向左邊橫移 300 毫米（12 吋），右腳保持原本位置",
             "第二分部：提起右膝至大腿與地面平行，然後右腳踏在左腳旁，回復立正",
@@ -855,6 +863,7 @@
           "img": "img/quest/drill/manual/p043-side-pace.jpg",
           "img2": "img/quest/drill/manual/p044-side-pace-2.jpg",
           "manual": "手冊 p.43–44",
+          "manual_en": "pp.43–44",
           "points_zh": [
             "第一分部：右腳向右邊橫移 300 毫米（12 吋），左腳保持原本位置",
             "第二分部：提起左膝至大腿與地面平行，然後左腳踏在右腳旁，回復立正",
@@ -903,6 +912,7 @@
           "img2": "img/quest/drill/manual/p049-quick-march-2.jpg",
           "img3": "img/quest/drill/manual/p050-quick-march-3.jpg",
           "manual": "手冊 p.48–50",
+          "manual_en": "pp.48–50",
           "points_zh": [
             "左腳向前一步 750 毫米（30 吋），右手向前提升，左手拉後",
             "雙臂自然擺動，前臂與地面成一直線，握拳",
@@ -980,6 +990,7 @@
           "img": "img/quest/drill/manual/p051-halt.jpg",
           "img2": "img/quest/drill/manual/p052-halt-2.jpg",
           "manual": "手冊 p.51–52",
+          "manual_en": "pp.51–52",
           "points_zh": [
             "口令在左腳落地時發出",
             "右腳再向前一步 750 毫米（30 吋）",
@@ -1058,6 +1069,7 @@
           "img2": "img/quest/drill/manual/p084-mark-time-2.jpg",
           "img3": "img/quest/drill/manual/p085-mark-time-3.jpg",
           "manual": "手冊 p.83–85",
+          "manual_en": "pp.83–85",
           "points_zh": [
             "左腳提高至大腿與地面平行，然後踏回右腳旁；右腳如是，左右交替",
             "支撐的腳掌平放地面，膝頭直",
@@ -1145,6 +1157,7 @@
           "command": "Scout Troop, Fall—in!",
           "img": "img/quest/drill/manual/p188-fall-in.jpg",
           "manual": "手冊 p.188",
+          "manual_en": "p.188",
           "points_zh": [
             "司令先立正，發出口令「Scout Troop, Fall-in!」，跟着用雙手做成手號",
             "司令與最前的童軍相距 2250 毫米（90 吋）",
@@ -1183,6 +1196,7 @@
           "brief_en": "Both fists out to the sides: one straight line.",
           "img": "img/quest/drill/manual/p189-line.jpg",
           "manual": "手冊 p.189",
+          "manual_en": "p.189",
           "points_zh": [
             "手號：兩手握拳，向身旁兩側平舉，提升至與肩膊成一直線",
             "全隊按分隊形式，在司令前 2250 毫米（90 吋）排成一直線",
@@ -1224,6 +1238,7 @@
           "brief_en": "One fist forward, one out: tallest to shortest.",
           "img": "img/quest/drill/manual/p190-line-tall.jpg",
           "manual": "手冊 p.190",
+          "manual_en": "p.190",
           "points_zh": [
             "手號：左（右）手握拳在面前舉起，前臂與手臂成 90 度，手背向前；右（左）手握拳向身旁一側提升至與肩膊成一直線",
             "全隊按高至矮，在司令前 2250 毫米（90 吋）排成一直線",
@@ -1265,6 +1280,7 @@
           "brief_en": "Both fists forward: each patrol in a file.",
           "img": "img/quest/drill/manual/p191-columns.jpg",
           "manual": "手冊 p.191",
+          "manual_en": "p.191",
           "points_zh": [
             "手號：兩手握拳向前提升至與肩齊，手背向天",
             "以小隊為單位，小隊長在司令前 2250 毫米（90 吋）排成直行",
@@ -1306,6 +1322,7 @@
           "brief_en": "Fists out, forearms up: ranks with a wide gap.",
           "img": "img/quest/drill/manual/p192-open-order.jpg",
           "manual": "手冊 p.192",
+          "manual_en": "p.192",
           "points_zh": [
             "手號：兩手握拳向左右兩側提升至與肩齊，前臂向上曲 90 度，手背向外",
             "第一隊在司令前 2250 毫米（90 吋）排成橫排，隊中每名相距 750 毫米（30 吋）",
@@ -1347,6 +1364,7 @@
           "brief_en": "Fists forward, forearms up: ranks closed up.",
           "img": "img/quest/drill/manual/p193-close-order.jpg",
           "manual": "手冊 p.193",
+          "manual_en": "p.193",
           "points_zh": [
             "手號：兩手握拳向前提升至與肩齊，前臂向上彎曲 90 度，手背向前",
             "第一隊在司令前 2250 毫米（90 吋）排成橫排；小隊長在右，副小隊長在左",
@@ -1388,6 +1406,7 @@
           "brief_en": "Arms straight, wrists crossed: a U open to the leader.",
           "img": "img/quest/drill/manual/p194-horseshoe.jpg",
           "manual": "手冊 p.194",
+          "manual_en": "p.194",
           "points_zh": [
             "手號：雙手直伸向前（包括手掌），左手腕疊於右手腕上，手背向前",
             "在司令前 2250 毫米（90 吋）排列成 U 形，開口向司令",
@@ -1429,6 +1448,7 @@
           "brief_en": "Hands clasped overhead: an open square.",
           "img": "img/quest/drill/manual/p195-open-square.jpg",
           "manual": "手冊 p.195",
+          "manual_en": "p.195",
           "points_zh": [
             "手號：雙手手掌互相緊握，右手手背向前，高舉在頭頂上",
             "在司令前 2250 毫米（90 吋）排列成開口正方形",
@@ -1480,6 +1500,7 @@
           "brief_en": "Right arm out, dress right, one arm’s length apart.",
           "command": "Right—dress!",
           "manual": "手冊 p.24–26（第六章第四節 睇齊）",
+          "manual_en": "pp.24–26 (Chapter 6, section 4, dressing)",
           "leader_demo": true,
           "points_zh": [
             "口令：Dressing, right—dress!（打數 Up—Two—Three—Move!）；取消口令 As you were（回復先前的姿勢）",

@@ -606,7 +606,7 @@
               '<strong class="drill-flip-name">' + esc(pick(m.title_zh, m.title_en)) + '</strong>' +
               formationSvg(m.id, true) +
               (leaderText(m) ? '<span class="drill-flip-leader"><span class="drill-leader-tri" aria-hidden="true">▼</span> <b>' +
-                esc(pick(L.flip_leader_zh, L.flip_leader_en)) + '</b>：' + esc(leaderText(m)) + '</span>' : '') +
+                esc(pick(L.flip_leader_zh, L.flip_leader_en)) + '</b>' + (isEn() ? ': ' : '：') + esc(leaderText(m)) + '</span>' : '') +
               '<span class="drill-flip-sign"><b>' + esc(pick(L.flip_sign_zh, L.flip_sign_en)) + '</b> ' +
                 esc(signFaceText(m)) + '</span>' +
             '</div>';
@@ -614,7 +614,7 @@
       });
       var knownNote = known.length
         ? '<p class="cave-line small drill-flip-known">' + esc(pick(L.flip_known_zh, L.flip_known_en)) +
-          ' ' + known.map(function (m) { return esc(pick(m.title_zh, m.title_en)); }).join('、') + '</p>'
+          ' ' + known.map(function (m) { return esc(pick(m.title_zh, m.title_en)); }).join(isEn() ? ', ' : '、') + '</p>'
         : '';
       return kicker(fill(pick(L.flip_kicker_zh, L.flip_kicker_en), { stage: state.stage + 1 })) +
         '<p class="cave-line small">' + esc(pick(L.flip_lead_zh, L.flip_lead_en)) + '</p>' +
@@ -637,7 +637,13 @@
     }
 
     function countText(m) {
-      return String((m && m.count) || '').replace(/^打數：\s*/, '').trim();
+      var count = isEn() && m && m.count_en ? m.count_en : ((m && m.count) || '');
+      return String(count).replace(/^打數：\s*/, '').replace(/^Count:\s*/i, '').trim();
+    }
+
+    function manualText(m) {
+      if (!m || !m.manual) return '';
+      return pick(m.manual, m.manual_en);
     }
 
     /* One study card per movement. The four paces used to share a single card,
@@ -942,7 +948,7 @@
       }
       if (m.manual) {
         chips.push('<span class="drill-move-manual">📖 ' +
-          esc(pick(L.manual_label_zh, L.manual_label_en)) + ' — ' + esc(m.manual) + '</span>');
+          esc(pick(L.manual_label_zh, L.manual_label_en)) + ' — ' + esc(manualText(m)) + '</span>');
       } else if (m.leader_demo) {
         chips.push('<span class="drill-move-manual">' +
           esc(pick(L.move_leader_demo_zh, L.move_leader_demo_en)) + '</span>');
@@ -1319,8 +1325,8 @@
       var why = pick((m.check || {}).why_zh, (m.check || {}).why_en);
       var reviewChips = [];
       if (isMoveReview && m.command) reviewChips.push(chip(m.command, 'is-command'));
-      if (isMoveReview && countText(m)) reviewChips.push(chip(pick(L.move_count_label_zh, L.move_count_label_en) + '：' + countText(m)));
-      if (m.manual) reviewChips.push(chip('📖 ' + pick(L.manual_label_zh, L.manual_label_en) + ' — ' + m.manual));
+      if (isMoveReview && countText(m)) reviewChips.push(chip(pick(L.move_count_label_zh, L.move_count_label_en) + (isEn() ? ': ' : '：') + countText(m)));
+      if (m.manual) reviewChips.push(chip('📖 ' + pick(L.manual_label_zh, L.manual_label_en) + ' — ' + manualText(m)));
       if (isMoveReview && m.leader_demo) reviewChips.push(chip(pick(L.move_leader_demo_zh, L.move_leader_demo_en), 'is-demo'));
       if (isMoveReview) {
         var again = '<div class="cave-actions"><button class="btn primary" type="button" data-drill-go="resume">' +
