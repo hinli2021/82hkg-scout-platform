@@ -111,6 +111,14 @@ COLLECTIONS: dict[str, dict] = {
         "label": "Settings",
         "fields": ["key", "value_json", "updated_at"],
     },
+    # One row per scout. A new tab only — existing Sheet columns are untouched.
+    "gacha": {
+        "label": "Gacha",
+        "fields": [
+            "user_id", "packs_json", "owned_json", "grants_json", "last_open_json",
+            "pity", "opened", "updated_at",
+        ],
+    },
 }
 
 COLLECTION_ORDER = list(COLLECTIONS.keys())
@@ -120,19 +128,21 @@ JSON_FIELDS = {
     "guide_json",          # 會員章的完成指南（一整份結構）
     "prerequisite_badge_ids", "config_json", "answers_json", "checklist_json",
     "detail_json", "value_json",
+    "packs_json", "owned_json", "grants_json", "last_open_json",
 }
 #: Fields stored as numbers.
 NUMBER_FIELDS = {
     "order_index", "points_reward", "points", "pass_score", "attempt_no", "score",
     "points_awarded", "points_delta", "points_cost", "stock", "points_balance",
     "tasks_done", "badges_done", "streak_current", "streak_best",
+    "pity", "opened",
 }
 #: Fields stored as booleans.
 BOOL_FIELDS = {"must_change_password", "show_on_leaderboard", "active", "pinned"}
 
 
 def key_field(collection: str) -> str:
-    if collection == "stats":
+    if collection in ("stats", "gacha"):
         return "user_id"
     if collection == "settings":
         return "key"
@@ -154,6 +164,7 @@ DEFAULT_SETTINGS: dict = {
         "evidence_upload": True,
         "streaks": True,
         "announcements": True,
+        "gacha": True,            # 抽卡 — on; a leader can hide it
     },
     "leaderboard_metrics": ["badges", "tasks"],
     "leaderboard_scopes": ["unit", "patrol", "all"],

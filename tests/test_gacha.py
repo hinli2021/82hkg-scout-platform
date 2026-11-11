@@ -1,0 +1,95 @@
+"""Card packs are earned, opened five at a time, and never bought."""
+from __future__ import annotations
+
+import random
+
+from scout import gacha
+
+
+class AlwaysCommon(random.Random):
+    """Every roll lands in the first bucket, which is Common."""
+
+    def randrange(self, start, stop=None, step=1):
+        return 0
+
+    def sample(self, population, k):
+        return list(population)[:k]
+
+
+def test_rates_are_the_public_table():
+    assert sum(weight for _, weight in gacha.RATES) == 1000
+    assert gacha.roll_rarity(AlwaysCommon()) == "C"
+    assert gacha.roll_rarity(AlwaysCommon(), floor="SR") == "SR"
+
+
+def test_ten_dry_packs_force_an_sr(store, new_scout):
+    user = new_scout.user
+    state = gacha.load_state(store, user["id"])
+    state["packs_json"] = [{
+        "id": "p", "kind": "standard", "source": "task", "ref_id": "x",
+        "reason_zh": "測試", "reason_en": "Test", "granted_at": "2026-01-01",
+    }]
+    state["pity"] = gacha.PITY_AFTER
+    gacha.save_state(store, state)
+    opened = gacha.open_next(store, user, rng=AlwaysCommon())
+    assert len(opened["cards"]) == 5
+    assert any(card["rarity"] in gacha.SR_PLUS for card in opened["cards"])
+    assert gacha.load_state(store, user["id"])["pity"] == 0
+
+
+def test_a_gold_pack_also_guarantees_sr(store, new_scout):
+    user = new_scout.user
+    gacha.grant_pack(
+        store, user, key="badge:test", kind="gold", source="badge", ref_id="b",
+        reason_zh="考獲測試章", reason_en="Earned a test badge",
+    )
+    opened = gacha.open_next(store, user, rng=AlwaysCommon())
+    assert opened["pack"]["kind"] == "gold"
+    assert any(card["rarity"] in gacha.SR_PLUS for card in opened["cards"])
+
+
+def test_opening_credit_does_not_earn_a_pack_but_a_real_task_does(store, new_scout):
+    user = new_scout.user
+    task = next(row for row in store.list("tasks") if row.get("status") == "published")
+    before = gacha.sync_earned_packs(store, user)
+    store.insert("progress_records", {
+        "user_id": user["id"], "badge_id": task["badge_id"], "task_id": task["id"],
+        "status": "completed", "decided_by": "opening", "score": 100,
+    })
+    skipped = gacha.sync_earned_packs(store, user)
+    assert len(skipped["packs_json"]) == len(before["packs_json"])
+    store.insert("progress_records", {
+        "user_id": user["id"], "badge_id": task["badge_id"], "task_id": "task-real",
+        "status": "completed", "decided_by": "auto", "score": 80,
+    })
+    earned = gacha.sync_earned_packs(store, user)
+    assert len(earned["packs_json"]) == len(before["packs_json"]) + 1
+    assert earned["packs_json"][-1]["kind"] == "standard"
+    assert gacha.sync_earned_packs(store, user)["grants_json"].count("task:task-real") == 1
+
+
+def test_a_badge_earns_one_gold_pack(store, new_scout):
+    user = new_scout.user
+    badge = store.list("badges")[0]
+    store.insert("badge_awards", {
+        "user_id": user["id"], "badge_id": badge["id"], "awarded_at": "2026-01-01",
+        "awarded_by": "auto", "note": "",
+    })
+    state = gacha.sync_earned_packs(store, user)
+    gold = [pack for pack in state["packs_json"] if pack["kind"] == "gold"]
+    assert len(gold) == 1
+    assert gold[0]["source"] == "badge"
+
+
+def test_cards_page_is_bilingual_and_can_be_switched_off(new_scout, store):
+    page = new_scout.get("/cards").get_data(as_text=True)
+    assert "抽卡" in page and "童軍誓詞" in page
+    new_scout.get("/set-language/en")
+    english = new_scout.get("/cards").get_data(as_text=True)
+    assert "Cards" in english and "Scout Promise" in english
+    for word in ("抽卡", "卡包", "圖鑑", "童軍誓詞", "知識", "實踐"):
+        assert word not in english
+    flags = dict(store.settings()["feature_flags"])
+    store.save_setting("feature_flags", {**flags, "gacha": False})
+    assert new_scout.get("/cards", follow_redirects=False).status_code == 302
+    assert 'href="/cards"' not in new_scout.get("/home").get_data(as_text=True)

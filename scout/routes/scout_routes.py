@@ -62,6 +62,7 @@ def _home_context(user: dict) -> dict:
         "announcements": _active_announcements(st, "scout"),
         "next_task": progress["overall"]["next_task"],
         "daily": _daily_teaser(st, user["id"]),
+        "gacha": _gacha_teaser(st, user),
     }
 
 
@@ -76,6 +77,14 @@ def _daily_teaser(st, user_id: str) -> dict:
                  and row.get("ref_id") == key for row in st.list("points_ledger"))
     return {"date": today, "kind": daily.puzzle()["kind"], "meta": meta,
             "played": played, "points": daily.POINTS_FAST}
+
+
+def _gacha_teaser(st, user: dict):
+    """Home strip for unopened packs. Hidden when a leader switches 抽卡 off."""
+    from ..gacha import enabled, summary
+    if not enabled(st.settings_cached()):
+        return None
+    return summary(st, user)
 
 
 # ── 主頁 ────────────────────────────────────────────────────────────────────

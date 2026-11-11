@@ -1,0 +1,53 @@
+{# Five cards from the pack just opened. Face-up without JavaScript; the
+   script turns them down and flips them one at a time. #}
+<div class="gacha-reveal" data-reveal>
+  <p class="gacha-kicker">{{ L(reveal.pack.reason_zh, reveal.pack.reason_en) }}</p>
+  <div class="gacha-counter" aria-live="polite">
+    <button class="gacha-arrow" type="button" data-card-prev aria-label="{{ L('上一張', 'Previous card') }}">‹</button>
+    <span data-card-n>1/{{ reveal.cards|length }}</span>
+    <button class="gacha-arrow" type="button" data-card-next aria-label="{{ L('下一張', 'Next card') }}">›</button>
+  </div>
+  <div class="reveal-stack">
+    {% for card in reveal.cards %}
+      <article class="gcard-scene is-up is-current" data-card data-rarity="{{ card.rarity }}" data-index="{{ loop.index0 }}">
+        <div class="gcard-inner">
+          <div class="gcard-face gcard-back" aria-hidden="true">
+            <span class="gcard-back-mark">82</span>
+            <span>{{ L('童軍卡', 'Scout card') }}</span>
+          </div>
+          <div class="gcard-face gcard-front rarity-{{ card.rarity|lower }}">
+            <header class="gcard-head">
+              <span class="gcard-tier">{{ card.rarity }}</span>
+              <span class="gcard-name">{{ L(card.zh, card.en) }}</span>
+              {% if card.is_new %}<span class="gcard-flag">{{ L('新卡', 'New') }}</span>
+              {% elif card.upgraded %}<span class="gcard-flag">{{ L('升級', 'Up') }}</span>{% endif %}
+            </header>
+            <div class="gcard-art">
+              {% if card.art %}
+                <img src="{{ url_for('static', filename=card.art) }}" alt="">
+              {% else %}
+                <span class="gcard-emoji" aria-hidden="true">{{ card.emoji }}</span>
+              {% endif %}
+              <strong>{{ L(card.zh, card.en) }}</strong>
+            </div>
+            <p class="gcard-line">{{ L(card.line_zh, card.line_en) }}</p>
+            <blockquote>{{ L(card.quote_zh, card.quote_en) }}</blockquote>
+            <footer class="gcard-stats">
+              <div><small>{{ L('知識', 'Knowledge') }}</small><b>{{ card.know }}</b></div>
+              <div><small>{{ L('實踐', 'Practice') }}</small><b>{{ card.pract }}</b></div>
+            </footer>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+  <p class="gacha-swipe">{{ L('左右箭嘴可回看', 'Use the arrows to look back') }}</p>
+  <div class="gacha-actions">
+    {% if summary.packs %}
+      <form method="post" action="{{ url_for('gacha_routes.open_pack') }}" data-pack-form>
+        <button class="btn brass" type="submit">{{ L('打開下一個', 'Open the next pack') }} · {{ summary.packs }}</button>
+      </form>
+    {% endif %}
+    <a class="btn ghost" href="{{ url_for('gacha_routes.page') }}">{{ L('收入圖鑑', 'Add to the album') }}</a>
+  </div>
+</div>

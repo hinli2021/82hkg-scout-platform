@@ -50,7 +50,8 @@
             ('scout_routes.home', '🏠', '主頁', 'Home'),
             ('scout_routes.badges', '🎖', '獎章', 'Badges'),
             ('daily_routes.daily_page', '🎲', '每日挑戰', 'Daily')
-          ] + ([('scout_routes.rewards', '🎁', '獎品', 'Rewards')] if flags.get('redeem') else [])
+          ] + ([('gacha_routes.page', '🃏', '抽卡', 'Cards')] if flags.get('gacha', True) else [])
+            + ([('scout_routes.rewards', '🎁', '獎品', 'Rewards')] if flags.get('redeem') else [])
             + ([('scout_routes.leaderboard_page', '🏆', '龍虎榜', 'Board')] if flags.get('leaderboard') else [])
             + [('scout_routes.history', '📜', '我的紀錄', 'History')] %}
         {% else %}

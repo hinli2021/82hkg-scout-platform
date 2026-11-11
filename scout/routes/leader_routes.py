@@ -1959,4 +1959,7 @@ def api_award_badge(user_id: str, badge_id: str):
     stats = st.stats_for(user_id)
     st.update("stats", user_id, {"badges_done": int(float(stats.get("badges_done") or 0)) + 1})
     audit(g.user, "manual_badge_award", "badges", badge_id, {"user_id": user_id})
+    from ..gacha import enabled, sync_earned_packs
+    if enabled(st.settings_cached()):
+        sync_earned_packs(st, user)
     return ok(awarded=True, points=points)

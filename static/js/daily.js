@@ -78,14 +78,14 @@
       body: JSON.stringify({ ticket: cfg.ticket, elapsed_ms: used })
     }).then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
       .then(function (data) {
-        if (data && data.ok) show(true, data.points || 0, used, data.already ? 'already' : 'paid');
+        if (data && data.ok) show(true, data.points || 0, used, data.already ? 'already' : 'paid', '', data.pack);
         else show(true, 0, used, 'refused',
                   (data && (EN ? (data.message_en || data.message_zh) : data.message_zh)) || '');
       })
       .catch(function () { show(true, 0, used, 'refused', ''); });
   }
 
-  function show(won, points, used, note, message) {
+  function show(won, points, used, note, message, pack) {
     if (!panel) return;
     panel.hidden = false;
     host.classList.add('is-done');
@@ -95,6 +95,7 @@
     } else if (note === 'paid') {
       line = T('完成！＋' + points + ' 分，用時 ' + mmss(used) + '。',
               'Done! +' + points + ' points in ' + mmss(used) + '.');
+      if (pack) line += T(' 並得到一個卡包。', ' A card pack is waiting.');
     } else if (note === 'already') {
       line = T('完成！今天的分數已入帳，這次是練習。',
               'Done! Today\'s points are already in — this one was a practice run.');

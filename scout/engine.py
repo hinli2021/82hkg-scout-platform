@@ -231,6 +231,11 @@ def award_task_completion(store, *, user: dict, task: dict, badge: dict | None,
     badge_result = check_badge_completion(store, user=user, badge=badge)
     if badge_result and badge_result.get("awarded"):
         events.append({"type": "badge", "badge": badge_result["badge"], "points": badge_result["points"]})
+    # A finished task or badge earns a card pack. Opening credit (第 1 項) is
+    # filtered out inside the sync, so it does not hand out a pack.
+    if awarded_by != "opening":
+        from .gacha import sync_earned_packs
+        sync_earned_packs(store, user)
     return {"events": events, "badge": badge_result}
 
 

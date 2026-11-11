@@ -70,6 +70,23 @@
 </a>
 {% endif %}
 
+{% if gacha %}
+<a class="card daily-teaser" href="{{ url_for('gacha_routes.page') }}">
+  <span class="daily-teaser-emoji">🃏</span>
+  <span class="daily-teaser-text">
+    <strong>{{ L('抽卡', 'Cards') }}</strong>
+    <small class="muted">
+      {% if gacha.packs %}
+        {{ L('你有 ' ~ gacha.packs ~ ' 個卡包未打開', gacha.packs ~ ' unopened pack' ~ ('s' if gacha.packs != 1 else '')) }}
+      {% else %}
+        {{ L('完成遊戲、任務或獎章，就得到一個卡包。', 'Finish a game, a task or a badge to earn a pack.') }}
+      {% endif %}
+    </small>
+  </span>
+  <span class="chip brass">{{ L('打開', 'Open') if gacha.packs else L('圖鑑', 'Album') }}</span>
+</a>
+{% endif %}
+
 {# ── 我的獎章 ── the first section on the page ──────────────────────────── #}
 <div class="section-title">
   <h2>🎖 {{ L('我的獎章', 'My badges') }}</h2>
