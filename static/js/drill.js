@@ -284,10 +284,14 @@
     var statueTimer = null;
     var armTimer = null;          /* the half-second pause before a question animation */
     var flipFinishTimer = null;   /* repaint after the last study card has turned */
-    function clearTimers() {
+    function clearTimers(opts) {
       if (beatTimer) { window.clearInterval(beatTimer); beatTimer = null; }
       if (advanceTimer) { window.clearTimeout(advanceTimer); advanceTimer = null; }
-      if (statueTimer) { window.clearInterval(statueTimer); statueTimer = null; }
+      /* answering keeps the statue looping; a new card still stops it */
+      if (!(opts && opts.keepStatue) && statueTimer) {
+        window.clearInterval(statueTimer);
+        statueTimer = null;
+      }
       if (armTimer) { window.clearTimeout(armTimer); armTimer = null; }
       if (flipFinishTimer) { window.clearTimeout(flipFinishTimer); flipFinishTimer = null; }
     }
@@ -444,8 +448,8 @@
           if (img.decode) img.decode().catch(function () {});
         });
       });
-      /* a question holds the opening pose, then plays the movement once.
-         Teaching cards and reviews keep looping straight away. */
+      /* a question holds the opening pose, plays once, then keeps looping
+         while the scout answers. Teaching cards loop straight away. */
       var promptNode = null;
       if (state.armPrompt) {
         nodes.forEach(function (node) {
@@ -515,6 +519,9 @@
           finished = true;
           if (statueTimer) { window.clearInterval(statueTimer); statueTimer = null; }
           onDone();
+          /* buttons and the count are already up — keep the statue moving,
+             without another hold and without restarting the beat timer */
+          if (state.scene === 'drill' && card && card.contains(node)) runStatueLoop([node], false);
         }
       }
       apply();
@@ -1244,8 +1251,7 @@
 
     function replayAnswerAnimation() {
       var node = card && card.querySelector('.drill-move-prompt-visual .drill-statue-anim');
-      if (!node) return;
-      if (statueTimer) { window.clearInterval(statueTimer); statueTimer = null; }
+      if (!node || statueTimer) return;
       runStatueLoop([node], false);
     }
 
@@ -1281,7 +1287,7 @@
       var m = state.current;
       if (pickedId === m.id) {
         state.busy = true;
-        clearTimers();
+        clearTimers({ keepStatue: true });
         answers[m.id] = (m.check || {}).answer;
         save();
         chime();
@@ -1301,7 +1307,7 @@
         advanceTimer = window.setTimeout(nextInStage, 1000);
         return;
       }
-      clearTimers();
+      clearTimers({ keepStatue: true });
       thud();
       reviewCard(m, state.section === 2 ? pick(L.move_wrong_title_zh, L.move_wrong_title_en)
                                         : pick(L.wrong_title_zh, L.wrong_title_en));
