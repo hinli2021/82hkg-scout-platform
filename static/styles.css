@@ -2212,6 +2212,14 @@ body.is-game main { padding-top: 6px; }
   /* a phone (or a very short window): the box stops being a box — the picture
      keeps its 16:9 frame at full width and the page itself scrolls */
   .cave-stage { height: auto; min-height: 0; }
+  /* the study carousel still fills the window: a phone lying on its side
+     otherwise crushes the statue into a thumbnail */
+  .drill.drill-command-full .cave-stage,
+  .drill.drill-flip-full .cave-stage {
+    height: calc(100dvh - 6.5rem); min-height: 0;
+  }
+  /* the study card grows with its picture; the fixed window height is what
+     crushed a landscape phone's statue down to a thumbnail */
   .cave-picture { flex: 0 0 auto; aspect-ratio: initial; }
   .cave-art { width: 100%; height: auto; object-fit: contain; }
   .cave-card-wrap { max-height: none; overflow: visible; padding: .7rem 0 0; }
@@ -2572,7 +2580,6 @@ body.is-game main { padding-top: 6px; }
   .drill:not(.drill-flip-full):not(.drill-command-full) .cave-card-wrap {
     max-height: none; overflow: visible; padding: .7rem .8rem 1rem;
   }
-  .drill.drill-flip-full .cave-stage,
   .drill.drill-command-full .cave-stage {
     height: calc(100vh - 6.5rem);
     height: calc(100dvh - 6.5rem);
@@ -3042,11 +3049,26 @@ body.is-game main { padding-top: 6px; }
 }
 .drill-command-btn.is-long .drill-command-answer { font-size: clamp(.82rem, 1.8vw, 1.12rem); }
 .drill-command-btn.is-very-long .drill-command-answer { font-size: clamp(.74rem, 1.55vw, 1rem); }
-@media (min-width: 760px) {
-  .drill-move-prompt-layout { flex-direction: row; gap: .8rem; }
-  .drill-move-prompt-visual { flex: 1 1 56%; min-width: 0; }
-  .drill-move-prompt-side { flex: 1 1 44%; justify-content: center; }
-  .drill-move-prompt-visual .drill-move-art.is-detailed { width: min(20rem, 90%); }
+/* Side by side only when the window is wide enough that a portrait statue
+   beside the answers is still large. An iPad standing up is just over 760px
+   wide: the old split left the statue at about half the screen. */
+@media (min-width: 760px) and (min-aspect-ratio: 4/5) {
+  .drill-move-prompt-layout { flex-direction: row; gap: .7rem; align-items: stretch; }
+  .drill-move-prompt-visual { flex: 1 1 68%; min-width: 0; }
+  .drill-move-prompt-side { flex: 0 1 32%; max-width: 26rem; justify-content: center; }
+  .drill-move-prompt-visual .drill-move-art.is-detailed { width: min(22rem, 92%); }
+}
+/* iPad portrait: the statue sits above the answers and takes the width, so
+   the figure is large instead of a narrow column beside an empty panel. */
+@media (min-width: 700px) and (max-aspect-ratio: 4/5) {
+  .drill-move-prompt-layout { align-items: center; gap: .4rem; }
+  .drill-move-prompt-visual {
+    flex: 0 0 auto; align-self: center;
+    width: auto; height: min(56dvh, calc(100% - .5rem));
+    max-width: 100%; aspect-ratio: 672 / 900;
+  }
+  .drill-move-prompt-side { flex: 0 0 auto; width: min(40rem, 100%); }
+  .drill-move-prompt-visual .drill-move-art.is-detailed { width: min(24rem, 88%); }
 }
 /* Short landscape screens below the desktop breakpoint still put the statue
    beside the commands; stacking them would crush the question animation. */
@@ -3079,6 +3101,46 @@ body.is-game main { padding-top: 6px; }
   .drill-command-answer, .drill-command-btn.is-long .drill-command-answer { font-size: .68rem; }
   .drill-command-btn.is-very-long .drill-command-answer { font-size: .6rem; }
 }
+/* the answer keeps the question's statue on top. The notes sit under it,
+   and do not carry a second copy of the animation. */
+.drill-move-prompt-layout.drill-answer-layout {
+  flex-direction: column;
+  align-items: stretch;
+  gap: .4rem;
+}
+.drill-move-prompt-layout.drill-answer-layout .drill-move-prompt-visual {
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+.drill-answer-copy {
+  flex: 0 1 48%;
+  max-height: 48%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+.drill-answer-text { flex: 1 1 auto; min-height: 0; overflow: auto; scrollbar-width: thin; }
+.drill-answer-copy .cave-subtitle { text-align: center; margin: 0; }
+.drill-answer-name {
+  margin: .12rem 0 .08rem; text-align: center;
+  color: #ffe4a8; font-size: 1.15rem; font-weight: 900;
+}
+.drill-answer-count {
+  margin: 0 0 .15rem; text-align: center; color: #cfe8cf; font-size: .84rem;
+}
+.drill-answer-copy .drill-command { text-align: center; }
+.drill-answer-brief {
+  margin: .15rem auto 0; max-width: 36rem; text-align: center;
+  color: #e9f1e8; font-size: .98rem; line-height: 1.4; font-weight: 700;
+}
+.drill-answer-copy .cave-actions { flex: 0 0 auto; justify-content: center; margin: .15rem 0 0; }
 .drill.drill-flip-full .drill-flip-grid {
   flex: 1 1 auto; min-height: 0; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   grid-auto-rows: minmax(22rem, 1fr); margin: .5rem 0 .35rem;
@@ -3097,7 +3159,8 @@ body.is-game main { padding-top: 6px; }
 /* the card back on the carousel: the formation diagram leads, the notes follow */
 .drill-flip-stage .drill-flip-back {
   justify-content: flex-start; gap: .38rem; padding: .6rem .55rem;
-  text-align: center; overflow: hidden;
+  text-align: center; overflow-x: hidden; overflow-y: auto;
+  overscroll-behavior: contain; scrollbar-width: thin;
 }
 .drill-flip-stage .drill-flip-back .drill-form-art,
 .drill-flip-stage .drill-flip-back .drill-form-art.is-detailed {
@@ -3137,6 +3200,8 @@ body.is-game main { padding-top: 6px; }
 .drill-flip-board .drill-flip {
   flex: 0 0 auto; aspect-ratio: auto; width: 100%; height: 100%; max-width: none; justify-self: auto;
 }
+.drill-flip-controls { flex: 0 0 auto; display: contents; }
+.drill-flip-start { display: none; }
 .drill-flip-nav { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: .7rem; }
 .drill-flip-step {
   width: 2.9rem; height: 2.9rem; padding: 0; border-radius: 999px; cursor: pointer;
@@ -3180,7 +3245,65 @@ body.is-game main { padding-top: 6px; }
 /* on a wide screen the card may use most of the board's width, so the command
    and the key points sit on one comfortable column */
 @media (min-width: 760px) {
-  .drill-flip-stage .drill-flip-board .drill-flip { max-width: min(34rem, 100%); }
+  /* the study card is sized in JS from the board. A rem cap here used to
+     leave an iPad statue a small card in a large dark stage. */
+  .drill-flip-stage .drill-flip-board .drill-flip { max-width: 100%; }
+}
+/* iPad and other tablets: spend the stage on the statue, not on a second
+   copy of the instructions. Landscape puts the controls beside the card so
+   the figure can use the screen height. */
+@media (min-width: 700px) {
+  .drill.drill-flip-full .cave-card > .cave-line.small { display: none; }
+  .drill.drill-flip-full .drill-flip-stage { gap: .3rem; margin: .15rem 0 0; }
+  .drill-flip-dots { display: none; }
+  .drill-flip-walk { margin: 0; }
+  .drill-flip-walk .btn { width: auto; min-width: 14rem; max-width: none; padding: .55rem 1.1rem; }
+  .drill-flip-controls {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center; gap: .6rem; width: 100%;
+  }
+  .drill-flip-start { justify-self: start; }
+  .drill-flip-nav { justify-self: center; }
+  .drill-flip-walk { justify-self: end; }
+}
+@media (min-width: 900px) and (max-height: 940px) {
+  .drill.drill-flip-full .cave-card > .cave-kicker { display: none; }
+  .drill.drill-flip-full .cave-card-wrap { padding-top: 2.5rem; padding-bottom: .35rem; }
+  .drill.drill-command-full .cave-card > .cave-kicker,
+  .drill.drill-command-full .cave-card > .drill-command-say { display: none; }
+  .drill.drill-command-full .cave-card-wrap { padding-top: 2.5rem; padding-bottom: .35rem; }
+  .drill-move-front-command { margin: .28rem .35rem .16rem; padding: .32rem .5rem .36rem; }
+  .drill-move-front-command small { display: none; }
+  .drill-move-front-command strong { margin-top: 0; }
+}
+/* iPad landscape: the study card is a tall picture, so the arrows sit beside
+   it and the statue can use the full screen height. */
+@media (min-width: 900px) and (max-height: 940px) and (min-aspect-ratio: 5/4) {
+  /* the gate line repeats the button; hiding it gives the statue the row */
+  .drill.drill-flip-full .drill-flip-gate { display: none; }
+  .drill-flip-start { display: block; margin: 0 !important; }
+  .drill-flip-start .btn {
+    width: 100%; min-height: 0; padding: .55rem .7rem;
+    font-size: .92rem; line-height: 1.25; white-space: normal;
+  }
+  .drill.drill-flip-full .drill-flip-start-below { display: none; }
+  .drill-move-front-command { margin: .28rem .4rem .12rem; padding: .28rem .5rem .32rem; }
+  .drill-move-front-command small { font-size: .52rem; }
+  .drill-move-front-command strong { font-size: 1.05rem; }
+  .drill-flip-hint { bottom: .32rem; font-size: .6rem; padding: .08rem .5rem; }
+  .drill-statue-step img, .drill-statue-plate, .drill-flip-front img { padding: .2rem; }
+  /* keep the controls under the card. A side column stole the width a
+     portrait statue needs, so the figure stayed small. */
+  .drill-flip-stage { flex-direction: column; align-items: stretch; gap: .4rem; }
+  .drill-flip-controls {
+    flex-direction: row; align-items: center; justify-content: space-between;
+    gap: .6rem; width: 100%;
+  }
+  .drill-flip-start { flex: 0 1 auto; }
+  .drill-flip-start .btn { width: auto; min-width: 12rem; white-space: nowrap; }
+}
+@media (min-width: 700px) {
+  .drill-statue-anim.is-review { width: min(20rem, 42vw, 54vh); }
 }
 @media (max-width: 640px) {
   /* a phone spends its height on the study card, not on captions the card
@@ -3205,6 +3328,31 @@ body.is-game main { padding-top: 6px; }
   .drill-flip-step { width: 2.3rem; height: 2.3rem; font-size: 1.2rem; }
   .drill-flip-gate { font-size: .7rem; margin: 0 0 .15rem; }
 }
+/* a short landscape window has no spare height for a button row under the
+   card: the controls move beside it, or the statue collapses to a thumbnail */
+@media (max-height: 620px) and (min-aspect-ratio: 5/4) {
+  .drill.drill-flip-full .cave-stage { height: auto !important; min-height: calc(100dvh - 6.5rem) !important; overflow: visible; }
+  .drill.drill-flip-full .cave-picture,
+  .drill.drill-flip-full .cave-card-wrap,
+  .drill.drill-flip-full .cave-card { height: auto; flex: 0 0 auto; min-height: 0; overflow: visible; }
+  .drill.drill-flip-full .drill-flip-stage { flex-direction: row; align-items: stretch; }
+  .drill-flip-board { align-items: flex-start; padding-top: .2rem; }
+  .drill-flip-controls {
+    display: flex; flex: 0 0 15rem; flex-direction: column; align-items: stretch;
+    justify-content: flex-end; align-self: end; gap: .3rem; width: auto;
+  }
+  .drill-flip-start { display: block; }
+  .drill-flip-start .btn { width: 100%; min-width: 0; white-space: nowrap; padding: .4rem .6rem; font-size: .85rem; }
+  .drill.drill-flip-full .drill-flip-start-below,
+  .drill.drill-flip-full .drill-flip-gate { display: none; }
+}
+/* the ‹ › arrows and the start arrow stay hidden until every card is open */
+.drill-flip-step.is-locked,
+.drill-flip-start.is-locked,
+.drill-flip-start-below.is-locked,
+.drill-flip-dots.is-locked,
+.drill-flip-walk.is-locked { display: none !important; }
+
 .drill-review-fig {
   height: 5rem; border-radius: 10px; padding: .2rem;
   border: 1px solid rgba(217, 164, 65, .45); background: #071009;

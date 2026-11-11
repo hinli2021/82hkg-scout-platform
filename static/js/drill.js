@@ -18,9 +18,9 @@
    three stages of movement cards first (command, count and key points),
    then the statue mechanism shows one movement large and the right command
    must be pressed inside the count. Each stage mixes in every movement learned
-   before it in section 2. From movement stage 2 onward, each question shows
-   five command choices — the shown movement's command and four random learned
-   commands, shuffled so the answer's place changes. Only when both sections are cleared is the
+   before it in section 2. From movement stage 2 on, each question shows four
+   command choices — the shown movement and three random learned commands,
+   shuffled so the answer's place changes. Only when both sections are cleared is the
    studying filed; then the leader assesses the scout in person and the
    leader's code (82DR) finishes game 3. A scout who has already studied
    or finished re-opens straight onto the assess card.
@@ -256,7 +256,7 @@
     }
     sanitize();
 
-    var MOVEMENT_CHOICE_LIMIT = 5;
+    var MOVEMENT_CHOICE_LIMIT = 4;
     var state = {
       startedAt: 0,              /* 第一個動作關卡出現那一刻 — 榜上的完成時間由這裡計 */
       watchFrom: 0,              /* 石像播放中：這段不計入完成時間，倒數也未開始 */
@@ -282,12 +282,14 @@
     var beatTimer = null;
     var advanceTimer = null;
     var statueTimer = null;
-    var armTimer = null;          /* the one-second pause before a question animation */
+    var armTimer = null;          /* the half-second pause before a question animation */
+    var flipFinishTimer = null;   /* repaint after the last study card has turned */
     function clearTimers() {
       if (beatTimer) { window.clearInterval(beatTimer); beatTimer = null; }
       if (advanceTimer) { window.clearTimeout(advanceTimer); advanceTimer = null; }
       if (statueTimer) { window.clearInterval(statueTimer); statueTimer = null; }
       if (armTimer) { window.clearTimeout(armTimer); armTimer = null; }
+      if (flipFinishTimer) { window.clearTimeout(flipFinishTimer); flipFinishTimer = null; }
     }
 
     function movesOfSection(i) { return sections[i].moves || []; }
@@ -314,16 +316,22 @@
     function activePool(stageIndex) {
       return state.section === 2 ? cumulativeMovementPool(stageIndex) : cumulativePool(stageIndex);
     }
+    function movementChoiceLimit() {
+      /* stages 2 and 3 offer four answers only */
+      return MOVEMENT_CHOICE_LIMIT;
+    }
+
     function movementChoicesFor(m) {
       var pool = state.pool && state.pool.length ? state.pool : activePool(state.stage);
-      if (state.section !== 2 || state.stage < 1 || pool.length <= MOVEMENT_CHOICE_LIMIT) {
+      var limit = movementChoiceLimit();
+      if (state.section !== 2 || state.stage < 1 || pool.length <= limit) {
         return state.forms && state.forms.length ? state.forms : shuffled(pool);
       }
       var distractors = shuffled(pool.filter(function (candidate) {
         return candidate.id !== m.id;
-      })).slice(0, MOVEMENT_CHOICE_LIMIT - 1);
-      /* a second shuffle gives the correct movement a random one of the
-         five places instead of leaving it at the head of the choice list */
+      })).slice(0, limit - 1);
+      /* a second shuffle gives the correct movement a random place
+         instead of leaving it at the head of the choice list */
       return shuffled([m].concat(distractors));
     }
     function movePassed(m) { return answers[m.id] !== undefined; }
@@ -362,19 +370,23 @@
       if (root && root.scrollIntoView) root.scrollIntoView({ block: 'start', behavior: 'auto' });
     }
 
-    function say(html, emoji) {
+    function say(html, emoji, opts) {
       endWatch();                                 /* a card change closes the untimed watch */
       clearTimers();                              /* a new card ends any running beat */
       /* the flip cards are the whole screen — no cliff above, no small panel */
       root.classList.toggle('drill-flip-full', state.scene === 'flip');
-      root.classList.toggle('drill-command-full', state.section === 2 && state.scene === 'drill');
+      root.classList.toggle('drill-command-full', state.section === 2 &&
+        (state.scene === 'drill' || state.scene === 'review'));
       root.setAttribute('data-drill-section', String(state.section || 1));
       if (!card) return;
       card.innerHTML = html;
       if (panel && panel.scrollTop) panel.scrollTop = 0;
+      /* study cards swap in place: the next-card press must not fade or slide */
       card.classList.remove('is-in');
-      void card.offsetWidth;
-      card.classList.add('is-in');
+      if (!(opts && opts.instant)) {
+        void card.offsetWidth;
+        card.classList.add('is-in');
+      }
       if (emoji) burstOn(card.querySelector('.btn'), emoji);
       card.setAttribute('tabindex', '-1');
       syncMore();
@@ -383,6 +395,7 @@
       fitFlipCard();
       window.setTimeout(fitFlipCard, 60);
       window.setTimeout(fitFlipCard, 240);
+      window.setTimeout(fitFlipCard, 480);
     }
 
     function frameSteps(node) {
@@ -470,7 +483,7 @@
     }
 
     function armPromptPlayback(node, reduce) {
-      /* one quiet second on the opening pose, then the movement itself */
+      /* half a second on the opening pose, then the movement itself */
       armTimer = window.setTimeout(function () {
         armTimer = null;
         if (!state.armPrompt || state.scene !== 'drill') return;
@@ -481,7 +494,7 @@
           return;
         }
         playPromptOnce(node, openAnswers);
-      }, 1000);
+      }, 500);
     }
 
     function playPromptOnce(node, onDone) {
@@ -571,7 +584,8 @@
     }
 
     function signFaceText(m) {
-      /* the first point names the sign itself: 手號：兩手握拳… → the card */
+      var brief = pick(m.brief_zh, m.brief_en);
+      if (brief) return brief;
       var points = (isEn() ? (m.points_en || m.points_zh) : (m.points_zh || m.points_en)) || [];
       var text = String(points[0] || '');
       return text.replace(/^手號：/, '').replace(/^Sign:\s*/i, '');
@@ -614,6 +628,12 @@
 
     function pointsFor(m) {
       return (isEn() ? (m.points_en || m.points_zh) : (m.points_zh || m.points_en)) || [];
+    }
+
+    /* one direct line, not the step-by-step detail of the movement */
+    function briefFor(m) {
+      return pick(m.brief_zh, m.brief_en) ||
+        pick((m.check || {}).why_zh, (m.check || {}).why_en) || '';
     }
 
     function countText(m) {
@@ -727,27 +747,30 @@
       }).join('');
       return '<div class="drill-flip-stage" data-drill-carousel="' + cards.length + '">' +
           '<div class="drill-flip-board" data-drill-flip-board>' + cards[index].html + '</div>' +
-          '<div class="drill-flip-nav">' +
-            '<button type="button" class="drill-flip-step" data-drill-flip-go="prev"' +
-              (index === 0 ? ' disabled' : '') +
-              ' aria-label="' + esc(pick(L.flip_prev_zh, L.flip_prev_en)) + '">‹</button>' +
-            '<span class="drill-flip-count" data-drill-flip-count>' + (index + 1) + ' / ' + cards.length + '</span>' +
-            '<button type="button" class="drill-flip-step" data-drill-flip-go="next"' +
-              (index === cards.length - 1 ? ' disabled' : '') +
-              ' aria-label="' + esc(pick(L.flip_next_zh, L.flip_next_en)) + '">›</button>' +
+          '<div class="drill-flip-controls">' +
+            '<div class="cave-actions drill-flip-start' + (allRead ? '' : ' is-locked') + '"><button class="btn primary big" type="button"' +
+              ' data-drill-go="start-stage" data-cheer="' + esc(cheer) + '"' +
+              (allRead ? '' : ' disabled aria-disabled="true"') + '>' + esc(startLabel) + '</button></div>' +
+            '<div class="drill-flip-nav">' +
+              '<button type="button" class="drill-flip-step' + (allRead ? '' : ' is-locked') + '" data-drill-flip-go="prev"' +
+                (index === 0 ? ' disabled' : '') +
+                ' aria-label="' + esc(pick(L.flip_prev_zh, L.flip_prev_en)) + '">‹</button>' +
+              '<span class="drill-flip-count" data-drill-flip-count>' + (index + 1) + ' / ' + cards.length + '</span>' +
+              '<button type="button" class="drill-flip-step' + (allRead ? '' : ' is-locked') + '" data-drill-flip-go="next"' +
+                (index === cards.length - 1 ? ' disabled' : '') +
+                ' aria-label="' + esc(pick(L.flip_next_zh, L.flip_next_en)) + '">›</button>' +
+            '</div>' +
+            (allRead ? '' :
+              '<div class="drill-flip-walk"><button type="button" class="btn primary big"' +
+                ' data-drill-flip-go="walk">' +
+                esc(walkLabel()) +
+                '</button></div>') +
+            '<div class="drill-flip-dots' + (allRead ? '' : ' is-locked') + '" data-drill-flip-dots>' + dots + '</div>' +
           '</div>' +
-          (allRead ? '' :
-            '<div class="drill-flip-walk"><button type="button" class="btn primary big"' +
-              ' data-drill-flip-go="walk">' +
-              esc(state.flipRead[cards[index].id]
-                    ? pick(L.flip_walk_next_zh, L.flip_walk_next_en)
-                    : pick(L.flip_walk_zh, L.flip_walk_en)) +
-              '</button></div>') +
-          '<div class="drill-flip-dots" data-drill-flip-dots>' + dots + '</div>' +
         '</div>' +
         '<p class="drill-flip-gate' + (allRead ? ' is-done' : '') + '" data-drill-flip-gate>' +
           flipGateText(allRead) + '</p>' +
-        '<div class="cave-actions"><button class="btn primary big" type="button"' +
+        '<div class="cave-actions drill-flip-start-below' + (allRead ? '' : ' is-locked') + '"><button class="btn primary big" type="button"' +
           ' data-drill-go="start-stage" data-cheer="' + esc(cheer) + '"' +
           (allRead ? '' : ' disabled aria-disabled="true"') + '>' + esc(startLabel) + '</button></div>';
     }
@@ -773,8 +796,7 @@
         gate.innerHTML = flipGateText(allRead);
         gate.classList.toggle('is-done', allRead);
       }
-      var start = card.querySelector('[data-drill-go="start-stage"]');
-      if (start) {
+      Array.prototype.forEach.call(card.querySelectorAll('[data-drill-go="start-stage"]'), function (start) {
         if (allRead) {
           start.removeAttribute('disabled');
           start.removeAttribute('aria-disabled');
@@ -782,27 +804,58 @@
           start.setAttribute('disabled', 'disabled');
           start.setAttribute('aria-disabled', 'true');
         }
-      }
+      });
+      /* the ‹ › arrows and the start arrow stay hidden until every card is open */
+      Array.prototype.forEach.call(
+        card.querySelectorAll('.drill-flip-start, .drill-flip-start-below, .drill-flip-step, .drill-flip-dots'),
+        function (el) { el.classList.toggle('is-locked', !allRead); }
+      );
+      var walk = card.querySelector('.drill-flip-walk');
+      if (walk) walk.classList.toggle('is-locked', allRead);
+      var walkBtn = card.querySelector('[data-drill-flip-go="walk"]');
+      if (walkBtn) walkBtn.textContent = walkLabel();
       Array.prototype.forEach.call(card.querySelectorAll('[data-drill-flip-go="jump"]'), function (dot) {
         dot.classList.toggle('is-read', !!state.flipRead[dot.getAttribute('data-drill-flip-jump')]);
       });
     }
 
+    /* the last study card is finished by turning it over, never by "next" */
+    function onLastFlipCard() {
+      return state.flipIds.length > 0 && state.flipIndex === state.flipIds.length - 1;
+    }
+
+    function walkLabel() {
+      var id = state.flipIds[state.flipIndex];
+      if (id && state.flipRead[id] && !onLastFlipCard()) {
+        return pick(L.flip_walk_next_zh, L.flip_walk_next_en);
+      }
+      return pick(L.flip_walk_zh, L.flip_walk_en);
+    }
+
+    /* let the turn be seen, then drop the walk button and show Start.
+       A next press must not be what completes the lesson. */
+    function finishFlipLesson() {
+      var walk = card && card.querySelector('.drill-flip-walk');
+      if (walk) walk.classList.add('is-locked');
+      if (flipFinishTimer) window.clearTimeout(flipFinishTimer);
+      flipFinishTimer = window.setTimeout(function () {
+        flipFinishTimer = null;
+        if (state.scene === 'flip' && flipAllRead()) say(flipHtml(), null, { instant: true });
+      }, 520);
+    }
+
     /* The guided first pass, one press = one clear action:
        press once and the current card turns over so the back can be read;
-       press again and it moves on to the next card still to be read. */
+       press again and it moves on to the next card still to be read.
+       The last card has no next: flipping it is what finishes the lesson. */
     function walkFlipCard() {
       if (!state.flipIds.length) return;
       var id = state.flipIds[state.flipIndex];
       var node = card && card.querySelector('[data-drill-flip]');
       if (!state.flipRead[id] && node) {
+        var last = onLastFlipCard();
         toggleFlipCard(node);                     /* turn it over, stay here */
-        var walkBtn = card.querySelector('[data-drill-flip-go="walk"]');
-        if (walkBtn) walkBtn.textContent = pick(L.flip_walk_next_zh, L.flip_walk_next_en);
-        if (flipAllRead()) {
-          /* the last card: let the turn finish, then clear the button away */
-          window.setTimeout(function () { say(flipHtml()); }, 520);
-        }
+        if (last || flipAllRead()) finishFlipLesson();
         return;
       }
       var total = state.flipIds.length;
@@ -811,8 +864,10 @@
         var j = (state.flipIndex + k) % total;
         if (!state.flipRead[state.flipIds[j]]) { next = j; break; }
       }
-      if (next >= 0 && next !== state.flipIndex) state.flipIndex = next;
-      say(flipHtml());                            /* move on */
+      /* arriving at the last card does not finish it — it still has to be flipped */
+      if (next < 0 || next === state.flipIndex) return;
+      state.flipIndex = next;
+      say(flipHtml(), null, { instant: true });   /* move on, no entrance */
     }
 
     function goToFlipCard(index) {
@@ -821,11 +876,11 @@
       var next = Math.max(0, Math.min(total - 1, index));
       if (next === state.flipIndex) return;
       state.flipIndex = next;
-      say(flipHtml());
+      say(flipHtml(), null, { instant: true });
     }
 
-    /* a 3:4 card that fits the board: tall screens size it by height, narrow
-       ones by width, so the statue is as big as the phone allows */
+    /* the study statue is a 672×900 picture. Fit the card to that picture so
+       an iPad uses the stage height instead of a short 3:4 box */
     function fitFlipCard() {
       if (!card) return;
       var board = card.querySelector('[data-drill-flip-board]');
@@ -833,9 +888,21 @@
       if (!board || !flip) return;
       var w = board.clientWidth;
       var h = board.clientHeight;
+      /* a short landscape window puts the controls beside the card, so the
+         board is only as tall as the card. Use the height left on screen. */
+      var stage = card.querySelector('.drill-flip-stage');
+      if (stage && window.getComputedStyle(stage).flexDirection === 'row') {
+        var controls = stage.querySelector('.drill-flip-controls');
+        var reserve = controls ? controls.getBoundingClientRect().height + 16 : 150;
+        var room = window.innerHeight - stage.getBoundingClientRect().top - reserve;
+        if (room > 120) h = room;
+      }
       if (!w || !h) return;
-      var height = Math.min(h, w * 4 / 3);
-      var width = height * 3 / 4;
+      var sample = flip.querySelector('.drill-flip-anim img, .drill-flip-front img');
+      var ratio = (sample && sample.naturalWidth && sample.naturalHeight)
+        ? sample.naturalWidth / sample.naturalHeight : 672 / 900;
+      var height = Math.min(h, w / ratio);
+      var width = height * ratio;
       flip.style.width = Math.round(width) + 'px';
       flip.style.height = Math.round(height) + 'px';
       /* a wide board leaves the card a column of empty space either side:
@@ -902,7 +969,7 @@
 
     function moveCardBack(unit) {
       var m = unit.moves[0] || {};
-      var points = pointsFor(m);
+      var brief = briefFor(m);
       var note = pick(m.note_zh, m.note_en);
       if (!note && m.study_group === 'pacing') note = pick(L.pace_card_note_zh, L.pace_card_note_en);
       return '<div class="drill-flip-face drill-flip-back is-move">' +
@@ -912,13 +979,7 @@
           esc(pick(L.move_command_label_zh, L.move_command_label_en)) + '</small>' +
           '<strong>' + esc(m.command || '') + '</strong></span>' +
         moveMetaChips(m) +
-        (points.length
-          ? '<span class="drill-move-points-label">' +
-              esc(pick(L.move_points_label_zh, L.move_points_label_en)) + '</span>' +
-            '<ol class="drill-flip-points">' + points.map(function (text) {
-              return '<li>' + esc(text) + '</li>';
-            }).join('') + '</ol>'
-          : '') +
+        (brief ? '<span class="drill-flip-sign">' + esc(brief) + '</span>' : '') +
         (note ? '<span class="drill-flip-sign">' + esc(note) + '</span>' : '') +
       '</div>';
     }
@@ -1132,7 +1193,7 @@
       var pool = activePool(state.stage);
       state.pool = pool;
       state.forms = shuffled(pool);      /* fixed in section 1 and movement stage 1;
-                                            later movement calls rebuild five choices */
+                                            stages 2 and 3 rebuild four choices */
       state.queue = shuffled(pool.map(function (m) { return m.id; }));
       nextInStage();
     }
@@ -1142,6 +1203,70 @@
       var m = moveById(state.queue.shift());
       if (!m) { nextInStage(); return; }
       renderPrompt(m);
+    }
+
+    /* the answer keeps the statue that is already on top. The notes go under
+       it — a second, smaller animation in the description only repeats it. */
+    function moveAnswerCopyHtml(m, opts) {
+      opts = opts || {};
+      var brief = briefFor(m);
+      var count = countText(m);
+      var text = '<div class="drill-answer-text">' +
+        (opts.heading ? '<h2 class="cave-subtitle">' + esc(opts.heading) + '</h2>' : '') +
+        '<p class="drill-answer-name">' + esc(pick(m.title_zh, m.title_en)) + '</p>' +
+        (m.command ? '<p class="drill-command drill-command-feedback">' + esc(m.command) + '</p>' : '') +
+        (count ? '<p class="drill-answer-count"><b>' +
+          esc(pick(L.move_count_label_zh, L.move_count_label_en)) + '</b> ' + esc(count) + '</p>' : '') +
+        (brief ? '<p class="drill-answer-brief">' + esc(brief) + '</p>' : '') +
+      '</div>' +
+        (opts.action || '');
+      return '<div class="drill-answer-copy">' + text + '</div>';
+    }
+
+    function moveAnswerFallbackHtml(m, title, kind, opts) {
+      var visual = animationFrames(m).length
+        ? movementAnimationHtml(m, 'prompt')
+        : (m.figure && artUrl(m.figure)
+          ? '<img class="drill-move-prompt-figure" src="' + esc(artUrl(m.figure)) + '" alt="">'
+          : movementSvg(m.id, true));
+      return kicker(title, kind) +
+        '<div class="drill-move-prompt-layout drill-answer-layout">' +
+          '<div class="drill-move-prompt-visual" data-drill-prompt-visual>' + visual + '</div>' +
+          moveAnswerCopyHtml(m, opts) +
+        '</div>';
+    }
+
+    function replayAnswerAnimation() {
+      var node = card && card.querySelector('.drill-move-prompt-visual .drill-statue-anim');
+      if (!node) return;
+      if (statueTimer) { window.clearInterval(statueTimer); statueTimer = null; }
+      runStatueLoop([node], false);
+    }
+
+    function revealMoveAnswer(m, title, kind, opts) {
+      var layout = card && card.querySelector('.drill-move-prompt-layout');
+      var visual = layout && layout.querySelector('[data-drill-prompt-visual]');
+      if (!layout || !visual) return false;
+      state.armPrompt = false;
+      endWatch();
+      if (beatTimer) { window.clearInterval(beatTimer); beatTimer = null; }
+      if (advanceTimer) { window.clearTimeout(advanceTimer); advanceTimer = null; }
+      if (armTimer) { window.clearTimeout(armTimer); armTimer = null; }
+      var kickerEl = card.querySelector('.cave-kicker');
+      if (kickerEl) kickerEl.hidden = true;
+      var watch = card.querySelector('.drill-command-say');
+      if (watch) watch.hidden = true;
+      layout.classList.add('drill-answer-layout');
+      var copyOpts = {};
+      var key;
+      for (key in (opts || {})) copyOpts[key] = opts[key];
+      copyOpts.heading = title;
+      var copy = moveAnswerCopyHtml(m, copyOpts);
+      var side = layout.querySelector('.drill-move-prompt-side, .drill-answer-copy');
+      if (side) side.outerHTML = copy;
+      else layout.insertAdjacentHTML('beforeend', copy);
+      replayAnswerAnimation();
+      return true;
     }
 
     function answerPick(pickedId) {
@@ -1156,13 +1281,16 @@
         chime();
         var why = pick((m.check || {}).why_zh, (m.check || {}).why_en);
         var isMove = state.section === 2;
-        say(kicker(isMove ? pick(L.move_right_title_zh, L.move_right_title_en)
-                          : pick(L.right_title_zh, L.right_title_en), 'good') +
-            '<h2 class="cave-subtitle">' + esc(pick(m.title_zh, m.title_en)) + '</h2>' +
-            (isMove && m.command ? '<p class="drill-command drill-command-feedback">' + esc(m.command) + '</p>' : '') +
-            (why ? '<p class="drill-why drill-teach-why"><b>' + esc(pick(L.remember_zh, L.remember_en)) +
-                  '</b> ' + esc(why) + '</p>' : ''));
-        burstOn(card.querySelector('.cave-kicker'), isMove ? ['✨', '🥁'] : ['✨', '🪨']);
+        var rightTitle = isMove ? pick(L.move_right_title_zh, L.move_right_title_en)
+                                : pick(L.right_title_zh, L.right_title_en);
+        if (!(isMove && revealMoveAnswer(m, rightTitle, 'good', { points: false }))) {
+          say(kicker(rightTitle, 'good') +
+              '<h2 class="cave-subtitle">' + esc(pick(m.title_zh, m.title_en)) + '</h2>' +
+              (isMove && m.command ? '<p class="drill-command drill-command-feedback">' + esc(m.command) + '</p>' : '') +
+              (why ? '<p class="drill-why drill-teach-why"><b>' + esc(pick(L.remember_zh, L.remember_en)) +
+                    '</b> ' + esc(why) + '</p>' : ''));
+        }
+        burstOn(card.querySelector('.drill-answer-copy .cave-subtitle, .cave-kicker'), isMove ? ['✨', '🥁'] : ['✨', '🪨']);
         paintProgress();
         advanceTimer = window.setTimeout(nextInStage, 1000);
         return;
@@ -1194,9 +1322,18 @@
       if (isMoveReview && countText(m)) reviewChips.push(chip(pick(L.move_count_label_zh, L.move_count_label_en) + '：' + countText(m)));
       if (m.manual) reviewChips.push(chip('📖 ' + pick(L.manual_label_zh, L.manual_label_en) + ' — ' + m.manual));
       if (isMoveReview && m.leader_demo) reviewChips.push(chip(pick(L.move_leader_demo_zh, L.move_leader_demo_en), 'is-demo'));
-      var reviewVisual = isMoveReview
-        ? (animationFrames(m).length ? movementAnimationHtml(m, 'review') : movementSvg(m.id, true))
-        : ((m.figure ? '<img class="drill-review-fig" src="' + esc(artUrl(m.figure)) + '"' +
+      if (isMoveReview) {
+        var again = '<div class="cave-actions"><button class="btn primary" type="button" data-drill-go="resume">' +
+          esc(pick(L.review_again_zh, L.review_again_en)) + '</button></div>';
+        var answerOpts = { points: true, action: again };
+        if (!revealMoveAnswer(m, title, 'bad', answerOpts)) {
+          say(moveAnswerFallbackHtml(m, title, 'bad', answerOpts));
+        }
+        mark('review');
+        paintProgress();
+        return;
+      }
+      var reviewVisual = ((m.figure ? '<img class="drill-review-fig" src="' + esc(artUrl(m.figure)) + '"' +
                        ' alt="' + esc(pick(m.title_zh, m.title_en)) + '">' : '') + formationSvg(m.id, true));
       say(kicker(title, 'bad') +
           '<h2 class="cave-subtitle">' + esc(fill(isMoveReview
@@ -1208,11 +1345,7 @@
             reviewVisual +
             '<span class="drill-form-name">' + esc(pick(m.title_zh, m.title_en)) + '</span>' +
           '</div>' +
-          '<ol class="drill-points">' + points.map(function (text) {
-            return '<li>' + esc(text) + '</li>';
-          }).join('') + '</ol>' +
-          (why ? '<p class="drill-why drill-teach-why"><b>' + esc(pick(L.remember_zh, L.remember_en)) +
-                '</b> ' + esc(why) + '</p>' : '') +
+          (briefFor(m) ? '<p class="drill-answer-brief">' + esc(briefFor(m)) + '</p>' : '') +
           '<div class="cave-actions"><button class="btn primary" type="button" data-drill-go="resume">' +
             esc(pick(L.review_again_zh, L.review_again_en)) + '</button></div>');
       mark('review');
@@ -1624,17 +1757,24 @@
         event.preventDefault();
         tap();
         var step = flipGo.getAttribute('data-drill-flip-go');
-        if (step === 'prev') goToFlipCard(state.flipIndex - 1);
-        else if (step === 'next') goToFlipCard(state.flipIndex + 1);
-        else if (step === 'walk') walkFlipCard();
-        else if (step === 'jump') goToFlipCard(state.flipIds.indexOf(flipGo.getAttribute('data-drill-flip-jump')));
+        if (step === 'prev' || step === 'jump') {
+          if (!flipAllRead()) return;
+          if (step === 'prev') goToFlipCard(state.flipIndex - 1);
+          else goToFlipCard(state.flipIds.indexOf(flipGo.getAttribute('data-drill-flip-jump')));
+        } else if (step === 'next') {
+          /* an unread lesson has no skip arrow: next flips this card and stays */
+          if (!flipAllRead()) walkFlipCard();
+          else goToFlipCard(state.flipIndex + 1);
+        } else if (step === 'walk') walkFlipCard();
         return;
       }
       var flipCard = event.target.closest('[data-drill-flip]');
       if (flipCard) {
         event.preventDefault();
+        var unreadLast = onLastFlipCard() && !state.flipRead[flipCard.getAttribute('data-drill-flip')];
         toggleFlipCard(flipCard);
         tap();
+        if (unreadLast && flipAllRead()) finishFlipLesson();
         return;
       }
       var tile = event.target.closest('[data-drill-form]');
@@ -1681,6 +1821,10 @@
     root.addEventListener('keydown', function (event) {
       if (state.scene === 'flip' && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
         event.preventDefault();
+        if (!flipAllRead()) {
+          if (event.key === 'ArrowRight') walkFlipCard();
+          return;
+        }
         goToFlipCard(state.flipIndex + (event.key === 'ArrowRight' ? 1 : -1));
         return;
       }

@@ -10,9 +10,9 @@ pacing plus left/right/about turns; and Mark time / Quick march / Halt /
 Right dress. Each stage first teaches with movement cards (manual page,
 command, count and key points), then the full-screen command board calls a
 command and the scout presses the movement inside its count. Every stage's
-call pool is cumulative within section 2 (3, then 10, then 14 calls); from
-stage 2 each call shows five shuffled choices drawn from that pool, always
-including the called movement. Wrong or
+call pool is cumulative within section 2 (3, then 10, then 14 calls); stage
+2 and 3 show four shuffled choices, always including the called
+movement. Wrong or
 late answers reopen the teaching review and re-queue the movement. Clearing
 both sections files the studying only; the leader's 82DR code completes
 item 6. Screenshots land in docs/screens/.
@@ -467,7 +467,7 @@ def main():
         for stage_ids in MOVE_STAGES:
             running += len(stage_ids)
             expected_pools.append(running)
-        expected_button_counts = [expected_pools[0], 5, 5]
+        expected_button_counts = [expected_pools[0], 4, 4]
         for index, fresh_ids in enumerate(MOVE_STAGES):
             if index:
                 click(page, '[data-drill-go="next-stage"]')
@@ -662,7 +662,7 @@ def main():
                   f'from its {expected_pools[index]}-movement cumulative pool, including the shown movement')
             if index:
                 check(0 <= first_position < expected_buttons,
-                      f'section 2 stage {index + 1} places the correct command among the five choices '
+                      f'section 2 stage {index + 1} places the correct command among the {expected_buttons} choices '
                       f'(position {first_position + 1} on this question)')
             target_move = MOVE_BY_ID.get(first_target_id, {})
             if target_move.get('animation'):
@@ -735,7 +735,7 @@ def main():
                               and entry['target'] in entry['ids']
                               and entry['ids'][entry['position']] == entry['target']
                               for entry in choice_audit),
-                      f'section 2 stage {index + 1} shows five unique learned command choices on every question')
+                      f'section 2 stage {index + 1} shows {expected_buttons} unique learned command choices on every question')
                 check(len(set(positions)) >= 2,
                       f'section 2 stage {index + 1} varies the correct-answer position '
                       f'({[position + 1 for position in positions]})')

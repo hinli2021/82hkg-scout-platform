@@ -39,6 +39,8 @@
           "id": "alert",
           "title_zh": "立正",
           "title_en": "Alert",
+          "brief_zh": "雙腳靠攏，腳尖向外 30 度。",
+          "brief_en": "Feet together, toes 30° out.",
           "command": "Alert!",
           "figure": "img/quest/drill/movements/alert-5-alert.jpg",
           "animation": [
@@ -46,31 +48,31 @@
               "img": "img/quest/drill/movements/alert-1-stand-at-ease.jpg",
               "label_zh": "1 · 稍息起步：雙腳分開，雙手在身後",
               "label_en": "1 · Start at stand at ease: feet apart, hands behind the back",
-              "hold_ms": 950
+              "hold_ms": 752
             },
             {
               "img": "img/quest/drill/movements/alert-2-lift.jpg",
               "label_zh": "2 · 左腳提起至中途，雙手由身後回到兩側",
               "label_en": "2 · Lift the left foot halfway; bring both hands from behind the back to the sides",
-              "hold_ms": 520
+              "hold_ms": 412
             },
             {
               "img": "img/quest/drill/movements/alert-3-close.jpg",
               "label_zh": "3 · 左大腿與地面平行，雙手回到兩側握拳",
               "label_en": "3 · Left thigh level with the ground; both hands return to the sides as fists",
-              "hold_ms": 650
+              "hold_ms": 515
             },
             {
               "img": "img/quest/drill/movements/alert-4-lower.jpg",
               "label_zh": "4 · 左腳落至接近地面，準備靠攏右腳",
               "label_en": "4 · Lower the left foot close to the ground, ready to close beside the right",
-              "hold_ms": 420
+              "hold_ms": 332
             },
             {
               "img": "img/quest/drill/movements/alert-5-alert.jpg",
               "label_zh": "5 · 左腳踏下靠攏右腳，握拳貼褲縫，成立正",
               "label_en": "5 · Place the left foot beside the right, fists at the seams — Alert",
-              "hold_ms": 1250
+              "hold_ms": 989
             }
           ],
           "manual": "手冊 p.30",
@@ -112,6 +114,8 @@
           "id": "stand-at-ease",
           "title_zh": "稍息",
           "title_en": "Stand at ease",
+          "brief_zh": "左腳踏開約與肩同寬，雙手在身後。",
+          "brief_en": "Left foot out to about shoulder width, hands behind.",
           "command": "Stand at—ease!",
           "figure": "img/quest/drill/movements/alert-1-stand-at-ease.jpg",
           "animation": [
@@ -119,43 +123,43 @@
               "img": "img/quest/drill/movements/alert-5-alert.jpg",
               "label_zh": "1 · 立正起步：雙腳靠攏，雙拳貼褲縫",
               "label_en": "1 · Start at Alert: feet together, fists at the seams",
-              "hold_ms": 950
+              "hold_ms": 658
             },
             {
               "img": "img/quest/drill/movements/alert-4-lower.jpg",
               "label_zh": "2 · 左腳開始提起，左小腿放鬆",
               "label_en": "2 · Begin lifting the left foot, lower leg relaxed",
-              "hold_ms": 320
+              "hold_ms": 222
             },
             {
               "img": "img/quest/drill/movements/alert-2-lift.jpg",
               "label_zh": "3 · 左腳提起至中途",
               "label_en": "3 · Lift the left foot halfway",
-              "hold_ms": 420
+              "hold_ms": 291
             },
             {
               "img": "img/quest/drill/movements/alert-3-close.jpg",
               "label_zh": "4 · 左大腿與地面平行，左小腿放鬆",
               "label_en": "4 · Left thigh level with the ground, lower leg relaxed",
-              "hold_ms": 650
+              "hold_ms": 450
             },
             {
               "img": "img/quest/drill/movements/stand-at-ease-5-lower-out.jpg",
               "label_zh": "5 · 左腳向外落下，雙手同時移至身後",
               "label_en": "5 · Lower the left foot outward as both hands move behind the back",
-              "hold_ms": 420
+              "hold_ms": 291
             },
             {
               "img": "img/quest/drill/movements/stand-at-ease-6-land.jpg",
               "label_zh": "6 · 左腳接近地面，準備向外踏下",
               "label_en": "6 · Left foot close to the ground, ready to step out",
-              "hold_ms": 320
+              "hold_ms": 222
             },
             {
               "img": "img/quest/drill/movements/alert-1-stand-at-ease.jpg",
               "label_zh": "7 · 左腳踏下，雙腳分開，雙手在身後中央，成稍息",
               "label_en": "7 · Place the left foot down, feet apart and hands behind the back — stand at ease",
-              "hold_ms": 1250
+              "hold_ms": 866
             }
           ],
           "manual": "手冊 p.31",
@@ -193,6 +197,8 @@
           "id": "stand-easy",
           "title_zh": "休息",
           "title_en": "Stand easy",
+          "brief_zh": "保持稍息，只放鬆雙手手指。",
+          "brief_en": "Stay at ease, and only relax the fingers.",
           "command": "Stand—easy!",
           "img": "img/quest/drill/manual/p032-stand-easy.jpg",
           "manual": "手冊 p.32",
@@ -236,6 +242,8 @@
           "id": "right-turn",
           "title_zh": "向右轉",
           "title_en": "Right turn",
+          "brief_zh": "向右轉 90 度，再靠腳成立正。",
+          "brief_en": "Turn 90° right, then close to attention.",
           "command": "Turning, right—turn!",
           "count": "打數：One—Two—Three—One",
           "img": "img/quest/drill/manual/p034-right-turn.jpg",
@@ -243,45 +251,45 @@
           "animation": [
             {
               "img": "img/quest/drill/movements/seq/right-turn/f01.webp",
-              "hold_ms": 420,
+              "hold_ms": 396,
               "label_zh": "向右轉：以右腳掌及左腳尖為軸心向右轉 90 度（轉至面向畫面左方），抬腳九十度，左腳放下靠攏，回復立正",
               "label_en": "Right turn: pivot 90 degrees to his right until he faces the left of the image, knee raised at ninety degrees, the left foot comes down and closes — back at Alert"
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f02.webp",
-              "hold_ms": 200
+              "hold_ms": 189
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f03.webp",
-              "hold_ms": 200
+              "hold_ms": 189
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f04.webp",
-              "hold_ms": 200
+              "hold_ms": 189
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f05.webp",
-              "hold_ms": 300
+              "hold_ms": 283
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f06.webp",
-              "hold_ms": 240
+              "hold_ms": 226
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f07.webp",
-              "hold_ms": 480
+              "hold_ms": 453
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f08.webp",
-              "hold_ms": 240
+              "hold_ms": 226
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f09.webp",
-              "hold_ms": 280
+              "hold_ms": 264
             },
             {
               "img": "img/quest/drill/movements/seq/right-turn/f10.webp",
-              "hold_ms": 620
+              "hold_ms": 585
             }
           ],
           "manual": "手冊 p.34–35",
@@ -317,6 +325,8 @@
           "id": "left-turn",
           "title_zh": "向左轉",
           "title_en": "Left turn",
+          "brief_zh": "向左轉 90 度，再靠腳成立正。",
+          "brief_en": "Turn 90° left, then close to attention.",
           "command": "Turning, left—turn!",
           "count": "打數：One—Two—Three—One",
           "img": "img/quest/drill/manual/p036-left-turn.jpg",
@@ -350,45 +360,45 @@
           "animation": [
             {
               "img": "img/quest/drill/movements/seq/left-turn/f01.webp",
-              "hold_ms": 420,
+              "hold_ms": 396,
               "label_zh": "向左轉：以左腳掌及右腳尖為軸心向左轉 90 度（轉至面向畫面右方），抬腳九十度，右腳放下靠攏，回復立正",
               "label_en": "Left turn: pivot 90 degrees to his left on the left ball and right toe until he faces the right of the image, knee raised at ninety degrees, the right foot comes down and closes — back at Alert"
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f02.webp",
-              "hold_ms": 200
+              "hold_ms": 189
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f03.webp",
-              "hold_ms": 200
+              "hold_ms": 189
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f04.webp",
-              "hold_ms": 200
+              "hold_ms": 189
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f05.webp",
-              "hold_ms": 300
+              "hold_ms": 283
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f06.webp",
-              "hold_ms": 240
+              "hold_ms": 226
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f07.webp",
-              "hold_ms": 480
+              "hold_ms": 453
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f08.webp",
-              "hold_ms": 240
+              "hold_ms": 226
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f09.webp",
-              "hold_ms": 280
+              "hold_ms": 264
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f10.webp",
-              "hold_ms": 620
+              "hold_ms": 585
             }
           ]
         },
@@ -396,6 +406,8 @@
           "id": "about-turn",
           "title_zh": "後轉",
           "title_en": "About turn",
+          "brief_zh": "向後轉 180 度，再靠腳成立正。",
+          "brief_en": "Turn 180° about, then close to attention.",
           "command": "Turning, about—turn!",
           "count": "打數：One—Two—Three—One",
           "img": "img/quest/drill/manual/p038-about-turn.jpg",
@@ -483,6 +495,8 @@
           "id": "salute-front",
           "title_zh": "原地向前敬禮",
           "title_en": "Saluting to the front at the halt",
+          "brief_zh": "右手童軍禮舉至右眼上方，再收回。",
+          "brief_en": "Scout salute above the right eye, then back to attention.",
           "command": "Saluting, salute to the front—salute!",
           "count": "打數：Up—Two—Three—Down",
           "figure": "img/quest/drill/movements/salute-5-salute.jpg",
@@ -491,49 +505,49 @@
               "img": "img/quest/drill/movements/alert-5-alert.jpg",
               "label_zh": "1 · 立正起步：雙拳貼褲縫",
               "label_en": "1 · Start at Alert: both fists at the seams",
-              "hold_ms": 850
+              "hold_ms": 518
             },
             {
               "img": "img/quest/drill/movements/salute-2-side-rise.jpg",
               "label_zh": "2 · Up：右手向橫提起",
               "label_en": "2 · Up: raise the right hand sideways",
-              "hold_ms": 300
+              "hold_ms": 183
             },
             {
               "img": "img/quest/drill/movements/salute-3-shoulder-level.jpg",
               "label_zh": "3 · 右手提至與肩膊平，成童軍敬禮手勢",
               "label_en": "3 · Right hand at shoulder level, formed into the Scout salute",
-              "hold_ms": 350
+              "hold_ms": 213
             },
             {
               "img": "img/quest/drill/movements/salute-4-forearm-rise.jpg",
               "label_zh": "4 · 右前臂用力舉起",
               "label_en": "4 · Force the right forearm upward",
-              "hold_ms": 350
+              "hold_ms": 213
             },
             {
               "img": "img/quest/drill/movements/salute-5-salute.jpg",
               "label_zh": "5 · 食指在右眼上方，Two—Three 保持敬禮",
               "label_en": "5 · Forefinger above the right eye; hold on Two—Three",
-              "hold_ms": 1500
+              "hold_ms": 916
             },
             {
               "img": "img/quest/drill/movements/salute-6-lower.jpg",
               "label_zh": "6 · Down：右手由額前向前落下並握拳",
               "label_en": "6 · Down: bring the right hand down towards the front and close the fist",
-              "hold_ms": 320
+              "hold_ms": 195
             },
             {
               "img": "img/quest/drill/movements/salute-7-almost-down.jpg",
               "label_zh": "7 · 右拳沿大腿前面落下，接近褲縫",
               "label_en": "7 · Lower the right fist down the front of the thigh, close to the seam",
-              "hold_ms": 300
+              "hold_ms": 183
             },
             {
               "img": "img/quest/drill/movements/alert-5-alert.jpg",
               "label_zh": "8 · 右拳回到右褲縫，回復立正",
               "label_en": "8 · Right fist back at the right seam — Alert",
-              "hold_ms": 950
+              "hold_ms": 579
             }
           ],
           "manual": "手冊 p.41–42",
@@ -581,6 +595,8 @@
           "id": "pace-forward",
           "title_zh": "前移一步",
           "title_en": "One pace forward",
+          "brief_zh": "向前一步，再收回成立正。",
+          "brief_en": "One pace forward, then close to attention.",
           "command": "One pace forward—march!",
           "count": "打數：One—Two",
           "study_group": "pacing",
@@ -653,51 +669,53 @@
           "id": "pace-backward",
           "title_zh": "後移一步",
           "title_en": "One pace backward",
+          "brief_zh": "向後一步，不轉身，再收回成立正。",
+          "brief_en": "One pace back, without turning, then close up.",
           "command": "One pace backward—march!",
           "count": "打數：One—Two",
           "study_group": "pacing",
           "animation": [
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f01.webp",
-              "hold_ms": 460,
+              "hold_ms": 314,
               "label_zh": "後移一步：左腿離地後擺，身體隨之後移，左腿後落，雙腳踏地，右腿離地抬腳九十度，右腿放下併攏，回復立正",
               "label_en": "One pace backward: the left leg lifts and swings back, the body follows, it lands behind, the right leg lifts to ninety degrees and comes down, the feet close — back at Alert"
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f02.webp",
-              "hold_ms": 380
+              "hold_ms": 259
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f03.webp",
-              "hold_ms": 340
+              "hold_ms": 232
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f04.webp",
-              "hold_ms": 340
+              "hold_ms": 232
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f05.webp",
-              "hold_ms": 520
+              "hold_ms": 355
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f06.webp",
-              "hold_ms": 340
+              "hold_ms": 232
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f07.webp",
-              "hold_ms": 660
+              "hold_ms": 450
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f08.webp",
-              "hold_ms": 360
+              "hold_ms": 245
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f09.webp",
-              "hold_ms": 300
+              "hold_ms": 205
             },
             {
               "img": "img/quest/drill/movements/seq/pace-backward/f10.webp",
-              "hold_ms": 700
+              "hold_ms": 476
             }
           ],
           "leader_demo": true,
@@ -733,6 +751,8 @@
           "id": "pace-left",
           "title_zh": "左移一步",
           "title_en": "One pace left close",
+          "brief_zh": "左腳向左橫移，右腳靠攏。",
+          "brief_en": "Step left, then close the right foot.",
           "command": "One pace, left close—march!",
           "count": "打數：One—Two",
           "study_group": "pacing",
@@ -799,6 +819,8 @@
           "id": "pace-right",
           "title_zh": "右移一步",
           "title_en": "One pace right close",
+          "brief_zh": "右腳向右橫移，左腳靠攏。",
+          "brief_en": "Step right, then close the left foot.",
           "command": "One pace, right close—march!",
           "count": "打數：One—Two",
           "study_group": "pacing",
@@ -873,6 +895,8 @@
           "id": "quick-march",
           "title_zh": "開步走（齊步）",
           "title_en": "By the front, quick march",
+          "brief_zh": "左腳開步，手臂自然擺動。",
+          "brief_en": "Step off on the left foot, arms swinging naturally.",
           "command": "By the left/right, quick—march!",
           "count": "打數：Left—Right—Left",
           "img": "img/quest/drill/manual/p048-quick-march.jpg",
@@ -949,6 +973,8 @@
           "id": "halt",
           "title_zh": "停步（立定）",
           "title_en": "Halting",
+          "brief_zh": "再向前一步，然後靠腳成立正。",
+          "brief_en": "One more pace, then close to attention.",
           "command": "Squad—halt!",
           "count": "打數：One—Two",
           "img": "img/quest/drill/manual/p051-halt.jpg",
@@ -986,37 +1012,37 @@
           "animation": [
             {
               "img": "img/quest/drill/movements/seq/halt/f01.webp",
-              "hold_ms": 280,
+              "hold_ms": 275,
               "label_zh": "停步：先看一輪行進（左右腳各踏一步），口令在左腳著地時發出；右腳再踏前 750 毫米，左腳前半步靠攏收細步幅，右腳提膝至大腿與地面平行、雙手夾回褲旁，最後踏下靠攏立正",
               "label_en": "Halting: watch one full marching cycle first (a step on each foot); the command comes as the left foot lands — the right foot takes one more 750 mm step, the left closes with a half step, the right knee rises to thigh-level with both fists snapped to the trouser seams, then it is planted beside the left foot and he is back at attention"
             },
             {
               "img": "img/quest/drill/movements/seq/halt/f02.webp",
-              "hold_ms": 220
+              "hold_ms": 216
             },
             {
               "img": "img/quest/drill/movements/seq/halt/f03.webp",
-              "hold_ms": 280
+              "hold_ms": 275
             },
             {
               "img": "img/quest/drill/movements/seq/halt/f04.webp",
-              "hold_ms": 220
+              "hold_ms": 216
             },
             {
               "img": "img/quest/drill/movements/seq/halt/f05.webp",
-              "hold_ms": 460
+              "hold_ms": 451
             },
             {
               "img": "img/quest/drill/movements/seq/halt/f06.webp",
-              "hold_ms": 460
+              "hold_ms": 451
             },
             {
               "img": "img/quest/drill/movements/seq/halt/f07.webp",
-              "hold_ms": 240
+              "hold_ms": 235
             },
             {
               "img": "img/quest/drill/movements/seq/halt/f08.webp",
-              "hold_ms": 900
+              "hold_ms": 881
             }
           ]
         },
@@ -1024,6 +1050,8 @@
           "id": "mark-time",
           "title_zh": "原地踏步",
           "title_en": "Mark time",
+          "brief_zh": "雙腳輪流抬高，人留在原地。",
+          "brief_en": "Mark time on the spot, without moving forward.",
           "command": "Quick mark—time!",
           "count": "打數：Left—Right—Left",
           "img": "img/quest/drill/manual/p083-mark-time.jpg",
@@ -1112,6 +1140,8 @@
           "id": "fall-in",
           "title_zh": "集隊口令（Fall-in）",
           "title_en": "The fall-in",
+          "brief_zh": "司令做手號，全隊在面前集合。",
+          "brief_en": "The leader gives the sign; the troop falls in.",
           "command": "Scout Troop, Fall—in!",
           "img": "img/quest/drill/manual/p188-fall-in.jpg",
           "manual": "手冊 p.188",
@@ -1149,6 +1179,8 @@
           "id": "sign-line",
           "title_zh": "直線",
           "title_en": "Line",
+          "brief_zh": "兩拳向兩側平舉，排成直線。",
+          "brief_en": "Both fists out to the sides: one straight line.",
           "img": "img/quest/drill/manual/p189-line.jpg",
           "manual": "手冊 p.189",
           "points_zh": [
@@ -1188,6 +1220,8 @@
           "id": "sign-line-tall",
           "title_zh": "直線（由高至矮）",
           "title_en": "Line, tallest first",
+          "brief_zh": "一拳在前、一拳平舉，由高至矮排成直線。",
+          "brief_en": "One fist forward, one out: tallest to shortest.",
           "img": "img/quest/drill/manual/p190-line-tall.jpg",
           "manual": "手冊 p.190",
           "points_zh": [
@@ -1227,6 +1261,8 @@
           "id": "sign-columns",
           "title_zh": "直行",
           "title_en": "Columns",
+          "brief_zh": "兩拳向前平舉，各小隊排成直行。",
+          "brief_en": "Both fists forward: each patrol in a file.",
           "img": "img/quest/drill/manual/p191-columns.jpg",
           "manual": "手冊 p.191",
           "points_zh": [
@@ -1266,6 +1302,8 @@
           "id": "sign-open-order",
           "title_zh": "闊橫排",
           "title_en": "Open order",
+          "brief_zh": "兩拳向側、前臂向上，各排留闊位。",
+          "brief_en": "Fists out, forearms up: ranks with a wide gap.",
           "img": "img/quest/drill/manual/p192-open-order.jpg",
           "manual": "手冊 p.192",
           "points_zh": [
@@ -1305,6 +1343,8 @@
           "id": "sign-close-order",
           "title_zh": "窄橫排",
           "title_en": "Close order",
+          "brief_zh": "兩拳向前、前臂向上，各排靠攏。",
+          "brief_en": "Fists forward, forearms up: ranks closed up.",
           "img": "img/quest/drill/manual/p193-close-order.jpg",
           "manual": "手冊 p.193",
           "points_zh": [
@@ -1344,6 +1384,8 @@
           "id": "sign-horseshoe",
           "title_zh": "馬蹄鐵形",
           "title_en": "Horse shoe",
+          "brief_zh": "雙手直伸相疊，排成開口向司令的 U 形。",
+          "brief_en": "Arms straight, wrists crossed: a U open to the leader.",
           "img": "img/quest/drill/manual/p194-horseshoe.jpg",
           "manual": "手冊 p.194",
           "points_zh": [
@@ -1383,6 +1425,8 @@
           "id": "sign-open-square",
           "title_zh": "開口正方形",
           "title_en": "Open square",
+          "brief_zh": "雙手在頭頂相握，排成開口正方形。",
+          "brief_en": "Hands clasped overhead: an open square.",
           "img": "img/quest/drill/manual/p195-open-square.jpg",
           "manual": "手冊 p.195",
           "points_zh": [
@@ -1432,6 +1476,8 @@
           "id": "right-dress",
           "title_zh": "向右看齊",
           "title_en": "Right dress",
+          "brief_zh": "右手平伸，向右看齊，隔一隻手的距離。",
+          "brief_en": "Right arm out, dress right, one arm’s length apart.",
           "command": "Right—dress!",
           "manual": "手冊 p.24–26（第六章第四節 睇齊）",
           "leader_demo": true,
@@ -1469,21 +1515,21 @@
           "animation": [
             {
               "img": "img/quest/drill/movements/seq/right-dress/f01.webp",
-              "hold_ms": 440,
+              "hold_ms": 468,
               "label_zh": "向右看齊：左邊立正不動的是引導翼（右方隊員）。Up! 右手向橫提升至肩膊平、手背向天，頭同時轉右 90 度望向該隊員；Move! 用碎步橫移就位，直至拳頭與他相距一隻手位",
               "label_en": "Right dress: the statue standing fast on the left is the directing flank — the scout on your right. On “Up!” the right arm rises sideways to shoulder level, back of the hand up, and the head turns 90 degrees right toward him; on “Move!” small shuffling steps close the gap until the fist is one hand-space from his shoulder"
             },
             {
               "img": "img/quest/drill/movements/seq/right-dress/f02.webp",
-              "hold_ms": 280
+              "hold_ms": 298
             },
             {
               "img": "img/quest/drill/movements/seq/right-dress/f03.webp",
-              "hold_ms": 360
+              "hold_ms": 383
             },
             {
               "img": "img/quest/drill/movements/seq/right-dress/f04.webp",
-              "hold_ms": 800
+              "hold_ms": 851
             }
           ]
         }
