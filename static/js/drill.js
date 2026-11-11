@@ -386,6 +386,13 @@
       if (!nodes.length) return;
       var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var startedAt = Date.now();
+      /* decode every pose before the first change, so a frame is never swapped
+         in while its picture is still blank */
+      nodes.forEach(function (node) {
+        Array.prototype.forEach.call(node.querySelectorAll('img'), function (img) {
+          if (img.decode) img.decode().catch(function () {});
+        });
+      });
       function apply() {
         nodes.forEach(function (node) {
           var steps = Array.prototype.slice.call(node.querySelectorAll('[data-drill-frame]'));
@@ -393,11 +400,12 @@
           if (reduce) {
             steps.forEach(function (step, index) {
               step.classList.toggle('is-active', index === steps.length - 1);
+              step.classList.remove('is-under');
             });
             return;
           }
           var holds = steps.map(function (step) {
-            return Math.max(250, Number(step.getAttribute('data-hold-ms')) || 900);
+            return Math.max(180, Number(step.getAttribute('data-hold-ms')) || 900);
           });
           var total = holds.reduce(function (sum, hold) { return sum + hold; }, 0);
           var at = (Date.now() - startedAt) % total;
@@ -407,13 +415,24 @@
             if (at >= cursor) active = index;
             cursor += hold;
           });
+          var last = node._frameOn;
+          var incoming = steps[active];
+          var incomingImg = incoming && incoming.querySelector('img');
+          var ready = !incomingImg || incomingImg.complete;
+          /* hold the picture already on screen until the next one has decoded,
+             so a slow frame cannot open a blank gap */
+          var show = ready || last === undefined ? active : last;
+          if (last === show) return;
           steps.forEach(function (step, index) {
-            step.classList.toggle('is-active', index === active);
+            step.classList.toggle('is-active', index === show);
+            /* the pose that is leaving stays fully opaque under the one arriving */
+            step.classList.toggle('is-under', last !== undefined && index === last && index !== show);
           });
+          node._frameOn = show;
         });
       }
       apply();
-      if (!reduce) statueTimer = window.setInterval(apply, 80);
+      if (!reduce) statueTimer = window.setInterval(apply, 40);
     }
     function kicker(text, kind) {
       return '<span class="cave-kicker' + (kind ? ' cave-kicker-' + kind : '') + '">' + esc(text) + '</span>';
@@ -536,14 +555,21 @@
         ? pick(L.move_prompt_visual_zh || '石像示範的步操動作',
                L.move_prompt_visual_en || 'The drill movement shown by the statue')
         : pick(m.title_zh, m.title_en);
-      return '<span class="drill-statue-anim is-' + esc(variant || 'flip') + '"' +
+      /* a still plate can stay painted for the whole loop, so a frame change
+         never opens a gap onto the dark card behind the pictures */
+      var plate = m.plate && artUrl(m.plate)
+        ? '<img class="drill-statue-plate" src="' + esc(artUrl(m.plate)) + '" alt="" decoding="sync">'
+        : '';
+      return '<span class="drill-statue-anim is-' + esc(variant || 'flip') +
+             (plate ? ' has-plate' : '') + '"' +
              ' data-drill-animation="' + esc(m.id) + '" data-frame-count="' + frames.length + '"' +
              ' role="img" aria-label="' + esc(ariaLabel) + '">' +
+        plate +
         frames.map(function (frame, index) {
           /* no caption under the statue: the animation itself is the teaching */
           return '<span class="drill-statue-step' + (index === 0 ? ' is-active' : '') + '"' +
                  ' data-drill-frame data-hold-ms="' + esc(frame.hold_ms || 900) + '">' +
-            '<img src="' + esc(artUrl(frame.img)) + '" alt="">' +
+            '<img src="' + esc(artUrl(frame.img)) + '" alt="" decoding="sync">' +
           '</span>';
         }).join('') +
       '</span>';

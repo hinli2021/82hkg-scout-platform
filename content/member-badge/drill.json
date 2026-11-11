@@ -242,10 +242,46 @@
           "img2": "img/quest/drill/manual/p035-right-turn-2.jpg",
           "animation": [
             {
-              "img": "img/quest/drill/movements/right-turn-animation.webp",
+              "img": "img/quest/drill/movements/seq/right-turn/f01.webp",
+              "hold_ms": 420,
               "label_zh": "向右轉：以右腳掌及左腳尖為軸心向右轉 90 度（轉至面向畫面左方），抬腳九十度，左腳放下靠攏，回復立正",
-              "label_en": "Right turn: pivot 90 degrees to his right until he faces the left of the image, knee raised at ninety degrees, the left foot comes down and closes — back at Alert",
-              "hold_ms": 3200
+              "label_en": "Right turn: pivot 90 degrees to his right until he faces the left of the image, knee raised at ninety degrees, the left foot comes down and closes — back at Alert"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f02.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f03.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f04.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f05.webp",
+              "hold_ms": 300
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f06.webp",
+              "hold_ms": 240
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f07.webp",
+              "hold_ms": 480
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f08.webp",
+              "hold_ms": 240
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f09.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-turn/f10.webp",
+              "hold_ms": 620
             }
           ],
           "manual": "手冊 p.34–35",
@@ -313,10 +349,46 @@
           },
           "animation": [
             {
-              "img": "img/quest/drill/movements/left-turn-animation.webp",
+              "img": "img/quest/drill/movements/seq/left-turn/f01.webp",
+              "hold_ms": 420,
               "label_zh": "向左轉：以左腳掌及右腳尖為軸心向左轉 90 度（轉至面向畫面右方），抬腳九十度，右腳放下靠攏，回復立正",
-              "label_en": "Left turn: pivot 90 degrees to his left on the left ball and right toe until he faces the right of the image, knee raised at ninety degrees, the right foot comes down and closes — back at Alert",
-              "hold_ms": 3200
+              "label_en": "Left turn: pivot 90 degrees to his left on the left ball and right toe until he faces the right of the image, knee raised at ninety degrees, the right foot comes down and closes — back at Alert"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f02.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f03.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f04.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f05.webp",
+              "hold_ms": 300
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f06.webp",
+              "hold_ms": 240
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f07.webp",
+              "hold_ms": 480
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f08.webp",
+              "hold_ms": 240
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f09.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/left-turn/f10.webp",
+              "hold_ms": 620
             }
           ]
         },
@@ -358,10 +430,42 @@
           },
           "animation": [
             {
-              "img": "img/quest/drill/movements/about-turn-animation.webp",
+              "img": "img/quest/drill/movements/seq/about-turn/f01.webp",
+              "hold_ms": 420,
               "label_zh": "後轉：以右腳掌及左腳尖為軸心向右轉 180 度（轉至背向），左腳提起靠攏右腳，回復立正",
-              "label_en": "About turn: pivot 180 degrees to his right on the right ball and left toe, ending with his back to the viewer, then the left foot closes — back at Alert",
-              "hold_ms": 3020
+              "label_en": "About turn: pivot 180 degrees to his right on the right ball and left toe, ending with his back to the viewer, then the left foot closes — back at Alert"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/about-turn/f02.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/about-turn/f03.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/about-turn/f04.webp",
+              "hold_ms": 320
+            },
+            {
+              "img": "img/quest/drill/movements/seq/about-turn/f05.webp",
+              "hold_ms": 360
+            },
+            {
+              "img": "img/quest/drill/movements/seq/about-turn/f06.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/about-turn/f07.webp",
+              "hold_ms": 320
+            },
+            {
+              "img": "img/quest/drill/movements/seq/about-turn/f08.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/about-turn/f09.webp",
+              "hold_ms": 620
             }
           ]
         }
@@ -482,10 +586,38 @@
           "study_group": "pacing",
           "animation": [
             {
-              "img": "img/quest/drill/movements/pace-forward-side-animation.webp",
+              "img": "img/quest/drill/movements/seq/pace-forward/f01.webp",
+              "hold_ms": 420,
               "label_zh": "前移一步：前腳踏前，後腳靠攏，回復立正",
-              "label_en": "One pace forward: the front foot steps ahead, the rear foot closes — back at Alert",
-              "hold_ms": 2880
+              "label_en": "One pace forward: the front foot steps ahead, the rear foot closes — back at Alert"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-forward/f02.webp",
+              "hold_ms": 240
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-forward/f03.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-forward/f04.webp",
+              "hold_ms": 340
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-forward/f05.webp",
+              "hold_ms": 420
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-forward/f06.webp",
+              "hold_ms": 340
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-forward/f07.webp",
+              "hold_ms": 300
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-forward/f08.webp",
+              "hold_ms": 260
             }
           ],
           "leader_demo": true,
@@ -526,10 +658,46 @@
           "study_group": "pacing",
           "animation": [
             {
-              "img": "img/quest/drill/movements/pace-backward-side-animation.webp",
+              "img": "img/quest/drill/movements/seq/pace-backward/f01.webp",
+              "hold_ms": 460,
               "label_zh": "後移一步：左腿離地後擺，身體隨之後移，左腿後落，雙腳踏地，右腿離地抬腳九十度，右腿放下併攏，回復立正",
-              "label_en": "One pace backward: the left leg lifts and swings back, the body follows, it lands behind, the right leg lifts to ninety degrees and comes down, the feet close — back at Alert",
-              "hold_ms": 4440
+              "label_en": "One pace backward: the left leg lifts and swings back, the body follows, it lands behind, the right leg lifts to ninety degrees and comes down, the feet close — back at Alert"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f02.webp",
+              "hold_ms": 380
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f03.webp",
+              "hold_ms": 340
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f04.webp",
+              "hold_ms": 340
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f05.webp",
+              "hold_ms": 520
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f06.webp",
+              "hold_ms": 340
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f07.webp",
+              "hold_ms": 660
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f08.webp",
+              "hold_ms": 360
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f09.webp",
+              "hold_ms": 300
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-backward/f10.webp",
+              "hold_ms": 700
             }
           ],
           "leader_demo": true,
@@ -570,10 +738,30 @@
           "study_group": "pacing",
           "animation": [
             {
-              "img": "img/quest/drill/movements/pace-left-longstone-fixed-animation.webp",
+              "img": "img/quest/drill/movements/seq/pace-left/f01.webp",
+              "hold_ms": 630,
               "label_zh": "左移一步：左腳橫移 300 毫米，右腳靠攏，回復立正",
-              "label_en": "One pace left: left foot 300 mm sideways, right foot closes — back at Alert",
-              "hold_ms": 2880
+              "label_en": "One pace left: left foot 300 mm sideways, right foot closes — back at Alert"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-left/f02.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-left/f03.webp",
+              "hold_ms": 430
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-left/f04.webp",
+              "hold_ms": 430
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-left/f05.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-left/f06.webp",
+              "hold_ms": 830
             }
           ],
           "img": "img/quest/drill/manual/p043-side-pace.jpg",
@@ -616,10 +804,30 @@
           "study_group": "pacing",
           "animation": [
             {
-              "img": "img/quest/drill/movements/pace-right-longstone-fixed-animation.webp",
+              "img": "img/quest/drill/movements/seq/pace-right/f01.webp",
+              "hold_ms": 630,
               "label_zh": "右移一步：右腳橫移 300 毫米，左腳靠攏，回復立正",
-              "label_en": "One pace right: right foot 300 mm sideways, left foot closes — back at Alert",
-              "hold_ms": 2880
+              "label_en": "One pace right: right foot 300 mm sideways, left foot closes — back at Alert"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-right/f02.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-right/f03.webp",
+              "hold_ms": 430
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-right/f04.webp",
+              "hold_ms": 430
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-right/f05.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/pace-right/f06.webp",
+              "hold_ms": 830
             }
           ],
           "img": "img/quest/drill/manual/p043-side-pace.jpg",
@@ -702,10 +910,38 @@
           },
           "animation": [
             {
-              "img": "img/quest/drill/movements/quick-march-animation.webp",
+              "img": "img/quest/drill/movements/seq/quick-march/f01.webp",
+              "hold_ms": 260,
               "label_zh": "開步走：左腳踏前 750 毫米，雙臂前後自然擺動、握拳，身軀挺直，每分鐘 116 步",
-              "label_en": "Quick march: the left foot steps forward 750 mm, arms swing in opposition from the shoulder with fists clenched, body upright — 116 steps to the minute",
-              "hold_ms": 2060
+              "label_en": "Quick march: the left foot steps forward 750 mm, arms swing in opposition from the shoulder with fists clenched, body upright — 116 steps to the minute"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/quick-march/f02.webp",
+              "hold_ms": 250
+            },
+            {
+              "img": "img/quest/drill/movements/seq/quick-march/f03.webp",
+              "hold_ms": 260
+            },
+            {
+              "img": "img/quest/drill/movements/seq/quick-march/f04.webp",
+              "hold_ms": 250
+            },
+            {
+              "img": "img/quest/drill/movements/seq/quick-march/f05.webp",
+              "hold_ms": 260
+            },
+            {
+              "img": "img/quest/drill/movements/seq/quick-march/f06.webp",
+              "hold_ms": 250
+            },
+            {
+              "img": "img/quest/drill/movements/seq/quick-march/f07.webp",
+              "hold_ms": 260
+            },
+            {
+              "img": "img/quest/drill/movements/seq/quick-march/f08.webp",
+              "hold_ms": 250
             }
           ]
         },
@@ -749,10 +985,38 @@
           },
           "animation": [
             {
-              "img": "img/quest/drill/movements/halt-animation.webp",
+              "img": "img/quest/drill/movements/seq/halt/f01.webp",
+              "hold_ms": 280,
               "label_zh": "停步：先看一輪行進（左右腳各踏一步），口令在左腳著地時發出；右腳再踏前 750 毫米，左腳前半步靠攏收細步幅，右腳提膝至大腿與地面平行、雙手夾回褲旁，最後踏下靠攏立正",
-              "label_en": "Halting: watch one full marching cycle first (a step on each foot); the command comes as the left foot lands — the right foot takes one more 750 mm step, the left closes with a half step, the right knee rises to thigh-level with both fists snapped to the trouser seams, then it is planted beside the left foot and he is back at attention",
-              "hold_ms": 3080
+              "label_en": "Halting: watch one full marching cycle first (a step on each foot); the command comes as the left foot lands — the right foot takes one more 750 mm step, the left closes with a half step, the right knee rises to thigh-level with both fists snapped to the trouser seams, then it is planted beside the left foot and he is back at attention"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/halt/f02.webp",
+              "hold_ms": 220
+            },
+            {
+              "img": "img/quest/drill/movements/seq/halt/f03.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/halt/f04.webp",
+              "hold_ms": 220
+            },
+            {
+              "img": "img/quest/drill/movements/seq/halt/f05.webp",
+              "hold_ms": 460
+            },
+            {
+              "img": "img/quest/drill/movements/seq/halt/f06.webp",
+              "hold_ms": 460
+            },
+            {
+              "img": "img/quest/drill/movements/seq/halt/f07.webp",
+              "hold_ms": 240
+            },
+            {
+              "img": "img/quest/drill/movements/seq/halt/f08.webp",
+              "hold_ms": 900
             }
           ]
         },
@@ -799,10 +1063,38 @@
           },
           "animation": [
             {
-              "img": "img/quest/drill/movements/mark-time-animation.webp",
+              "img": "img/quest/drill/movements/seq/mark-time/f01.webp",
+              "hold_ms": 200,
               "label_zh": "原地踏步：左右腳交替提起至大腿與地面平行，支撐腳掌平放、膝頭直，雙手握拳貼褲縫，每分鐘 116 步",
-              "label_en": "Mark time: lift each foot in turn until the thigh is level, the supporting foot flat with the knee straight, fists at the trouser seams, 116 steps to the minute",
-              "hold_ms": 2100
+              "label_en": "Mark time: lift each foot in turn until the thigh is level, the supporting foot flat with the knee straight, fists at the trouser seams, 116 steps to the minute"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/mark-time/f02.webp",
+              "hold_ms": 320
+            },
+            {
+              "img": "img/quest/drill/movements/seq/mark-time/f03.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/mark-time/f04.webp",
+              "hold_ms": 320
+            },
+            {
+              "img": "img/quest/drill/movements/seq/mark-time/f05.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/mark-time/f06.webp",
+              "hold_ms": 320
+            },
+            {
+              "img": "img/quest/drill/movements/seq/mark-time/f07.webp",
+              "hold_ms": 200
+            },
+            {
+              "img": "img/quest/drill/movements/seq/mark-time/f08.webp",
+              "hold_ms": 320
             }
           ]
         }
@@ -1176,10 +1468,22 @@
           },
           "animation": [
             {
-              "img": "img/quest/drill/movements/right-dress-animation.webp",
+              "img": "img/quest/drill/movements/seq/right-dress/f01.webp",
+              "hold_ms": 440,
               "label_zh": "向右看齊：左邊立正不動的是引導翼（右方隊員）。Up! 右手向橫提升至肩膊平、手背向天，頭同時轉右 90 度望向該隊員；Move! 用碎步橫移就位，直至拳頭與他相距一隻手位",
-              "label_en": "Right dress: the statue standing fast on the left is the directing flank — the scout on your right. On “Up!” the right arm rises sideways to shoulder level, back of the hand up, and the head turns 90 degrees right toward him; on “Move!” small shuffling steps close the gap until the fist is one hand-space from his shoulder",
-              "hold_ms": 1900
+              "label_en": "Right dress: the statue standing fast on the left is the directing flank — the scout on your right. On “Up!” the right arm rises sideways to shoulder level, back of the hand up, and the head turns 90 degrees right toward him; on “Move!” small shuffling steps close the gap until the fist is one hand-space from his shoulder"
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-dress/f02.webp",
+              "hold_ms": 280
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-dress/f03.webp",
+              "hold_ms": 360
+            },
+            {
+              "img": "img/quest/drill/movements/seq/right-dress/f04.webp",
+              "hold_ms": 800
             }
           ]
         }
