@@ -4069,7 +4069,7 @@ body.is-game main { padding-top: 6px; }
    description on the right page */
 .flag-board:has(.notebook-open) { width: min(100%, 60rem); }
 .notebook-open {
-  position: relative; width: 100%; aspect-ratio: 1270 / 677; margin: 0 auto;
+  position: relative; width: 100%; aspect-ratio: 1411 / 752; margin: 0 auto;
   background: url("img/quest/flag/pipe/notebook-bg.jpg") center / contain no-repeat;
   display: grid; grid-template-columns: 1fr 1fr; column-gap: 7%;
   padding: 7% 8.5% 9%; box-sizing: border-box; align-content: start;
