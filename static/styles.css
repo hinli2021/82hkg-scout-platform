@@ -4260,6 +4260,21 @@ body.is-game main { padding-top: 6px; }
 .pipe-hole:hover .pipe-hole-img, .pipe-hole:focus-visible .pipe-hole-img {
   filter: drop-shadow(0 0 12px rgba(255, 210, 90, .95));
 }
+/* a pipe the start button has proved wrong is ringed in red light until
+   it is swapped or taken out */
+.pipe-hole.is-wrong .pipe-hole-img {
+  filter: drop-shadow(0 0 7px rgba(255, 64, 40, .95)) drop-shadow(0 0 16px rgba(255, 64, 40, .75));
+}
+.pipe-hole.is-wrong::after {
+  content: ""; position: absolute; inset: -7% -4%; z-index: 3; pointer-events: none;
+  border: 3px solid rgba(255, 82, 58, .95); border-radius: .45rem;
+  box-shadow: 0 0 16px rgba(255, 64, 40, .85), inset 0 0 12px rgba(255, 64, 40, .5);
+  animation: pipe-wrong-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes pipe-wrong-pulse {
+  from { box-shadow: 0 0 8px rgba(255, 64, 40, .55), inset 0 0 6px rgba(255, 64, 40, .35); }
+  to { box-shadow: 0 0 20px rgba(255, 64, 40, .95), inset 0 0 14px rgba(255, 64, 40, .55); }
+}
 .pipe-hole-no {
   position: absolute; top: 5%; right: 3.5%; z-index: 2;
   min-width: 1.05rem; padding: .05rem .2rem; border-radius: 999px;
@@ -4333,6 +4348,12 @@ body.is-game main { padding-top: 6px; }
   border-radius: 999px; width: 2rem; height: 2rem; cursor: pointer; font: inherit;
 }
 .pipe-popup-q { margin: .45rem 0 .3rem; color: #fff; font-size: clamp(1.02rem, 2.2vw, 1.35rem); }
+.pipe-popup .btn.ghost {
+  color: #fff3d6; border-color: rgba(255, 227, 168, .8);
+  background: rgba(255, 243, 214, .14);
+}
+.pipe-popup .btn.ghost:hover { background: rgba(255, 243, 214, .26); color: #ffffff; }
+.pipe-piece-word { color: #241a08; font-size: .92rem; }
 .pipe-fit {
   position: relative; display: flex; align-items: center; justify-content: center;
   min-height: 7.2rem; margin-top: .6rem; padding: .6rem;
@@ -4393,4 +4414,5 @@ body.is-game main { padding-top: 6px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .flag-hot, .flag-tile.is-asking, .flag-gap, .flag-cloth.is-fly { animation: none; }
+  .pipe-hole.is-wrong::after { animation: none; }
 }

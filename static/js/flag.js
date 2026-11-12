@@ -85,6 +85,7 @@
   var holeOrder = [];        /* shuffled hole order for the stage being fitted */
   var kindMaps = {};         /* qid -> pipe kind per option, shuffled each stage */
   var trayOrders = {};       /* qid -> order the pipes are offered in, shuffled */
+  var wrongIds = {};         /* qids the start button has proved wrong this run */
   var selected = null;        /* qid of the gap being fitted */
   var stageIndex = 0;
   var startedAt = 0;
@@ -130,7 +131,7 @@
      original option index, so grading is unchanged. */
   function prepareStage() {
     var s = stage();
-    kindMaps = {}; trayOrders = {};
+    kindMaps = {}; trayOrders = {}; wrongIds = {};
     if (!s) { holeOrder = []; return; }
     holeOrder = shuffled(s.questions.map(function (it, i) { return i; }));
     s.questions.forEach(function (it) {
@@ -379,6 +380,7 @@
     var remove = pop.querySelector("[data-pipe-remove]");
     if (remove) remove.addEventListener("click", function () {
       delete placements[q.id];
+      delete wrongIds[q.id];
       buildMachine();
     });
   }
@@ -386,6 +388,7 @@
   function fitPipe(qid, optionIndex) {
     if (qid !== selected || isNaN(optionIndex)) return;
     placements[qid] = optionIndex;
+    delete wrongIds[qid];
     var pop = picture.querySelector("[data-pipe-popup]");
     var fit = pop ? pop.querySelector("[data-pipe-fit]") : null;
     if (fit) {
@@ -414,13 +417,21 @@
     }
     var allRight = s.questions.every(function (it) { return placements[it.q.id] === it.q.answer; });
     if (!allRight) {
-      /* the machine stays live: tap any gap, swap its pipe, press start again */
+      /* the machine stays live: the wrong pipes are ringed in red on the
+         board; tap one, swap its pipe, press start again */
+      wrongIds = {};
+      s.questions.forEach(function (it) {
+        if (placements[it.q.id] !== it.q.answer) wrongIds[it.q.id] = true;
+      });
+      picture.querySelectorAll(".pipe-hole").forEach(function (hole) {
+        hole.classList.toggle("is-wrong", !!wrongIds[hole.getAttribute("data-qid")]);
+      });
       if (light) light.src = sourceUrl("light-red");
       card.innerHTML = cardHtml(
         stageName(),
         t("紅燈亮起", "The red light glows"),
-        t("機器咳了兩聲，停下來。這一組喉裡面，有駁錯的地方。打開左邊的筆記對一對，點開空位就可以換另一段喉。再按一次開機掣。",
-          "The machine coughs twice and stops. Somewhere in this run a pipe is wrong. Check the notebook on the left, tap a gap to swap its pipe, then press start again."),
+        t("機器咳了兩聲，停下來。駁錯的喉已經用紅光圈住。打開左邊的筆記對一對，點開圈住的窿就可以換另一段喉。再按一次開機掣。",
+          "The machine coughs twice and stops. The wrong pipes are ringed in red light. Check the notebook on the left, tap a ringed hole to swap its pipe, then press start again."),
         "");
       return;
     }

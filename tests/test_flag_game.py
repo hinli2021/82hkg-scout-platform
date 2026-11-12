@@ -100,6 +100,13 @@ def test_holes_stay_inside_the_black_board_and_answers_are_dealt_at_random():
     # random tray order for every answer
     assert "function prepareStage()" in js and "kindIndexFor" in js
     assert "Math.random" in js
+    # a wrong start rings the wrong pipes in red, and the popup's buttons
+    # keep light words on their dark ground
+    assert "is-wrong" in js and "wrongIds" in js
+    css = (pathlib.Path(__file__).resolve().parent.parent / "static"
+           / "styles.css").read_text(encoding="utf-8")
+    assert ".pipe-hole.is-wrong::after" in css
+    assert ".pipe-popup .btn.ghost" in css and "#fff3d6" in css
 
 
 def test_the_task_page_redirects_into_the_game(scout_client, store):
