@@ -35,15 +35,27 @@
     { ids: ["raise"], zh: "最後一組喉管：升到桿頂", en: "Final pipe run: up to the top" }
   ];
   var PIPE_KINDS = ["pipe-straight", "pipe-elbow", "pipe-zigzag", "pipe-wave"];
+  /* the same four pipes already fitted into the hole — one painting each,
+     exactly the size of the empty hole, so selecting a pipe swaps the
+     whole hole picture instead of laying a pipe over it */
+  var FITTED_KINDS = ["hole-pipe-straight", "hole-pipe-elbow", "hole-pipe-zigzag", "hole-pipe-wave"];
 
-  /* Holes are scattered over the panel's dark board, not lined up: each run
-     has its own pattern (centre x/y in percent of the panel, then tilt). */
-  var HOLE_LAYOUTS = [
-    [[37, 36, -6], [49, 33, 4], [62, 37, -3], [71, 50, 7], [57, 52, -8], [43, 54, 5], [36, 68, -4], [51, 70, 6], [68, 68, -7]],
-    [[39, 50, 7], [48, 35, -5], [61, 39, 3], [72, 60, -6], [56, 56, 8], [40, 66, -3], [67, 71, 4], [52, 71, -7], [74, 34, 5]],
-    [[35, 38, 3], [46, 33, -6], [58, 36, 5], [70, 40, -4], [64, 54, 7], [50, 52, -7], [38, 58, 4], [43, 70, -3], [57, 69, 6], [71, 68, -5]],
-    [[46, 50, -4], [64, 54, 5]]
-  ];
+  /* Holes sit in a neat grid, always inside the panel's black board (the
+     board spans roughly x 30–79%, y 28–76% of the panel painting, and the
+     grid keeps a margin inside it). Centres are in percent of the panel. */
+  function holeSpot(index, count) {
+    var cols, width, rowYs;
+    if (count <= 2) { cols = count; width = 17; rowYs = [52]; }
+    else if (count <= 9) { cols = 3; width = 13.5; rowYs = [37.5, 52, 66.5]; }
+    else { cols = 5; width = 8.8; rowYs = [44, 62]; }
+    var row = Math.floor(index / cols);
+    var inRow = Math.min(cols, count - row * cols);
+    var col = index - row * cols;
+    var spacing = cols === 3 ? 13.5 : (cols === 5 ? 7.8 : 21);
+    var x = 54 + (col - (inRow - 1) / 2) * spacing;
+    var y = rowYs[Math.min(row, rowYs.length - 1)];
+    return { x: x, y: y, width: width };
+  }
 
   function stationById(id) {
     return stations.filter(function (s) { return s.id === id; })[0] || null;
@@ -151,18 +163,16 @@
   function holeHtml(item, index) {
     var q = item.q;
     var placed = placements[q.id];
-    var layout = HOLE_LAYOUTS[stageIndex] || HOLE_LAYOUTS[0];
-    var spot = layout[index % layout.length];
-    var width = stage().questions.length <= 2 ? 19 : 13.5;
-    var inner = artImg("socket", "pipe-hole-img")
+    var spot = holeSpot(index, stage().questions.length);
+    var inner = artImg(placed != null ? FITTED_KINDS[placed % FITTED_KINDS.length] : "hole",
+                       "pipe-hole-img")
       + '<span class="pipe-hole-no">' + (index + 1) + '</span>';
     if (placed != null) {
-      inner += artImg(PIPE_KINDS[placed % PIPE_KINDS.length], "pipe-on-hole")
-        + '<span class="pipe-hole-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>';
+      inner += '<span class="pipe-hole-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>';
     }
     return '<button type="button" class="pipe-hole' + (placed == null ? "" : " is-full") + '"'
-      + ' style="left:' + spot[0] + "%;top:" + spot[1] + "%;width:" + width
-      + "%;transform:translate(-50%,-50%) rotate(" + spot[2] + 'deg)"'
+      + ' style="left:' + spot.x + "%;top:" + spot.y + "%;width:" + spot.width
+      + '%;transform:translate(-50%,-50%)"'
       + ' data-qid="' + q.id + '"'
       + ' aria-label="' + escapeHtml(t("第", "Hole ") + (index + 1) + t("個窿", "")) + '">' + inner + '</button>';
   }
@@ -240,8 +250,8 @@
     card.innerHTML = cardHtml(
       stageName(),
       t("駁好這一組喉", "Connect this run of pipe"),
-      message || t("控制板上有 " + s.questions.length + " 個窿，散佈在板上，每個窿對應一題。點開一個窿，駁喉畫面就會彈出來；把喉拖入接口，畫面會自己返回控制板，你會看到那段喉駁在窿上。全部駁好之後，按控制板右邊的開機掣。左邊的筆記有齊你要用的資料。",
-                   "There are " + s.questions.length + " holes scattered over the control panel, one for each question. Tap a hole and the fitting screen pops up; drag a pipe into the socket and the screen returns to the panel, with your pipe on the hole. When every hole is filled, press the start button on the panel. The notebook on the left holds everything you need."),
+      message || t("控制板上的黑格有 " + s.questions.length + " 個窿，整齊排好，每個窿對應一題。點開一個窿，駁喉畫面就會彈出來；把喉拖入接口，畫面會自己返回控制板，你會看到那段喉駁在窿上。全部駁好之後，按控制板右邊的開機掣。左邊的筆記有齊你要用的資料。",
+                   "There are " + s.questions.length + " holes arranged neatly on the black board of the control panel, one for each question. Tap a hole and the fitting screen pops up; drag a pipe into the socket and the screen returns to the panel, with your pipe on the hole. When every hole is filled, press the start button on the panel. The notebook on the left holds everything you need."),
       '<div class="cave-actions"><span class="pipe-card-count">'
         + escapeHtml(t("已駁好", "Connected")) + " " + filled + " / " + s.questions.length + '</span></div>');
   }
@@ -290,9 +300,9 @@
       + (arts.length ? '<div class="pipe-context">' + arts.map(function (a) { return cloth(a); }).join("") + '</div>' : '')
       + '<div class="pipe-fit" data-pipe-fit>'
       + (placed != null
-        ? artImg(PIPE_KINDS[placed % PIPE_KINDS.length], "pipe-fit-img")
+        ? artImg(FITTED_KINDS[placed % FITTED_KINDS.length], "pipe-fit-img")
           + '<span class="pipe-fit-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>'
-        : artImg("socket", "pipe-fit-socket")
+        : artImg("hole", "pipe-fit-socket")
           + '<span class="pipe-fit-hint">' + escapeHtml(t("把喉拖來這裡", "Drag a pipe here")) + '</span>')
       + '</div>'
       + pipes
@@ -337,7 +347,7 @@
     var fit = pop ? pop.querySelector("[data-pipe-fit]") : null;
     if (fit) {
       var item = findItem(qid);
-      fit.innerHTML = artImg(PIPE_KINDS[optionIndex % PIPE_KINDS.length], "pipe-fit-img")
+      fit.innerHTML = artImg(FITTED_KINDS[optionIndex % FITTED_KINDS.length], "pipe-fit-img")
         + '<span class="pipe-fit-word">' + escapeHtml(optionsOf(item.q)[optionIndex] || "") + '</span>';
       fit.classList.add("is-fitted");
     }

@@ -61,7 +61,7 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     # lights, start button and the four quarter-raise pictures are paintings
     pipe_dir = flag_dir / "pipe"
     for name in ("panel", "notebook", "button-start", "light-off", "light-red",
-                 "light-green", "socket", "pipe-straight", "pipe-elbow",
+                 "light-green", "pipe-straight", "pipe-elbow",
                  "pipe-zigzag", "pipe-wave"):
         assert f'data-flag-source="{name}"' in page, name
     for n in (1, 2, 3, 4):
@@ -73,12 +73,18 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     # the four pipes — have their backgrounds removed, so they are PNGs whose
     # corners must actually be transparent
     from PIL import Image
-    for name in ("notebook", "button-start", "socket", "pipe-straight",
-                 "pipe-elbow", "pipe-zigzag", "pipe-wave"):
+    for name in ("notebook", "button-start", "hole", "pipe-straight",
+                 "pipe-elbow", "pipe-zigzag", "pipe-wave",
+                 "hole-pipe-straight", "hole-pipe-elbow",
+                 "hole-pipe-zigzag", "hole-pipe-wave"):
+        assert f'data-flag-source="{name}"' in page, name
         path = pipe_dir / f"{name}.png"
         assert path.is_file(), name
         with Image.open(path) as im:
             assert im.mode == "RGBA" and im.getpixel((0, 0))[3] == 0, name
+            if name.startswith("hole-pipe"):
+                # a fitted pipe is the whole hole picture, same size as the hole
+                assert im.size == Image.open(pipe_dir / "hole.png").size, name
     # the old paper is a study link, not the game itself
     assert "forms.gle" not in page.split("data-flag-link")[0]
 

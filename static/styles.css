@@ -4261,16 +4261,10 @@ body.is-game main { padding-top: 6px; }
   filter: drop-shadow(0 0 12px rgba(255, 210, 90, .95));
 }
 .pipe-hole-no {
-  position: absolute; top: 16%; right: 21%; z-index: 2;
+  position: absolute; top: 5%; right: 3.5%; z-index: 2;
   min-width: 1.05rem; padding: .05rem .2rem; border-radius: 999px;
   background: rgba(255, 210, 90, .92); color: #3a2a08;
   font-size: .62rem; font-weight: 900; line-height: 1.15; pointer-events: none;
-}
-.pipe-on-hole {
-  position: absolute; left: 50%; top: 50%; z-index: 1;
-  width: 235%; max-width: none; height: auto;
-  transform: translate(-50%, -50%); pointer-events: none;
-  filter: drop-shadow(0 6px 8px rgba(0,0,0,.5));
 }
 .pipe-hole-word {
   position: absolute; left: 50%; bottom: -0.55rem; z-index: 2; transform: translateX(-50%);
