@@ -104,6 +104,27 @@ def test_points_buy_a_normal_pack_only(store, new_scout):
     assert state["packs_json"][-1]["source"] == "points"
 
 
+def test_album_is_split_into_categories(store, new_scout):
+    sections = gacha.album_sections(gacha.sync_earned_packs(store, new_scout.user))
+    assert [row["id"] for row in sections] == [
+        "membership", "history", "patrol", "knots", "drill", "camping",
+        "pursuit", "service", "interest",
+    ]
+    assert sum(row["total"] for row in sections) == 46
+    assert sections[0]["show_family"] and sections[0]["family"] == "skill"
+    assert sections[6]["show_family"] and sections[6]["family"] == "badge"
+    page = new_scout.get("/cards").get_data(as_text=True)
+    assert "技能卡" in page and "會員章" in page and "專科徽章" in page and "技能組" in page
+    assert page.index("會員章") < page.index("繩結") < page.index("技能組")
+    new_scout.get("/set-language/en")
+    english = new_scout.get("/cards").get_data(as_text=True)
+    assert "Skill cards" in english and "Membership" in english
+    assert "Proficiency badges" in english and "Pursuit" in english
+    assert english.index("Membership") < english.index("Knots") < english.index("Pursuit")
+    for word in ("技能卡", "會員章", "專科徽章", "技能組", "圖鑑分類"):
+        assert word not in english
+
+
 def test_cards_page_is_bilingual_and_can_be_switched_off(new_scout, store):
     page = new_scout.get("/cards").get_data(as_text=True)
     assert "抽卡" in page and "童軍誓詞" in page

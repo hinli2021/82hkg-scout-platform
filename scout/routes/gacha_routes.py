@@ -12,8 +12,8 @@ from flask import Blueprint, flash, g, redirect, render_template, request, url_f
 from ..auth import scout_required
 from ..engine import as_int
 from ..gacha import (
-    PACK_PRICE, RATES, RARITY_NAME, album, buy_standard_pack, enabled, open_next,
-    sync_earned_packs, until_sr,
+    PACK_PRICE, RATES, RARITY_NAME, album, album_sections, buy_standard_pack, enabled,
+    open_next, sync_earned_packs, until_sr,
 )
 from .helpers import audit, fail, ok, store, wants_json
 
@@ -56,7 +56,7 @@ def _view(user, *, reveal: bool) -> dict:
             "price": PACK_PRICE,
         },
         "reveal": opened,
-        "album": album(state),
+        "sections": album_sections(state),
         "rates": [
             {"code": code, "zh": RARITY_NAME[code][0], "en": RARITY_NAME[code][1],
              "rate": weight / 10}

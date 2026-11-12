@@ -265,8 +265,21 @@
 .gacha-actions .btn.ghost { color: #f6f1e4; border-color: rgba(246, 241, 228, .4); }
 .gacha-empty p { max-width: 28rem; margin: .4rem auto .8rem; color: rgba(246, 241, 228, .86); }
 
-.gacha-filters { display: flex; flex-wrap: wrap; gap: .35rem; margin: .4rem 0 .8rem; }
+.gacha-filters { display: flex; flex-wrap: wrap; gap: .35rem; margin: .4rem 0 .7rem; }
 .gacha-filters .chip { cursor: pointer; border: 0; }
+.album-jumps { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 .9rem; }
+.album-jumps .chip { text-decoration: none; min-height: 32px; }
+.album-family {
+  margin: 1.15rem 0 .15rem; font-size: .78rem; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--muted); font-weight: 700;
+}
+.album-section { margin: 0 0 1rem; scroll-margin-top: 6.5rem; }
+.album-section-head {
+  display: flex; align-items: baseline; gap: .45rem; margin: .55rem 0 .4rem;
+}
+.album-section-head h4 { margin: 0; font-size: 1.02rem; }
+.album-section-head .count { font-size: .78rem; color: var(--muted); font-weight: 600; }
+.album-section[hidden], .album-family[hidden], .album-jumps .chip[hidden] { display: none !important; }
 .album-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));

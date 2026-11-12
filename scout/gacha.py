@@ -442,6 +442,65 @@ def open_next(store, user: dict, rng: random.Random | None = None) -> dict | Non
     return opened
 
 
+#: Album order. The first word is the anchor, which stays in English on both
+#: languages so the English page does not carry a Chinese id.
+GROUP_ORDER = (
+    ("membership", "skill", "會員章", "Membership"),
+    ("history", "skill", "歷史", "History"),
+    ("patrol", "skill", "小隊", "Patrol"),
+    ("knots", "skill", "繩結", "Knots"),
+    ("drill", "skill", "步操", "Drill"),
+    ("camping", "skill", "露營", "Camping"),
+    ("pursuit", "badge", "技能組", "Pursuit"),
+    ("service", "badge", "服務組", "Service"),
+    ("interest", "badge", "興趣組", "Interest"),
+)
+FAMILIES = {
+    "skill": ("技能卡", "Skill cards"),
+    "badge": ("專科徽章", "Proficiency badges"),
+    "other": ("其他", "Other"),
+}
+
+
+def _slug(text: str) -> str:
+    slug = "".join(ch.lower() if ch.isascii() and ch.isalnum() else "-" for ch in text)
+    slug = "-".join(part for part in slug.split("-") if part)
+    return slug or "other"
+
+
+def album_sections(state: dict) -> list[dict]:
+    """The album split by category, in a fixed order. Nothing is dropped."""
+    buckets: dict[tuple[str, str], list[dict]] = {}
+    for card in album(state):
+        buckets.setdefault((card.get("group_zh") or "", card.get("group_en") or ""), []).append(card)
+    known = {(zh, en): (sid, family) for sid, family, zh, en in GROUP_ORDER}
+    keys = [(zh, en) for _, _, zh, en in GROUP_ORDER if (zh, en) in buckets]
+    keys.extend(key for key in buckets if key not in known)
+    sections = []
+    seen_family: set[str] = set()
+    used_ids: set[str] = set()
+    for zh, en in keys:
+        sid, family = known.get((zh, en), (_slug(en or zh), "other"))
+        if sid in used_ids:
+            sid = f"{sid}-{len(used_ids)}"
+        used_ids.add(sid)
+        cards = buckets[(zh, en)]
+        sections.append({
+            "id": sid,
+            "zh": zh or "其他",
+            "en": en or "Other",
+            "family": family,
+            "family_zh": FAMILIES[family][0],
+            "family_en": FAMILIES[family][1],
+            "show_family": family not in seen_family,
+            "owned": sum(1 for card in cards if card.get("owned")),
+            "total": len(cards),
+            "cards": cards,
+        })
+        seen_family.add(family)
+    return sections
+
+
 def album(state: dict) -> list[dict]:
     """Owned cards first, then the rest of the pool still to pull."""
     owned = state.get("owned_json") or {}

@@ -101,29 +101,44 @@
       <button type="button" class="chip" data-filter="{{ row.code }}">{{ row.code }}</button>
     {% endfor %}
   </div>
-  <div class="album-grid">
-    {% for card in album %}
-      <article class="mini-card {{ 'is-owned rarity-' ~ card.rarity|lower if card.owned else 'is-locked' }}"
-               data-owned="{{ '1' if card.owned else '0' }}" data-rarity="{{ card.rarity }}">
-        <header>
-          {% if card.owned %}<span class="gcard-tier">{{ card.rarity }}</span>{% else %}<span class="gcard-tier">?</span>{% endif %}
-          <span>{{ L(card.zh, card.en) }}</span>
-          {% if card.count > 1 %}<b class="mini-count">×{{ card.count }}</b>{% endif %}
-        </header>
-        <div class="mini-art">
-          {% if card.owned and card.art %}
-            <img src="{{ url_for('static', filename=card.art) }}" alt="">
-          {% else %}
-            <span aria-hidden="true">{{ card.emoji if card.owned else '🂠' }}</span>
-          {% endif %}
-        </div>
-        <p>{{ L(card.group_zh, card.group_en) }}</p>
-        {% if card.owned %}
-          <footer><span>{{ L('知識', 'Knowledge') }} {{ card.know }}</span><span>{{ L('實踐', 'Practice') }} {{ card.pract }}</span></footer>
-        {% endif %}
-      </article>
+  <nav class="album-jumps" aria-label="{{ L('圖鑑分類', 'Album categories') }}">
+    {% for section in sections %}
+      <a class="chip light" href="#album-{{ section.id }}" data-album-jump="album-{{ section.id }}">{{ L(section.zh, section.en) }}</a>
     {% endfor %}
-  </div>
+  </nav>
+  {% for section in sections %}
+    {% if section.show_family %}
+      <h3 class="album-family" data-album-family="{{ section.family }}">{{ L(section.family_zh, section.family_en) }}</h3>
+    {% endif %}
+    <section class="album-section" id="album-{{ section.id }}" data-album-section data-album-family="{{ section.family }}">
+      <div class="album-section-head">
+        <h4>{{ L(section.zh, section.en) }}</h4>
+        <span class="count">{{ section.owned }}/{{ section.total }}</span>
+      </div>
+      <div class="album-grid">
+        {% for card in section.cards %}
+          <article class="mini-card {{ 'is-owned rarity-' ~ card.rarity|lower if card.owned else 'is-locked' }}"
+                   data-owned="{{ '1' if card.owned else '0' }}" data-rarity="{{ card.rarity }}">
+            <header>
+              {% if card.owned %}<span class="gcard-tier">{{ card.rarity }}</span>{% else %}<span class="gcard-tier">?</span>{% endif %}
+              <span>{{ L(card.zh, card.en) }}</span>
+              {% if card.count > 1 %}<b class="mini-count">×{{ card.count }}</b>{% endif %}
+            </header>
+            <div class="mini-art">
+              {% if card.owned and card.art %}
+                <img src="{{ url_for('static', filename=card.art) }}" alt="">
+              {% else %}
+                <span aria-hidden="true">{{ card.emoji if card.owned else '🂠' }}</span>
+              {% endif %}
+            </div>
+            {% if card.owned %}
+              <footer><span>{{ L('知識', 'Knowledge') }} {{ card.know }}</span><span>{{ L('實踐', 'Practice') }} {{ card.pract }}</span></footer>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
 </section>
 
 <details class="card gacha-rules">
