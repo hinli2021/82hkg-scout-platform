@@ -3,7 +3,7 @@
    pipe have to be connected before the flag will rise: pick a gap on the
    control panel, read the question at the top, drag the right pipe into the
    gap, then press the start button on the right. A red light means a pipe is
-   wrong somewhere; a green light raises the flag another quarter. The last
+   wrong somewhere; a green glow raises the flag another quarter. The last
    patrol's notebook sits on the left of the panel and holds everything the
    scout needs. The 30 answers still come from the leader's paper; the server
    re-checks every answer on submit. */
@@ -86,12 +86,13 @@
   var kindMaps = {};         /* qid -> pipe kind per option, shuffled each stage */
   var trayOrders = {};       /* qid -> order the pipes are offered in, shuffled */
   var wrongIds = {};         /* qids the start button has proved wrong this run */
+  var startState = "";       /* "", "wrong" (red button) or "right" (green glow) */
   var howtoShown = false;    /* the how-to-play pop-up shows once, after the first notes */
   var selected = null;        /* qid of the gap being fitted */
   var stageIndex = 0;
   var startedAt = 0;
   var filed = false;
-  var machineLive = false;    /* false while a light is showing / the flag is rising */
+  var machineLive = false;    /* false while the button is showing a result / the flag is rising */
 
   function sourceUrl(name) {
     var img = root.querySelector('[data-flag-source="' + name + '"]');
@@ -132,7 +133,7 @@
      original option index, so grading is unchanged. */
   function prepareStage() {
     var s = stage();
-    kindMaps = {}; trayOrders = {}; wrongIds = {};
+    kindMaps = {}; trayOrders = {}; wrongIds = {}; startState = "";
     if (!s) { holeOrder = []; return; }
     holeOrder = shuffled(s.questions.map(function (it, i) { return i; }));
     s.questions.forEach(function (it) {
@@ -231,13 +232,13 @@
       + (holeOrder.length === s.questions.length ? holeOrder : s.questions.map(function (it, i) { return i; }))
           .map(function (qi, pos) { return holeHtml(s.questions[qi], pos); }).join("")
       + '</div>'
-      /* the start button and the signal light are part of the panel now:
-         their paintings had their backgrounds removed, so they sit on the
-         wood and brass like fittings, not like separate cards */
-      + artImg("light-off", "pipe-light")
-      + '<button type="button" class="pipe-start" data-pipe-start title="'
+      /* the start button is a fitting on the panel itself, and it is the
+         machine's only signal now: it turns into the red button when a
+         pipe is wrong, and glows green when the run is right */
+      + '<button type="button" class="pipe-start'
+      + (startState ? " is-" + startState : "") + '" data-pipe-start title="'
       + escapeHtml(t("開機", "Start")) + '">'
-      + artImg("button-start", "pipe-start-img")
+      + artImg(startState === "wrong" ? "button-start-red" : "button-start", "pipe-start-img")
       + '<span>' + escapeHtml(t("開機", "Start")) + '</span></button>'
       + '<span class="pipe-count">' + filled + " / " + s.questions.length + '</span>'
       + '</div>'
@@ -385,6 +386,7 @@
     if (remove) remove.addEventListener("click", function () {
       delete placements[q.id];
       delete wrongIds[q.id];
+      startState = "";
       buildMachine();
     });
   }
@@ -393,6 +395,7 @@
     if (qid !== selected || isNaN(optionIndex)) return;
     placements[qid] = optionIndex;
     delete wrongIds[qid];
+    startState = "";
     var pop = picture.querySelector("[data-pipe-popup]");
     var fit = pop ? pop.querySelector("[data-pipe-fit]") : null;
     if (fit) {
@@ -406,13 +409,14 @@
     popupTimer = window.setTimeout(function () { popupTimer = null; buildMachine(); }, 600);
   }
 
-  /* ── start button: red light, green light, flag up a quarter ───────── */
+  /* ── start button: red button, green glow, flag up a quarter ───────── */
 
   function pressStart() {
     if (!machineLive) return;
     var s = stage();
     var missing = s.questions.filter(function (it) { return placements[it.q.id] == null; });
-    var light = picture.querySelector(".pipe-light");
+    var startBtn = picture.querySelector(".pipe-start");
+    var startImg = picture.querySelector(".pipe-start-img");
     if (missing.length) {
       buildMachine(t("仲有 " + missing.length + " 個窿未駁喉。先駁好全部，才可以開機。",
                      missing.length + " hole(s) still empty. Connect every pipe before you press start."));
@@ -430,20 +434,23 @@
       picture.querySelectorAll(".pipe-hole").forEach(function (hole) {
         hole.classList.toggle("is-wrong", !!wrongIds[hole.getAttribute("data-qid")]);
       });
-      if (light) light.src = sourceUrl("light-red");
+      startState = "wrong";
+      if (startImg) startImg.src = sourceUrl("button-start-red");
+      if (startBtn) startBtn.classList.add("is-wrong");
       card.innerHTML = cardHtml(
         stageName(),
-        t("紅燈亮起", "The red light glows"),
+        t("開機掣變成紅色", "The start button turns red"),
         t("機器咳了兩聲，停下來。駁錯的喉已經用紅光圈住。打開左邊的筆記對一對，點開圈住的窿就可以換另一段喉。再按一次開機掣。",
-          "The machine coughs twice and stops. The wrong pipes are ringed in red light. Check the notebook on the left, tap a ringed hole to swap its pipe, then press start again."),
+          "The machine coughs twice and stops, and the start button turns red. The wrong pipes are ringed in red light. Check the notebook on the left, tap a ringed hole to swap its pipe, then press start again."),
         "");
       return;
     }
     machineLive = false;
-    if (light) light.src = sourceUrl("light-green");
+    startState = "right";
+    if (startBtn) startBtn.classList.add("is-right");
     card.innerHTML = cardHtml(
       stageName(),
-      t("綠燈亮起", "The green light glows"),
+      t("開機掣發出綠光", "The start button glows green"),
       t("水開始流，繩子開始動。旗要升起來了。", "Water starts to flow and the rope begins to move. The flag is going up."),
       "");
     window.setTimeout(showRaise, 1300);
@@ -588,14 +595,14 @@
           '<span class="howto-start">' + artImg("button-start", "howto-start-img") + '</span>'
           + ring(90, 57, 15)
           + '<span class="howto-count">9 / 9</span>') },
-      { title: t("第 5 步：看訊號燈", "Step 5: Watch the signal light"),
-        body: t("紅燈即是有喉駁錯：駁錯的窿會被紅光圈住，撳開它換一段喉，再按開機。綠燈即是全對，旗會升起四分之一。四組喉都對，旗就升到桿頂。",
-                "Red light means a pipe is wrong: the wrong holes are ringed in red — tap one, swap its pipe, press start again. Green light means all correct, and the flag rises a quarter. Finish all four runs to raise it to the top."),
+      { title: t("第 5 步：看開機掣", "Step 5: Watch the start button"),
+        body: t("開機掣變紅即是有喉駁錯：駁錯的窿會被紅光圈住，撳開它換一段喉，再按開機。開機掣發出綠光即是全對，旗會升起四分之一。四組喉都對，旗就升到桿頂。",
+                "If the start button turns red, a pipe is wrong: the wrong holes are ringed in red — tap one, swap its pipe, press start again. If it glows green, all is correct and the flag rises a quarter. Finish all four runs to raise it to the top."),
         diagram: '<div class="howto-lights">'
-          + '<span class="howto-light-case">' + artImg("light-red", "howto-light")
+          + '<span class="howto-light-case">' + artImg("button-start-red", "howto-button-img")
           + '<span class="howto-wrong">' + artImg("hole-pipe-elbow", "howto-hole-img") + '</span></span>'
           + '<span class="howto-arrow">→</span>'
-          + '<span class="howto-light-case">' + artImg("light-green", "howto-light")
+          + '<span class="howto-light-case">' + artImg("button-start", "howto-button-img is-glowing")
           + '<span class="howto-raise">' + artImg("raise-1", "howto-raise-img") + '</span></span></div>' }
     ];
   }

@@ -58,22 +58,24 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     assert "官方" in BANK["note_zh"] or "標準版本" in BANK["note_zh"]
     assert "official" in BANK["note_en"].lower() or "standard versions" in BANK["note_en"]
     # the ceremony is worked by the pipe machine: panel, notebook, pipes,
-    # lights, start button and the four quarter-raise pictures are paintings
+    # start button (no signal light any more — the button itself signals)
+    # and the four quarter-raise pictures are paintings
     pipe_dir = flag_dir / "pipe"
-    for name in ("panel", "notebook", "button-start", "light-off", "light-red",
-                 "light-green", "pipe-straight", "pipe-elbow",
-                 "pipe-zigzag", "pipe-wave"):
+    for name in ("panel", "notebook", "button-start", "button-start-red",
+                 "pipe-straight", "pipe-elbow", "pipe-zigzag", "pipe-wave"):
         assert f'data-flag-source="{name}"' in page, name
+    for gone in ("light-off", "light-red", "light-green"):
+        assert f'data-flag-source="{gone}"' not in page, gone
+        assert not (pipe_dir / f"{gone}.jpg").exists(), gone
     for n in (1, 2, 3, 4):
         assert f'data-flag-source="raise-{n}"' in page
-    for name in ("panel", "light-off", "light-red", "light-green",
-                 "raise-1", "raise-2", "raise-3", "raise-4"):
+    for name in ("panel", "raise-1", "raise-2", "raise-3", "raise-4"):
         assert (pipe_dir / f"{name}.jpg").is_file(), name
     # the fittings that sit on the panel — notebook, start button, sockets and
     # the four pipes — have their backgrounds removed, so they are PNGs whose
     # corners must actually be transparent
     from PIL import Image
-    for name in ("notebook", "button-start", "hole", "pipe-straight",
+    for name in ("notebook", "button-start", "button-start-red", "hole", "pipe-straight",
                  "pipe-elbow", "pipe-zigzag", "pipe-wave",
                  "hole-pipe-straight", "hole-pipe-elbow",
                  "hole-pipe-zigzag", "hole-pipe-wave"):
@@ -85,6 +87,9 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
             if name.startswith("hole-pipe"):
                 # a fitted pipe is the whole hole picture, same size as the hole
                 assert im.size == Image.open(pipe_dir / "hole.png").size, name
+            if name == "button-start-red":
+                # the red button swaps in without jumping: same size as the green
+                assert im.size == Image.open(pipe_dir / "button-start.png").size, name
     # the old paper is a study link, not the game itself
     assert "forms.gle" not in page.split("data-flag-link")[0]
 
@@ -120,6 +125,9 @@ def test_holes_stay_inside_the_black_board_and_answers_are_dealt_at_random():
     # how to play is a picture pop-up after the notes, not the old long
     # sentence under the panel; it can be reopened from the machine card
     assert "function showHowTo(step)" in js and "howToSteps" in js
+    # no light bulb: the start button turns red when wrong, glows when right
+    assert "pipe-light" not in js and "button-start-red" in js
+    assert ".pipe-start.is-wrong" in css and ".pipe-start.is-right" in css
     assert "data-flag-howto" in js and ".howto-diagram" in css
     assert "howto-ring-pulse" in css and "howto-drop-move" in css
     assert "There are \" + s.questions.length + \" holes arranged neatly" not in js
