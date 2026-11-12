@@ -35,12 +35,31 @@ def _gate():
     return _closed()
 
 
-def _view(user, *, reveal: bool) -> dict:
+def _families(sections: list[dict]) -> list[dict]:
+    families = []
+    for section in sections:
+        if not families or families[-1]["id"] != section["family"]:
+            families.append({
+                "id": section["family"],
+                "zh": section["family_zh"],
+                "en": section["family_en"],
+                "sections": [],
+            })
+        families[-1]["sections"].append(section)
+    return families
+
+
+def _view(user, *, reveal: bool, category: str = "") -> dict:
     st = store()
     state = sync_earned_packs(st, user)
     opened = state.get("last_open_json") if reveal else None
     packs = state["packs_json"]
     nxt = packs[0] if packs else None
+    sections = album_sections(state)
+    keep = {"reveal": 1} if reveal else {}
+    for section in sections:
+        section["href"] = url_for("gacha_routes.page", cat=section["id"], **keep)
+    chosen = next((section for section in sections if section["id"] == category), None)
     return {
         "summary": {
             "packs": len(packs),
@@ -56,7 +75,8 @@ def _view(user, *, reveal: bool) -> dict:
             "price": PACK_PRICE,
         },
         "reveal": opened,
-        "sections": album_sections(state),
+        "families": _families(sections),
+        "category": chosen,
         "rates": [
             {"code": code, "zh": RARITY_NAME[code][0], "en": RARITY_NAME[code][1],
              "rate": weight / 10}
@@ -71,7 +91,11 @@ def page():
     closed = _gate()
     if closed:
         return closed
-    return render_template("scout/gacha.html", **_view(g.user, reveal=request.args.get("reveal") == "1"))
+    return render_template(
+        "scout/gacha.html",
+        **_view(g.user, reveal=request.args.get("reveal") == "1",
+                category=request.args.get("cat") or ""),
+    )
 
 
 @gacha_routes.post("/cards/open")

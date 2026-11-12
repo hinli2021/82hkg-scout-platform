@@ -115,21 +115,30 @@ def test_album_is_split_into_categories(store, new_scout):
     assert sections[6]["show_family"] and sections[6]["family"] == "badge"
     page = new_scout.get("/cards").get_data(as_text=True)
     assert "技能卡" in page and "會員章" in page and "專科徽章" in page and "技能組" in page
+    assert "選一個類別" in page
+    assert "童軍誓詞" not in page and "平結" not in page
     assert page.index("會員章") < page.index("繩結") < page.index("技能組")
+    knots = new_scout.get("/cards?cat=knots").get_data(as_text=True)
+    assert "平結" in knots and "稱人結" in knots
+    assert "童軍誓詞" not in knots and "烹飪" not in knots
+    assert "cat=knots" in knots and "aria-current" in knots
+    assert "童軍誓詞" not in new_scout.get("/cards?cat=nope").get_data(as_text=True)
     new_scout.get("/set-language/en")
     english = new_scout.get("/cards").get_data(as_text=True)
     assert "Skill cards" in english and "Membership" in english
-    assert "Proficiency badges" in english and "Pursuit" in english
+    assert "Proficiency badges" in english and "Choose a category" in english
     assert english.index("Membership") < english.index("Knots") < english.index("Pursuit")
-    for word in ("技能卡", "會員章", "專科徽章", "技能組", "圖鑑分類"):
-        assert word not in english
+    knots_en = new_scout.get("/cards?cat=knots").get_data(as_text=True)
+    assert "Reef knot" in knots_en and "Scout Promise" not in knots_en
+    for word in ("技能卡", "會員章", "專科徽章", "技能組", "圖鑑分類", "平結", "童軍誓詞"):
+        assert word not in knots_en
 
 
 def test_cards_page_is_bilingual_and_can_be_switched_off(new_scout, store):
-    page = new_scout.get("/cards").get_data(as_text=True)
+    page = new_scout.get("/cards?cat=membership").get_data(as_text=True)
     assert "抽卡" in page and "童軍誓詞" in page
     new_scout.get("/set-language/en")
-    english = new_scout.get("/cards").get_data(as_text=True)
+    english = new_scout.get("/cards?cat=membership").get_data(as_text=True)
     assert "Cards" in english and "Scout Promise" in english
     assert "Buy a normal pack" in english and "Gold packs cannot be bought" in english
     for word in ("抽卡", "卡包", "圖鑑", "童軍誓詞", "知識", "實踐", "積分"):

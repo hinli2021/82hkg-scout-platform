@@ -100,30 +100,21 @@
   }
 
   function applyAlbumFilter(want) {
-    document.querySelectorAll('[data-album-section]').forEach(function (section) {
-      var any = false;
-      section.querySelectorAll('.mini-card').forEach(function (card) {
-        var rarity = card.getAttribute('data-rarity') || '';
-        var owned = card.getAttribute('data-owned') === '1';
-        var show = want === 'all'
-          || (want === 'owned' && owned)
-          || (want === 'SR' && owned && (rarity === 'SR' || rarity === 'SSR' || rarity === 'UR' || rarity === 'LR'))
-          || rarity === want;
-        card.hidden = !show;
-        if (show) any = true;
-      });
-      section.hidden = !any;
-      var jump = document.querySelector('[data-album-jump="' + section.id + '"]');
-      if (jump) jump.hidden = !any;
+    var section = document.querySelector('[data-album-section]');
+    if (!section) return;
+    var any = false;
+    section.querySelectorAll('.mini-card').forEach(function (card) {
+      var rarity = card.getAttribute('data-rarity') || '';
+      var owned = card.getAttribute('data-owned') === '1';
+      var show = want === 'all'
+        || (want === 'owned' && owned)
+        || (want === 'SR' && owned && (rarity === 'SR' || rarity === 'SSR' || rarity === 'UR' || rarity === 'LR'))
+        || rarity === want;
+      card.hidden = !show;
+      if (show) any = true;
     });
-    document.querySelectorAll('h3[data-album-family]').forEach(function (heading) {
-      var family = heading.getAttribute('data-album-family');
-      var visible = false;
-      document.querySelectorAll('[data-album-section][data-album-family="' + family + '"]').forEach(function (section) {
-        if (!section.hidden) visible = true;
-      });
-      heading.hidden = !visible;
-    });
+    var empty = section.querySelector('[data-album-none]');
+    if (empty) empty.hidden = any;
   }
 
   document.querySelectorAll('[data-filters] [data-filter]').forEach(function (button) {

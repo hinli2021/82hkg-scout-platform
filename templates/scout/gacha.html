@@ -93,30 +93,40 @@
     <h2>{{ L('圖鑑', 'Album') }}</h2>
     <span class="count">{{ summary.owned }}/{{ summary.total }}</span>
   </div>
-  <div class="gacha-filters" data-filters>
-    <button type="button" class="chip brass" data-filter="all">{{ L('全部', 'All') }}</button>
-    <button type="button" class="chip" data-filter="owned">{{ L('已有', 'Owned') }}</button>
-    <button type="button" class="chip" data-filter="SR">SR+</button>
-    {% for row in rates %}
-      <button type="button" class="chip" data-filter="{{ row.code }}">{{ row.code }}</button>
+  <div class="album-filters" role="navigation" aria-label="{{ L('圖鑑分類', 'Album categories') }}">
+    {% for family in families %}
+      <div class="album-filter-group">
+        <p class="album-filter-label">{{ L(family.zh, family.en) }}</p>
+        <div class="album-jumps">
+          {% for section in family.sections %}
+            <a class="chip {{ 'brass' if category and category.id == section.id else 'light' }}"
+               href="{{ section.href }}"
+               {% if category and category.id == section.id %}aria-current="true"{% endif %}>
+              {{ L(section.zh, section.en) }}
+              <span class="album-chip-count">{{ section.owned }}/{{ section.total }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
     {% endfor %}
   </div>
-  <nav class="album-jumps" aria-label="{{ L('圖鑑分類', 'Album categories') }}">
-    {% for section in sections %}
-      <a class="chip light" href="#album-{{ section.id }}" data-album-jump="album-{{ section.id }}">{{ L(section.zh, section.en) }}</a>
-    {% endfor %}
-  </nav>
-  {% for section in sections %}
-    {% if section.show_family %}
-      <h3 class="album-family" data-album-family="{{ section.family }}">{{ L(section.family_zh, section.family_en) }}</h3>
-    {% endif %}
-    <section class="album-section" id="album-{{ section.id }}" data-album-section data-album-family="{{ section.family }}">
+  {% if category %}
+    <div class="gacha-filters" data-filters>
+      <button type="button" class="chip brass" data-filter="all">{{ L('全部', 'All') }}</button>
+      <button type="button" class="chip" data-filter="owned">{{ L('已有', 'Owned') }}</button>
+      <button type="button" class="chip" data-filter="SR">SR+</button>
+      {% for row in rates %}
+        <button type="button" class="chip" data-filter="{{ row.code }}">{{ row.code }}</button>
+      {% endfor %}
+    </div>
+    <section class="album-section" id="album-{{ category.id }}" data-album-section>
       <div class="album-section-head">
-        <h4>{{ L(section.zh, section.en) }}</h4>
-        <span class="count">{{ section.owned }}/{{ section.total }}</span>
+        <h3>{{ L(category.zh, category.en) }}</h3>
+        <span class="count">{{ category.owned }}/{{ category.total }}</span>
       </div>
+      <p class="album-none muted small" hidden data-album-none>{{ L('這一類沒有符合的卡。', 'Nothing in this category matches.') }}</p>
       <div class="album-grid">
-        {% for card in section.cards %}
+        {% for card in category.cards %}
           <article class="mini-card {{ 'is-owned rarity-' ~ card.rarity|lower if card.owned else 'is-locked' }}"
                    data-owned="{{ '1' if card.owned else '0' }}" data-rarity="{{ card.rarity }}">
             <header>
@@ -138,7 +148,9 @@
         {% endfor %}
       </div>
     </section>
-  {% endfor %}
+  {% else %}
+    <p class="album-pick muted">{{ L('選一個類別，只看那一組卡。', 'Choose a category to see only that set.') }}</p>
+  {% endif %}
 </section>
 
 <details class="card gacha-rules">
