@@ -69,6 +69,17 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     crop = valley.crop((int(w * 0.53), int(h * 0.24), int(w * 0.64), int(h * 0.34)))
     red = sum(1 for r, g, b in crop.getdata() if r > 110 and r - g > 55 and r - b > 35)
     assert red == 0, f"the unraised flagpole still shows {red} red pixels"
+    # …but at the ending the same painting is swapped for the raised one,
+    # with the flag up high at the top of the pole, and nothing over it
+    assert 'swapSceneArt(sourceUrl("raise-4"))' in js_text
+    assert 'root.classList.add("is-ending")' in js_text
+    assert "#flag-root.is-ending .pipe-story-prop" in css_text
+    raise4 = Image.open(pathlib.Path(__file__).resolve().parent.parent / "static"
+                        / "img" / "quest" / "flag" / "pipe" / "raise-4.jpg").convert("RGB")
+    rw, rh = raise4.size
+    raised = raise4.crop((int(rw * 0.50), int(rh * 0.05), int(rw * 0.66), int(rh * 0.22)))
+    red_up = sum(1 for r, g, b in raised.getdata() if r > 110 and r - g > 55 and r - b > 35)
+    assert red_up > 500, f"the ending flag is not up high ({red_up} red pixels)"
     # the four flags and emblems are the official artwork, not the old diagrams
     flag_dir = pathlib.Path(__file__).resolve().parent.parent / "static" / "img" / "quest" / "flag"
     for name in ("flag-national", "flag-regional", "emblem-national", "emblem-regional"):

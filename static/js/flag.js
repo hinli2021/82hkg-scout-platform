@@ -26,6 +26,17 @@
   var progress = root.querySelector("[data-flag-progress]");
   var picture = root.querySelector(".cave-picture");
   var badgeLink = root.querySelector('[data-flag-link="badge"]');
+  /* the painting behind every scene: the bare-pole valley before the
+     walk, and the same valley with the flag at the top for the ending.
+     Both are remembered here so start() can put the bare pole back. */
+  var sceneArt = picture ? picture.querySelector("[data-flag-art]") : null;
+  var sceneBackdrop = picture ? picture.querySelector(".cave-art-backdrop") : null;
+  var startArtUrl = sceneArt ? sceneArt.getAttribute("src") : "";
+  function swapSceneArt(url) {
+    if (!url) return;
+    if (sceneArt) sceneArt.setAttribute("src", url);
+    if (sceneBackdrop) sceneBackdrop.setAttribute("src", url);
+  }
 
   /* the seven notebook chapters become four runs of pipe */
   var STAGE_DEFS = [
@@ -545,8 +556,10 @@
 
   function start() {
     /* the walk has begun: the words come off the painting and the card
-       below the picture takes over from here */
+       below the picture takes over from here; the pole is bare again */
     root.classList.remove("is-start-screen");
+    root.classList.remove("is-ending");
+    swapSceneArt(startArtUrl);
     startedAt = Date.now();
     placements = {};
     selected = null;
@@ -713,6 +726,11 @@
   }
 
   function showEnding() {
+    /* the ceremony is done, so the painting itself changes: the flag is
+       up at the top of the pole now (the fourth raise picture), and it
+       stays up behind every ending page */
+    root.classList.add("is-ending");
+    swapSceneArt(sourceUrl("raise-4"));
     clearScene();
     setProgress(t("升旗完畢", "Ceremony over"));
     showStory(ending, 0, t("溪谷旗桿", "The valley flagpole"), function () {
