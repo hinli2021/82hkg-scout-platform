@@ -207,9 +207,6 @@
     var inner = artImg(placed != null ? FITTED_KINDS[kindIndexFor(q.id, placed)] : "hole",
                        "pipe-hole-img")
       + '<span class="pipe-hole-no">' + (index + 1) + '</span>';
-    if (placed != null) {
-      inner += '<span class="pipe-hole-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>';
-    }
     return '<button type="button" class="pipe-hole' + (placed == null ? "" : " is-full")
       + (wrongIds[q.id] ? " is-wrong" : "") + '"'
       + ' style="left:' + spot.x + "%;top:" + spot.y + "%;width:" + spot.width
@@ -580,11 +577,10 @@
           + '<span class="howto-drop-pipe">' + artImg("pipe-elbow", "howto-drop-img") + '</span>'
           + '<span class="howto-drop-hole">' + artImg("hole", "howto-hole-img") + '</span></div>' },
       { title: t("第 3 步：喉會裝入窿裡面", "Step 3: The pipe fits into the hole"),
-        body: t("揀好之後，成個窿會變成裝好喉的樣子，答案文字會寫在窿下面。撳任何一個窿，都可以隨時換另一段喉。",
-                "The whole hole picture changes to the fitted pipe, with the answer written under it. Tap any hole at any time to swap its pipe."),
+        body: t("揀好之後，成個窿會變成裝好喉的樣子。撳任何一個窿，都可以隨時換另一段喉。",
+                "The whole hole picture changes to the fitted pipe. Tap any hole at any time to swap its pipe."),
         diagram: '<div class="howto-swap">'
-          + artImg("hole", "howto-swap-a") + artImg("hole-pipe-wave", "howto-swap-b")
-          + '<span class="howto-swap-word">' + escapeHtml(t("答案文字", "Answer words")) + '</span></div>' },
+          + artImg("hole", "howto-swap-a") + artImg("hole-pipe-wave", "howto-swap-b") + '</div>' },
       { title: t("第 4 步：駁滿之後，按開機掣", "Step 4: Fill every hole, then press Start"),
         body: t("全部窿都駁好喉之後，按控制板右邊的開機掣。未駁滿就按，機器會提醒你尚有幾個窿未駁。",
                 "When every hole has a pipe, press the start button on the right of the panel. If a hole is still empty, the machine will tell you."),

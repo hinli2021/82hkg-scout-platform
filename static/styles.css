@@ -4314,13 +4314,6 @@ body.is-game main { padding-top: 6px; }
   background: rgba(255, 210, 90, .92); color: #3a2a08;
   font-size: .62rem; font-weight: 900; line-height: 1.15; pointer-events: none;
 }
-.pipe-hole-word {
-  position: absolute; left: 50%; bottom: -0.55rem; z-index: 2; transform: translateX(-50%);
-  max-width: 190%; padding: .06rem .4rem; border-radius: 999px;
-  background: rgba(9, 26, 18, .82); color: #fff7e0;
-  font-size: .6rem; font-weight: 800; line-height: 1.2; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis; pointer-events: none;
-}
 /* the signal light and the start button are fittings on the panel itself */
 .pipe-light {
   /* sits on the round gauge at the panel's top right, like a lamp fitted
@@ -4487,12 +4480,6 @@ body.is-game main { padding-top: 6px; }
 }
 .howto-swap-a { animation: howto-swap-a 3.2s ease-in-out infinite; }
 .howto-swap-b { animation: howto-swap-b 3.2s ease-in-out infinite; }
-.howto-swap-word {
-  position: absolute; left: 50%; bottom: -1.15rem; transform: translateX(-50%);
-  padding: .08rem .55rem; border-radius: 999px; white-space: nowrap;
-  background: rgba(9, 26, 18, .85); color: #fff7e0; font-size: .72rem; font-weight: 800;
-  border: 1px solid rgba(255, 210, 90, .6);
-}
 .howto-lights { display: flex; align-items: center; gap: .8rem; width: min(100%, 32rem); justify-content: center; }
 .howto-light-case { display: flex; flex-direction: column; align-items: center; gap: .4rem; width: 42%; }
 .howto-light { width: 3.4rem; height: 3.4rem; object-fit: cover; border-radius: 50%; box-shadow: 0 6px 14px rgba(0,0,0,.5), 0 0 0 2px rgba(120, 84, 30, .65); }
@@ -4526,8 +4513,7 @@ body.is-game main { padding-top: 6px; }
   .pipe-notebook span { font-size: .62rem; padding: .1rem .35rem; }
   .pipe-start span { font-size: .6rem; }
   .pipe-count { font-size: .66rem; }
-  .pipe-hole-word { font-size: .5rem; }
-  .pipe-hole-no { font-size: .52rem; min-width: .85rem; }
+    .pipe-hole-no { font-size: .52rem; min-width: .85rem; }
   .pipe-popup { inset: 1.5% 2%; padding: .65rem .7rem .8rem; }
   .pipe-fit { min-height: 5.4rem; }
   .pipe-note { top: 2.4rem; }
