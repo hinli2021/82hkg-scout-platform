@@ -272,6 +272,7 @@ class Store:
                 store.ensure_catalog()              # 再補上缺少的項目
                 store.refresh_game_copy()           # 遊戲改了完成方式：換掉未改動過的舊說明
                 store.upgrade_flag_game()            # 第 7 項由打勾升級成旗桿遊戲，並接上第 4 區
+                store.refresh_flag_story()           # 舊的「24 分合格」說明換成故事玩法
             except Exception as exc:                # noqa: BLE001
                 config["catalog_error"] = f"{type(exc).__name__}: {exc}"
         return store
@@ -543,6 +544,31 @@ class Store:
                 "completes item 6.",
             ),
         },
+        "M07": {
+            "instruction_zh": (
+                "能辨認中華人民共和國國旗和國徽，並能說明其含意。第四個區域只有這一個遊戲："
+                "認旗徽、點開發光的部分、把旗拖上旗桿、填國歌、最後把國旗升到桿頂。"
+                "30 題，24 分合格，一次完成第 7 至 10 項。",
+            ),
+            "instruction_en": (
+                "Recognise the national flag and emblem of the PRC and explain their meaning. "
+                "The fourth area's only game: name the flags, tap the glowing parts, drag each "
+                "flag onto its pole, fill the anthem, then raise the national flag to the top. "
+                "30 questions, 24 to pass — items 7 to 10 clear together.",
+            ),
+        },
+        "M08": {
+            "instruction_zh": ("能辨認香港特別行政區區旗和區徽，並能說明其含意。由「第 7 至 10 項試卷」考核。",),
+            "instruction_en": ("Recognise the HKSAR regional flag and emblem and explain their meaning. Covered by the Items 7–10 paper.",),
+        },
+        "M09": {
+            "instruction_zh": ("認識在國歌奏唱和升掛國旗、區旗時應有之禮儀，以及升國旗的基本程序。由「第 7 至 10 項試卷」考核。",),
+            "instruction_en": ("Know the proper etiquette when the national anthem is played and the flags are raised, and the basic flag-raising procedure. Covered by the Items 7–10 paper.",),
+        },
+        "M10": {
+            "instruction_zh": ("明瞭設立國歌的用意，並能背唱之。由「第 7 至 10 項試卷」考核。",),
+            "instruction_en": ("Understand the purpose of the national anthem and be able to sing it from memory. Covered by the Items 7–10 paper.",),
+        },
     }
 
     def refresh_game_copy(self) -> int:
@@ -617,6 +643,57 @@ class Store:
             areas[3]["hint_zh"] = defaults[3].get("hint_zh", "")
             areas[3]["hint_en"] = defaults[3].get("hint_en", "")
         self.update("badges", badge["id"], {"guide_json": guide})
+        return True
+
+    def refresh_flag_story(self) -> bool:
+        """把仍是「24 分試卷」的溪谷說明換成故事玩法。領袖改過的句子不碰。"""
+        from .content import member_badge_guide
+        from .engine import as_json
+
+        fresh = member_badge_guide()
+        areas = (fresh.get("quest") or {}).get("areas") or []
+        if len(areas) < 4:
+            return False
+        game = (areas[3].get("game") or {})
+        slides = (fresh.get("quest") or {}).get("intro_slides") or []
+        slide = next((row for row in slides if row.get("title_zh") == "溪谷旗桿"), {})
+        items = {item.get("n"): item for item in (fresh.get("items") or [])}
+        item7 = items.get(7) or {}
+        mapping = {
+            "認旗徽、掛旗、唱國歌，再把國旗升到桿頂。30 題，24 分合格，一次完成第 7 至 10 項。": game.get("blurb_zh", ""),
+            "Name the flags, hang them, sing the anthem, then raise the flag. 30 questions, 24 to pass — items 7 to 10 in one go.": game.get("blurb_en", ""),
+            "溪邊豎著旗桿。認旗徽、掛旗、唱國歌，再把國旗升到桿頂。": areas[3].get("hint_zh", ""),
+            "A flagpole by the stream. Name the flags, hang them, sing the anthem, then raise the flag.": areas[3].get("hint_en", ""),
+            "溪邊豎著旗桿。國旗、區旗與升旗禮儀，都在這裡考。": areas[3].get("hint_zh", ""),
+            "A flagpole by the stream. The flags and the flag ceremony are tested here.": areas[3].get("hint_en", ""),
+            "沿溪流走進南面的谷裏，旗桿就立在營地中央。這裡的遊戲也在準備之中。": slide.get("text_zh", ""),
+            "Follow the stream down into the southern valley, where the flagpole stands over the camp. Its game is on the way too.": slide.get("text_en", ""),
+            "完成「第 7 至 10 項試卷」，合格分數為 24 分／30 分": (item7.get("req_zh") or [""])[0],
+            "Complete the Items 7–10 paper — pass mark 24 / 30": (item7.get("req_en") or [""])[0],
+            "由「第 7 至 10 項試卷」考核": "由溪谷旗桿的升旗禮一併完成",
+            "Covered by the Items 7–10 paper": "Cleared together when you finish the valley ceremony",
+            "自行考核 — 第 7 至 10 項共用同一份試卷": item7.get("method_note_zh", ""),
+            "Self-check — items 7–10 share one paper": item7.get("method_note_en", ""),
+        }
+        mapping = {old: new for old, new in mapping.items() if old and new and old != new}
+
+        def swap(value):
+            if isinstance(value, str):
+                return mapping.get(value, value)
+            if isinstance(value, list):
+                return [swap(item) for item in value]
+            if isinstance(value, dict):
+                return {key: swap(item) for key, item in value.items()}
+            return value
+
+        badge = next((row for row in self.list("badges") if row.get("code") == "SC-01"), None)
+        if badge is None:
+            return False
+        guide = as_json(badge.get("guide_json"), {}) or {}
+        updated = swap(guide)
+        if updated == guide:
+            return False
+        self.update("badges", badge["id"], {"guide_json": updated})
         return True
 
     def ensure_catalog(self, preferred_ids: dict[str, str] | None = None) -> bool:

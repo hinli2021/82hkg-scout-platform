@@ -1,8 +1,10 @@
 """遊戲 4 — 溪谷旗桿（第 7 至 10 項）.
 
-The ceremony is the leader's 30-question paper turned into actions. Passing
-24 of 30 clears items 7, 8, 9 and 10 together; falling short clears nothing,
-and a second pass does not hand out a second pack of points.
+The valley continues the island story: the last patrol's notebook teaches
+the flags, then the scout performs the ceremony. Finishing it — every
+question answered right, with the story to lean on — clears items 7 to 10.
+A short or wrong post clears nothing, and a second pass does not award
+points again.
 """
 from __future__ import annotations
 
@@ -29,11 +31,16 @@ def answers(correct=True):
     return out
 
 
-def test_the_paper_has_thirty_questions_and_a_pass_mark_of_24():
+def test_the_story_teaches_before_the_play():
     questions = [q for station in BANK["stations"] for q in station["questions"]]
     assert len(questions) == 30
-    assert BANK["pass_mark"] == 24
-    assert len({q["id"] for q in questions}) == 30
+    assert len(BANK["intro"]) >= 3 and len(BANK["ending"]) >= 2
+    assert "木筏" in BANK["intro"][-1]["body_zh"]
+    assert "raft" in BANK["intro"][-1]["body_en"]
+    for station in BANK["stations"]:
+        assert station.get("learn"), station["id"]
+        for question in station["questions"]:
+            assert question.get("echo_zh") and question.get("echo_en")
 
 
 def test_the_flagpole_page_is_the_game(scout_client, store):
@@ -41,6 +48,7 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     page = scout_client.get(f"/tasks/{task['id']}/flag").get_data(as_text=True)
     assert page.count("data-flag") >= 1
     assert "flag.js" in page
+    assert "morning ceremony" in page
     # the old paper is a study link, not the game itself
     assert "forms.gle" not in page.split("data-flag-link")[0]
 
@@ -76,7 +84,7 @@ def test_falling_short_clears_nothing(scout_client, store):
     result = scout_client.post(f"/tasks/{task['id']}/flag-submit", data=answers(False))
     assert result.status_code == 400
     body = result.get_json()
-    assert body["error"] == "flag_short"
+    assert body["error"] == "flag_unfinished"
     progress = engine.progress_for(store, scout_client.id)
     badge = next(b for b in progress["badges"] if b.get("code") == "SC-01")
     assert all(t["status"] != "completed" for t in badge["tasks"] if t["code"] in ("M07", "M08", "M09", "M10"))
@@ -90,6 +98,27 @@ def test_a_replay_does_not_award_points_twice(scout_client, store):
     assert again["already_done"] is True
     second = engine.points_summary(store, scout_client.id)["balance"]
     assert second == first
+
+
+def test_twenty_four_out_of_thirty_does_not_pass(scout_client, store):
+    """Finishing the ceremony means every line, not the old paper's 24."""
+    data = answers(True)
+    flipped = 0
+    for key, value in list(data.items()):
+        if flipped >= 6:
+            break
+        data[key] = "0" if value != "0" else "1"
+        flipped += 1
+    result = scout_client.post(f"/tasks/{task_of(store)['id']}/flag-submit", data=data)
+    assert result.status_code == 400
+    assert result.get_json()["error"] == "flag_unfinished"
+
+
+def test_a_notes_post_cannot_skip_the_ceremony(scout_client, store):
+    task = task_of(store)
+    result = scout_client.post(f"/tasks/{task['id']}/submit", data={"notes": "done"})
+    assert result.status_code == 403
+    assert result.get_json()["error"] == "play_the_flag"
 
 
 def test_the_map_offers_the_flagpole(scout_client, store):

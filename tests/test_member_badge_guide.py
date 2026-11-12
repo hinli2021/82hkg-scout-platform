@@ -75,7 +75,7 @@ def test_the_guide_page_lists_all_eleven_items(guide_page):
 
 def test_the_guide_page_carries_the_units_own_requirements(guide_page):
     # the wording the unit decided on, straight from its reference doc
-    assert "24 分／30 分" in guide_page          # items 7–10
+    assert "先讀筆記" in guide_page              # items 7–10 are the valley ceremony, not a paper
     assert "不設合格分數" in guide_page           # cave now clears on completion
     assert "80 分合格" not in guide_page
     assert "六次團集會" in guide_page

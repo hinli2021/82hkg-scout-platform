@@ -38,16 +38,19 @@
         {% if cleared_now %}
           <span class="cave-kicker">{{ L('第 7 至 10 項', 'Items 7 to 10') }}</span>
           <h1 class="cave-title">{{ L('旗已升到桿頂', 'The flag is at the top') }}</h1>
-          <p class="cave-line">{{ L('你已通過溪谷旗桿。找領袖考核之前，可以再升一次旗。',
-                                    'You have cleared the valley flagpole. Raise the flag again before you see your leader.') }}</p>
+          <p class="cave-line">{{ L('你已升完這面旗，第 7 至 10 項完成。想再走一次溪谷，可以再升一次。',
+                                    'You have raised the flag. Items 7 to 10 are done. Walk the valley again if you want to raise it once more.') }}</p>
+          <div class="cave-actions">
+            <button class="btn" type="button" data-flag-go>{{ L('再走一次溪谷', 'Walk the valley again') }}</button>
+          </div>
         {% else %}
           <span class="cave-kicker">{{ L('遊戲 4', 'Game 4') }}</span>
-          <h1 class="cave-title">{{ L('溪谷旗桿', 'The valley flagpole') }}</h1>
-          <p class="cave-line">{{ L('溪邊有一支旗桿。認旗徽、掛旗、唱國歌，最後把國旗升到桿頂。30 題，24 分合格。',
-                                    'A flagpole stands by the stream. Name the flags, hang them, sing the anthem, then raise the national flag to the top. 30 questions, 24 to pass.') }}</p>
+          <h1 class="cave-title">{{ L('山脊在身後', 'The ridge is behind you') }}</h1>
+          <p class="cave-line">{{ L('步操場還在上面。小徑向下，溪水聲傳來，旗桿的繩子空掛著。上一隊留下一本筆記：先讀，再自己升旗。旗到桿頂，谷口就通向海邊。',
+                                    'The parade ground is still above you. The path drops, a stream is running, and the flagpole rope hangs empty. The last patrol left a notebook: read it, then raise the flag yourself. When it reaches the top, the valley opens toward the sea.') }}</p>
           <div class="cave-actions">
             <button class="btn primary big" type="button" data-flag-go data-cheer="🚩,✨">
-              {{ L('開始升旗', 'Start the ceremony') }}</button>
+              {{ L('沿溪走下去', 'Follow the stream down') }}</button>
           </div>
         {% endif %}
       </div>

@@ -162,16 +162,16 @@
    "title_zh": "能辨認中華人民共和國國旗和國徽；並能說明其含意。",
    "title_en": "Recognise the national flag and emblem of the People's Republic of China and explain their meaning.",
    "req_zh": [
-    "完成「第 7 至 10 項試卷」，合格分數為 24 分／30 分",
+    "在溪谷先讀筆記，再自己做完升旗禮",
     "能認出國旗、國徽並說出含意"
    ],
    "req_en": [
-    "Complete the Items 7–10 paper — pass mark 24 / 30",
+    "Read the notebook in the valley, then finish the ceremony yourself",
     "Recognise the national flag and emblem and explain their meaning"
    ],
    "method": "self",
-   "method_note_zh": "自行考核 — 第 7 至 10 項共用同一份試卷",
-   "method_note_en": "Self-check — items 7–10 share one paper",
+   "method_note_zh": "遊戲 4 — 做完升旗禮即完成",
+   "method_note_en": "Game 4 — finishing the ceremony completes it",
    "links": [
     {
      "label_zh": "第 7 至 10 項試卷（Google Form）",
@@ -195,11 +195,11 @@
    "title_zh": "能辨認香港特別行政區區旗和區徽；並能說明其含意。",
    "title_en": "Recognise the regional flag and emblem of the Hong Kong SAR and explain their meaning.",
    "req_zh": [
-    "由「第 7 至 10 項試卷」考核",
+    "由溪谷旗桿的升旗禮一併完成",
     "能認出區旗、區徽並說出含意"
    ],
    "req_en": [
-    "Covered by the Items 7–10 paper",
+    "Cleared together when you finish the valley ceremony",
     "Recognise the regional flag and emblem and explain their meaning"
    ],
    "method": "self",
@@ -223,11 +223,11 @@
    "title_zh": "認識在國歌奏唱和升掛國旗、區旗時應有之禮儀，以及升國旗的基本程序。",
    "title_en": "Know the proper etiquette when the national anthem is played and the flags are raised, and the basic flag-raising procedure.",
    "req_zh": [
-    "由「第 7 至 10 項試卷」考核",
+    "由溪谷旗桿的升旗禮一併完成",
     "示範國歌奏唱及升旗時應有的禮儀"
    ],
    "req_en": [
-    "Covered by the Items 7–10 paper",
+    "Cleared together when you finish the valley ceremony",
     "Show the correct etiquette for the anthem and flag-raising"
    ],
    "method": "self",
@@ -245,11 +245,11 @@
    "title_zh": "明瞭設立國歌的用意，並能背唱之。",
    "title_en": "Understand the purpose of the national anthem and be able to sing it from memory.",
    "req_zh": [
-    "由「第 7 至 10 項試卷」考核",
+    "由溪谷旗桿的升旗禮一併完成",
     "能背唱國歌"
    ],
    "req_en": [
-    "Covered by the Items 7–10 paper",
+    "Cleared together when you finish the valley ceremony",
     "Sing the national anthem from memory"
    ],
    "method": "self",
@@ -421,8 +421,8 @@
     "icon": "🏞️",
     "name_zh": "溪谷旗桿",
     "name_en": "The valley flagpole",
-    "hint_zh": "溪邊豎著旗桿。認旗徽、掛旗、唱國歌，再把國旗升到桿頂。",
-    "hint_en": "A flagpole by the stream. Name the flags, hang them, sing the anthem, then raise the flag.",
+    "hint_zh": "溪邊的旗桿空著。先讀上一隊的筆記，再自己把國旗升到桿頂。",
+    "hint_en": "The flagpole by the stream is empty. Read the last patrol's notebook, then raise the flag yourself.",
     "items": [
      7,
      8,
@@ -434,8 +434,8 @@
      "ready": true,
      "name_zh": "溪谷旗桿",
      "name_en": "The valley flagpole",
-     "blurb_zh": "認旗徽、掛旗、唱國歌，再把國旗升到桿頂。30 題，24 分合格，一次完成第 7 至 10 項。",
-     "blurb_en": "Name the flags, hang them, sing the anthem, then raise the flag. 30 questions, 24 to pass — items 7 to 10 in one go.",
+     "blurb_zh": "先讀溪邊的筆記，學懂旗徽、禮儀和國歌，再自己做升旗禮。做完即完成第 7 至 10 項。",
+     "blurb_en": "Read the notebook by the stream, learn the flags, the ceremony and the anthem, then perform it yourself. Finishing clears items 7 to 10.",
      "task_code": "M07"
     }
    },
@@ -536,8 +536,8 @@
     "kicker_en": "STOP 4 · GAME 4",
     "title_zh": "溪谷旗桿",
     "title_en": "The valley flagpole",
-    "text_zh": "沿溪流走進南面的谷裏，旗桿就立在營地中央。這裡的遊戲也在準備之中。",
-    "text_en": "Follow the stream down into the southern valley, where the flagpole stands over the camp. Its game is on the way too.",
+    "text_zh": "沿溪流走進南面的谷裡。旗桿空著，上一隊留下一本筆記。讀完，再自己把旗升到桿頂，谷口才通向海邊。",
+    "text_en": "Follow the stream down into the southern valley. The flagpole is empty, and the last patrol left a notebook. Read it, then raise the flag yourself — only then does the valley open toward the sea.",
     "alt_zh": "溪谷營地與旗桿",
     "alt_en": "The stream, the camp and the flagpole"
    },

@@ -637,13 +637,12 @@ def leaderboard_sections(store, *, scope: str = "unit", patrol: str = "",
         when = record.get("decided_at") or record.get("submitted_at") or ""
         if period != "all" and not in_range(when):
             continue
-        kind = column_by_task[task_id].get("kind")
-        metric = "percent" if kind == "cave" else "score" if kind == "flag" else "time"
+        metric = "percent" if column_by_task[task_id].get("kind") == "cave" else "time"
         holder = best[task_id].setdefault(
             record["user_id"], {"percent": None, "ms": None, "done": False})
         if record.get("status") == "completed":
             holder["done"] = True
-        if metric in ("percent", "score"):
+        if metric == "percent":
             value = as_int(record.get("score"))
             holder["percent"] = value if holder["percent"] is None else max(holder["percent"], value)
         else:
@@ -655,14 +654,13 @@ def leaderboard_sections(store, *, scope: str = "unit", patrol: str = "",
     bases: dict[str, dict] = {}
     game_boards: list[dict] = []
     for column in columns:
-        kind = column.get("kind")
-        metric = "percent" if kind == "cave" else "score" if kind == "flag" else "time"
+        metric = "percent" if column.get("kind") == "cave" else "time"
         rows: list[dict] = []
         for user in users:
             holder = best[column["task_id"]].get(user["id"])
             if not holder:
                 continue
-            value = holder["percent"] if metric in ("percent", "score") else holder["ms"]
+            value = holder["percent"] if metric == "percent" else holder["ms"]
             base = bases.setdefault(user["id"], {
                 "user_id": user["id"],
                 "display_name_zh": user.get("display_name_zh", ""),
@@ -674,7 +672,7 @@ def leaderboard_sections(store, *, scope: str = "unit", patrol: str = "",
             rows.append({**base, "value": value, "done": holder["done"]})
         ranked = [row for row in rows if row["value"] is not None]
         unranked = [row for row in rows if row["value"] is None]
-        if metric in ("percent", "score"):
+        if metric == "percent":
             ranked.sort(key=lambda row: (-row["value"], name_key(row)))
         else:
             ranked.sort(key=lambda row: (row["value"], name_key(row)))

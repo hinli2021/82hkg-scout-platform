@@ -938,7 +938,8 @@ def task_flag(task_id: str):
     scenes = {
         "task_id": task_id,
         "stations": bank["stations"],
-        "pass_mark": bank.get("pass_mark", 24),
+        "intro": bank.get("intro") or [],
+        "ending": bank.get("ending") or [],
         "total": bank.get("total", 30),
         "note_zh": bank.get("note_zh", ""),
         "note_en": bank.get("note_en", ""),
@@ -975,8 +976,9 @@ def flag_submit(task_id: str):
     """The ceremony is over — re-check all 30 answers, then file the items.
 
     The browser's score is never trusted: every answer is checked again
-    against `ceremony-bank.json`. Reaching the pass mark completes item 7 and,
-    in the same breath, items 8, 9 and 10, because the paper covers all four.
+    against `ceremony-bank.json`. The ceremony is finished only when every
+    question is answered right — the story teaches first, and a miss sends
+    the scout back to that line. Finishing completes items 7 to 10 together.
     A replay after that changes nothing.
     """
     st = store()
@@ -997,18 +999,16 @@ def flag_submit(task_id: str):
         given[question["id"]] = choice
         if choice == question.get("answer"):
             correct += 1
-    bank = ceremony()
-    mark = as_int_or(bank.get("pass_mark"), 24) or 24
-    passed = len(given) == len(questions) and correct >= mark
+    passed = len(questions) > 0 and len(given) == len(questions) and correct == len(questions)
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
     already = any(r.get("status") == "completed" for r in mine)
 
     if not passed and not already:
-        return fail(400, "flag_short",
-                    f"答對 {correct}／{len(questions)} 題，未到 {mark} 分。再升一次旗。",
-                    f"{correct} of {len(questions)} — short of {mark}. Raise the flag again.")
+        return fail(400, "flag_unfinished",
+                    "升旗禮還沒做完。筆記裡沒答對的，再做一次。",
+                    "The ceremony is not finished. Do the lines you missed again.")
     if not already:
         record = st.insert("progress_records", {
             "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
@@ -1043,9 +1043,9 @@ def flag_submit(task_id: str):
         audit(g.user, "flag_submit", "tasks", task_id,
               {"score": correct, "of": len(questions)})
     return ok(passed=True, status="completed", already_done=already,
-              detail={"score": correct, "of": len(questions), "pass_mark": mark},
-              message_zh=f"旗已升到桿頂（{correct}／{len(questions)}）。第 7 至 10 項完成。",
-              message_en=f"The flag is at the top ({correct} of {len(questions)}). Items 7 to 10 are done.")
+              detail={"score": correct, "of": len(questions)},
+              message_zh="旗已升到桿頂。第 7 至 10 項完成。",
+              message_en="The flag is at the top. Items 7 to 10 are done.")
 
 
 @scout_routes.post("/tasks/<task_id>/submit")
@@ -1083,6 +1083,11 @@ def submit(task_id: str):
         return fail(403, "play_the_drill",
                     "第 6 項請在第三個區域完成步操訓練場：學完找領袖親身考核，領袖批准即完成。",
                     "Play the drill ground in area three to finish item 6: study the manual, perform it for your leader — their approval finishes it.")
+    if _is_badge_flag_task(task, badge) or (
+            badge and badge.get("code") == "SC-01" and str(task.get("code") or "") in ("M08", "M09", "M10")):
+        return fail(403, "play_the_flag",
+                    "第 7 至 10 項請在溪谷旗桿完成：先讀筆記，再自己做升旗禮，做完即完成。",
+                    "Finish items 7 to 10 at the valley flagpole: read the notebook, then perform the ceremony. Finishing it clears them.")
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == user["id"] and r.get("task_id") == task_id]

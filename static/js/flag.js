@@ -1,10 +1,9 @@
 /* 溪谷旗桿 — game 4 of 會員章 (items 7 to 10).
-   One ceremony by the stream. The 30 questions and their answers come from the
-   leader's paper (content/member-badge/ceremony-bank.json); this file only
-   adds the actions: tap a picture, tap a glowing part, drag a flag onto its
-   pole, fill a gap in the anthem, drag the flag up the pole. No question is
-   invented here, and no answer is decided here — the server re-checks every
-   one on submit. */
+   The island story continues here: down from the ridge, a notebook by the
+   stream teaches the flags, then the scout performs the ceremony. Finishing
+   the ceremony passes. The 30 answers still come from the leader's paper;
+   this file only tells the story and plays the actions. The server re-checks
+   every answer on submit. */
 (function () {
   "use strict";
 
@@ -18,23 +17,18 @@
   function t(zh, en) { return lang === "en" ? (en || zh || "") : (zh || en || ""); }
 
   var stations = config.stations || [];
-  var passMark = config.pass_mark || 24;
+  var intro = config.intro || [];
+  var ending = config.ending || [];
   var card = root.querySelector("[data-flag-card]");
   var progress = root.querySelector("[data-flag-progress]");
   var picture = root.querySelector(".cave-picture");
   var badgeLink = root.querySelector('[data-flag-link="badge"]');
 
-  var answers = {};          // question id -> chosen index
+  var answers = {};
   var stationIndex = -1;
-  var asking = null;         // the question currently open
+  var asking = null;
   var startedAt = 0;
-
-  var ART = {
-    "flag-national": "flag-national",
-    "flag-regional": "flag-regional",
-    "emblem-national": "emblem-national",
-    "emblem-regional": "emblem-regional"
-  };
+  var filed = false;
 
   function sourceUrl(name) {
     var img = root.querySelector('[data-flag-source="' + name + '"]');
@@ -47,6 +41,12 @@
 
   function setProgress(text) { if (progress) progress.textContent = text; }
 
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function cardHtml(kicker, title, body, extra) {
     return '<span class="cave-kicker">' + escapeHtml(kicker) + '</span>'
       + '<h1 class="cave-title">' + escapeHtml(title) + '</h1>'
@@ -54,11 +54,150 @@
       + (extra || "");
   }
 
-  function escapeHtml(s) {
-    return String(s == null ? "" : s)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+  function bookButton(station) {
+    if (!station || !(station.learn || []).length) return "";
+    return '<button type="button" class="flag-book" data-flag-book>'
+      + escapeHtml(t("翻開筆記", "Open the notebook")) + '</button>';
   }
+
+  function bindBook(station) {
+    var btn = card.querySelector("[data-flag-book]");
+    if (!btn) return;
+    btn.addEventListener("click", function () { showLearn(station, 0, true); });
+  }
+
+  /* ── story pages ──────────────────────────────────────────────────────── */
+
+  function clearScene() {
+    var old = picture.querySelector(".flag-scene");
+    if (old) old.remove();
+  }
+
+  function scene() {
+    var el = document.createElement("div");
+    el.className = "flag-scene";
+    el.innerHTML = '<div class="flag-board" data-flag-board></div>';
+    picture.appendChild(el);
+    return el.querySelector("[data-flag-board]");
+  }
+
+  function notebook(board) {
+    var book = document.createElement("div");
+    book.className = "flag-notebook";
+    book.setAttribute("aria-hidden", "true");
+    board.appendChild(book);
+  }
+
+  function paintPage(board, page) {
+    if (page.scene === "poles") {
+      buildPoles(board);
+      var tray = board.querySelector("[data-flag-tray]");
+      if (tray) tray.remove();
+      ["left", "right"].forEach(function (side, i) {
+        var slot = board.querySelector('[data-slot="' + side + '"]');
+        if (!slot) return;
+        slot.innerHTML = cloth(i === 0 ? "flag-national" : "flag-regional", "is-fly");
+        slot.classList.add("is-full");
+      });
+    } else if (page.scene === "raise") {
+      board.innerHTML = '<div class="flag-rope" aria-hidden="true"></div>'
+        + '<div class="flag-hoist">' + cloth("flag-national", "is-fly") + '</div>';
+    } else if (page.scene === "score") {
+      var score = document.createElement("div");
+      score.className = "flag-score";
+      score.innerHTML = "<p>&#9834; &#9834; &#9834;</p>";
+      board.appendChild(score);
+    } else if (page.art) {
+      var wrap = document.createElement("div");
+      wrap.className = "flag-big";
+      wrap.innerHTML = cloth(page.art);
+      if (page.part) {
+        var hot = document.createElement("span");
+        hot.className = "flag-hot is-asking";
+        hot.setAttribute("data-part", page.part);
+        wrap.appendChild(hot);
+      }
+      board.appendChild(wrap);
+    }
+    notebook(board);
+  }
+
+  function showStory(pages, index, kicker, onDone) {
+    if (index >= pages.length) { onDone(); return; }
+    var page = pages[index];
+    clearScene();
+    var board = scene();
+    paintPage(board, page);
+    var revealed = !page.fact_zh;
+    function render() {
+      var last = index === pages.length - 1;
+      card.innerHTML = cardHtml(
+        kicker + "  ·  " + (index + 1) + " / " + pages.length,
+        t(page.title_zh, page.title_en),
+        t(page.body_zh, page.body_en),
+        (revealed && page.fact_zh
+          ? '<p class="flag-fact">' + escapeHtml(t(page.fact_zh, page.fact_en)) + '</p>' : '')
+        + '<div class="cave-actions">'
+        + (revealed
+          ? '<button class="btn primary" type="button" data-flag-next>'
+            + escapeHtml(last ? t("繼續", "Go on") : t("下一頁", "Next page")) + '</button>'
+          : '<p class="flag-why">' + escapeHtml(t("點一點溪谷，筆記會把這一行讀出來。",
+              "Tap the valley. The notebook will read this line.")) + '</p>')
+        + '</div>');
+      var next = card.querySelector("[data-flag-next]");
+      if (next) next.addEventListener("click", function () { showStory(pages, index + 1, kicker, onDone); });
+    }
+    render();
+    if (!revealed) board.addEventListener("click", function () {
+      if (revealed) return;
+      revealed = true;
+      render();
+    });
+  }
+
+  function showLearn(station, index, review) {
+    var pages = station.learn || [];
+    if (!pages.length || index >= pages.length) {
+      runStation(station);
+      return;
+    }
+    var page = pages[index];
+    clearScene();
+    var board = scene();
+    paintPage(board, page);
+    var revealed = !page.fact_zh;
+    var last = index === pages.length - 1;
+    function render() {
+      var label = review
+        ? t("回到升旗禮", "Back to the ceremony")
+        : t("現在換我做", "Now I do it");
+      card.innerHTML = cardHtml(
+        t("筆記", "The notebook") + "  ·  " + (index + 1) + " / " + pages.length,
+        t(page.title_zh, page.title_en),
+        t(page.body_zh, page.body_en),
+        (revealed && page.fact_zh
+          ? '<p class="flag-fact">' + escapeHtml(t(page.fact_zh, page.fact_en)) + '</p>' : '')
+        + '<div class="cave-actions">'
+        + (revealed
+          ? '<button class="btn primary" type="button" data-flag-next>'
+            + escapeHtml(last ? label : t("下一頁", "Next page")) + '</button>'
+          : '<p class="flag-why">' + escapeHtml(page.part
+            ? t("點一點上面發光的地方，筆記會把這一行讀出來。", "Tap the glowing part above. The notebook will read this line.")
+            : t("點一點溪谷，筆記會把這一行讀出來。", "Tap the valley. The notebook will read this line.")) + '</p>')
+        + '</div>');
+      var next = card.querySelector("[data-flag-next]");
+      if (next) next.addEventListener("click", function () { showLearn(station, index + 1, review); });
+    }
+    render();
+    if (!revealed) board.addEventListener("click", function () {
+      if (revealed) return;
+      revealed = true;
+      render();
+    });
+    setProgress((stationIndex + 1) + " / " + stations.length + "  " + t(station.name_zh, station.name_en));
+  }
+
+  /* ── play ─────────────────────────────────────────────────────────────── */
 
   function optionsHtml(q) {
     var opts = lang === "en" ? q.options_en : q.options_zh;
@@ -67,81 +206,101 @@
       html += '<button type="button" class="flag-option" data-flag-option="' + i + '">'
         + escapeHtml(label) + '</button>';
     });
-    html += '</div>';
-    if (q.why_zh) {
-      html += '<p class="flag-why" data-flag-why hidden>' + escapeHtml(t(q.why_zh, q.why_en)) + '</p>';
-    }
-    return html;
+    return html + '</div>';
   }
 
   function ask(q, kicker, locked) {
     asking = q;
+    var station = stations[stationIndex];
     var extra = locked
       ? '<p class="flag-why">' + escapeHtml(t("先把兩面旗都拖上旗桿。", "Drag both flags onto the poles first.")) + '</p>'
       : optionsHtml(q);
-    card.innerHTML = cardHtml(
-      kicker,
-      t(q.prompt_zh, q.prompt_en),
-      "",
-      extra);
+    card.innerHTML = cardHtml(kicker, t(q.prompt_zh, q.prompt_en), "", extra + bookButton(station));
     card.querySelectorAll("[data-flag-option]").forEach(function (btn) {
-      btn.addEventListener("click", function () { choose(q, parseInt(btn.getAttribute("data-flag-option"), 10), btn); });
+      btn.addEventListener("click", function () {
+        choose(q, parseInt(btn.getAttribute("data-flag-option"), 10), btn);
+      });
     });
+    bindBook(station);
   }
 
-  /* a poles question stays locked until both flags are actually hanging */
   function polesReady() {
     var slots = picture.querySelectorAll("[data-slot]");
     return slots.length === 2 && picture.querySelectorAll("[data-slot].is-full").length === 2;
   }
 
   function choose(q, index, btn) {
-    if (answers[q.id] != null) return;          // one answer, then it locks
+    if (answers[q.id] != null) return;
+    if (index !== q.answer) {
+      btn.classList.add("is-wrong");
+      btn.disabled = true;
+      var echo = card.querySelector("[data-flag-echo]");
+      if (!echo) {
+        echo = document.createElement("p");
+        echo.className = "flag-why";
+        echo.setAttribute("data-flag-echo", "");
+        card.appendChild(echo);
+      }
+      echo.textContent = t(q.echo_zh, q.echo_en) || t("筆記不是這樣寫的。再看一次。",
+        "That is not what the notebook says. Look again.");
+      return;
+    }
     answers[q.id] = index;
-    var right = index === q.answer;
-    btn.classList.add(right ? "is-right" : "is-wrong");
+    btn.classList.add("is-right");
     card.querySelectorAll("[data-flag-option]").forEach(function (b) { b.disabled = true; });
-    var why = card.querySelector("[data-flag-why]");
-    if (why && !right) why.hidden = false;
     markAsked(q);
-    window.setTimeout(advance, right ? 550 : 1100);
+    window.setTimeout(advance, 450);
   }
 
   function markAsked(q) {
     var el = picture.querySelector('[data-qid="' + q.id + '"]');
-    if (el) { el.classList.remove("is-asking"); el.classList.add("is-done"); }
-  }
-
-  /* ── stations ─────────────────────────────────────────────────────────── */
-
-  function showIntro() {
-    setProgress(t("溪谷旗桿", "The valley flagpole"));
+    if (!el) return;
+    el.classList.remove("is-asking");
+    el.classList.add("is-done");
+    if (el.classList.contains("flag-gap")) {
+      var word = (lang === "en" ? q.options_en : q.options_zh)[q.answer];
+      el.textContent = word;
+    }
+    var tick = el.querySelector(".flag-tick");
+    if (tick) tick.textContent = "✔";
   }
 
   function start() {
     startedAt = Date.now();
-    stationIndex = 0;
-    enterStation();
+    answers = {};
+    filed = false;
+    stations.forEach(function (s) { s._bridged = false; });
+    setProgress(t("溪谷旗桿", "The valley flagpole"));
+    showStory(intro, 0, t("遊戲 4", "Game 4"), function () {
+      stationIndex = 0;
+      enterStation();
+    });
   }
 
   function enterStation() {
-    if (stationIndex >= stations.length) { finish(); return; }
+    if (stationIndex >= stations.length) { showEnding(); return; }
     var station = stations[stationIndex];
-    clearScene();
+    station._bridged = false;
     setProgress((stationIndex + 1) + " / " + stations.length + "  " + t(station.name_zh, station.name_en));
-    card.innerHTML = cardHtml(
-      t(station.name_zh, station.name_en),
-      t(station.lead_zh, station.lead_en),
-      "",
-      '<div class="cave-actions"><button class="btn primary" type="button" data-flag-begin>'
-        + escapeHtml(t("開始", "Begin")) + '</button></div>');
-    card.querySelector("[data-flag-begin]").addEventListener("click", function () { runStation(station); });
+    showLearn(station, 0, false);
   }
 
   function runStation(station) {
+    clearScene();
     buildScene(station);
-    var pending = (station.questions || []).filter(function (q) { return answers[q.id] == null; });
-    if (!pending.length) { nextStation(); return; }
+    if (!station._bridged) {
+      station._bridged = true;
+      card.innerHTML = cardHtml(
+        t(station.name_zh, station.name_en),
+        t(station.lead_zh, station.lead_en),
+        "",
+        '<div class="cave-actions"><button class="btn primary" type="button" data-flag-play>'
+          + escapeHtml(t("我來做", "I'll do it")) + '</button></div>'
+          + bookButton(station));
+      card.querySelector("[data-flag-play]").addEventListener("click", function () { openNext(station); });
+      bindBook(station);
+      return;
+    }
     openNext(station);
   }
 
@@ -155,13 +314,14 @@
     var label = t(station.name_zh, station.name_en) + "  ·  "
       + ((station.questions.length - pending.length) + 1) + "/" + station.questions.length;
     if (station.kind === "poles") {
-      layPoles(station, q);
+      if (!picture.querySelector("[data-flag-tray]")) layPoles();
       ask(q, label, !polesReady());
       return;
     }
     if (station.kind === "raise" && !picture.querySelector(".flag-hoist.is-up")) {
       ask(q, label, false);
-      card.querySelector("[data-flag-options]").hidden = true;
+      var options = card.querySelector("[data-flag-options]");
+      if (options) options.hidden = true;
       var note = document.createElement("p");
       note.className = "flag-why";
       note.textContent = t("按住國旗，把它拉到旗桿頂。", "Hold the flag and drag it to the top of the pole.");
@@ -182,20 +342,47 @@
     enterStation();
   }
 
-  /* ── scene building ───────────────────────────────────────────────────── */
-
-  function clearScene() {
-    var old = picture.querySelector(".flag-scene");
-    if (old) old.remove();
+  function showEnding() {
+    clearScene();
+    setProgress(t("升旗完畢", "Ceremony over"));
+    showStory(ending, 0, t("溪谷旗桿", "The valley flagpole"), function () {
+      card.innerHTML = cardHtml(
+        t("通向海邊", "Toward the sea"),
+        t("旗已升到桿頂", "The flag is at the top"),
+        t("第 7 至 10 項完成。臨海山崗還在前面，木筏在沙灘上等你。",
+          "Items 7 to 10 are done. The seaward bluff is still ahead, and the raft is waiting on the beach."),
+        '<div class="cave-actions">'
+          + (badgeLink ? '<a class="btn primary" href="' + badgeLink.getAttribute("href") + '">'
+            + escapeHtml(t("回到會員章", "Back to the badge")) + '</a>' : "")
+          + '</div>'
+          + '<p class="flag-note">' + escapeHtml(t(config.note_zh, config.note_en)) + '</p>');
+      submit();
+    });
   }
 
-  function scene() {
-    var el = document.createElement("div");
-    el.className = "flag-scene";
-    el.innerHTML = '<div class="flag-board" data-flag-board></div>';
-    picture.appendChild(el);
-    return el.querySelector("[data-flag-board]");
+  function submit() {
+    if (filed || !config.submit_url) return;
+    filed = true;
+    var body = new URLSearchParams();
+    Object.keys(answers).forEach(function (id) { body.append(id, String(answers[id])); });
+    body.append("elapsed_ms", String(startedAt ? Math.max(0, Date.now() - startedAt) : 0));
+    fetch(config.submit_url, {
+      method: "POST",
+      headers: { "X-Requested-With": "fetch", "Accept": "application/json",
+                 "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString()
+    }).then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+      .then(function (res) {
+        if (res.ok || !card) return;
+        var note = document.createElement("p");
+        note.className = "flag-why";
+        note.textContent = t(res.data.message_zh, res.data.message_en);
+        card.appendChild(note);
+        filed = false;
+      }).catch(function () { filed = false; });
   }
+
+  /* ── scenes ───────────────────────────────────────────────────────────── */
 
   function buildScene(station) {
     var board = scene();
@@ -203,7 +390,7 @@
     else if (station.kind === "parts") buildParts(board, station);
     else if (station.kind === "poles") buildPoles(board);
     else if (station.kind === "sing") buildScore(board, station);
-    else if (station.kind === "raise") buildRaise(board, station);
+    else if (station.kind === "raise") buildRaise(board);
     else if (station.kind === "tap") buildScore(board, station);
   }
 
@@ -230,8 +417,7 @@
   function buildParts(board, station) {
     var wrap = document.createElement("div");
     wrap.className = "flag-big";
-    var art = station.id === "flower" ? "flag-regional" : "flag-national";
-    wrap.innerHTML = cloth(art);
+    wrap.innerHTML = cloth(station.id === "flower" ? "flag-regional" : "flag-national");
     station.questions.forEach(function (q) {
       var hot = document.createElement("button");
       hot.type = "button";
@@ -259,28 +445,21 @@
     board.appendChild(wrap);
   }
 
-  function layPoles(station, q) {
+  function layPoles() {
     var tray = picture.querySelector("[data-flag-tray]");
-    if (!tray) return;
-    tray.innerHTML = "";
+    if (!tray || tray.childElementCount) return;
     ["left", "right"].forEach(function (side) {
       var slot = picture.querySelector('[data-slot="' + side + '"]');
-      if (slot) { slot.innerHTML = ""; slot.classList.remove("is-full"); }
+      if (slot && !slot.classList.contains("is-full")) slot.innerHTML = "";
     });
-    var flags = [
-      { id: "national", art: "flag-national" },
-      { id: "regional", art: "flag-regional" }
-    ];
-    flags.forEach(function (f) {
+    [{ id: "national", art: "flag-national" }, { id: "regional", art: "flag-regional" }].forEach(function (f) {
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "flag-drag";
       btn.setAttribute("draggable", "true");
       btn.setAttribute("data-flag-id", f.id);
       btn.innerHTML = cloth(f.art);
-      btn.addEventListener("dragstart", function (ev) {
-        ev.dataTransfer.setData("text/plain", f.id);
-      });
+      btn.addEventListener("dragstart", function (ev) { ev.dataTransfer.setData("text/plain", f.id); });
       btn.addEventListener("click", function () { btn.classList.toggle("is-held"); });
       tray.appendChild(btn);
     });
@@ -291,7 +470,7 @@
         hang(slot, ev.dataTransfer.getData("text/plain"));
       });
       slot.addEventListener("click", function () {
-        var held = tray.querySelector(".flag-drag.is-held");
+        var held = picture.querySelector(".flag-drag.is-held");
         if (held) hang(slot, held.getAttribute("data-flag-id"));
       });
     });
@@ -299,12 +478,10 @@
 
   function hang(slot, flagId) {
     if (!flagId || slot.classList.contains("is-full")) return;
-    var art = flagId === "national" ? "flag-national" : "flag-regional";
-    slot.innerHTML = cloth(art, "is-fly");
+    slot.innerHTML = cloth(flagId === "national" ? "flag-national" : "flag-regional", "is-fly");
     slot.classList.add("is-full");
     var btn = picture.querySelector('[data-flag-id="' + flagId + '"]');
     if (btn) btn.classList.add("is-used");
-    // both flags up: the statement can be answered now
     if (polesReady() && asking) ask(asking, t("兩支旗桿", "Two flagpoles"));
   }
 
@@ -312,10 +489,7 @@
     var wrap = document.createElement("div");
     wrap.className = "flag-score";
     var lines = lang === "en" ? (station.lines_en || []) : (station.lines_zh || []);
-    if (!lines.length) {
-      // the anthem-history station has no lyric lines: one tappable note per question
-      lines = station.questions.map(function (q) { return "♪ {" + q.id + "}"; });
-    }
+    if (!lines.length) lines = station.questions.map(function (q) { return "♪ {" + q.id + "}"; });
     lines.forEach(function (line) {
       var p = document.createElement("p");
       p.innerHTML = escapeHtml(line).replace(/\{(q\d+)\}/g, function (_, id) {
@@ -341,9 +515,8 @@
     board.appendChild(wrap);
   }
 
-  function buildRaise(board, station) {
-    board.innerHTML =
-      '<div class="flag-rope" aria-hidden="true"></div>'
+  function buildRaise(board) {
+    board.innerHTML = '<div class="flag-rope" aria-hidden="true"></div>'
       + '<button type="button" class="flag-hoist" data-flag-hoist>' + cloth("flag-national", "is-fly") + '</button>';
     var hoist = board.querySelector("[data-flag-hoist]");
     function lift(clientY) {
@@ -355,74 +528,16 @@
         hoist.classList.add("is-up");
         hoist.style.bottom = "84%";
         var station = stations[stationIndex];
-        if (station) openNext(station);     // the flag is up: the questions unlock
+        if (station) openNext(station);
       }
     }
-    hoist.addEventListener("pointerdown", function (ev) {
-      hoist.setPointerCapture(ev.pointerId);
-    });
+    hoist.addEventListener("pointerdown", function (ev) { hoist.setPointerCapture(ev.pointerId); });
     hoist.addEventListener("pointermove", function (ev) {
       if (hoist.hasPointerCapture && hoist.hasPointerCapture(ev.pointerId)) lift(ev.clientY);
     });
     board.addEventListener("click", function (ev) { lift(ev.clientY); });
   }
 
-  /* ── the end ──────────────────────────────────────────────────────────── */
-
-  function finish() {
-    clearScene();
-    var total = stations.reduce(function (n, s) { return n + (s.questions || []).length; }, 0);
-    var score = stations.reduce(function (n, s) {
-      return n + (s.questions || []).filter(function (q) { return answers[q.id] === q.answer; }).length;
-    }, 0);
-    var passed = score >= passMark;
-    var elapsed = startedAt ? Math.max(0, Date.now() - startedAt) : 0;
-    setProgress(score + " / " + total);
-    card.innerHTML = cardHtml(
-      t("升旗完畢", "Ceremony over"),
-      passed
-        ? t("旗已升到桿頂", "The flag is at the top")
-        : t("旗升到一半", "The flag stopped halfway"),
-      passed
-        ? t("你答對 " + score + "／" + total + " 題，達到 " + passMark + " 分。第 7 至 10 項完成，去找領袖考核。",
-            "You got " + score + " of " + total + ", past the " + passMark + " mark. Items 7 to 10 are done — see your leader.")
-        : t("你答對 " + score + "／" + total + " 題，未到 " + passMark + " 分。再升一次旗。",
-            "You got " + score + " of " + total + ", short of " + passMark + ". Raise the flag again."),
-      '<div class="cave-actions">'
-        + (passed ? "" : '<button class="btn primary" type="button" data-flag-again>' + escapeHtml(t("再升一次", "Raise it again")) + '</button>')
-        + (badgeLink ? '<a class="btn" href="' + badgeLink.getAttribute("href") + '">' + escapeHtml(t("回到會員章", "Back to the badge")) + '</a>' : "")
-        + '</div>'
-        + '<p class="flag-note">' + escapeHtml(t(config.note_zh, config.note_en)) + '</p>');
-    var again = card.querySelector("[data-flag-again]");
-    if (again) again.addEventListener("click", function () { answers = {}; start(); });
-    if (passed && config.submit_url) submit(score, elapsed);
-  }
-
-  function submit(score, elapsed) {
-    var body = new URLSearchParams();
-    Object.keys(answers).forEach(function (id) { body.append(id, String(answers[id])); });
-    body.append("elapsed_ms", String(elapsed));
-    body.append("score", String(score));
-    fetch(config.submit_url, {
-      method: "POST",
-      headers: { "X-Requested-With": "fetch", "Accept": "application/json",
-                 "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString()
-    }).then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
-      .then(function (res) {
-      var data = res.data;
-      if (data && !res.ok && card) {
-        var note = document.createElement("p");
-        note.className = "flag-why";
-        note.textContent = t(data.message_zh, data.message_en);
-        card.appendChild(note);
-      }
-    }).catch(function () { /* the score is on screen either way; the scout can retry */ });
-  }
-
-  /* ── boot ─────────────────────────────────────────────────────────────── */
-
   var go = root.querySelector("[data-flag-go]");
   if (go) go.addEventListener("click", start);
-  else showIntro();
 })();

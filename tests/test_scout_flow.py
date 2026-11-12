@@ -558,6 +558,13 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
             result = new_scout.post(f"/tasks/{task['id']}/drill-submit", data=data).get_json()
             assert result['status'] == 'studied', result
             assert result['detail']['moves'] == len(required), result
+        elif task['code'] == 'M07':
+            bank = json.loads((pathlib.Path(__file__).resolve().parent.parent / 'content'
+                               / 'member-badge' / 'ceremony-bank.json').read_text(encoding='utf-8'))
+            data = {q['id']: str(q['answer'])
+                    for station in bank['stations'] for q in station['questions']}
+            result = new_scout.post(f"/tasks/{task['id']}/flag-submit", data=data).get_json()
+            assert result['passed'], result
         elif task['type'] == 'checklist':
             new_scout.post(f"/tasks/{task['id']}/submit",
                            data={f"item{i}": '1' for i in range(len(config['items']))})
