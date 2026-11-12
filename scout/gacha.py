@@ -2,8 +2,9 @@
 
 The opening is the familiar one: tap a foil pack, flip five cards, rarities
 from Common to Legend Rare, and a pity counter so ten dry packs guarantee an
-SR or better. Packs are not bought and they do not refill on a timer. A scout
-earns one by finishing a game, a task, the daily challenge, or a badge.
+SR or better. Packs do not refill on a timer. A scout earns one by finishing
+a game, a task, the daily challenge, or a badge. Points can buy a normal pack
+only; a gold pack cannot be bought.
 
 The cards are this troop's own skills — membership, knots, drill, the three
 patrols, and the proficiency badges already on the platform. They are not
@@ -20,6 +21,8 @@ from .util import new_id, now_iso
 
 PITY_AFTER = 10
 PACK_SIZE = 5
+#: A normal pack can be bought. A gold pack cannot — it only comes with a badge.
+PACK_PRICE = 10
 
 #: weights per 1000 pulls — the same public table as a typical wiki gacha.
 RATES: tuple[tuple[str, int], ...] = (
@@ -275,6 +278,40 @@ def grant_pack(store, user: dict, *, key: str, kind: str, source: str, ref_id: s
     return True
 
 
+def buy_standard_pack(store, user: dict) -> dict:
+    """Spend points on one normal pack. Never a gold pack. No change if short."""
+    from .engine import as_int, write_ledger
+
+    balance = as_int(store.stats_for(user["id"]).get("points_balance"))
+    if balance < PACK_PRICE:
+        return {"ok": False, "balance": balance, "price": PACK_PRICE}
+    key = f"buy:{new_id()}"
+    write_ledger(
+        store, user_id=user["id"], entry_type="gacha", points_delta=-PACK_PRICE,
+        reason_zh="用積分換一個普通卡包",
+        reason_en="Bought a normal card pack",
+        ref_type="gacha", ref_id=key, created_by=user["id"],
+    )
+    granted = grant_pack(
+        store, user, key=key, kind="standard", source="points", ref_id=key,
+        reason_zh="用積分換的普通卡包",
+        reason_en="A normal pack bought with points",
+    )
+    if not granted:
+        write_ledger(
+            store, user_id=user["id"], entry_type="gacha", points_delta=PACK_PRICE,
+            reason_zh="換卡包未成功，積分退回",
+            reason_en="The pack was not added, so the points were returned",
+            ref_type="gacha", ref_id=key, created_by=user["id"],
+        )
+        return {"ok": False, "balance": balance, "price": PACK_PRICE}
+    return {
+        "ok": True,
+        "balance": as_int(store.stats_for(user["id"]).get("points_balance")),
+        "price": PACK_PRICE,
+    }
+
+
 def sync_earned_packs(store, user: dict) -> dict:
     """Backfill packs for work already on the record. Safe to call often."""
     user_id = user["id"]
@@ -449,6 +486,8 @@ def summary(store, user: dict) -> dict:
         "next_kind": (packs[0].get("kind") if packs else "standard"),
         "next_reason_zh": (packs[0].get("reason_zh") if packs else ""),
         "next_reason_en": (packs[0].get("reason_en") if packs else ""),
+        "points": int(store.stats_for(user["id"]).get("points_balance") or 0),
+        "price": PACK_PRICE,
     }
 
 

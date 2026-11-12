@@ -7,6 +7,7 @@
 {% block hud_chips %}
   <div class="hud-chips">
     <span class="chip brass">🃏 {{ summary.packs }}</span>
+    <span class="chip">🪙 {{ summary.points }}</span>
     <span class="chip">{{ summary.owned }}/{{ summary.total }}</span>
   </div>
 {% endblock %}
@@ -18,8 +19,8 @@
       <span class="breadcrumb-arrow">›</span>{{ L('抽卡', 'Cards') }}</div>
     <h1 style="margin:0">🃏 {{ L('抽卡', 'Cards') }}</h1>
     <p class="muted small" style="margin:.2rem 0 0">
-      {{ L('完成遊戲、任務、每日挑戰或獎章，就得到一個卡包。每包五張，不能用積分買。',
-           'Finish a game, a task, the daily challenge or a badge to earn a pack. Five cards in each. Packs are not bought with points.') }}
+      {{ L('完成遊戲、任務、每日挑戰或獎章，就得到一個卡包。普通卡包也可以用 ' ~ summary.price ~ ' 積分換。金卡包不能買。',
+           'Finish a game, a task, the daily challenge or a badge to earn a pack. A normal pack can also be bought for ' ~ summary.price ~ ' points. Gold packs cannot be bought.') }}
     </p>
   </div>
 </div>
@@ -63,11 +64,28 @@
         <span class="foil-body"><span class="foil-mark">82</span></span>
         <span class="foil-crimp bottom"></span>
       </span>
-      <p>{{ L('還沒有卡包。完成一個遊戲、一項任務或一個獎章，卡包就會在這裡。',
-              'No pack yet. Finish a game, a task or a badge, and it will be waiting here.') }}</p>
+      <p>{{ L('還沒有卡包。完成一個遊戲、一項任務或一個獎章，或者用積分換一個普通卡包。',
+              'No pack yet. Finish a game, a task or a badge, or buy a normal pack with points.') }}</p>
       <a class="btn" href="{{ url_for('scout_routes.badges') }}">{{ L('去看獎章', 'See badges') }}</a>
     </div>
   {% endif %}
+</section>
+
+<section class="card gacha-buy">
+  <div>
+    <h2 style="margin:0">{{ L('用積分換普通卡包', 'Buy a normal pack') }}</h2>
+    <p class="muted small" style="margin:.25rem 0 0">
+      {{ L(summary.price ~ ' 積分一個。金卡包不能買，只在考獲獎章時得到。',
+           summary.price ~ ' points each. Gold packs cannot be bought — they come only with a badge.') }}
+    </p>
+  </div>
+  <form method="post" action="{{ url_for('gacha_routes.buy_pack') }}">
+    {% if summary.points >= summary.price %}
+      <button class="btn brass" type="submit">{{ L('換一個 · ' ~ summary.price, 'Buy one · ' ~ summary.price) }}</button>
+    {% else %}
+      <button class="btn" type="button" disabled>{{ L('積分不夠', 'Not enough points') }}</button>
+    {% endif %}
+  </form>
 </section>
 
 <section class="gacha-album" id="album">
@@ -111,8 +129,8 @@
 <details class="card gacha-rules">
   <summary>{{ L('稀有度與保底', 'Rarities and pity') }}</summary>
   <p class="muted small">
-    {{ L('每包五張。十包都沒有 SR 或以上，下一包一定有一張。考獲獎章的是金卡包，打開時必定有 SR 或以上。',
-         'Five cards in a pack. After ten packs with nothing of SR or better, the next pack has one. A badge earns a gold pack, which always has an SR or better.') }}
+    {{ L('每包五張。十包都沒有 SR 或以上，下一包一定有一張。考獲獎章的是金卡包，打開時必定有 SR 或以上。積分只能換普通卡包。',
+         'Five cards in a pack. After ten packs with nothing of SR or better, the next pack has one. A badge earns a gold pack, which always has an SR or better. Points buy a normal pack only.') }}
   </p>
   <table class="gacha-rate-table">
     <thead><tr><th>{{ L('稀有度', 'Rarity') }}</th><th>{{ L('名稱', 'Name') }}</th><th>{{ L('機率', 'Rate') }}</th><th>{{ L('倍數', 'Multiplier') }}</th></tr></thead>

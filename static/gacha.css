@@ -306,6 +306,11 @@
 .mini-card.rarity-ur { border-color: #8b4fd6; }
 .mini-card.rarity-lr { border-color: #d9a441; }
 
+.gacha-buy {
+  display: flex; align-items: center; justify-content: space-between; gap: .8rem;
+  flex-wrap: wrap; padding: .9rem 1rem; margin: 0 0 1.2rem;
+}
+.gacha-buy .btn { min-height: 44px; }
 .gacha-rules { margin: 1.1rem 0 1.4rem; padding: .8rem 1rem 1rem; }
 .gacha-rules summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; align-items: center; }
 .gacha-rate-table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: .4rem; }

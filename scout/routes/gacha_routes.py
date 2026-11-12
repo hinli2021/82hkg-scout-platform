@@ -1,6 +1,7 @@
 """抽卡 — open a pack, keep the album.
 
-Packs are earned, never bought. The page works without JavaScript: the form
+Packs are earned, and a normal pack can also be bought with points. A gold
+pack cannot be bought. The page works without JavaScript: the form
 opens the oldest pack and the next page shows the five cards face up. With
 JavaScript, the same POST returns the card markup and the page flips them.
 """
@@ -9,9 +10,10 @@ from __future__ import annotations
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 
 from ..auth import scout_required
+from ..engine import as_int
 from ..gacha import (
-    RATES, RARITY_NAME, album, enabled, load_state, open_next, summary, sync_earned_packs,
-    until_sr,
+    PACK_PRICE, RATES, RARITY_NAME, album, buy_standard_pack, enabled, open_next,
+    sync_earned_packs, until_sr,
 )
 from .helpers import audit, fail, ok, store, wants_json
 
@@ -50,6 +52,8 @@ def _view(user, *, reveal: bool) -> dict:
             "next_kind": (nxt or {}).get("kind") or "standard",
             "next_reason_zh": (nxt or {}).get("reason_zh") or "",
             "next_reason_en": (nxt or {}).get("reason_en") or "",
+            "points": as_int(st.stats_for(user["id"]).get("points_balance")),
+            "price": PACK_PRICE,
         },
         "reveal": opened,
         "album": album(state),
@@ -97,3 +101,30 @@ def open_pack():
             owned=view["summary"]["owned"],
         )
     return redirect(url_for("gacha_routes.page", reveal=1))
+
+
+@gacha_routes.post("/cards/buy")
+@scout_required
+def buy_pack():
+    """Points buy one normal pack. The form cannot ask for a gold pack."""
+    closed = _gate()
+    if closed:
+        return closed
+    result = buy_standard_pack(store(), g.user)
+    if not result["ok"]:
+        if wants_json():
+            return fail(402, "not_enough_points",
+                        f"積分不夠。普通卡包要 {PACK_PRICE} 分。",
+                        f"Not enough points. A normal pack costs {PACK_PRICE}.",
+                        balance=result["balance"], price=PACK_PRICE)
+        flash({"kind": "warn",
+               "zh": f"積分不夠。普通卡包要 {PACK_PRICE} 分。",
+               "en": f"Not enough points. A normal pack costs {PACK_PRICE}."}, "result")
+        return redirect(url_for("gacha_routes.page"))
+    audit(g.user, "buy_pack", "gacha", "", {"price": PACK_PRICE, "kind": "standard"})
+    if wants_json():
+        return ok(balance=result["balance"], price=PACK_PRICE, kind="standard")
+    flash({"kind": "success",
+           "zh": f"已用 {PACK_PRICE} 積分換了一個普通卡包。",
+           "en": f"A normal pack is yours, for {PACK_PRICE} points."}, "result")
+    return redirect(url_for("gacha_routes.page"))

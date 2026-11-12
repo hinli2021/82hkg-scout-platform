@@ -81,13 +81,37 @@ def test_a_badge_earns_one_gold_pack(store, new_scout):
     assert gold[0]["source"] == "badge"
 
 
+def test_points_buy_a_normal_pack_only(store, new_scout):
+    user = new_scout.user
+    store.stats_for(user["id"])
+    store.update("stats", user["id"], {"points_balance": gacha.PACK_PRICE + 5})
+    bought = gacha.buy_standard_pack(store, user)
+    assert bought["ok"] and bought["balance"] == 5
+    state = gacha.load_state(store, user["id"])
+    packs = [pack for pack in state["packs_json"] if pack["source"] == "points"]
+    assert len(packs) == 1 and packs[0]["kind"] == "standard"
+    # a second buy must fail without taking the last 5 points or adding a pack
+    refused = gacha.buy_standard_pack(store, user)
+    assert not refused["ok"] and refused["balance"] == 5
+    state = gacha.load_state(store, user["id"])
+    assert sum(1 for pack in state["packs_json"] if pack["source"] == "points") == 1
+    # the form cannot ask for gold — the route ignores any kind field
+    store.update("stats", user["id"], {"points_balance": gacha.PACK_PRICE})
+    response = new_scout.post("/cards/buy", data={"kind": "gold"})
+    assert response.status_code == 200
+    state = gacha.load_state(store, user["id"])
+    assert state["packs_json"][-1]["kind"] == "standard"
+    assert state["packs_json"][-1]["source"] == "points"
+
+
 def test_cards_page_is_bilingual_and_can_be_switched_off(new_scout, store):
     page = new_scout.get("/cards").get_data(as_text=True)
     assert "抽卡" in page and "童軍誓詞" in page
     new_scout.get("/set-language/en")
     english = new_scout.get("/cards").get_data(as_text=True)
     assert "Cards" in english and "Scout Promise" in english
-    for word in ("抽卡", "卡包", "圖鑑", "童軍誓詞", "知識", "實踐"):
+    assert "Buy a normal pack" in english and "Gold packs cannot be bought" in english
+    for word in ("抽卡", "卡包", "圖鑑", "童軍誓詞", "知識", "實踐", "積分"):
         assert word not in english
     flags = dict(store.settings()["feature_flags"])
     store.save_setting("feature_flags", {**flags, "gacha": False})
