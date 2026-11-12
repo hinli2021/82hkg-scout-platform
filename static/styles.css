@@ -1587,7 +1587,7 @@ a.q-dot:hover { background: var(--brass-light); }
   border: 1px dashed rgba(146, 104, 48, .38); pointer-events: none;
 }
 .map-canvas { position: relative; height: 340px; }
-.map-island { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-island { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .map-trail { position: absolute; inset: 0; width: 100%; height: 100%; }
 .map-trail-dash {
   fill: none; stroke: #a9793c; stroke-width: 2.8px; stroke-linecap: round;
