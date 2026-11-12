@@ -76,7 +76,7 @@
       var st = stationById(id);
       if (!st) return;
       (st.questions || []).forEach(function (q) { qs.push({ q: q, station: st }); });
-      (st.learn || []).forEach(function (p) { pages.push(p); });
+      (st.learn || []).forEach(function (p) { pages.push(Object.assign({}, p, { _station: st.id })); });
     });
     return { def: def, questions: qs, learn: pages };
   }).filter(function (s) { return s.questions.length; });
@@ -494,14 +494,56 @@
 
   /* the notes come first: read this run's pages from the last patrol's
      notebook, then the control panel appears and the fitting starts.
-     The notebook stays on the panel afterwards for checking. */
+     The notebook stays on the panel afterwards for checking. Each page
+     is an open spread: the picture on the left page, the words on the
+     right. */
+  function noteArts(page) {
+    if (page.art) return [page.art];
+    if (page._station === "poles") return ["flag-national", "flag-regional"];
+    if (page._station === "raise") return ["raise-1"];
+    return ["flag-national"];
+  }
+
+  function showNotesPage(pages, index) {
+    if (index >= pages.length) { buildMachine(); return; }
+    var page = pages[index];
+    clearScene();
+    var board = scene();
+    var spread = document.createElement("div");
+    spread.className = "notebook-open";
+    spread.innerHTML =
+      '<div class="notebook-page-left">'
+      + noteArts(page).map(function (a) {
+          return a.indexOf("raise") === 0 ? artImg(a, "notebook-page-img")
+                                          : cloth(a, "notebook-page-img");
+        }).join("")
+      + '</div>'
+      + '<div class="notebook-page-right">'
+      + '<h3>' + escapeHtml(t(page.title_zh, page.title_en)) + '</h3>'
+      + '<p>' + escapeHtml(t(page.body_zh, page.body_en)) + '</p>'
+      + (page.fact_zh ? '<p class="notebook-page-fact">' + escapeHtml(t(page.fact_zh, page.fact_en)) + '</p>' : '')
+      + '</div>';
+    board.appendChild(spread);
+    var last = index === pages.length - 1;
+    setProgress((stageIndex + 1) + " / " + stages.length + "  " + stageName()
+      + "  ·  " + t("旗", "Flag") + " " + stageIndex + "/4");
+    card.innerHTML = cardHtml(
+      stageName() + "  ·  " + t("上一隊的筆記", "The last patrol's notebook")
+        + "  ·  " + (index + 1) + " / " + pages.length,
+      t("上一隊的筆記", "The last patrol's notebook"),
+      "",
+      '<div class="cave-actions"><button class="btn primary" type="button" data-flag-next>'
+      + escapeHtml(last ? t("繼續", "Go on") : t("下一頁", "Next page")) + '</button></div>');
+    card.querySelector("[data-flag-next]").addEventListener("click", function () {
+      showNotesPage(pages, index + 1);
+    });
+  }
+
   function showStageNotes() {
     var s = stage();
     var pages = s ? s.learn : [];
     if (!pages.length) { buildMachine(); return; }
-    showStory(pages, 0,
-      stageName() + "  ·  " + t("上一隊的筆記", "The last patrol's notebook"),
-      function () { buildMachine(); }, "is-notes");
+    showNotesPage(pages, 0);
   }
 
   function showEnding() {

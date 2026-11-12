@@ -110,8 +110,11 @@ def test_holes_stay_inside_the_black_board_and_answers_are_dealt_at_random():
     # the notes are shown before the machine, at the start of every run
     assert "function showStageNotes()" in js
     assert 'showStory(intro, 0, t("遊戲 4", "Game 4"), function () { showStageNotes(); });' in js
-    # … and read against an open-notebook background
-    assert '"is-notes"' in js and ".flag-board.is-notes" in css
+    # … and read in an open notebook: picture on the left page, words on
+    # the right, not as a background behind the story card
+    assert "notebook-open" in js and "notebook-page-left" in js
+    assert "notebook-page-right" in js and ".notebook-open" in css
+    assert ".flag-board.is-notes" not in css
     assert (pathlib.Path(__file__).resolve().parent.parent / "static" / "img"
             / "quest" / "flag" / "pipe" / "notebook-bg.jpg").is_file()
 

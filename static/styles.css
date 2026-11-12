@@ -4065,13 +4065,39 @@ body.is-game main { padding-top: 6px; }
   position: relative; width: min(100%, 46rem); height: 100%;
   margin: 0 auto;
 }
-/* the notes are read in an open notebook: the patrol's book lies open
-   behind the page's picture, which sits on the paper like a pasted print */
-.flag-board.is-notes {
-  background: url("img/quest/flag/pipe/notebook-bg.jpg") center 42% / contain no-repeat;
+/* the notes are read in an open notebook: picture on the left page,
+   description on the right page */
+.flag-board:has(.notebook-open) { width: min(100%, 60rem); }
+.notebook-open {
+  position: relative; width: 100%; aspect-ratio: 1270 / 677; margin: 0 auto;
+  background: url("img/quest/flag/pipe/notebook-bg.jpg") center / contain no-repeat;
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 7%;
+  padding: 7% 8.5% 9%; box-sizing: border-box; align-content: start;
+  filter: drop-shadow(0 16px 26px rgba(0,0,0,.4));
 }
-.flag-board.is-notes .pipe-story-prop { width: min(44%, 15rem); top: 46%; }
-.flag-board.is-notes .pipe-story-book { display: none; }
+.notebook-page-left {
+  display: flex; flex-direction: column; gap: .5rem;
+  align-items: center; justify-content: flex-start; padding-top: 1%;
+  min-height: 0;
+}
+.notebook-page-img {
+  width: min(100%, 17rem); max-height: 100%; object-fit: contain;
+  border-radius: .3rem; box-shadow: 0 6px 14px rgba(60, 40, 10, .35);
+}
+.notebook-page-left .notebook-page-img { flex: 0 1 auto; min-height: 0; }
+.notebook-page-right { color: #3b3121; min-height: 0; overflow: hidden; }
+.notebook-page-right h3 {
+  margin: .1rem 0 .45rem; color: #2f2413;
+  font-size: clamp(1rem, 2.2vw, 1.45rem); line-height: 1.25;
+}
+.notebook-page-right p {
+  margin: 0 0 .55rem; line-height: 1.6;
+  font-size: clamp(.82rem, 1.55vw, 1.02rem);
+}
+.notebook-page-fact {
+  border-left: 3px solid #b98a2f; background: rgba(185, 138, 47, .14);
+  padding: .3rem .55rem; font-weight: 700; border-radius: 0 .35rem .35rem 0;
+}
 
 /* the cloths the scout names and hangs — diagrams, drawn to the specification */
 .flag-cloth {
@@ -4407,6 +4433,10 @@ body.is-game main { padding-top: 6px; }
   .pipe-popup { inset: 1.5% 2%; padding: .65rem .7rem .8rem; }
   .pipe-fit { min-height: 5.4rem; }
   .pipe-note { top: 2.4rem; }
+  .notebook-open { padding: 6% 7.5% 8%; column-gap: 6%; }
+  .notebook-page-right h3 { font-size: .82rem; margin-bottom: .25rem; }
+  .notebook-page-right p { font-size: .64rem; line-height: 1.45; margin-bottom: .3rem; }
+  .notebook-page-img { width: min(100%, 9rem); }
   .pipe-piece-img { height: 2.7rem; }
 }
 
