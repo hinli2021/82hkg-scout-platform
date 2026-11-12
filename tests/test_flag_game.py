@@ -185,6 +185,12 @@ def test_pipes_are_dragged_not_clicked_lyrics_stay_in_order_and_no_all_of_these(
     assert 'root.classList.add("is-howto-open")' in js
     assert 'root.classList.remove("is-howto-open")' in js
     assert "#flag-root.is-howto-open .cave-card-wrap" in css
+    # phones get room to work: the start painting is tall enough for the
+    # words merged into it, and the fitting and how-to pop-ups cover the
+    # screen, with the socket pinned on screen while the tray scrolls
+    assert "#flag-root.is-start-screen .cave-picture" in css
+    assert "position: fixed; inset: 4.4rem .55rem .55rem" in css
+    assert ".pipe-fit { min-height: 5.4rem; position: sticky; top: 0" in css
     # the anthem run deals its general questions first, then the six lyric
     # gaps one after another in song order, not shuffled among the rest
     assert 'it.station.id === "sing"' in js and "lyricOrder" in js

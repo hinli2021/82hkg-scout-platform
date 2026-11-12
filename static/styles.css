@@ -4546,14 +4546,33 @@ body.is-game main { padding-top: 6px; }
 }
 .flag-board:has(.pipe-machine), .flag-board:has(.pipe-raise) { width: min(100%, 64rem); }
 @media (max-width: 700px) {
+  /* a phone's picture is short and wide, so give the start painting room:
+     the title, the whole description and the start button merged into it
+     must be visible together, not hidden inside a scrolling band */
+  #flag-root.is-start-screen .cave-picture { min-height: 35rem; }
+  #flag-root.is-start-screen .flag-start-overlay { max-height: 92%; padding: .7rem .8rem .8rem; }
+  .flag-start-title { font-size: 1.18rem; }
+  .flag-start-line { font-size: .9rem; line-height: 1.5; }
   .pipe-machine { gap: .3rem; padding: .35rem .3rem; }
   .pipe-notebook { flex-basis: 3.4rem; }
   .pipe-notebook span { font-size: .62rem; padding: .1rem .35rem; }
   .pipe-start span { font-size: .6rem; }
   .pipe-count { font-size: .66rem; }
     .pipe-hole-no { font-size: .52rem; min-width: .85rem; }
-  .pipe-popup { inset: 1.5% 2%; padding: .65rem .7rem .8rem; }
-  .pipe-fit { min-height: 5.4rem; }
+  /* on a phone the picture is short, so the fitting pop-up leaves the
+     board and covers the screen instead: the whole question, the socket
+     and the tray get room, and the socket stays pinned to the top of
+     the pop-up while the tray is scrolled, so a pipe can always be
+     dragged onto a socket that is on screen */
+  .pipe-popup {
+    position: fixed; inset: 4.4rem .55rem .55rem; z-index: 80;
+    padding: .65rem .7rem .8rem;
+  }
+  .pipe-fit { min-height: 5.4rem; position: sticky; top: 0; z-index: 3; background: rgba(9, 26, 18, .97); }
+  .pipe-context .flag-cloth { width: min(8rem, 42%); }
+  /* the how-to pop-up gets the same phone treatment, so a whole step —
+     diagram, short words and the next button — fits the screen at once */
+  .howto { position: fixed; inset: 4.4rem .55rem .55rem; z-index: 80; }
   .pipe-note { top: 2.4rem; }
   .notebook-open { padding: 6% 7.5% 8%; column-gap: 6%; }
   .notebook-page-right h3 { font-size: .82rem; margin-bottom: .25rem; }
