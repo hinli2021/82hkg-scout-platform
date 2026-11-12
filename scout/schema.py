@@ -333,20 +333,18 @@ SEED_BADGES = [
             },
             {
                 "code": "M07",
-                "title_zh": "第 7 項：國旗與國徽",
-                "title_en": "Item 7 — national flag and emblem",
-                "instruction_zh": "能辨認中華人民共和國國旗和國徽，並能說明其含意。完成「第 7 至 10 項試卷」（24 分／30 分合格）後打勾。",
-                "instruction_en": "Recognise the national flag and emblem of the PRC and explain their meaning. Tick this when you have completed the Items 7–10 paper (pass mark 24/30).",
-                "type": "checklist", "points": 10,
-                "config_json": {
-                    "items": [{"zh": "我已完成第 7 至 10 項試卷（24 分／30 分或以上），並能說出國旗、國徽的含意",
-                               "en": "I passed the Items 7–10 paper (24/30 or above) and can explain the national flag and emblem"}],
-                    "links": [
-                        {"label_zh": "第 7 至 10 項試卷（Google Form）", "label_en": "Items 7–10 paper (Google Form)",
-                         "url": "https://forms.gle/NmdM72WapUpbajFHA"},
-                        {"label_zh": "溫習資源", "label_en": "Study resources",
-                         "url": "https://drive.google.com/drive/folders/1LtM4RykgGrrITxZRwWHeN-pWHnxKBKTY?usp=drive_link"},
-                    ]},
+                "title_zh": "第 7 項：溪谷旗桿（遊戲 4）",
+                "title_en": "Item 7 — the valley flagpole (game 4)",
+                "instruction_zh": "能辨認中華人民共和國國旗和國徽，並能說明其含意。第四個區域只有這一個遊戲：認旗徽、點開發光的部分、把旗拖上旗桿、填國歌、最後把國旗升到桿頂。30 題，24 分合格，一次完成第 7 至 10 項。",
+                "instruction_en": "Recognise the national flag and emblem of the PRC and explain their meaning. The fourth area's only game: name the flags, tap the glowing parts, drag each flag onto its pole, fill the anthem, then raise the national flag to the top. 30 questions, 24 to pass — items 7 to 10 clear together.",
+                "type": "quiz", "points": 10, "pass_score": 24,
+                "config_json": {"kind": "flag", "require_all": True,
+                                "links": [
+                                    {"label_zh": "第 7 至 10 項試卷（Google Form）", "label_en": "Items 7–10 paper (Google Form)",
+                                     "url": "https://forms.gle/NmdM72WapUpbajFHA"},
+                                    {"label_zh": "溫習資源", "label_en": "Study resources",
+                                     "url": "https://drive.google.com/drive/folders/1LtM4RykgGrrITxZRwWHeN-pWHnxKBKTY?usp=drive_link"},
+                                ]},
             },
             {
                 "code": "M08",

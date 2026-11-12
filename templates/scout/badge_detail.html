@@ -120,6 +120,9 @@
                 {% if task.status == 'studied' %}
                   <span class="chip warn">⏳ {{ L('等領袖在帳戶批准', 'Your leader approves it in their account') }}</span>
                 {% endif %}
+              {% elif task.code == 'M07' and badge.is_game_badge %}
+                <a class="btn {{ '' if task.status == 'completed' else 'primary' }} small"
+                   href="{{ url_for('scout_routes.task_flag', task_id=task.id) }}">🎮 {{ L('再升一次旗', 'Raise the flag again') if task.status == 'completed' else L('進入旗桿遊戲', 'Play the flag game') }}</a>
               {% elif task.status != 'completed' and not badge.locked %}
                 <a class="btn primary small" href="{{ url_for('scout_routes.task_player', task_id=task.id) }}">{{ L('繼續', 'Go') if task.status == 'rejected' else L('查看', 'View') }}</a>
               {% elif task.status == 'completed' %}

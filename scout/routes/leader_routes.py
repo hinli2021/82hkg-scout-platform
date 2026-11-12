@@ -211,8 +211,8 @@ def content():
         # missing → gone without a trace, or a built-in game a location needs
         if row["present"]:
             state = "online"
-        elif row["code"] in BUILTIN_GAMES:
-            state = "missing"          # 石室／渡口：有區域指着它，刪了就是問題
+        elif row["code"] in BUILTIN_GAMES and row["code"] != "M07":
+            state = "missing"          # 石室／渡口／訓練場：有區域指着它，刪了就是問題
         elif row["code"] in removed:
             state = "removed"
         else:
@@ -239,7 +239,8 @@ def content():
                               if not (_area_game(spec["area"]).get("ready")
                                       and _area_game(spec["area"]).get("task_code") == code)]
     names = {1: ("山洞的石室", "the cave"), 2: ("渡口的過橋遊戲", "the crossing game"),
-             3: ("山嶺的步操訓練場", "the drill ground")}
+             3: ("山嶺的步操訓練場", "the drill ground"),
+             4: ("溪谷的旗桿", "the flagpole")}
     context["areas_unset_names"] = [names.get(n, (str(n), str(n)))[0] for n in context["areas_unset"]]
 
     area_names = {1: ("第 1 區（石室）", "area 1 (the cave)"), 2: ("第 2 區（渡口）", "area 2 (the crossing)"),
@@ -1520,7 +1521,8 @@ def setup_checks(st) -> dict:
 
 BUILTIN_GAMES = {"M04": {"area": 1, "kind": "cave"},
                  "M05": {"area": 2, "kind": "bridge"},
-                 "M06": {"area": 3, "kind": "drill"}}
+                 "M06": {"area": 3, "kind": "drill"},
+                 "M07": {"area": 4, "kind": "flag"}}
 
 # 舊安裝的第 6 項曾是「簽收任務」（宣誓禮儀與中式隊列）。升級成遊戲 3
 # （步操訓練場）時，只有仍是這段預設文字的說明會被換成新的玩法說明；
@@ -1546,6 +1548,8 @@ def _builtin_specs() -> dict[str, dict]:
             elif config.get("kind") == "drill":
                 shape, size = "drill", sum(len(s.get("moves") or [])
                                            for s in (drill_manual().get("sections") or []))
+            elif config.get("kind") == "flag":
+                shape, size = "flag", 30
             elif config.get("bank") == "member-badge/item4":
                 shape, size = "list", len(item4_questions() or [])   # 洞裡的 50 題
             elif config.get("questions"):
@@ -1566,6 +1570,8 @@ def _empty_builtin_content(code: str, task: dict) -> bool:
         return str(config.get("kind") or "") != "bridge"
     if code == "M06":
         return str(config.get("kind") or "") != "drill"
+    if code == "M07":
+        return str(config.get("kind") or "") != "flag"
     return False
 
 
@@ -1664,7 +1670,20 @@ def repair_games():
     refilled: list[str] = []
     # 舊安裝的第 6 項原是「簽收任務」：先升級成遊戲 3 的形狀（quiz），標題與
     # 說明只在仍是預設簽收文字時才換成新的玩法說明——領袖改過的一字不動。
+    # 第 7 項同樣：它原是「打勾」任務，遊戲 4 上線後升級成旗桿遊戲。
     upgraded: list[str] = []
+    m07 = tasks.get("M07")
+    if m07 and str(m07.get("type") or "") != "quiz":
+        canonical = next((t for t in SEED_BADGES[0]["tasks"] if t["code"] == "M07"), {})
+        st.update("tasks", m07["id"], {
+            "type": "quiz", "pass_score": 24,
+            "title_zh": canonical.get("title_zh", ""), "title_en": canonical.get("title_en", ""),
+            "instruction_zh": canonical.get("instruction_zh", ""),
+            "instruction_en": canonical.get("instruction_en", ""),
+            "config_json": canonical.get("config_json") or {"kind": "flag"},
+        })
+        tasks["M07"] = st.get("tasks", m07["id"]) or m07
+        upgraded.append("M07")
     m06 = tasks.get("M06")
     if m06 and str(m06.get("type") or "") != "quiz":
         patch = {"type": "quiz", "pass_score": 0}
@@ -1681,7 +1700,7 @@ def repair_games():
             st.update("tasks", task["id"], {"config_json": _refill_builtin_content(code)})
             refilled.append(code)
 
-    # 重新接好第 1 至第 3 區：只處理「空的」或「本來就是這個遊戲」的區域
+    # 重新接好第 1 至第 4 區：只處理「空的」或「本來就是這個遊戲」的區域
     guide = copy.deepcopy(as_json(badge.get("guide_json"), {}) or {})
     areas = (guide.get("quest") or {}).get("areas") or []
     defaults = ((member_badge_guide().get("quest") or {}).get("areas") or [])

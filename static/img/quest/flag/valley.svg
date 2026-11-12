@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Valley flagpole">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ec8e8"/>
+      <stop offset=".62" stop-color="#d7eef6"/>
+      <stop offset="1" stop-color="#f4e7c4"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6ea35a"/>
+      <stop offset="1" stop-color="#3f7a3e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="980" cy="150" r="62" fill="#ffe9a8"/>
+  <circle cx="1002" cy="138" r="50" fill="#fff6d4" opacity=".55"/>
+  <path d="M0,470 C180,400 300,520 470,470 C660,412 760,360 980,430 C1100,470 1160,450 1200,470 L1200,800 L0,800 Z" fill="#8fbf6e"/>
+  <path d="M0,560 C220,500 340,600 560,548 C760,502 900,470 1200,560 L1200,800 L0,800 Z" fill="url(#hill)"/>
+  <path d="M0,690 C200,650 320,710 520,676 C740,638 900,700 1200,664 L1200,800 L0,800 Z" fill="#2f6a3a"/>
+  <path d="M0,724 C160,700 260,748 460,724 C680,696 860,756 1200,712 L1200,800 L0,800 Z" fill="#4aa0c8"/>
+  <path d="M40,748 C180,732 240,766 400,746 C560,726 640,770 820,742 C980,716 1080,766 1200,736 L1200,800 L0,800 Z" fill="#7ec4dc" opacity=".8"/>
+  <!-- far trees -->
+  <g fill="#2c6b34">
+    <path d="M70,560 l22,-70 l22,70 Z"/><rect x="86" y="560" width="8" height="22" fill="#6b4a2a"/>
+    <path d="M150,575 l18,-56 l18,56 Z"/><rect x="162" y="575" width="7" height="18" fill="#6b4a2a"/>
+    <path d="M1040,548 l26,-84 l26,84 Z"/><rect x="1058" y="548" width="9" height="26" fill="#6b4a2a"/>
+    <path d="M1120,566 l20,-62 l20,62 Z"/><rect x="1134" y="566" width="8" height="20" fill="#6b4a2a"/>
+  </g>
+  <!-- the pole, slightly right of centre so the flag has room to fly -->
+  <rect x="742" y="168" width="10" height="500" rx="3" fill="#c9ccd0"/>
+  <rect x="744" y="168" width="3" height="500" fill="#fff" opacity=".45"/>
+  <circle cx="747" cy="162" r="9" fill="#ffd25a"/>
+  <path d="M700,668 l47,-14 l47,14 l-8,16 l-39,-10 l-39,10 Z" fill="#8d8f93"/>
+  <ellipse cx="747" cy="686" rx="62" ry="12" fill="#000" opacity=".16"/>
+</svg>

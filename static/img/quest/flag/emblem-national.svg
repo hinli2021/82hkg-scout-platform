@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="National emblem diagram">
+  <circle cx="100" cy="100" r="98" fill="#de2910"/>
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#ffde00" stroke-width="3"/>
+  <g fill="#ffde00">
+    <polygon points="100,16 103.5,27 115,27.2 105.7,33.6 109.4,44.4 100,37.6 90.6,44.4 94.3,33.6 85,27.2 96.5,27"/>
+    <rect x="74" y="62" width="52" height="30" rx="1"/>
+    <polygon points="74,62 100,48 126,62"/>
+    <rect x="96" y="70" width="8" height="14" fill="#de2910"/>
+    <rect x="80" y="74" width="6" height="8" fill="#de2910"/>
+    <rect x="114" y="74" width="6" height="8" fill="#de2910"/>
+    <circle cx="58" cy="92" r="13"/>
+    <circle cx="142" cy="92" r="13"/>
+    <rect x="49" y="92" width="18" height="5"/>
+    <rect x="133" y="92" width="18" height="5"/>
+    <path d="M30,150 C40,120 55,112 70,118 C62,130 58,142 60,156 Z"/>
+    <path d="M170,150 C160,120 145,112 130,118 C138,130 142,142 140,156 Z"/>
+    <path d="M36,156 C34,148 40,142 48,144 C44,152 40,158 42,164 Z"/>
+    <path d="M164,156 C166,148 160,142 152,144 C156,152 160,158 158,164 Z"/>
+    <path d="M44,164 C46,156 54,154 58,158 C54,164 50,168 48,172 Z"/>
+    <path d="M156,164 C154,156 146,154 142,158 C146,164 150,168 152,172 Z"/>
+    <ellipse cx="100" cy="168" rx="46" ry="8"/>
+    <polygon points="78,160 86,150 92,160"/>
+    <polygon points="122,160 114,150 108,160"/>
+    <polygon points="100,162 104,152 108,162"/>
+  </g>
+</svg>

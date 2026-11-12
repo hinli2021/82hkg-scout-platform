@@ -383,7 +383,7 @@ def test_the_badge_is_five_games_one_per_area(scout_client, store):
     assert page.count('class="stage-chip-game"') == 5
     assert all(f"🎮 遊戲 {n}" in page for n in range(1, 6))
     assert "五個遊戲全部完成" in page
-    assert page.count('即將推出') == 2          # games 4–5 wait for the leader
+    assert page.count('即將推出') == 1          # game 5 waits for the leader
     assert page.count('data-journey-play') == 1  # …and only the next one is offered
     assert 'stage-picker' not in page and 'stage-panel' not in page
     assert '個遊戲已完成' in page
@@ -410,7 +410,7 @@ def test_a_cleared_game_says_so(scout_client, store):
 
     page = scout_client.get(f"/badges/{badge['id']}").get_data(as_text=True)
     assert "1 / 5 個遊戲已完成" in page
-    assert page.count("即將推出") == 2, "the two games still to be made"
+    assert page.count("即將推出") == 1, "game 5 is still to be made"
     assert page.count('data-journey-play') == 1, "the next game is the only offer on the page"
     bridge = next(t for t in tasks_of(store, badge) if t["code"] == "M05")
     launch = page[page.index('data-journey-play'):]

@@ -14,7 +14,9 @@
                       if next_stage.game_kind == 'bridge'
                       else (url_for('scout_routes.task_drill', task_id=next_stage.game_task.id)
                             if next_stage.game_kind == 'drill'
-                            else url_for('scout_routes.task_player', task_id=next_stage.game_task.id))) %}
+                            else (url_for('scout_routes.task_flag', task_id=next_stage.game_task.id)
+                                  if next_stage.game_kind == 'flag'
+                                  else url_for('scout_routes.task_player', task_id=next_stage.game_task.id)))) %}
 {% else %}
   {% set play = None %}
 {% endif %}
@@ -182,7 +184,9 @@
                                         if stage.game_kind == 'bridge'
                                         else (url_for('scout_routes.task_drill', task_id=stage.game_task.id)
                                               if stage.game_kind == 'drill'
-                                              else url_for('scout_routes.task_player', task_id=stage.game_task.id))) }}">
+                                              else (url_for('scout_routes.task_flag', task_id=stage.game_task.id)
+                                                    if stage.game_kind == 'flag'
+                                                    else url_for('scout_routes.task_player', task_id=stage.game_task.id)))) }}">
                         🎮 {{ L('再玩一次', 'Play again') }}
                       </a>
                     {% endif %}

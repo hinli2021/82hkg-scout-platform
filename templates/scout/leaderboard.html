@@ -57,15 +57,15 @@
       <span class="count">{{ boards.games.played }} {{ L('位童軍', 'scouts') }}</span>
     </div>
     <p class="muted small lb-sub">
-      {{ L('每個遊戲各自排名：山洞看答對百分比，渡口與步操訓練場看完成時間（愈快愈好）。玩完就上榜，不必等領袖批准；重玩取最好的一次。',
-           'Each game is ranked on its own: the cave on the percentage answered correctly, the crossing and the drill ground on the time taken (faster first). Finishing puts you on the board — no leader approval needed; a replay keeps your best.') }}
+      {{ L('每個遊戲各自排名：山洞看答對百分比，渡口與步操訓練場看完成時間（愈快愈好），旗桿看答對題數（30 題，24 分合格）。玩完就上榜，不必等領袖批准；重玩取最好的一次。',
+           'Each game is ranked on its own: the cave on the percentage answered correctly, the crossing and the drill ground on the time taken (faster first), the flagpole on questions answered right (30 questions, 24 to pass). Finishing puts you on the board — no leader approval needed; a replay keeps your best.') }}
     </p>
 
     {% for game in boards.games.columns %}
       <div class="lb-game" id="board-game-{{ game.n }}">
         <div class="lb-game-head">
           <h3>{{ game.medal }} <span class="lb-g-n">G{{ game.n }}</span> {{ L(game.game_zh, game.game_en) }}</h3>
-          <span class="chip light">{{ L('答對百分比', 'Answered right') if game.metric == 'percent' else L('完成時間 · 分:秒', 'Finish time · m:ss') }}</span>
+          <span class="chip light">{{ L('答對百分比', 'Answered right') if game.metric == 'percent' else (L('答對題數 · 30 題', 'Answered right · of 30') if game.metric == 'score' else L('完成時間 · 分:秒', 'Finish time · m:ss')) }}</span>
         </div>
         {% if game.rows %}
           <div class="panel">
@@ -73,7 +73,7 @@
               {% for row in game.rows %}
                 <div class="lb-row {{ 'me' if row.is_me }}">
                   {% if row.value is not none %}
-                    <span class="lb-fill" style="width: {{ ((row.value / game.top * 100) if game.metric == 'percent' else (game.top / row.value * 100)) | round }}%"></span>
+                    <span class="lb-fill" style="width: {{ ((row.value / game.top * 100) if game.metric in ('percent', 'score') else (game.top / row.value * 100)) | round }}%"></span>
                   {% endif %}
                   <div class="lb-line">
                     <strong class="lb-rank">{{ ('#' ~ row.rank) if row.rank else '–' }}</strong>
@@ -83,7 +83,7 @@
                       <div class="small muted">{{ L(patrol_label(row.patrol).zh, patrol_label(row.patrol).en) }}</div>
                     </span>
                     {% if row.value is not none %}
-                      <span class="chip brass">{{ ('🎯 ' ~ row.value ~ '%') if game.metric == 'percent' else ('⏱ ' ~ (row.value | mmss)) }}</span>
+                      <span class="chip brass">{{ ('🎯 ' ~ row.value ~ '%') if game.metric == 'percent' else (('🎯 ' ~ row.value ~ '/30') if game.metric == 'score' else ('⏱ ' ~ (row.value | mmss))) }}</span>
                     {% else %}
                       <span class="chip">{{ L('沒有計時', 'No time') }}</span>
                     {% endif %}

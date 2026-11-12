@@ -270,7 +270,8 @@ class Store:
             try:
                 store.settle_catalog()              # 先合併重複（例如首次啟動撞在一起）
                 store.ensure_catalog()              # 再補上缺少的項目
-                store.refresh_game_copy()           # 遊戲 2、3 改了完成方式：換掉未改動過的舊說明
+                store.refresh_game_copy()           # 遊戲改了完成方式：換掉未改動過的舊說明
+                store.upgrade_flag_game()            # 第 7 項由打勾升級成旗桿遊戲，並接上第 4 區
             except Exception as exc:                # noqa: BLE001
                 config["catalog_error"] = f"{type(exc).__name__}: {exc}"
         return store
@@ -569,6 +570,55 @@ class Store:
                 changed += 1
         return changed
 
+    def upgrade_flag_game(self) -> bool:
+        """第 7 項原是打勾任務；遊戲 4 上線後把它升級成旗桿遊戲，並接上第 4 區。
+
+        只動「還是舊打勾形狀」的第 7 項。領袖若已自行換上遊戲，一字不動。
+        回傳 True 代表這次真的有改動。
+        """
+        import copy
+
+        from .content import member_badge_guide
+        from .engine import as_json
+
+        task = next((row for row in self.list("tasks") if row.get("code") == "M07"), None)
+        if task is None or str(task.get("type") or "") == "quiz":
+            return False
+        seed = next((spec for badge in SEED_BADGES for spec in badge["tasks"]
+                     if spec.get("code") == "M07"), None)
+        if not seed:
+            return False
+        self.update("tasks", task["id"], {
+            "type": "quiz", "pass_score": seed.get("pass_score", 24),
+            "title_zh": seed["title_zh"], "title_en": seed["title_en"],
+            "instruction_zh": seed["instruction_zh"], "instruction_en": seed["instruction_en"],
+            "config_json": seed.get("config_json") or {"kind": "flag"},
+        })
+        badge = next((row for row in self.list("badges") if row.get("code") == "SC-01"), None)
+        if badge is None:
+            return True
+        guide = copy.deepcopy(as_json(badge.get("guide_json"), {}) or {})
+        areas = (guide.get("quest") or {}).get("areas") or []
+        if len(areas) < 4:
+            return True
+        game = areas[3].get("game") or {}
+        if game.get("ready") and game.get("task_code") and game.get("task_code") != "M07":
+            return True                              # 領袖自己接了別的遊戲
+        defaults = ((member_badge_guide().get("quest") or {}).get("areas") or [])
+        fallback = (defaults[3].get("game") if len(defaults) > 3 else {}) or {}
+        areas[3]["game"] = {
+            "n": 4, "kind": "flag", "ready": True, "task_code": "M07",
+            "name_zh": fallback.get("name_zh", "溪谷旗桿"),
+            "name_en": fallback.get("name_en", "The valley flagpole"),
+            "blurb_zh": fallback.get("blurb_zh", ""),
+            "blurb_en": fallback.get("blurb_en", ""),
+        }
+        if areas[3].get("hint_zh") == "溪邊豎著旗桿。國旗、區旗與升旗禮儀，都在這裡考。":
+            areas[3]["hint_zh"] = defaults[3].get("hint_zh", "")
+            areas[3]["hint_en"] = defaults[3].get("hint_en", "")
+        self.update("badges", badge["id"], {"guide_json": guide})
+        return True
+
     def ensure_catalog(self, preferred_ids: dict[str, str] | None = None) -> bool:
         """建立缺少的獎章與任務 —— 只新增，永不改寫已有的列。
 
@@ -652,6 +702,7 @@ class Store:
         """Placeholder content so every screen is visible on first run."""
         now = now_iso()
         self.ensure_catalog()                     # 示範部署一樣要有正式目錄
+        self.upgrade_flag_game()                  # 第 7 項升級成旗桿遊戲
         hashed, salt = hash_password(DEMO_PASSWORDS["leader"])
         leader = self.insert("users", {
             "role": "leader", "username": "leader1", "password_hash": hashed, "password_salt": salt,

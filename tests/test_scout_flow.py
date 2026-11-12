@@ -272,7 +272,7 @@ def test_the_leaderboard_is_three_boards(scout_client, store, extras_on):
     assert "會員章 · 各遊戲得分" in page
     assert "積分" in page and "獎章" in page
     # 第一張榜再分三張小榜：一個遊戲一張，各有各的量尺
-    assert re.findall(r'id="board-game-(\d)"', page) == ["1", "2", "3"]
+    assert re.findall(r'id="board-game-(\d)"', page) == ["1", "2", "3", "4"]
     assert "答對百分比" in page and "完成時間" in page
 
     boards = engine.leaderboard_sections(store, current_user_id=scout_client.id)
@@ -567,8 +567,8 @@ def test_finishing_all_optional_items_still_needs_five_games(app, new_scout, sto
     after = engine.progress_for(store, new_scout.id)
     badge = after['badges'][0]
     assert badge['tasks_done'] == badge['tasks_total'] == 11
-    assert badge['progress_done'] == 3 and badge['progress_total'] == 5  # cave + bridge + drill
-    assert not badge['earned'] and after['badges'][1]['locked'], 'the other two games are missing'
+    assert badge['progress_done'] == 4 and badge['progress_total'] == 5  # cave + bridge + drill + flagpole
+    assert not badge['earned'] and after['badges'][1]['locked'], 'game 5 is still missing'
     assert not any(r['entry_type'] == 'badge' and r['ref_id'] == badge['id']
                    for r in store.list('points_ledger') if r['user_id'] == new_scout.id)
 

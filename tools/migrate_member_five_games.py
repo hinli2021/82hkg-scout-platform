@@ -307,7 +307,10 @@ def main() -> None:
         if index == 1 and game.get("task_code") == "M04":
             game = {}
         if not game.get("ready"):
-            game = copy.deepcopy(blueprint["areas"][index]["game"])
+            # only the games that exist are filled in; area 5 stays dark
+            # until its own game is built
+            if index < 4:
+                game = copy.deepcopy(blueprint["areas"][index]["game"])
         else:
             game["n"] = index + 1
         area["game"] = game

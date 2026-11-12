@@ -421,8 +421,8 @@
     "icon": "🏞️",
     "name_zh": "溪谷旗桿",
     "name_en": "The valley flagpole",
-    "hint_zh": "溪邊豎著旗桿。國旗、區旗與升旗禮儀，都在這裡考。",
-    "hint_en": "A flagpole by the stream. The flags and the flag ceremony are tested here.",
+    "hint_zh": "溪邊豎著旗桿。認旗徽、掛旗、唱國歌，再把國旗升到桿頂。",
+    "hint_en": "A flagpole by the stream. Name the flags, hang them, sing the anthem, then raise the flag.",
     "items": [
      7,
      8,
@@ -430,13 +430,13 @@
     ],
     "game": {
      "n": 4,
-     "kind": "",
-     "ready": false,
-     "name_zh": "即將推出",
-     "name_en": "Coming soon",
-     "blurb_zh": "這一區的遊戲正在製作，等待領袖加入。",
-     "blurb_en": "This area’s game is being built. Your leader will add it later.",
-     "task_code": ""
+     "kind": "flag",
+     "ready": true,
+     "name_zh": "溪谷旗桿",
+     "name_en": "The valley flagpole",
+     "blurb_zh": "認旗徽、掛旗、唱國歌，再把國旗升到桿頂。30 題，24 分合格，一次完成第 7 至 10 項。",
+     "blurb_en": "Name the flags, hang them, sing the anthem, then raise the flag. 30 questions, 24 to pass — items 7 to 10 in one go.",
+     "task_code": "M07"
     }
    },
    {

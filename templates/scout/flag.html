@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{# 溪谷旗桿 takes the window, like the cave, the crossing and the drill ground. #}
+{% block body_attrs %}class="is-game"{% endblock %}
+
+{% block title %}{{ L('溪谷旗桿', 'The valley flagpole') }}{% endblock %}
+
+{# ── 溪谷旗桿 — the fourth game of 會員章 (第 7 至 10 項). One ceremony by the
+      stream: name the flags, tap the glowing parts, hang the flags, fill the
+      anthem, then raise the flag in time with the music. The 30 questions and
+      their answers come from the leader's paper; the game only adds the
+      actions. Everything runs in static/js/flag.js, so it also plays inside
+      the offline demo file. ── #}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L(badge.title_zh, badge.title_en) }}</a><span class="breadcrumb-arrow">›</span>
+  {{ L('遊戲 4：溪谷旗桿', 'Game 4 — the valley flagpole') }}
+</div>
+
+<section class="cave flag" id="flag-root" data-flag
+         data-flag-config="{{ scene_json | forceescape }}">
+  <div class="cave-stage">
+    <div class="cave-picture">
+      <img class="cave-art-backdrop" alt="" aria-hidden="true"
+           src="{{ url_for('static', filename='img/quest/flag/valley.svg') }}">
+      <img class="cave-art" data-flag-art
+           src="{{ url_for('static', filename='img/quest/flag/valley.svg') }}"
+           alt="{{ L('溪谷旗桿', 'The valley flagpole') }}">
+      <div class="cave-shade" aria-hidden="true"></div>
+      <header class="cave-hud">
+        <a class="cave-hud-link" href="{{ url_for('scout_routes.home') }}">🏠 {{ L('主頁', 'Home') }}</a>
+        <span class="cave-hud-mid" data-flag-progress>{{ L('溪谷旗桿', 'The valley flagpole') }}</span>
+        <a class="cave-hud-link" href="{{ badge_url }}">🎖 {{ L('會員章', 'Badge') }}</a>
+      </header>
+    </div>
+    <div class="cave-card-wrap">
+      <div class="cave-card" data-flag-card aria-live="polite">
+        {% if cleared_now %}
+          <span class="cave-kicker">{{ L('第 7 至 10 項', 'Items 7 to 10') }}</span>
+          <h1 class="cave-title">{{ L('旗已升到桿頂', 'The flag is at the top') }}</h1>
+          <p class="cave-line">{{ L('你已通過溪谷旗桿。找領袖考核之前，可以再升一次旗。',
+                                    'You have cleared the valley flagpole. Raise the flag again before you see your leader.') }}</p>
+        {% else %}
+          <span class="cave-kicker">{{ L('遊戲 4', 'Game 4') }}</span>
+          <h1 class="cave-title">{{ L('溪谷旗桿', 'The valley flagpole') }}</h1>
+          <p class="cave-line">{{ L('溪邊有一支旗桿。認旗徽、掛旗、唱國歌，最後把國旗升到桿頂。30 題，24 分合格。',
+                                    'A flagpole stands by the stream. Name the flags, hang them, sing the anthem, then raise the national flag to the top. 30 questions, 24 to pass.') }}</p>
+          <div class="cave-actions">
+            <button class="btn primary big" type="button" data-flag-go data-cheer="🚩,✨">
+              {{ L('開始升旗', 'Start the ceremony') }}</button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div hidden aria-hidden="true">
+    <a data-flag-link="badge" href="{{ badge_url }}">🎖 {{ L('回到會員章', 'Back to the badge') }}</a>
+    {% for link in links or [] %}
+      <a data-flag-link="ref" href="{{ link.url }}" target="_blank" rel="noopener">🔗 {{ L(link.label_zh, link.label_en) }}</a>
+    {% endfor %}
+  </div>
+
+  {# every diagram the ceremony can show, so nothing is fetched mid-game #}
+  <div class="cave-sources" hidden aria-hidden="true">
+    {% for name in art_names %}
+      <img data-flag-source="{{ name }}"
+           src="{{ url_for('static', filename='img/quest/flag/' ~ name ~ '.svg') }}" alt="">
+    {% endfor %}
+  </div>
+
+  <noscript>
+    <p class="small muted">{{ L('旗桿遊戲需要開啟 JavaScript。請開啟後再試，或請領袖協助。',
+                                'The flagpole needs JavaScript. Enable it and try again, or ask your leader for help.') }}</p>
+  </noscript>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/flag.js') }}?v={{ asset_v('js/flag.js') }}"></script>
+{% endblock %}

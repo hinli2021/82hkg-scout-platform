@@ -1,0 +1,153 @@
+{
+  "title_zh": "溪谷旗桿",
+  "title_en": "The valley flagpole",
+  "pass_mark": 24,
+  "total": 30,
+  "note_zh": "旗徽圖為依規格畫的示意圖，不是官方圖樣。",
+  "note_en": "The flag and emblem pictures are diagrams drawn to the specification, not the official artwork.",
+  "stations": [
+    {
+      "id": "look",
+      "kind": "tap",
+      "name_zh": "認旗徽",
+      "name_en": "Name them",
+      "lead_zh": "點開每幅圖，說出它是甚麼。",
+      "lead_en": "Tap each picture and name it.",
+      "questions": [
+        {"id": "q1", "art": "flag-regional", "prompt_zh": "請替以下圖案配上適當的名稱。", "prompt_en": "Name this picture.",
+         "options_zh": ["區旗", "國旗", "國徽", "區徽"], "options_en": ["Regional flag", "National flag", "National emblem", "Regional emblem"], "answer": 0},
+        {"id": "q2", "art": "flag-national", "prompt_zh": "請替以下圖案配上適當的名稱。", "prompt_en": "Name this picture.",
+         "options_zh": ["國旗", "區旗", "區徽", "國徽"], "options_en": ["National flag", "Regional flag", "Regional emblem", "National emblem"], "answer": 0},
+        {"id": "q3", "art": "emblem-national", "prompt_zh": "請替以下圖案配上適當的名稱。", "prompt_en": "Name this picture.",
+         "options_zh": ["國徽", "國旗", "區徽", "區旗"], "options_en": ["National emblem", "National flag", "Regional emblem", "Regional flag"], "answer": 0},
+        {"id": "q4", "art": "emblem-regional", "prompt_zh": "請替以下圖案配上適當的名稱。", "prompt_en": "Name this picture.",
+         "options_zh": ["區旗", "國徽", "區徽", "國旗"], "options_en": ["Regional flag", "National emblem", "Regional emblem", "National flag"], "answer": 2}
+      ]
+    },
+    {
+      "id": "stars",
+      "kind": "parts",
+      "name_zh": "國旗",
+      "name_en": "The national flag",
+      "lead_zh": "點國旗上發光的部分，回答它代表甚麼。",
+      "lead_en": "Tap each glowing part of the national flag and say what it stands for.",
+      "questions": [
+        {"id": "q5", "part": "field", "prompt_zh": "中華人民共和國國旗的紅色象徵甚麼？", "prompt_en": "What does the red of the national flag stand for?",
+         "options_zh": ["喜慶", "豐收", "革命", "和平"], "options_en": ["Celebration", "Harvest", "Revolution", "Peace"], "answer": 2},
+        {"id": "q6", "part": "stars", "prompt_zh": "國旗上的五顆黃星象徵甚麼？", "prompt_en": "What do the five yellow stars stand for?",
+         "options_zh": ["五個民族", "五個省份", "中國人民大團結", "五項原則"], "options_en": ["Five peoples", "Five provinces", "The great unity of the Chinese people", "Five principles"], "answer": 2},
+        {"id": "q7", "part": "big", "prompt_zh": "最大的那顆黃星代表甚麼？", "prompt_en": "What does the largest yellow star stand for?",
+         "options_zh": ["中國共產黨", "中國人民", "中華民族", "中央人民政府"], "options_en": ["The Communist Party of China", "The Chinese people", "The Chinese nation", "The Central People's Government"], "answer": 0},
+        {"id": "q8", "part": "small", "prompt_zh": "四顆小星代表甚麼？", "prompt_en": "What do the four small stars stand for?",
+         "options_zh": ["工人階級", "農民階級", "城市小資產階級和民族資產階級", "以上皆是"],
+         "options_en": ["The working class", "The peasantry", "The urban petty bourgeoisie and the national bourgeoisie", "All of these"], "answer": 3},
+        {"id": "q9", "part": "point", "prompt_zh": "四顆小星各有一角指向大星的中心，這表示甚麼？", "prompt_en": "Each small star has one point aimed at the centre of the big star. What does that show?",
+         "options_zh": ["四個階級互相對立", "星星圍着太陽轉", "五星各管一方", "中國共產黨領導下的革命人民大團結"],
+         "options_en": ["The four classes stand against each other", "Stars circling the sun", "Each star governs one region", "The great unity of the revolutionary people under the leadership of the Communist Party of China"], "answer": 3}
+      ]
+    },
+    {
+      "id": "flower",
+      "kind": "parts",
+      "name_zh": "區旗",
+      "name_en": "The regional flag",
+      "lead_zh": "點區旗上發光的部分，回答它代表甚麼。",
+      "lead_en": "Tap each glowing part of the regional flag and say what it stands for.",
+      "questions": [
+        {"id": "q10", "part": "field", "prompt_zh": "香港特別行政區區旗的紅色背景代表甚麼？", "prompt_en": "What does the red ground of the regional flag stand for?",
+         "options_zh": ["革命", "中國", "喜慶", "香港"], "options_en": ["Revolution", "China", "Celebration", "Hong Kong"], "answer": 1},
+        {"id": "q11", "part": "flower", "prompt_zh": "區旗上的花是甚麼花？", "prompt_en": "Which flower is on the regional flag?",
+         "options_zh": ["蓮花", "梅花", "洋紫荊", "玫瑰"], "options_en": ["Lotus", "Plum blossom", "Bauhinia", "Rose"], "answer": 2},
+        {"id": "q12", "part": "colours", "prompt_zh": "區旗紅白兩色並用，象徵甚麼？", "prompt_en": "Red and white are used together on the regional flag. What does that stand for?",
+         "options_zh": ["和平與繁榮", "東西方交融", "五星紅旗的延伸", "一國兩制"],
+         "options_en": ["Peace and prosperity", "East meeting West", "An extension of the national flag", "One Country, Two Systems"], "answer": 3}
+      ]
+    },
+    {
+      "id": "poles",
+      "kind": "poles",
+      "name_zh": "兩支旗桿",
+      "name_en": "Two flagpoles",
+      "lead_zh": "把旗拖到旗桿上，再決定這句話對不對。",
+      "lead_en": "Drag each flag onto its pole, then say whether the statement is true.",
+      "questions": [
+        {"id": "q13", "setup": "march", "prompt_zh": "列隊持旗行進時，國旗走在最前。", "prompt_en": "When flags are carried in a parade, the national flag goes first.",
+         "options_zh": ["正確", "錯誤"], "options_en": ["True", "False"], "answer": 0},
+        {"id": "q14", "setup": "hang", "prompt_zh": "兩旗平列懸掛時，左方是國旗。", "prompt_en": "When the two flags hang side by side, the national flag is on the left.",
+         "options_zh": ["正確", "錯誤"], "options_en": ["True", "False"], "answer": 1,
+         "why_zh": "以背向牆壁的人的左右為準，國旗在右方。", "why_en": "Take left and right from someone facing away from the wall: the national flag is on the right."},
+        {"id": "q15", "setup": "one", "prompt_zh": "國旗和區旗可以同掛在一支旗桿上。", "prompt_en": "The national flag and the regional flag may fly from the same pole.",
+         "options_zh": ["正確", "錯誤"], "options_en": ["True", "False"], "answer": 1,
+         "why_zh": "每支旗桿只掛一面旗。", "why_en": "One flag to a pole."},
+        {"id": "q16", "setup": "raise", "prompt_zh": "兩旗並列升起時，國旗先升。", "prompt_en": "When the two flags are raised together, the national flag goes up first.",
+         "options_zh": ["正確", "錯誤"], "options_en": ["True", "False"], "answer": 0},
+        {"id": "q17", "setup": "lower", "prompt_zh": "兩旗並列降下時，國旗先降。", "prompt_en": "When the two flags are lowered together, the national flag comes down first.",
+         "options_zh": ["正確", "錯誤"], "options_en": ["True", "False"], "answer": 1,
+         "why_zh": "國旗最後才降。", "why_en": "The national flag is lowered last."},
+        {"id": "q18", "setup": "music", "prompt_zh": "升旗和降旗都要奏國歌。", "prompt_en": "The anthem is played both when the flag is raised and when it is lowered.",
+         "options_zh": ["正確", "錯誤"], "options_en": ["True", "False"], "answer": 1,
+         "why_zh": "只有升旗才奏國歌。", "why_en": "The anthem is played only when the flag is raised."}
+      ]
+    },
+    {
+      "id": "anthem",
+      "kind": "tap",
+      "name_zh": "國歌",
+      "name_en": "The anthem",
+      "lead_zh": "點樂譜上的問題，答出國歌的來歷。",
+      "lead_en": "Tap the questions on the score and answer them.",
+      "questions": [
+        {"id": "q19", "prompt_zh": "國歌的名稱是甚麼？", "prompt_en": "What is the anthem called?",
+         "options_zh": ["黃河大合唱", "歌唱祖國", "東方紅", "義勇軍進行曲"], "options_en": ["The Yellow River Cantata", "Ode to the Motherland", "The East is Red", "March of the Volunteers"], "answer": 3},
+        {"id": "q20", "prompt_zh": "國歌在哪一年被正式採用？", "prompt_en": "In which year was the anthem officially adopted?",
+         "options_zh": ["一九四九年", "一九四五年", "一九一九年", "一九七八年"], "options_en": ["1949", "1945", "1919", "1978"], "answer": 0},
+        {"id": "q21", "prompt_zh": "國歌原是哪一套電影的主題曲？", "prompt_en": "The anthem was first the theme of which film?",
+         "options_zh": ["風雲兒女", "大路", "漁光曲", "馬路天使"], "options_en": ["Children of Troubled Times", "The Big Road", "Song of the Fishermen", "Street Angel"], "answer": 0},
+        {"id": "q22", "prompt_zh": "為甚麼採用這首歌做國歌？", "prompt_en": "Why was this song adopted as the anthem?",
+         "options_zh": ["提醒人民居安思危", "曲調容易唱", "歌詞最短", "它是最早的一首進行曲"],
+         "options_en": ["To remind the people to think of danger in times of peace", "The tune is easy to sing", "The words are the shortest", "It was the earliest march"], "answer": 0}
+      ]
+    },
+    {
+      "id": "sing",
+      "kind": "sing",
+      "name_zh": "唱國歌",
+      "name_en": "Sing it",
+      "lead_zh": "歌詞缺了幾個字。點空格，把正確的字唱回去。",
+      "lead_en": "Some words are missing. Tap each gap and sing the right word back in.",
+      "lines_zh": ["起來！不願做{q23}的人們！", "把我們的血肉，築成我們新的{q24}！", "{q25}到了最危險的時候，", "每個人被迫着發出最後的{q26}。", "起來！起來！起來！", "我們{q27}，", "冒着敵人的炮火，前進！", "冒着敵人的炮火，前進！", "前進！前進！{q28}！"],
+      "lines_en": ["Arise, ye who refuse to be {q23}!", "With our flesh and blood, let us build a new {q24}!", "The {q25} faces its greatest danger,", "and each of us is forced to give out a final {q26}.", "Arise! Arise! Arise!", "Our million hearts beat as {q27},", "Brave the enemy's fire, march on!", "Brave the enemy's fire, march on!", "March on! March on! {q28}!"],
+      "questions": [
+        {"id": "q23", "prompt_zh": "起來！不願做____的人們！", "prompt_en": "Arise, ye who refuse to be ____!",
+         "options_zh": ["主人", "臣民", "奴隸", "俘虜"], "options_en": ["masters", "subjects", "slaves", "captives"], "answer": 2},
+        {"id": "q24", "prompt_zh": "把我們的血肉，築成我們新的____！", "prompt_en": "With our flesh and blood, let us build a new ____!",
+         "options_zh": ["家園", "國家", "長城", "城牆"], "options_en": ["home", "country", "Great Wall", "city wall"], "answer": 2},
+        {"id": "q25", "prompt_zh": "____到了最危險的時候，", "prompt_en": "The ____ faces its greatest danger,",
+         "options_zh": ["中國人民", "中國", "祖國", "中華民族"], "options_en": ["Chinese people", "China", "motherland", "Chinese nation"], "answer": 3},
+        {"id": "q26", "prompt_zh": "每個人被迫着發出最後的____。", "prompt_en": "Each of us is forced to give out a final ____.",
+         "options_zh": ["吼聲", "呼聲", "歌聲", "吶喊"], "options_en": ["roar", "cry", "song", "shout"], "answer": 0},
+        {"id": "q27", "prompt_zh": "我們____，", "prompt_en": "Our million hearts beat as ____,",
+         "options_zh": ["團結一致", "萬眾一心", "同心協力", "眾志成城"], "options_en": ["one in unity", "one", "one in effort", "one in will"], "answer": 1},
+        {"id": "q28", "prompt_zh": "前進！前進！____！", "prompt_en": "March on! March on! ____!",
+         "options_zh": ["進", "衝", "上", "前"], "options_en": ["On", "Charge", "Up", "Forward"], "answer": 0}
+      ]
+    },
+    {
+      "id": "raise",
+      "kind": "raise",
+      "name_zh": "升旗",
+      "name_en": "Raise the flag",
+      "lead_zh": "把國旗拖上旗桿，配合國歌升到桿頂。",
+      "lead_en": "Drag the national flag up the pole, in time with the anthem, until it reaches the top.",
+      "questions": [
+        {"id": "q29", "prompt_zh": "升旗時，國歌奏多久？", "prompt_en": "How long does the anthem play while the flag is raised?",
+         "options_zh": ["約 20 秒", "約 45 至 49 秒", "約 90 秒", "整首歌唱兩遍"],
+         "options_en": ["About 20 seconds", "About 45 to 49 seconds", "About 90 seconds", "The song sung twice"], "answer": 1,
+         "why_zh": "旗要在國歌奏完時剛好升到桿頂。", "why_en": "The flag should reach the top just as the anthem ends."},
+        {"id": "q30", "prompt_zh": "穿整齊制服列隊看升旗，誰敬禮？", "prompt_en": "In uniform, formed up for the flag raising, who salutes?",
+         "options_zh": ["全體童軍都敬禮", "只有領袖敬禮，其餘立正", "只有最前排敬禮", "沒有人敬禮，全部稍息"],
+         "options_en": ["Every Scout salutes", "Only the leaders salute; the rest stand at attention", "Only the front rank salutes", "Nobody salutes; everyone stands at ease"], "answer": 1}
+      ]
+    }
+  ]
+}

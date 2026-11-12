@@ -260,13 +260,13 @@ def test_tasks_the_leader_deleted_on_purpose_are_not_reported_as_missing(monkeyp
     fake = FakeGoogle()
     store = boot(fake, monkeypatch)
     client = leader_client(store)
-    for code in ("M07", "M08", "M09"):
+    for code in ("M08", "M09", "M10"):
         task = task_by_code(store, code)
         client.post(f"/leader/content/tasks/{task['id']}/delete")
     page = client.get("/leader/content").get_data(as_text=True)
     assert "有東西需要還原" not in page, "故意刪除的項目不應觸發警告"
     assert "全部內建項目齊全" in page
-    assert "你已刪除" in page and "M07" in page and "M09" in page
+    assert "你已刪除" in page and "M08" in page and "M10" in page
     assert "14 / 14" in page, "分母不計故意刪除的三項"
 
 

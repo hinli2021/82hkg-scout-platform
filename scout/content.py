@@ -116,6 +116,35 @@ def river_adventure() -> dict:
     return {**adventure, "stages": stages}
 
 
+def ceremony() -> dict:
+    """第 7 至 10 項的溪谷旗桿（the flag game），or {} when it is not set up.
+
+    Seven stations — name the flags, the national flag's parts, the regional
+    flag's parts, hanging two flags, the anthem's history, singing it, and
+    raising the flag. The 30 questions and their answers are the leader's own
+    paper, kept in `ceremony-bank.json`; the game only knows how to play them.
+    Clearing the pass mark completes items 7 to 10 in one go.
+    """
+    bank = _read_json(os.path.join(MEMBER_BADGE_DIR, "ceremony-bank.json")) or {}
+    stations = []
+    for station in (bank.get("stations") or []):
+        if not isinstance(station, dict):
+            continue
+        questions = [q for q in (station.get("questions") or [])
+                     if isinstance(q, dict) and q.get("id") and q.get("options_zh")]
+        if questions:
+            stations.append({**station, "questions": questions})
+    if not stations:
+        return {}
+    return {**bank, "stations": stations}
+
+
+def ceremony_questions(bank: dict | None = None) -> list[dict]:
+    """Every question the flag ceremony asks, in play order."""
+    bank = ceremony() if bank is None else bank
+    return [q for station in (bank.get("stations") or []) for q in (station.get("questions") or [])]
+
+
 def drill_manual() -> dict:
     """第 6 項的步操訓練場（the drill game），or {} when it is not set up.
 
