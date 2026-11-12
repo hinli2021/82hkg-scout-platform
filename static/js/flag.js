@@ -213,7 +213,7 @@
       + ' style="left:' + spot.x + "%;top:" + spot.y + "%;width:" + spot.width
       + '%;transform:translate(-50%,-50%)"'
       + ' data-qid="' + q.id + '"'
-      + ' aria-label="' + escapeHtml(t("第", "Hole ") + (index + 1) + t("個窿", "")) + '">' + inner + '</button>';
+      + ' aria-label="' + escapeHtml(t("第", "Hole ") + (index + 1) + t("個孔", "")) + '">' + inner + '</button>';
   }
 
   function buildMachine(message) {
@@ -225,7 +225,7 @@
     var html = '<div class="pipe-machine">'
       + '<button type="button" class="pipe-notebook" data-pipe-notebook>'
       + artImg("notebook", "pipe-notebook-img")
-      + '<span>' + escapeHtml(t("上一隊的筆記", "The last patrol's notebook")) + '</span></button>'
+      + '<span>' + escapeHtml(t("上一小隊的筆記", "The last patrol's notebook")) + '</span></button>'
       + '<div class="pipe-panel">'
       + artImg("panel", "pipe-panel-img")
       + '<div class="pipe-holes">'
@@ -237,9 +237,9 @@
          pipe is wrong, and glows green when the run is right */
       + '<button type="button" class="pipe-start'
       + (startState ? " is-" + startState : "") + '" data-pipe-start title="'
-      + escapeHtml(t("開機", "Start")) + '">'
+      + escapeHtml(t("啟動", "Start")) + '">'
       + artImg(startState === "wrong" ? "button-start-red" : "button-start", "pipe-start-img")
-      + '<span>' + escapeHtml(t("開機", "Start")) + '</span></button>'
+      + '<span>' + escapeHtml(t("啟動", "Start")) + '</span></button>'
       + '<span class="pipe-count">' + filled + " / " + s.questions.length + '</span>'
       + '</div>'
       + '<div class="pipe-note" data-pipe-note hidden></div>'
@@ -269,7 +269,7 @@
     if (!note.hidden) { note.hidden = true; return; }
     var s = stage();
     var html = '<div class="pipe-note-head"><strong>'
-      + escapeHtml(t("上一隊的筆記", "The last patrol's notebook")) + '</strong>'
+      + escapeHtml(t("上一小隊的筆記", "The last patrol's notebook")) + '</strong>'
       + '<button type="button" class="pipe-note-close" data-note-close aria-label="'
       + escapeHtml(t("合上筆記", "Close the notebook")) + '">✕</button></div>';
     s.learn.forEach(function (p) {
@@ -291,13 +291,13 @@
     var filled = s.questions.filter(function (it) { return placements[it.q.id] != null; }).length;
     card.innerHTML = cardHtml(
       stageName(),
-      t("駁好這一組喉", "Connect this run of pipe"),
-      message || t("撳一個窿，揀啱的喉駁入去；駁滿全部窿，就按開機掣。",
+      t("接好這一組喉管", "Connect this run of pipe"),
+      message || t("按一個孔，選出正確的喉管接上；全部孔都接好後，按啟動按鈕。",
                    "Tap a hole and fit the right pipe; fill every hole, then press the start button."),
       '<div class="cave-actions"><span class="pipe-card-count">'
-        + escapeHtml(t("已駁好", "Connected")) + " " + filled + " / " + s.questions.length + '</span>'
+        + escapeHtml(t("已接好", "Connected")) + " " + filled + " / " + s.questions.length + '</span>'
         + '<button type="button" class="btn ghost" data-flag-howto>'
-        + escapeHtml(t("點玩？", "How to play")) + '</button></div>');
+        + escapeHtml(t("遊玩方法", "How to play")) + '</button></div>');
   }
 
   /* ── the fitting screen that pops up from a hole ───────────────────── */
@@ -342,7 +342,7 @@
 
     pop.innerHTML =
       '<div class="pipe-popup-head"><span class="pipe-popup-kicker">'
-      + escapeHtml(stageName() + "  ·  " + t("第", "Hole ") + (holeIndex(qid) + 1) + t("個窿", ""))
+      + escapeHtml(stageName() + "  ·  " + t("第", "Hole ") + (holeIndex(qid) + 1) + t("個孔", ""))
       + '</span><button type="button" class="pipe-popup-close" data-popup-close aria-label="'
       + escapeHtml(t("返回控制板", "Back to the panel")) + '">✕</button></div>'
       + '<h2 class="pipe-popup-q">' + escapeHtml(t(q.prompt_zh, q.prompt_en)) + '</h2>'
@@ -352,12 +352,12 @@
         ? artImg(FITTED_KINDS[kindIndexFor(q.id, placed)], "pipe-fit-img")
           + '<span class="pipe-fit-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>'
         : artImg("hole", "pipe-fit-socket")
-          + '<span class="pipe-fit-hint">' + escapeHtml(t("把喉拖來這裡", "Drag a pipe here")) + '</span>')
+          + '<span class="pipe-fit-hint">' + escapeHtml(t("把喉管拖到這裡", "Drag a pipe here")) + '</span>')
       + '</div>'
       + pipes
       + '<div class="cave-actions">'
       + (placed != null ? '<button type="button" class="btn ghost" data-pipe-remove>'
-        + escapeHtml(t("拆走這段喉", "Take this pipe out")) + '</button>' : '')
+        + escapeHtml(t("取下這條喉管", "Take this pipe out")) + '</button>' : '')
       + '<button type="button" class="btn ghost" data-popup-close>'
       + escapeHtml(t("返回控制板", "Back to the panel")) + '</button></div>';
     pop.hidden = false;
@@ -418,7 +418,7 @@
     var startBtn = picture.querySelector(".pipe-start");
     var startImg = picture.querySelector(".pipe-start-img");
     if (missing.length) {
-      buildMachine(t("仲有 " + missing.length + " 個窿未駁喉。先駁好全部，才可以開機。",
+      buildMachine(t("還有 " + missing.length + " 個孔尚未接上喉管。先接好全部喉管，才可以啟動。",
                      missing.length + " hole(s) still empty. Connect every pipe before you press start."));
       openPopup(missing[0].q.id);
       return;
@@ -439,8 +439,8 @@
       if (startBtn) startBtn.classList.add("is-wrong");
       card.innerHTML = cardHtml(
         stageName(),
-        t("開機掣變成紅色", "The start button turns red"),
-        t("機器咳了兩聲，停下來。駁錯的喉已經用紅光圈住。打開左邊的筆記對一對，點開圈住的窿就可以換另一段喉。再按一次開機掣。",
+        t("啟動按鈕變成紅色", "The start button turns red"),
+        t("機器咳了兩聲便停下來。接錯的喉管已被紅色光圈標示。請打開左邊的筆記核對，再按被圈著的孔，換上另一條喉管，然後再按啟動按鈕。",
           "The machine coughs twice and stops, and the start button turns red. The wrong pipes are ringed in red light. Check the notebook on the left, tap a ringed hole to swap its pipe, then press start again."),
         "");
       return;
@@ -450,7 +450,7 @@
     if (startBtn) startBtn.classList.add("is-right");
     card.innerHTML = cardHtml(
       stageName(),
-      t("開機掣發出綠光", "The start button glows green"),
+      t("啟動按鈕發出綠光", "The start button glows green"),
       t("水開始流，繩子開始動。旗要升起來了。", "Water starts to flow and the rope begins to move. The flag is going up."),
       "");
     window.setTimeout(showRaise, 1300);
@@ -472,12 +472,12 @@
       stageName(),
       last ? t("旗升到桿頂", "The flag is at the top")
            : t("旗升了四分之一", "The flag is a quarter higher"),
-      last ? t("四組喉都駁對了。旗在桿頂展開，谷口通向海邊。",
+      last ? t("四組喉管都接對了。旗幟在桿頂展開，谷口通向海邊。",
                "All four pipe runs are right. The flag is open at the top, and the valley mouth leads to the sea.")
-           : t("旗在桿上又高了一截，離桿頂又近一步。下一組喉在等你。",
+           : t("旗幟在桿上又升高了一些，距離桿頂更近。接著要接下一組喉管。",
                "The flag sits higher on the pole, one step nearer the top. The next run of pipe is waiting."),
       '<div class="cave-actions"><button class="btn primary" type="button" data-flag-next>'
-        + escapeHtml(last ? t("完成升旗禮", "Finish the ceremony") : t("駁下一組喉", "Fit the next pipe run"))
+        + escapeHtml(last ? t("完成升旗禮", "Finish the ceremony") : t("接下一組喉管", "Fit the next pipe run"))
         + '</button></div>');
     card.querySelector("[data-flag-next]").addEventListener("click", function () {
       if (last) { showEnding(); return; }
@@ -542,9 +542,9 @@
     setProgress((stageIndex + 1) + " / " + stages.length + "  " + stageName()
       + "  ·  " + t("旗", "Flag") + " " + stageIndex + "/4");
     card.innerHTML = cardHtml(
-      stageName() + "  ·  " + t("上一隊的筆記", "The last patrol's notebook")
+      stageName() + "  ·  " + t("上一小隊的筆記", "The last patrol's notebook")
         + "  ·  " + (index + 1) + " / " + pages.length,
-      t("上一隊的筆記", "The last patrol's notebook"),
+      t("上一小隊的筆記", "The last patrol's notebook"),
       "",
       '<div class="cave-actions"><button class="btn primary" type="button" data-flag-next>'
       + escapeHtml(last ? t("繼續", "Go on") : t("下一頁", "Next page")) + '</button></div>');
@@ -566,14 +566,14 @@
         + '%;width:' + width + '%"></span>';
     };
     return [
-      { title: t("第 1 步：撳一個窿", "Step 1: Tap a hole"),
-        body: t("控制板黑格上，每個窿都是一條問題。撳開其中一個窿。",
+      { title: t("第 1 步：按一個孔", "Step 1: Tap a hole"),
+        body: t("控制板的黑格上，每個孔都是一道問題。按其中一個孔把它打開。",
                 "Every hole on the black board is one question. Tap a hole to open it."),
         diagram: panelShot(
           '<span class="howto-hole" style="left:50%;top:53%;width:23%">' + artImg("hole", "howto-hole-img") + '</span>'
           + ring(50, 53, 26)) },
-      { title: t("第 2 步：揀啱嗰段喉", "Step 2: Choose the right pipe"),
-        body: t("看清楚問題，想一想筆記的答案，然後撳嗰個答案的喉（或者把喉拖去窿口）。每條問題有幾個答案，每個答案都是一段不同的喉。",
+      { title: t("第 2 步：選出正確的喉管", "Step 2: Choose the right pipe"),
+        body: t("看清楚問題，想一想筆記中的答案，然後按那個答案的喉管（或把喉管拖到孔口）。每道問題有幾個答案，每個答案都是一條不同的喉管。",
                 "Read the question, think of the answer from the notes, then tap that answer's pipe (or drag it to the hole). Each answer is a different pipe."),
         diagram: '<div class="howto-tray">'
           + ["pipe-straight", "pipe-elbow", "pipe-zigzag", "pipe-wave"].map(function (k, i) {
@@ -583,20 +583,20 @@
           + '</div><div class="howto-drop">'
           + '<span class="howto-drop-pipe">' + artImg("pipe-elbow", "howto-drop-img") + '</span>'
           + '<span class="howto-drop-hole">' + artImg("hole", "howto-hole-img") + '</span></div>' },
-      { title: t("第 3 步：喉會裝入窿裡面", "Step 3: The pipe fits into the hole"),
-        body: t("揀好之後，成個窿會變成裝好喉的樣子。撳任何一個窿，都可以隨時換另一段喉。",
+      { title: t("第 3 步：喉管會裝進孔內", "Step 3: The pipe fits into the hole"),
+        body: t("選好之後，整個孔會變成裝好喉管的樣子。按任何一個孔，都可以隨時換上另一條喉管。",
                 "The whole hole picture changes to the fitted pipe. Tap any hole at any time to swap its pipe."),
         diagram: '<div class="howto-swap">'
           + artImg("hole", "howto-swap-a") + artImg("hole-pipe-wave", "howto-swap-b") + '</div>' },
-      { title: t("第 4 步：駁滿之後，按開機掣", "Step 4: Fill every hole, then press Start"),
-        body: t("全部窿都駁好喉之後，按控制板右邊的開機掣。未駁滿就按，機器會提醒你尚有幾個窿未駁。",
+      { title: t("第 4 步：全部接好後，按啟動按鈕", "Step 4: Fill every hole, then press Start"),
+        body: t("所有孔都接好喉管後，按控制板右邊的啟動按鈕。若在未接好時按下，機器會提醒你還有多少個孔未接。",
                 "When every hole has a pipe, press the start button on the right of the panel. If a hole is still empty, the machine will tell you."),
         diagram: panelShot(
           '<span class="howto-start">' + artImg("button-start", "howto-start-img") + '</span>'
           + ring(90, 57, 15)
           + '<span class="howto-count">9 / 9</span>') },
-      { title: t("第 5 步：看開機掣", "Step 5: Watch the start button"),
-        body: t("開機掣變紅即是有喉駁錯：駁錯的窿會被紅光圈住，撳開它換一段喉，再按開機。開機掣發出綠光即是全對，旗會升起四分之一。四組喉都對，旗就升到桿頂。",
+      { title: t("第 5 步：留意啟動按鈕", "Step 5: Watch the start button"),
+        body: t("啟動按鈕變紅，表示有喉管接錯：接錯的孔會被紅光圈著，按開它換上另一條喉管，再按啟動按鈕。啟動按鈕發出綠光，表示全部正確，旗會升起四分之一。四組喉管都接對，旗便升到桿頂。",
                 "If the start button turns red, a pipe is wrong: the wrong holes are ringed in red — tap one, swap its pipe, press start again. If it glows green, all is correct and the flag rises a quarter. Finish all four runs to raise it to the top."),
         diagram: '<div class="howto-lights">'
           + '<span class="howto-light-case">' + artImg("button-start-red", "howto-button-img")
@@ -621,7 +621,7 @@
     wrap.className = "howto";
     wrap.innerHTML =
       '<div class="howto-head"><span class="howto-kicker">'
-      + escapeHtml(t("點玩？", "How to play")) + "  ·  " + (step + 1) + " / " + steps.length
+      + escapeHtml(t("遊玩方法", "How to play")) + "  ·  " + (step + 1) + " / " + steps.length
       + '</span><button type="button" class="howto-skip" data-howto-skip>'
       + escapeHtml(t("跳過", "Skip")) + '</button></div>'
       + '<div class="howto-diagram">' + item.diagram + '</div>'
@@ -632,10 +632,10 @@
       + (step > 0 ? '<button type="button" class="btn ghost" data-howto-back>'
           + escapeHtml(t("上一步", "Back")) + '</button>' : "")
       + '<button type="button" class="btn primary" data-howto-next>'
-      + escapeHtml(last ? t("開始駁喉", "Start fitting pipes") : t("下一步", "Next step"))
+      + escapeHtml(last ? t("開始接喉管", "Start fitting pipes") : t("下一步", "Next step"))
       + '</button></div>';
     board.appendChild(wrap);
-    setProgress(t("點玩？", "How to play") + "  ·  " + (step + 1) + " / " + steps.length);
+    setProgress(t("遊玩方法", "How to play") + "  ·  " + (step + 1) + " / " + steps.length);
     wrap.querySelector("[data-howto-skip]").addEventListener("click", function () { buildMachine(); });
     wrap.querySelector("[data-howto-next]").addEventListener("click", function () {
       if (last) buildMachine(); else showHowTo(step + 1);

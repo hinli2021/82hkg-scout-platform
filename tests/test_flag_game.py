@@ -133,6 +133,20 @@ def test_holes_stay_inside_the_black_board_and_answers_are_dealt_at_random():
     assert "There are \" + s.questions.length + \" holes arranged neatly" not in js
 
 
+def test_the_flag_game_speaks_written_chinese():
+    """Every scout-facing Chinese line is simple 書面語 — no colloquial
+    Cantonese (撳／揀／嗰／窿／掣／駁…), in the bank, the page and the script."""
+    import re
+    root = pathlib.Path(__file__).resolve().parent.parent
+    text = json.dumps(BANK, ensure_ascii=False)
+    text += (root / "static" / "js" / "flag.js").read_text(encoding="utf-8")
+    text += (root / "templates" / "scout" / "flag.html").read_text(encoding="utf-8")
+    for colloquial in ("嘅", "唔", "咗", "喺", "撳", "啲", "嗰", "冇", "哋",
+                       "嚟", "揀", "掣", "佢", "係", "窿", "駁", "點玩", "仲有"):
+        assert colloquial not in text, colloquial
+    assert "喉管" in text and "啟動按鈕" in text
+
+
 def test_the_task_page_redirects_into_the_game(scout_client, store):
     task = task_of(store)
     answer = scout_client.get(f"/tasks/{task['id']}")
