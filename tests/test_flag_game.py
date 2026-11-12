@@ -57,6 +57,19 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
         assert not (flag_dir / f"{name}.svg").exists()
     assert "官方" in BANK["note_zh"] or "標準版本" in BANK["note_zh"]
     assert "official" in BANK["note_en"].lower() or "standard versions" in BANK["note_en"]
+    # the ceremony is worked by the pipe machine: panel, notebook, pipes,
+    # lights, start button and the four quarter-raise pictures are paintings
+    pipe_dir = flag_dir / "pipe"
+    for name in ("panel", "notebook", "button-start", "light-off", "light-red",
+                 "light-green", "socket", "pipe-straight", "pipe-elbow",
+                 "pipe-zigzag", "pipe-wave"):
+        assert f'data-flag-source="{name}"' in page, name
+    for n in (1, 2, 3, 4):
+        assert f'data-flag-source="raise-{n}"' in page
+    for name in ("panel", "notebook", "button-start", "light-off", "light-red",
+                 "light-green", "socket", "pipe-straight", "pipe-elbow",
+                 "pipe-zigzag", "pipe-wave", "raise-1", "raise-2", "raise-3", "raise-4"):
+        assert (pipe_dir / f"{name}.jpg").is_file(), name
     # the old paper is a study link, not the game itself
     assert "forms.gle" not in page.split("data-flag-link")[0]
 

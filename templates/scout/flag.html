@@ -46,8 +46,8 @@
         {% else %}
           <span class="cave-kicker">{{ L('遊戲 4', 'Game 4') }}</span>
           <h1 class="cave-title">{{ L('山脊在身後', 'The ridge is behind you') }}</h1>
-          <p class="cave-line">{{ L('步操場還在上面。小徑向下，溪水聲傳來，旗桿的繩子空掛著。上一隊留下一本筆記：先讀，再自己升旗。旗到桿頂，谷口就通向海邊。',
-                                    'The parade ground is still above you. The path drops, a stream is running, and the flagpole rope hangs empty. The last patrol left a notebook: read it, then raise the flag yourself. When it reaches the top, the valley opens toward the sea.') }}</p>
+          <p class="cave-line">{{ L('步操場還在上面。小徑向下，溪水聲傳來。溪邊的旗桿由一部舊駁喉機帶動，可是四組喉都拆開了。上一隊的筆記就放在控制板左邊：駁對一組喉，旗就升四分之一；四組全對，旗才會到桿頂。',
+                                    'The parade ground is still above you. The path drops, and a stream is running. The flagpole by the stream is worked by an old pipe machine, but all four runs of pipe have been taken apart. The last patrol left its notebook on the left of the control panel: connect one run right and the flag rises a quarter; get all four right and it reaches the top.') }}</p>
           <div class="cave-actions">
             <button class="btn primary big" type="button" data-flag-go data-cheer="🚩,✨">
               {{ L('沿溪走下去', 'Follow the stream down') }}</button>
@@ -71,6 +71,23 @@
     {% for name in art_names %}
       <img data-flag-source="{{ name }}"
            src="{{ url_for('static', filename='img/quest/flag/' ~ name ~ ('.svg' if name == 'valley' else '.png')) }}" alt="">
+    {% endfor %}
+    {# the pipe machine: every part is a generated painting, in the same ink
+       and watercolour as the other games — panel, notebook, pipes, lights,
+       start button, and the flag a quarter higher after each run #}
+    <img data-flag-source="panel" src="{{ url_for('static', filename='img/quest/flag/pipe/panel.jpg') }}" alt="">
+    <img data-flag-source="notebook" src="{{ url_for('static', filename='img/quest/flag/pipe/notebook.jpg') }}" alt="">
+    <img data-flag-source="button-start" src="{{ url_for('static', filename='img/quest/flag/pipe/button-start.jpg') }}" alt="">
+    <img data-flag-source="light-off" src="{{ url_for('static', filename='img/quest/flag/pipe/light-off.jpg') }}" alt="">
+    <img data-flag-source="light-red" src="{{ url_for('static', filename='img/quest/flag/pipe/light-red.jpg') }}" alt="">
+    <img data-flag-source="light-green" src="{{ url_for('static', filename='img/quest/flag/pipe/light-green.jpg') }}" alt="">
+    <img data-flag-source="socket" src="{{ url_for('static', filename='img/quest/flag/pipe/socket.jpg') }}" alt="">
+    <img data-flag-source="pipe-straight" src="{{ url_for('static', filename='img/quest/flag/pipe/pipe-straight.jpg') }}" alt="">
+    <img data-flag-source="pipe-elbow" src="{{ url_for('static', filename='img/quest/flag/pipe/pipe-elbow.jpg') }}" alt="">
+    <img data-flag-source="pipe-zigzag" src="{{ url_for('static', filename='img/quest/flag/pipe/pipe-zigzag.jpg') }}" alt="">
+    <img data-flag-source="pipe-wave" src="{{ url_for('static', filename='img/quest/flag/pipe/pipe-wave.jpg') }}" alt="">
+    {% for n in range(1, 5) %}
+      <img data-flag-source="raise-{{ n }}" src="{{ url_for('static', filename='img/quest/flag/pipe/raise-' ~ n ~ '.jpg') }}" alt="">
     {% endfor %}
   </div>
 
