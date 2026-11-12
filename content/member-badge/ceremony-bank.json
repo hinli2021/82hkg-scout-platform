@@ -3,8 +3,8 @@
   "title_en": "The valley flagpole",
   "pass_mark": 30,
   "total": 30,
-  "note_zh": "旗徽圖為依規格畫的示意圖，不是官方圖樣。",
-  "note_en": "The flag and emblem pictures are diagrams drawn to the specification, not the official artwork.",
+  "note_zh": "國旗、國徽圖：中國人大網及中國政府網公布的標準版本；區旗、區徽圖：香港特區政府禮賓處公布的圖樣。",
+  "note_en": "National flag and emblem: the standard versions published by the National People's Congress and the PRC government. Regional flag and emblem: the artwork published by the Protocol Division of the HKSAR Government.",
   "stations": [
     {
       "id": "look",

@@ -64,11 +64,13 @@
     {% endfor %}
   </div>
 
-  {# every diagram the ceremony can show, so nothing is fetched mid-game #}
+  {# every picture the ceremony can show, so nothing is fetched mid-game.
+     The valley is the one drawing; the four flags and emblems are the
+     official artwork (see the note in ceremony-bank.json). #}
   <div class="cave-sources" hidden aria-hidden="true">
     {% for name in art_names %}
       <img data-flag-source="{{ name }}"
-           src="{{ url_for('static', filename='img/quest/flag/' ~ name ~ '.svg') }}" alt="">
+           src="{{ url_for('static', filename='img/quest/flag/' ~ name ~ ('.svg' if name == 'valley' else '.png')) }}" alt="">
     {% endfor %}
   </div>
 

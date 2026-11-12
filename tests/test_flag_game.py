@@ -49,6 +49,14 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     assert page.count("data-flag") >= 1
     assert "flag.js" in page
     assert "morning ceremony" in page
+    # the four flags and emblems are the official artwork, not the old diagrams
+    flag_dir = pathlib.Path(__file__).resolve().parent.parent / "static" / "img" / "quest" / "flag"
+    for name in ("flag-national", "flag-regional", "emblem-national", "emblem-regional"):
+        assert f"img/quest/flag/{name}.png" in page
+        assert (flag_dir / f"{name}.png").is_file()
+        assert not (flag_dir / f"{name}.svg").exists()
+    assert "官方" in BANK["note_zh"] or "標準版本" in BANK["note_zh"]
+    assert "official" in BANK["note_en"].lower() or "standard versions" in BANK["note_en"]
     # the old paper is a study link, not the game itself
     assert "forms.gle" not in page.split("data-flag-link")[0]
 
