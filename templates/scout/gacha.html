@@ -13,6 +13,34 @@
 {% endblock %}
 
 {% block content %}
+{% macro foil_pack(gold, ghost=false) %}
+<span class="foil-scene">
+  <span class="foil-shadow" aria-hidden="true"></span>
+  <span class="foil-box">
+    <span class="foil-edge left" aria-hidden="true"></span>
+    <span class="foil-edge right" aria-hidden="true"></span>
+    <span class="foil-edge top" aria-hidden="true"></span>
+    <span class="foil-edge bottom" aria-hidden="true"></span>
+    <span class="foil-back" aria-hidden="true"></span>
+    <span class="foil-front">
+      <span class="foil-crimp" aria-hidden="true"></span>
+      <span class="foil-slips" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="foil-body">
+        <span class="foil-seal" aria-hidden="true"><b>82</b></span>
+        {% if not ghost %}
+          <span class="foil-title">{{ L('金卡包' if gold else '童軍卡包', 'Gold pack' if gold else 'Scout pack') }}</span>
+          <span class="foil-sub">{{ L('五張技能卡', 'Five skill cards') }}</span>
+          {% if summary.next_reason_zh %}
+            <span class="foil-why">{{ L(summary.next_reason_zh, summary.next_reason_en) }}</span>
+          {% endif %}
+        {% endif %}
+      </span>
+      <span class="foil-crimp bottom" aria-hidden="true"></span>
+      <span class="foil-sheen" aria-hidden="true"></span>
+    </span>
+  </span>
+</span>
+{% endmacro %}
 <div class="page-head">
   <div>
     <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a>
@@ -44,26 +72,13 @@
     <form method="post" action="{{ url_for('gacha_routes.open_pack') }}" data-pack-form>
       <button class="foil {{ 'is-gold' if summary.next_kind == 'gold' else '' }}" type="submit"
               aria-label="{{ L('打開卡包', 'Open pack') }}">
-        <span class="foil-crimp" aria-hidden="true"></span>
-        <span class="foil-body">
-          <span class="foil-mark" aria-hidden="true">82</span>
-          <span class="foil-title">{{ L('金卡包' if summary.next_kind == 'gold' else '童軍卡包', 'Gold pack' if summary.next_kind == 'gold' else 'Scout pack') }}</span>
-          <span class="foil-sub">{{ L('五張技能卡', 'Five skill cards') }}</span>
-          {% if summary.next_reason_zh %}
-            <span class="foil-why">{{ L(summary.next_reason_zh, summary.next_reason_en) }}</span>
-          {% endif %}
-        </span>
-        <span class="foil-crimp bottom" aria-hidden="true"></span>
+        {{ foil_pack(summary.next_kind == 'gold') }}
       </button>
     </form>
     <p class="gacha-tap">▲ {{ L('點一下打開', 'Tap to open') }} ▲</p>
   {% else %}
     <div class="gacha-empty">
-      <span class="foil is-ghost" aria-hidden="true">
-        <span class="foil-crimp"></span>
-        <span class="foil-body"><span class="foil-mark">82</span></span>
-        <span class="foil-crimp bottom"></span>
-      </span>
+      <span class="foil is-ghost" aria-hidden="true">{{ foil_pack(false, true) }}</span>
       <p>{{ L('還沒有卡包。完成一個遊戲、一項任務或一個獎章，或者用積分換一個普通卡包。',
               'No pack yet. Finish a game, a task or a badge, or buy a normal pack with points.') }}</p>
       <a class="btn" href="{{ url_for('scout_routes.badges') }}">{{ L('去看獎章', 'See badges') }}</a>

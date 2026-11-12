@@ -31,34 +31,53 @@
     var cards = [].slice.call(reveal.querySelectorAll('[data-card]'));
     if (!cards.length) return;
     var at = 0;
-    showCard(reveal.querySelector('.reveal-stack') || reveal, 0);
+    var stack = reveal.querySelector('.reveal-stack') || reveal;
+    showCard(stack, 0);
+    function seen(card) {
+      card.classList.add('is-up', 'is-seen');
+    }
     if (reduced()) {
-      cards.forEach(function (card) { card.classList.add('is-up'); });
+      cards.forEach(seen);
       return;
     }
     cards.forEach(function (card) { card.classList.remove('is-up'); });
     function flip() {
-      if (at >= cards.length) return;
-      var card = cards[at];
-      card.classList.add('is-up');
-      showCard(reveal.querySelector('.reveal-stack') || reveal, at);
-      var rarity = card.getAttribute('data-rarity') || '';
-      sfx(SR[rarity] ? 'badge' : 'correct');
-      at += 1;
-      if (at < cards.length) {
-        reveal._timer = setTimeout(flip, SR[rarity] ? 1100 : 680);
+      if (at >= cards.length) {
+        reveal.classList.add('is-done');
+        return;
       }
+      var card = cards[at];
+      var rarity = card.getAttribute('data-rarity') || '';
+      var rare = !!SR[rarity];
+      card.classList.add('is-deal');
+      showCard(stack, at);
+      reveal._timer = setTimeout(function () {
+        card.classList.add('is-up');
+        sfx(rare ? 'badge' : 'correct');
+        if (rare && window.FX && FX.burst) {
+          FX.burst(card, rarity === 'LR' || rarity === 'UR' ? 20 : 12, ['✦', '★', '✧']);
+        }
+        if (rare) {
+          stage.classList.add('is-hit');
+          setTimeout(function () { stage.classList.remove('is-hit'); }, 720);
+        }
+        at += 1;
+        reveal._timer = setTimeout(function () {
+          card.classList.add('is-seen');
+          flip();
+        }, rare ? 980 : 620);
+      }, 280);
     }
-    reveal._timer = setTimeout(flip, 280);
+    reveal._timer = setTimeout(flip, 180);
     reveal.querySelectorAll('[data-card-prev], [data-card-next]').forEach(function (button) {
       button.addEventListener('click', function () {
         if (reveal._timer) clearTimeout(reveal._timer);
-        cards.forEach(function (card) { card.classList.add('is-up'); });
-        var current = parseInt(reveal.querySelector('.reveal-stack').getAttribute('data-at') || '0', 10);
+        cards.forEach(seen);
+        var current = parseInt(stack.getAttribute('data-at') || '0', 10);
         var next = button.hasAttribute('data-card-prev') ? current - 1 : current + 1;
         if (next < 0) next = 0;
         if (next > cards.length - 1) next = cards.length - 1;
-        showCard(reveal.querySelector('.reveal-stack'), next);
+        showCard(stack, next);
       });
     });
   }
@@ -75,6 +94,7 @@
         if (button) button.disabled = true;
         if (foil) foil.classList.add('is-opening');
         sfx('tap');
+        var started = Date.now();
         fetch(form.action, {
           method: 'POST',
           credentials: 'same-origin',
@@ -87,13 +107,17 @@
             form.submit();
             return;
           }
-          stage.innerHTML = data.html;
-          var count = document.querySelector('[data-pack-count]');
-          if (count && data.packs != null) count.textContent = String(data.packs);
-          var owned = document.querySelector('[data-owned-count]');
-          if (owned && data.owned != null) owned.textContent = String(data.owned);
-          bind(stage);
-          play(stage);
+          var wait = reduced() ? 0 : Math.max(0, 1080 - (Date.now() - started));
+          setTimeout(function () {
+            stage.classList.remove('is-hit');
+            stage.innerHTML = data.html;
+            var count = document.querySelector('[data-pack-count]');
+            if (count && data.packs != null) count.textContent = String(data.packs);
+            var owned = document.querySelector('[data-owned-count]');
+            if (owned && data.owned != null) owned.textContent = String(data.owned);
+            bind(stage);
+            play(stage);
+          }, wait);
         }).catch(function () { form.submit(); });
       });
     });
