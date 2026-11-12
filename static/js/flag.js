@@ -229,6 +229,7 @@
   }
 
   function buildMachine(message) {
+    root.classList.remove("is-howto-open");
     clearScene();
     var board = scene();
     var s = stage();
@@ -265,12 +266,14 @@
         openPopup(hole.getAttribute("data-qid"));
       });
     });
-    var howtoBtn = card.querySelector("[data-flag-howto]");
-    if (howtoBtn) howtoBtn.addEventListener("click", function () { showHowTo(0); });
     board.querySelector("[data-pipe-notebook]").addEventListener("click", toggleNote);
     board.querySelector("[data-pipe-start]").addEventListener("click", pressStart);
     machineLive = true;
     renderCard(message);
+    /* the how-to button lives in the card renderCard() has just written,
+       so it can only be bound now, not before the card exists */
+    var howtoBtn = card.querySelector("[data-flag-howto]");
+    if (howtoBtn) howtoBtn.addEventListener("click", function () { showHowTo(0); });
     setProgress((stageIndex + 1) + " / " + stages.length + "  " + stageName()
       + "  ·  " + t("旗", "Flag") + " " + stageIndex + "/4");
   }
@@ -661,6 +664,11 @@
     var steps = howToSteps();
     step = Math.max(0, Math.min(step, steps.length - 1));
     var item = steps[step];
+    /* while the how-to pop-up is up, the card below the picture is hidden
+       altogether: its leftover words and its own next-page button would
+       only repeat what the pop-up already says and does. buildMachine()
+       takes the class away again when the scout returns to the panel. */
+    root.classList.add("is-howto-open");
     clearScene();
     var board = scene();
     var last = step === steps.length - 1;

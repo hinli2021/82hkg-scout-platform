@@ -4419,6 +4419,9 @@ body.is-game main { padding-top: 6px; }
 .pipe-piece-word { display: block; margin-top: .25rem; font-weight: 800; text-align: center; line-height: 1.3; }
 .pipe-piece.is-placed { box-shadow: 0 0 0 3px #2f8f57 inset; background: #e4f4e6; }
 .pipe-card-count { font-weight: 800; color: #ffe4a8; }
+/* while the how-to pop-up is shown, the card below the picture is gone:
+   no leftover words and no second next button under the pop-up */
+#flag-root.is-howto-open .cave-card-wrap { display: none; }
 /* ── how to play: a pop-up of picture steps over the scene ─────────── */
 .howto {
   position: absolute; inset: 1.5% 2.5%; z-index: 9; overflow-y: auto;

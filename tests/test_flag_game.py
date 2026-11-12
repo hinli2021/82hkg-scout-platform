@@ -142,6 +142,12 @@ def test_pipes_are_dragged_not_clicked_lyrics_stay_in_order_and_no_all_of_these(
     assert 'addEventListener("click", function () { fitPipe' not in js
     assert "pointerdown" in js and "pipe-drag-ghost" in js
     assert ".pipe-drag-ghost" in css and "touch-action: none" in css
+    # while the how-to pop-up is up, the card below the picture is hidden,
+    # so its leftover words and next-page button do not repeat the pop-up;
+    # returning to the panel brings the card back
+    assert 'root.classList.add("is-howto-open")' in js
+    assert 'root.classList.remove("is-howto-open")' in js
+    assert "#flag-root.is-howto-open .cave-card-wrap" in css
     # the anthem run deals its general questions first, then the six lyric
     # gaps one after another in song order, not shuffled among the rest
     assert 'it.station.id === "sing"' in js and "lyricOrder" in js
