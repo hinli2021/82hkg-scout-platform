@@ -208,7 +208,8 @@
     if (placed != null) {
       inner += '<span class="pipe-hole-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>';
     }
-    return '<button type="button" class="pipe-hole' + (placed == null ? "" : " is-full") + '"'
+    return '<button type="button" class="pipe-hole' + (placed == null ? "" : " is-full")
+      + (wrongIds[q.id] ? " is-wrong" : "") + '"'
       + ' style="left:' + spot.x + "%;top:" + spot.y + "%;width:" + spot.width
       + '%;transform:translate(-50%,-50%)"'
       + ' data-qid="' + q.id + '"'
