@@ -4049,7 +4049,13 @@ body.is-game main { padding-top: 6px; }
 /* ══ 溪谷旗桿 — game 4. The scene fills the picture; the question card keeps
    the same glass panel as the other games, so a phone still sees the question
    and its answers together. ═══════════════════════════════════════════════ */
-.flag .cave-picture { background: #8ec8e8; }
+.flag .cave-picture { background: #e7bd75; }
+/* the painting is the valley, same ink as the earlier games. Soften it only
+   while a diagram is on top, so the cloths stay readable. */
+.flag .cave-picture:has(.flag-gallery, .flag-poles, .flag-big, .flag-hoist, .flag-score) .cave-art {
+  opacity: .42;
+  filter: saturate(.85) brightness(.8);
+}
 .flag-scene {
   position: absolute; inset: 2.4rem 0 0; display: flex; align-items: flex-end;
   justify-content: center; pointer-events: none;
