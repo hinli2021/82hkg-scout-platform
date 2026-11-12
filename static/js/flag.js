@@ -474,7 +474,7 @@
       stageIndex += 1;
       prepareStage();
       selected = null;
-      buildMachine();
+      showStageNotes();
     });
   }
 
@@ -488,7 +488,19 @@
     prepareStage();
     filed = false;
     setProgress(t("溪谷旗桿", "The valley flagpole"));
-    showStory(intro, 0, t("遊戲 4", "Game 4"), function () { buildMachine(); });
+    showStory(intro, 0, t("遊戲 4", "Game 4"), function () { showStageNotes(); });
+  }
+
+  /* the notes come first: read this run's pages from the last patrol's
+     notebook, then the control panel appears and the fitting starts.
+     The notebook stays on the panel afterwards for checking. */
+  function showStageNotes() {
+    var s = stage();
+    var pages = s ? s.learn : [];
+    if (!pages.length) { buildMachine(); return; }
+    showStory(pages, 0,
+      stageName() + "  ·  " + t("上一隊的筆記", "The last patrol's notebook"),
+      function () { buildMachine(); });
   }
 
   function showEnding() {

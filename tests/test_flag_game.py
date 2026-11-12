@@ -107,6 +107,9 @@ def test_holes_stay_inside_the_black_board_and_answers_are_dealt_at_random():
            / "styles.css").read_text(encoding="utf-8")
     assert ".pipe-hole.is-wrong::after" in css
     assert ".pipe-popup .btn.ghost" in css and "#fff3d6" in css
+    # the notes are shown before the machine, at the start of every run
+    assert "function showStageNotes()" in js
+    assert 'showStory(intro, 0, t("遊戲 4", "Game 4"), function () { showStageNotes(); });' in js
 
 
 def test_the_task_page_redirects_into_the_game(scout_client, store):
