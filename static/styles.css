@@ -4056,6 +4056,25 @@ body.is-game main { padding-top: 6px; }
   opacity: .42;
   filter: saturate(.85) brightness(.8);
 }
+/* the start screen: no card of words below the picture — the kicker, the
+   title, the short description and the start button are merged into the
+   valley painting itself, in a shaded band across its foot. Once the walk
+   begins flag.js drops the class, the band goes and the card returns. */
+#flag-root.is-start-screen .cave-card-wrap { display: none; }
+.flag-start-overlay { display: none; }
+#flag-root.is-start-screen .flag-start-overlay {
+  display: block; position: absolute; z-index: 5;
+  left: 50%; bottom: 3.5%; transform: translateX(-50%);
+  width: min(44rem, 93%); max-height: 72%; overflow-y: auto;
+  box-sizing: border-box; padding: .85rem 1.1rem .95rem;
+  border-radius: .85rem; text-align: center; color: #eef5ee;
+  background: linear-gradient(180deg, rgba(7, 20, 13, .82), rgba(5, 15, 10, .92));
+  border: 1px solid rgba(255, 255, 255, .16);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .45);
+}
+.flag-start-title { color: #fff; margin: .45rem 0 .4rem; font-size: clamp(1.15rem, 2.6vw, 1.6rem); }
+.flag-start-line { margin: .35rem auto; max-width: 38rem; line-height: 1.55; color: #e6efe6; }
+.flag-start-overlay .cave-actions { justify-content: center; }
 .flag-scene {
   position: absolute; inset: 2.4rem 0 0; display: flex; align-items: flex-end;
   justify-content: center; pointer-events: none;

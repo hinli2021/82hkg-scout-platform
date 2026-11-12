@@ -544,6 +544,9 @@
   /* ── start, ending, submit ─────────────────────────────────────────── */
 
   function start() {
+    /* the walk has begun: the words come off the painting and the card
+       below the picture takes over from here */
+    root.classList.remove("is-start-screen");
     startedAt = Date.now();
     placements = {};
     selected = null;
@@ -752,6 +755,9 @@
       }).catch(function () { filed = false; });
   }
 
-  var go = root.querySelector("[data-flag-go]");
-  if (go) go.addEventListener("click", start);
+  /* the start button exists twice before the walk — on the painting and
+     in the (hidden) card below — so bind them all */
+  root.querySelectorAll("[data-flag-go]").forEach(function (go) {
+    go.addEventListener("click", start);
+  });
 })();

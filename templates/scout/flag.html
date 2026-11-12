@@ -17,7 +17,7 @@
   {{ L('遊戲 4：溪谷旗桿', 'Game 4 — the valley flagpole') }}
 </div>
 
-<section class="cave flag" id="flag-root" data-flag
+<section class="cave flag is-start-screen" id="flag-root" data-flag
          data-flag-config="{{ scene_json | forceescape }}">
   <div class="cave-stage">
     <div class="cave-picture">
@@ -32,6 +32,32 @@
         <span class="cave-hud-mid" data-flag-progress>{{ L('溪谷旗桿', 'The valley flagpole') }}</span>
         <a class="cave-hud-link" href="{{ badge_url }}">🎖 {{ L('會員章', 'Badge') }}</a>
       </header>
+      {# before the walk starts, the words live on the painting itself:
+         kicker, title, the short description and the start button sit in
+         a shaded band across the foot of the valley, and there is no
+         separate card of words below the picture. flag.js takes the
+         is-start-screen class away the moment the walk begins, and the
+         card below comes back for the story and the machine. #}
+      <div class="flag-start-overlay">
+        {% if cleared_now %}
+          <span class="cave-kicker">{{ L('第 7 至 10 項', 'Items 7 to 10') }}</span>
+          <h1 class="flag-start-title">{{ L('旗已升到桿頂', 'The flag is at the top') }}</h1>
+          <p class="flag-start-line">{{ L('你已升完這面旗，第 7 至 10 項完成。想再走一次溪谷，可以再升一次。',
+                                    'You have raised the flag. Items 7 to 10 are done. Walk the valley again if you want to raise it once more.') }}</p>
+          <div class="cave-actions">
+            <button class="btn" type="button" data-flag-go>{{ L('再走一次溪谷', 'Walk the valley again') }}</button>
+          </div>
+        {% else %}
+          <span class="cave-kicker">{{ L('遊戲 4', 'Game 4') }}</span>
+          <h1 class="flag-start-title">{{ L('山脊在身後', 'The ridge is behind you') }}</h1>
+          <p class="flag-start-line">{{ L('步操場還在上面。小徑向下，溪水聲傳來。溪邊的旗桿由一部舊喉管機帶動，四組喉管都已拆開。上一小隊的筆記就放在控制板左邊：接好一組喉管，旗便升起四分之一；四組全部接對，旗才會到達桿頂。',
+                                    'The parade ground is still above you. The path drops, and a stream is running. The flagpole by the stream is worked by an old pipe machine, but all four runs of pipe have been taken apart. The last patrol left its notebook on the left of the control panel: connect one run right and the flag rises a quarter; get all four right and it reaches the top.') }}</p>
+          <div class="cave-actions">
+            <button class="btn primary big" type="button" data-flag-go data-cheer="🚩,✨">
+              {{ L('沿溪走下去', 'Follow the stream down') }}</button>
+          </div>
+        {% endif %}
+      </div>
     </div>
     <div class="cave-card-wrap">
       <div class="cave-card" data-flag-card aria-live="polite">

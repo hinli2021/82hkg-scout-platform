@@ -49,6 +49,26 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     assert page.count("data-flag") >= 1
     assert "flag.js" in page
     assert "morning ceremony" in page
+    # before the walk starts, the words are merged into the valley painting
+    # itself — there is no description card below the picture until the
+    # walk begins and flag.js drops the start-screen class
+    assert "is-start-screen" in page and "flag-start-overlay" in page
+    js_text = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
+               / "flag.js").read_text(encoding="utf-8")
+    assert 'root.classList.remove("is-start-screen")' in js_text
+    css_text = (pathlib.Path(__file__).resolve().parent.parent / "static"
+                / "styles.css").read_text(encoding="utf-8")
+    assert "#flag-root.is-start-screen .flag-start-overlay" in css_text
+    assert "#flag-root.is-start-screen .cave-card-wrap" in css_text
+    # the flag is not raised yet on that first painting: the pole stands
+    # bare, with no red flag at its top (scaled to the painting's size)
+    from PIL import Image
+    valley = Image.open(pathlib.Path(__file__).resolve().parent.parent / "static"
+                        / "img" / "quest" / "flag" / "valley.jpg").convert("RGB")
+    w, h = valley.size
+    crop = valley.crop((int(w * 0.53), int(h * 0.24), int(w * 0.64), int(h * 0.34)))
+    red = sum(1 for r, g, b in crop.getdata() if r > 110 and r - g > 55 and r - b > 35)
+    assert red == 0, f"the unraised flagpole still shows {red} red pixels"
     # the four flags and emblems are the official artwork, not the old diagrams
     flag_dir = pathlib.Path(__file__).resolve().parent.parent / "static" / "img" / "quest" / "flag"
     for name in ("flag-national", "flag-regional", "emblem-national", "emblem-regional"):
