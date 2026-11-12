@@ -4281,10 +4281,10 @@ body.is-game main { padding-top: 6px; }
   font-size: .74rem; font-weight: 750; line-height: 1.25;
 }
 .pipe-panel { position: relative; flex: 1 1 auto; min-width: 0; }
-.pipe-panel-img { position: relative; z-index: 1; width: 100%; height: auto; display: block; border-radius: .5rem; box-shadow: 0 16px 36px rgba(0,0,0,.45); }
+.pipe-panel-img { width: 100%; height: auto; display: block; border-radius: .5rem; box-shadow: 0 16px 36px rgba(0,0,0,.45); }
 /* holes scattered over the panel's dark board; the fitted pipe (its
    painting with the background removed) lies across its hole */
-.pipe-holes { position: absolute; inset: 0; z-index: 2; }
+.pipe-holes { position: absolute; inset: 0; }
 .pipe-hole {
   position: absolute; padding: 0; border: 0; background: none; cursor: pointer;
   overflow: visible; color: #fff;
@@ -4317,7 +4317,7 @@ body.is-game main { padding-top: 6px; }
 /* the start button is a fitting on the panel itself, and the machine's
    only signal: red button for wrong, green glow for right */
 .pipe-start {
-  position: absolute; left: 81%; top: 59.6%; z-index: 4; width: 18%;
+  position: absolute; left: 81%; top: 48%; z-index: 4; width: 18%;
   padding: 0; border: 0; background: none; cursor: pointer; color: #fff;
 }
 .pipe-start-img {
@@ -4451,7 +4451,7 @@ body.is-game main { padding-top: 6px; }
 .howto-hole, .howto-start {
   position: absolute; transform: translate(-50%, -50%); display: block;
 }
-.howto-start { left: 90%; top: 66.6%; width: 17%; transform: translate(-50%, -50%); }
+.howto-start { left: 90%; top: 57%; width: 17%; transform: translate(-50%, -50%); }
 .howto-hole-img, .howto-start-img { width: 100%; height: auto; display: block; filter: drop-shadow(0 6px 10px rgba(0,0,0,.55)); }
 .howto-ring {
   position: absolute; transform: translate(-50%, -50%); aspect-ratio: 1.9;

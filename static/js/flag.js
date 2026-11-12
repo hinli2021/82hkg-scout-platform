@@ -41,16 +41,15 @@
   var FITTED_KINDS = ["hole-pipe-straight", "hole-pipe-elbow", "hole-pipe-zigzag", "hole-pipe-wave"];
 
   /* Holes sit in a neat grid, always inside the panel's black board. The
-     dark board itself spans only about x 32–68%, y 46–82% of the panel
-     painting — the canvas now carries sky and the flagpole above the
-     panel (the brass frame and the wheels sit outside the board), so the
-     holes are kept small and centred on x 50% with a margin inside it.
+     dark board itself spans only about x 32–68%, y 31–76% of the panel
+     painting (the brass frame and the wheels sit outside it), so the holes
+     are kept small and centred on x 50% with a margin inside the black.
      Centres are in percent of the panel. */
   function holeSpot(index, count) {
     var cols, width, rowYs, spacing;
-    if (count <= 2) { cols = count; width = 11.5; rowYs = [63.7]; spacing = 13.5; }
-    else if (count <= 9) { cols = 3; width = 10; rowYs = [53.2, 63.7, 74.2]; spacing = 11; }
-    else { cols = 5; width = 6.2; rowYs = [57.2, 69.7]; spacing = 6.9; }
+    if (count <= 2) { cols = count; width = 11.5; rowYs = [53]; spacing = 13.5; }
+    else if (count <= 9) { cols = 3; width = 10; rowYs = [39.5, 53, 66.5]; spacing = 11; }
+    else { cols = 5; width = 6.2; rowYs = [45, 61]; spacing = 6.9; }
     var row = Math.floor(index / cols);
     var inRow = Math.min(cols, count - row * cols);
     var col = index - row * cols;
@@ -571,8 +570,8 @@
         body: t("控制板的黑格上，每個孔都是一道問題。按其中一個孔把它打開。",
                 "Every hole on the black board is one question. Tap a hole to open it."),
         diagram: panelShot(
-          '<span class="howto-hole" style="left:50%;top:63.7%;width:23%">' + artImg("hole", "howto-hole-img") + '</span>'
-          + ring(50, 63.7, 26)) },
+          '<span class="howto-hole" style="left:50%;top:53%;width:23%">' + artImg("hole", "howto-hole-img") + '</span>'
+          + ring(50, 53, 26)) },
       { title: t("第 2 步：選出正確的喉管", "Step 2: Choose the right pipe"),
         body: t("看清楚問題，想一想筆記中的答案，然後按那個答案的喉管（或把喉管拖到孔口）。每道問題有幾個答案，每個答案都是一條不同的喉管。",
                 "Read the question, think of the answer from the notes, then tap that answer's pipe (or drag it to the hole). Each answer is a different pipe."),
@@ -594,7 +593,7 @@
                 "When every hole has a pipe, press the start button on the right of the panel. If a hole is still empty, the machine will tell you."),
         diagram: panelShot(
           '<span class="howto-start">' + artImg("button-start", "howto-start-img") + '</span>'
-          + ring(90, 66.6, 15)
+          + ring(90, 57, 15)
           + '<span class="howto-count">9 / 9</span>') },
       { title: t("第 5 步：留意啟動按鈕", "Step 5: Watch the start button"),
         body: t("啟動按鈕變紅，表示有喉管接錯：接錯的孔會被紅光圈著，按開它換上另一條喉管，再按啟動按鈕。啟動按鈕發出綠光，表示全部正確，旗會升起四分之一。四組喉管都接對，旗便升到桿頂。",
