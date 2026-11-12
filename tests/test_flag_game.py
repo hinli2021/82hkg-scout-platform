@@ -66,10 +66,19 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
         assert f'data-flag-source="{name}"' in page, name
     for n in (1, 2, 3, 4):
         assert f'data-flag-source="raise-{n}"' in page
-    for name in ("panel", "notebook", "button-start", "light-off", "light-red",
-                 "light-green", "socket", "pipe-straight", "pipe-elbow",
-                 "pipe-zigzag", "pipe-wave", "raise-1", "raise-2", "raise-3", "raise-4"):
+    for name in ("panel", "light-off", "light-red", "light-green",
+                 "raise-1", "raise-2", "raise-3", "raise-4"):
         assert (pipe_dir / f"{name}.jpg").is_file(), name
+    # the fittings that sit on the panel — notebook, start button, sockets and
+    # the four pipes — have their backgrounds removed, so they are PNGs whose
+    # corners must actually be transparent
+    from PIL import Image
+    for name in ("notebook", "button-start", "socket", "pipe-straight",
+                 "pipe-elbow", "pipe-zigzag", "pipe-wave"):
+        path = pipe_dir / f"{name}.png"
+        assert path.is_file(), name
+        with Image.open(path) as im:
+            assert im.mode == "RGBA" and im.getpixel((0, 0))[3] == 0, name
     # the old paper is a study link, not the game itself
     assert "forms.gle" not in page.split("data-flag-link")[0]
 

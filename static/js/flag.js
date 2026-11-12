@@ -36,6 +36,15 @@
   ];
   var PIPE_KINDS = ["pipe-straight", "pipe-elbow", "pipe-zigzag", "pipe-wave"];
 
+  /* Holes are scattered over the panel's dark board, not lined up: each run
+     has its own pattern (centre x/y in percent of the panel, then tilt). */
+  var HOLE_LAYOUTS = [
+    [[37, 36, -6], [49, 33, 4], [62, 37, -3], [71, 50, 7], [57, 52, -8], [43, 54, 5], [36, 68, -4], [51, 70, 6], [68, 68, -7]],
+    [[39, 50, 7], [48, 35, -5], [61, 39, 3], [72, 60, -6], [56, 56, 8], [40, 66, -3], [67, 71, 4], [52, 71, -7], [74, 34, 5]],
+    [[35, 38, 3], [46, 33, -6], [58, 36, 5], [70, 40, -4], [64, 54, 7], [50, 52, -7], [38, 58, 4], [43, 70, -3], [57, 69, 6], [71, 68, -5]],
+    [[46, 50, -4], [64, 54, 5]]
+  ];
+
   function stationById(id) {
     return stations.filter(function (s) { return s.id === id; })[0] || null;
   }
@@ -139,20 +148,23 @@
     return [];
   }
 
-  function slotHtml(item) {
+  function holeHtml(item, index) {
     var q = item.q;
     var placed = placements[q.id];
-    var inner;
-    if (placed == null) {
-      inner = artImg("socket", "pipe-socket-img")
-        + '<span class="pipe-slot-hint">' + escapeHtml(t("空位", "Empty")) + '</span>';
-    } else {
-      inner = artImg(PIPE_KINDS[placed % PIPE_KINDS.length], "pipe-in-slot")
-        + '<span class="pipe-slot-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>';
+    var layout = HOLE_LAYOUTS[stageIndex] || HOLE_LAYOUTS[0];
+    var spot = layout[index % layout.length];
+    var width = stage().questions.length <= 2 ? 19 : 13.5;
+    var inner = artImg("socket", "pipe-hole-img")
+      + '<span class="pipe-hole-no">' + (index + 1) + '</span>';
+    if (placed != null) {
+      inner += artImg(PIPE_KINDS[placed % PIPE_KINDS.length], "pipe-on-hole")
+        + '<span class="pipe-hole-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>';
     }
-    return '<button type="button" class="pipe-slot' + (placed == null ? "" : " is-full")
-      + (selected === q.id ? " is-asking" : "") + '" data-qid="' + q.id + '"'
-      + ' aria-label="' + escapeHtml(t(item.q.prompt_zh, item.q.prompt_en)) + '">' + inner + '</button>';
+    return '<button type="button" class="pipe-hole' + (placed == null ? "" : " is-full") + '"'
+      + ' style="left:' + spot[0] + "%;top:" + spot[1] + "%;width:" + width
+      + "%;transform:translate(-50%,-50%) rotate(" + spot[2] + 'deg)"'
+      + ' data-qid="' + q.id + '"'
+      + ' aria-label="' + escapeHtml(t("第", "Hole ") + (index + 1) + t("個窿", "")) + '">' + inner + '</button>';
   }
 
   function buildMachine(message) {
@@ -162,40 +174,33 @@
     var filled = s.questions.filter(function (it) { return placements[it.q.id] != null; }).length;
 
     var html = '<div class="pipe-machine">'
-      + '<div class="pipe-question" data-pipe-question hidden></div>'
       + '<button type="button" class="pipe-notebook" data-pipe-notebook>'
       + artImg("notebook", "pipe-notebook-img")
       + '<span>' + escapeHtml(t("上一隊的筆記", "The last patrol's notebook")) + '</span></button>'
       + '<div class="pipe-panel">'
       + artImg("panel", "pipe-panel-img")
-      + '<div class="pipe-slots" data-pipe-slots>'
-      + s.questions.map(slotHtml).join("")
-      + '</div></div>'
-      + '<div class="pipe-controls">'
+      + '<div class="pipe-holes">'
+      + s.questions.map(holeHtml).join("")
+      + '</div>'
+      /* the start button and the signal light are part of the panel now:
+         their paintings had their backgrounds removed, so they sit on the
+         wood and brass like fittings, not like separate cards */
       + artImg("light-off", "pipe-light")
-      + '<button type="button" class="pipe-start" data-pipe-start>'
+      + '<button type="button" class="pipe-start" data-pipe-start title="'
+      + escapeHtml(t("開機", "Start")) + '">'
       + artImg("button-start", "pipe-start-img")
       + '<span>' + escapeHtml(t("開機", "Start")) + '</span></button>'
       + '<span class="pipe-count">' + filled + " / " + s.questions.length + '</span>'
       + '</div>'
       + '<div class="pipe-note" data-pipe-note hidden></div>'
+      + '<div class="pipe-popup" data-pipe-popup hidden></div>'
       + '</div>';
     board.innerHTML = html;
 
-    board.querySelectorAll(".pipe-slot").forEach(function (slot) {
-      slot.addEventListener("click", function () {
+    board.querySelectorAll(".pipe-hole").forEach(function (hole) {
+      hole.addEventListener("click", function () {
         if (!machineLive) return;
-        selectSlot(slot.getAttribute("data-qid"));
-      });
-      slot.addEventListener("dragover", function (ev) { ev.preventDefault(); });
-      slot.addEventListener("drop", function (ev) {
-        ev.preventDefault();
-        if (!machineLive) return;
-        var raw = ev.dataTransfer.getData("text/plain");
-        if (!raw) return;
-        var parts = raw.split(":");
-        selectSlot(slot.getAttribute("data-qid"), true);
-        placePipe(parts[0], parseInt(parts[1], 10));
+        openPopup(hole.getAttribute("data-qid"));
       });
     });
     board.querySelector("[data-pipe-notebook]").addEventListener("click", toggleNote);
@@ -229,52 +234,44 @@
     note.querySelector("[data-note-close]").addEventListener("click", function () { note.hidden = true; });
   }
 
-  function selectSlot(qid, keepCard) {
-    selected = qid;
-    picture.querySelectorAll(".pipe-slot").forEach(function (slot) {
-      slot.classList.toggle("is-asking", slot.getAttribute("data-qid") === qid);
-    });
-    if (!keepCard) renderCard();
-    showQuestionTop();
-  }
-
-  function showQuestionTop() {
-    var bar = picture.querySelector("[data-pipe-question]");
-    if (!bar) return;
-    var item = selected ? findItem(selected) : null;
-    if (!item) { bar.hidden = true; bar.textContent = ""; return; }
-    bar.textContent = t(item.q.prompt_zh, item.q.prompt_en);
-    bar.hidden = false;
-  }
-
-  function placePipe(qid, optionIndex) {
-    if (qid !== selected || isNaN(optionIndex)) return;
-    placements[qid] = optionIndex;
-    buildMachine();
-    selectSlot(qid, true);
-    renderCard();
-  }
-
   function renderCard(message) {
     var s = stage();
-    var item = selected ? findItem(selected) : null;
     var filled = s.questions.filter(function (it) { return placements[it.q.id] != null; }).length;
+    card.innerHTML = cardHtml(
+      stageName(),
+      t("駁好這一組喉", "Connect this run of pipe"),
+      message || t("控制板上有 " + s.questions.length + " 個窿，散佈在板上，每個窿對應一題。點開一個窿，駁喉畫面就會彈出來；把喉拖入接口，畫面會自己返回控制板，你會看到那段喉駁在窿上。全部駁好之後，按控制板右邊的開機掣。左邊的筆記有齊你要用的資料。",
+                   "There are " + s.questions.length + " holes scattered over the control panel, one for each question. Tap a hole and the fitting screen pops up; drag a pipe into the socket and the screen returns to the panel, with your pipe on the hole. When every hole is filled, press the start button on the panel. The notebook on the left holds everything you need."),
+      '<div class="cave-actions"><span class="pipe-card-count">'
+        + escapeHtml(t("已駁好", "Connected")) + " " + filled + " / " + s.questions.length + '</span></div>');
+  }
 
-    if (!item) {
-      card.innerHTML = cardHtml(
-        stageName(),
-        t("駁好這一組喉", "Connect this run of pipe"),
-        message || t("控制板上有 " + s.questions.length + " 個空位。點一個空位，在上面讀題目，再把合適的喉拖入去。全部駁好之後，按右邊的開機掣。左邊的筆記有齊你要用的資料。",
-                     "There are " + s.questions.length + " empty gaps on the control panel. Tap a gap, read the question at the top, and drag the right pipe into it. When every gap is filled, press the start button on the right. The notebook on the left holds everything you need."),
-        '<div class="cave-actions"><span class="pipe-card-count">'
-          + escapeHtml(t("已駁好", "Connected")) + " " + filled + " / " + s.questions.length + '</span></div>');
-      showQuestionTop();
-      return;
-    }
+  /* ── the fitting screen that pops up from a hole ───────────────────── */
 
+  var popupTimer = null;
+
+  function holeIndex(qid) {
+    var s = stage(), idx = -1;
+    s.questions.forEach(function (it, i) { if (it.q.id === qid) idx = i; });
+    return idx;
+  }
+
+  function closePopup() {
+    if (popupTimer) { window.clearTimeout(popupTimer); popupTimer = null; }
+    var pop = picture.querySelector("[data-pipe-popup]");
+    if (pop) { pop.hidden = true; pop.innerHTML = ""; }
+    selected = null;
+  }
+
+  function openPopup(qid) {
+    var pop = picture.querySelector("[data-pipe-popup]");
+    var item = findItem(qid);
+    if (!pop || !item) return;
+    selected = qid;
     var q = item.q;
     var arts = contextArt(item);
     var placed = placements[q.id];
+
     var pipes = '<div class="pipe-tray">';
     optionsOf(q).forEach(function (label, i) {
       pipes += '<button type="button" class="pipe-piece' + (placed === i ? " is-placed" : "")
@@ -284,32 +281,69 @@
     });
     pipes += '</div>';
 
-    card.innerHTML = cardHtml(
-      stageName() + "  ·  " + escapeHtml(t("題目在上面", "Question at the top")),
-      t(q.prompt_zh, q.prompt_en),
-      message || t("把寫著答案的喉拖入發光的空位；用手提裝置也可以先點喉，再點空位。",
-                   "Drag the pipe carrying the answer into the glowing gap. On a touch screen you can tap the pipe, then tap the gap."),
-      (arts.length ? '<div class="pipe-context">' + arts.map(function (a) { return cloth(a); }).join("") + '</div>' : '')
-      + pipes
+    pop.innerHTML =
+      '<div class="pipe-popup-head"><span class="pipe-popup-kicker">'
+      + escapeHtml(stageName() + "  ·  " + t("第", "Hole ") + (holeIndex(qid) + 1) + t("個窿", ""))
+      + '</span><button type="button" class="pipe-popup-close" data-popup-close aria-label="'
+      + escapeHtml(t("返回控制板", "Back to the panel")) + '">✕</button></div>'
+      + '<h2 class="pipe-popup-q">' + escapeHtml(t(q.prompt_zh, q.prompt_en)) + '</h2>'
+      + (arts.length ? '<div class="pipe-context">' + arts.map(function (a) { return cloth(a); }).join("") + '</div>' : '')
+      + '<div class="pipe-fit" data-pipe-fit>'
       + (placed != null
-        ? '<div class="cave-actions"><button type="button" class="btn ghost" data-pipe-remove>'
-          + escapeHtml(t("拆走這段喉", "Take this pipe out")) + '</button></div>' : ''));
+        ? artImg(PIPE_KINDS[placed % PIPE_KINDS.length], "pipe-fit-img")
+          + '<span class="pipe-fit-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>'
+        : artImg("socket", "pipe-fit-socket")
+          + '<span class="pipe-fit-hint">' + escapeHtml(t("把喉拖來這裡", "Drag a pipe here")) + '</span>')
+      + '</div>'
+      + pipes
+      + '<div class="cave-actions">'
+      + (placed != null ? '<button type="button" class="btn ghost" data-pipe-remove>'
+        + escapeHtml(t("拆走這段喉", "Take this pipe out")) + '</button>' : '')
+      + '<button type="button" class="btn ghost" data-popup-close>'
+      + escapeHtml(t("返回控制板", "Back to the panel")) + '</button></div>';
+    pop.hidden = false;
 
-    card.querySelectorAll("[data-pipe-option]").forEach(function (btn) {
+    pop.querySelectorAll("[data-popup-close]").forEach(function (btn) {
+      btn.addEventListener("click", function () { closePopup(); buildMachine(); });
+    });
+    var fit = pop.querySelector("[data-pipe-fit]");
+    fit.addEventListener("dragover", function (ev) { ev.preventDefault(); fit.classList.add("is-over"); });
+    fit.addEventListener("dragleave", function () { fit.classList.remove("is-over"); });
+    fit.addEventListener("drop", function (ev) {
+      ev.preventDefault();
+      var raw = ev.dataTransfer.getData("text/plain");
+      if (!raw) return;
+      var parts = raw.split(":");
+      fitPipe(parts[0], parseInt(parts[1], 10));
+    });
+    pop.querySelectorAll("[data-pipe-option]").forEach(function (btn) {
       var idx = parseInt(btn.getAttribute("data-pipe-option"), 10);
       btn.addEventListener("dragstart", function (ev) {
         ev.dataTransfer.setData("text/plain", q.id + ":" + idx);
       });
-      btn.addEventListener("click", function () { placePipe(q.id, idx); });
+      btn.addEventListener("click", function () { fitPipe(q.id, idx); });
     });
-    var remove = card.querySelector("[data-pipe-remove]");
+    var remove = pop.querySelector("[data-pipe-remove]");
     if (remove) remove.addEventListener("click", function () {
       delete placements[q.id];
       buildMachine();
-      selectSlot(q.id, true);
-      renderCard();
     });
-    showQuestionTop();
+  }
+
+  function fitPipe(qid, optionIndex) {
+    if (qid !== selected || isNaN(optionIndex)) return;
+    placements[qid] = optionIndex;
+    var pop = picture.querySelector("[data-pipe-popup]");
+    var fit = pop ? pop.querySelector("[data-pipe-fit]") : null;
+    if (fit) {
+      var item = findItem(qid);
+      fit.innerHTML = artImg(PIPE_KINDS[optionIndex % PIPE_KINDS.length], "pipe-fit-img")
+        + '<span class="pipe-fit-word">' + escapeHtml(optionsOf(item.q)[optionIndex] || "") + '</span>';
+      fit.classList.add("is-fitted");
+    }
+    if (popupTimer) window.clearTimeout(popupTimer);
+    /* a short look at the fitted pipe, then back to the panel */
+    popupTimer = window.setTimeout(function () { popupTimer = null; buildMachine(); }, 600);
   }
 
   /* ── start button: red light, green light, flag up a quarter ───────── */
@@ -320,12 +354,9 @@
     var missing = s.questions.filter(function (it) { return placements[it.q.id] == null; });
     var light = picture.querySelector(".pipe-light");
     if (missing.length) {
-      selected = missing[0].q.id;
-      buildMachine(t("仲有 " + missing.length + " 個空位未駁喉。先駁好全部，才可以開機。",
-                     missing.length + " gap(s) still empty. Connect every pipe before you press start."));
-      selectSlot(selected, true);
-      renderCard(t("仲有 " + missing.length + " 個空位未駁喉。先駁好全部，才可以開機。",
-                   missing.length + " gap(s) still empty. Connect every pipe before you press start."));
+      buildMachine(t("仲有 " + missing.length + " 個窿未駁喉。先駁好全部，才可以開機。",
+                     missing.length + " hole(s) still empty. Connect every pipe before you press start."));
+      openPopup(missing[0].q.id);
       return;
     }
     var allRight = s.questions.every(function (it) { return placements[it.q.id] === it.q.answer; });
