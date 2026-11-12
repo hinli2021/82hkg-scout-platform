@@ -86,6 +86,7 @@
   var kindMaps = {};         /* qid -> pipe kind per option, shuffled each stage */
   var trayOrders = {};       /* qid -> order the pipes are offered in, shuffled */
   var wrongIds = {};         /* qids the start button has proved wrong this run */
+  var howtoShown = false;    /* the how-to-play pop-up shows once, after the first notes */
   var selected = null;        /* qid of the gap being fitted */
   var stageIndex = 0;
   var startedAt = 0;
@@ -254,6 +255,8 @@
         openPopup(hole.getAttribute("data-qid"));
       });
     });
+    var howtoBtn = card.querySelector("[data-flag-howto]");
+    if (howtoBtn) howtoBtn.addEventListener("click", function () { showHowTo(0); });
     board.querySelector("[data-pipe-notebook]").addEventListener("click", toggleNote);
     board.querySelector("[data-pipe-start]").addEventListener("click", pressStart);
     machineLive = true;
@@ -291,10 +294,12 @@
     card.innerHTML = cardHtml(
       stageName(),
       t("駁好這一組喉", "Connect this run of pipe"),
-      message || t("控制板上的黑格有 " + s.questions.length + " 個窿，整齊排好，每個窿對應一題。點開一個窿，駁喉畫面就會彈出來；把喉拖入接口，畫面會自己返回控制板，你會看到那段喉駁在窿上。全部駁好之後，按控制板右邊的開機掣。左邊的筆記有齊你要用的資料。",
-                   "There are " + s.questions.length + " holes arranged neatly on the black board of the control panel, one for each question. Tap a hole and the fitting screen pops up; drag a pipe into the socket and the screen returns to the panel, with your pipe on the hole. When every hole is filled, press the start button on the panel. The notebook on the left holds everything you need."),
+      message || t("撳一個窿，揀啱的喉駁入去；駁滿全部窿，就按開機掣。",
+                   "Tap a hole and fit the right pipe; fill every hole, then press the start button."),
       '<div class="cave-actions"><span class="pipe-card-count">'
-        + escapeHtml(t("已駁好", "Connected")) + " " + filled + " / " + s.questions.length + '</span></div>');
+        + escapeHtml(t("已駁好", "Connected")) + " " + filled + " / " + s.questions.length + '</span>'
+        + '<button type="button" class="btn ghost" data-flag-howto>'
+        + escapeHtml(t("點玩？", "How to play")) + '</button></div>');
   }
 
   /* ── the fitting screen that pops up from a hole ───────────────────── */
@@ -487,6 +492,7 @@
     selected = null;
     stageIndex = 0;
     prepareStage();
+    howtoShown = false;
     filed = false;
     setProgress(t("溪谷旗桿", "The valley flagpole"));
     showStory(intro, 0, t("遊戲 4", "Game 4"), function () { showStageNotes(); });
@@ -505,7 +511,11 @@
   }
 
   function showNotesPage(pages, index) {
-    if (index >= pages.length) { buildMachine(); return; }
+    if (index >= pages.length) {
+      if (stageIndex === 0 && !howtoShown) { howtoShown = true; showHowTo(0); }
+      else buildMachine();
+      return;
+    }
     var page = pages[index];
     clearScene();
     var board = scene();
@@ -537,6 +547,98 @@
     card.querySelector("[data-flag-next]").addEventListener("click", function () {
       showNotesPage(pages, index + 1);
     });
+  }
+
+  /* ── how to play: a step-by-step pop-up, mostly pictures ──────────────
+     Shown once, right after the first run's notes (and again whenever the
+     scout taps “How to play”). Each step is a little diagram built from
+     the game's own paintings, with a short line of words under it. */
+  function howToSteps() {
+    var panelShot = function (extra) {
+      return '<div class="howto-shot">' + artImg("panel", "howto-panel") + extra + '</div>';
+    };
+    var ring = function (left, top, width) {
+      return '<span class="howto-ring" style="left:' + left + '%;top:' + top
+        + '%;width:' + width + '%"></span>';
+    };
+    return [
+      { title: t("第 1 步：撳一個窿", "Step 1: Tap a hole"),
+        body: t("控制板黑格上，每個窿都是一條問題。撳開其中一個窿。",
+                "Every hole on the black board is one question. Tap a hole to open it."),
+        diagram: panelShot(
+          '<span class="howto-hole" style="left:50%;top:53%;width:23%">' + artImg("hole", "howto-hole-img") + '</span>'
+          + ring(50, 53, 26)) },
+      { title: t("第 2 步：揀啱嗰段喉", "Step 2: Choose the right pipe"),
+        body: t("看清楚問題，想一想筆記的答案，然後撳嗰個答案的喉（或者把喉拖去窿口）。每條問題有幾個答案，每個答案都是一段不同的喉。",
+                "Read the question, think of the answer from the notes, then tap that answer's pipe (or drag it to the hole). Each answer is a different pipe."),
+        diagram: '<div class="howto-tray">'
+          + ["pipe-straight", "pipe-elbow", "pipe-zigzag", "pipe-wave"].map(function (k, i) {
+              return '<span class="howto-piece' + (i === 1 ? " is-picked" : "") + '">'
+                + artImg(k, "howto-piece-img") + '<span>' + escapeHtml(t("答案", "Answer")) + " " + "ABCD"[i] + '</span></span>';
+            }).join("")
+          + '</div><div class="howto-drop">'
+          + '<span class="howto-drop-pipe">' + artImg("pipe-elbow", "howto-drop-img") + '</span>'
+          + '<span class="howto-drop-hole">' + artImg("hole", "howto-hole-img") + '</span></div>' },
+      { title: t("第 3 步：喉會裝入窿裡面", "Step 3: The pipe fits into the hole"),
+        body: t("揀好之後，成個窿會變成裝好喉的樣子，答案文字會寫在窿下面。撳任何一個窿，都可以隨時換另一段喉。",
+                "The whole hole picture changes to the fitted pipe, with the answer written under it. Tap any hole at any time to swap its pipe."),
+        diagram: '<div class="howto-swap">'
+          + artImg("hole", "howto-swap-a") + artImg("hole-pipe-wave", "howto-swap-b")
+          + '<span class="howto-swap-word">' + escapeHtml(t("答案文字", "Answer words")) + '</span></div>' },
+      { title: t("第 4 步：駁滿之後，按開機掣", "Step 4: Fill every hole, then press Start"),
+        body: t("全部窿都駁好喉之後，按控制板右邊的開機掣。未駁滿就按，機器會提醒你尚有幾個窿未駁。",
+                "When every hole has a pipe, press the start button on the right of the panel. If a hole is still empty, the machine will tell you."),
+        diagram: panelShot(
+          '<span class="howto-start">' + artImg("button-start", "howto-start-img") + '</span>'
+          + ring(90, 57, 15)
+          + '<span class="howto-count">9 / 9</span>') },
+      { title: t("第 5 步：看訊號燈", "Step 5: Watch the signal light"),
+        body: t("紅燈即是有喉駁錯：駁錯的窿會被紅光圈住，撳開它換一段喉，再按開機。綠燈即是全對，旗會升起四分之一。四組喉都對，旗就升到桿頂。",
+                "Red light means a pipe is wrong: the wrong holes are ringed in red — tap one, swap its pipe, press start again. Green light means all correct, and the flag rises a quarter. Finish all four runs to raise it to the top."),
+        diagram: '<div class="howto-lights">'
+          + '<span class="howto-light-case">' + artImg("light-red", "howto-light")
+          + '<span class="howto-wrong">' + artImg("hole-pipe-elbow", "howto-hole-img") + '</span></span>'
+          + '<span class="howto-arrow">→</span>'
+          + '<span class="howto-light-case">' + artImg("light-green", "howto-light")
+          + '<span class="howto-raise">' + artImg("raise-1", "howto-raise-img") + '</span></span></div>' }
+    ];
+  }
+
+  function showHowTo(step) {
+    var steps = howToSteps();
+    step = Math.max(0, Math.min(step, steps.length - 1));
+    var item = steps[step];
+    clearScene();
+    var board = scene();
+    var last = step === steps.length - 1;
+    var dots = steps.map(function (_, i) {
+      return '<span class="howto-dot' + (i === step ? " is-on" : "") + '"></span>';
+    }).join("");
+    var wrap = document.createElement("div");
+    wrap.className = "howto";
+    wrap.innerHTML =
+      '<div class="howto-head"><span class="howto-kicker">'
+      + escapeHtml(t("點玩？", "How to play")) + "  ·  " + (step + 1) + " / " + steps.length
+      + '</span><button type="button" class="howto-skip" data-howto-skip>'
+      + escapeHtml(t("跳過", "Skip")) + '</button></div>'
+      + '<div class="howto-diagram">' + item.diagram + '</div>'
+      + '<h2 class="howto-title">' + escapeHtml(item.title) + '</h2>'
+      + '<p class="howto-body">' + escapeHtml(item.body) + '</p>'
+      + '<div class="howto-dots">' + dots + '</div>'
+      + '<div class="cave-actions howto-actions">'
+      + (step > 0 ? '<button type="button" class="btn ghost" data-howto-back>'
+          + escapeHtml(t("上一步", "Back")) + '</button>' : "")
+      + '<button type="button" class="btn primary" data-howto-next>'
+      + escapeHtml(last ? t("開始駁喉", "Start fitting pipes") : t("下一步", "Next step"))
+      + '</button></div>';
+    board.appendChild(wrap);
+    setProgress(t("點玩？", "How to play") + "  ·  " + (step + 1) + " / " + steps.length);
+    wrap.querySelector("[data-howto-skip]").addEventListener("click", function () { buildMachine(); });
+    wrap.querySelector("[data-howto-next]").addEventListener("click", function () {
+      if (last) buildMachine(); else showHowTo(step + 1);
+    });
+    var back = wrap.querySelector("[data-howto-back]");
+    if (back) back.addEventListener("click", function () { showHowTo(step - 1); });
   }
 
   function showStageNotes() {
