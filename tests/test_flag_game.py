@@ -89,6 +89,19 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     assert "forms.gle" not in page.split("data-flag-link")[0]
 
 
+def test_holes_stay_inside_the_black_board_and_answers_are_dealt_at_random():
+    js = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
+          / "flag.js").read_text(encoding="utf-8")
+    # the black board is only about x 32–68% of the panel painting, so the
+    # grid is centred on 50% with holes no wider than 11.5%
+    assert "width = 10" in js and "width = 6.2" in js and "width = 17" not in js
+    assert "var x = 50 +" in js
+    # every stage is re-dealt: random hole numbers, random pipe kind and a
+    # random tray order for every answer
+    assert "function prepareStage()" in js and "kindIndexFor" in js
+    assert "Math.random" in js
+
+
 def test_the_task_page_redirects_into_the_game(scout_client, store):
     task = task_of(store)
     answer = scout_client.get(f"/tasks/{task['id']}")

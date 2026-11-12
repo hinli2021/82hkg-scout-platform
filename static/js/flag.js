@@ -40,21 +40,31 @@
      whole hole picture instead of laying a pipe over it */
   var FITTED_KINDS = ["hole-pipe-straight", "hole-pipe-elbow", "hole-pipe-zigzag", "hole-pipe-wave"];
 
-  /* Holes sit in a neat grid, always inside the panel's black board (the
-     board spans roughly x 30–79%, y 28–76% of the panel painting, and the
-     grid keeps a margin inside it). Centres are in percent of the panel. */
+  /* Holes sit in a neat grid, always inside the panel's black board. The
+     dark board itself spans only about x 32–68%, y 31–76% of the panel
+     painting (the brass frame and the wheels sit outside it), so the holes
+     are kept small and centred on x 50% with a margin inside the black.
+     Centres are in percent of the panel. */
   function holeSpot(index, count) {
-    var cols, width, rowYs;
-    if (count <= 2) { cols = count; width = 17; rowYs = [52]; }
-    else if (count <= 9) { cols = 3; width = 13.5; rowYs = [37.5, 52, 66.5]; }
-    else { cols = 5; width = 8.8; rowYs = [44, 62]; }
+    var cols, width, rowYs, spacing;
+    if (count <= 2) { cols = count; width = 11.5; rowYs = [53]; spacing = 13.5; }
+    else if (count <= 9) { cols = 3; width = 10; rowYs = [39.5, 53, 66.5]; spacing = 11; }
+    else { cols = 5; width = 6.2; rowYs = [45, 61]; spacing = 6.9; }
     var row = Math.floor(index / cols);
     var inRow = Math.min(cols, count - row * cols);
     var col = index - row * cols;
-    var spacing = cols === 3 ? 13.5 : (cols === 5 ? 7.8 : 21);
-    var x = 54 + (col - (inRow - 1) / 2) * spacing;
+    var x = 50 + (col - (inRow - 1) / 2) * spacing;
     var y = rowYs[Math.min(row, rowYs.length - 1)];
     return { x: x, y: y, width: width };
+  }
+
+  function shuffled(list) {
+    var a = list.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
   }
 
   function stationById(id) {
@@ -72,6 +82,9 @@
   }).filter(function (s) { return s.questions.length; });
 
   var placements = {};       /* qid -> chosen option index, checked only at start-up */
+  var holeOrder = [];        /* shuffled hole order for the stage being fitted */
+  var kindMaps = {};         /* qid -> pipe kind per option, shuffled each stage */
+  var trayOrders = {};       /* qid -> order the pipes are offered in, shuffled */
   var selected = null;        /* qid of the gap being fitted */
   var stageIndex = 0;
   var startedAt = 0;
@@ -110,6 +123,30 @@
     return found;
   }
   function optionsOf(q) { return (lang === "en" ? q.options_en : q.options_zh) || []; }
+
+  /* Each stage is dealt afresh: the questions land on random holes (so the
+     hole numbers change every run) and every answer is offered as a random
+     pipe kind in a random tray order — the pipe a scout picks is still the
+     original option index, so grading is unchanged. */
+  function prepareStage() {
+    var s = stage();
+    kindMaps = {}; trayOrders = {};
+    if (!s) { holeOrder = []; return; }
+    holeOrder = shuffled(s.questions.map(function (it, i) { return i; }));
+    s.questions.forEach(function (it) {
+      var n = Math.max(1, optionsOf(it.q).length);
+      var kinds = shuffled(PIPE_KINDS.map(function (k, i) { return i; }));
+      var map = [], order = [];
+      for (var i = 0; i < n; i++) { map[i] = kinds[i % kinds.length]; order.push(i); }
+      kindMaps[it.q.id] = map;
+      trayOrders[it.q.id] = shuffled(order);
+    });
+  }
+  function kindIndexFor(qid, optionIndex) {
+    var map = kindMaps[qid];
+    return (map && map[optionIndex] != null) ? map[optionIndex]
+                                             : optionIndex % PIPE_KINDS.length;
+  }
 
   /* ── scene scaffolding ──────────────────────────────────────────────── */
 
@@ -164,7 +201,7 @@
     var q = item.q;
     var placed = placements[q.id];
     var spot = holeSpot(index, stage().questions.length);
-    var inner = artImg(placed != null ? FITTED_KINDS[placed % FITTED_KINDS.length] : "hole",
+    var inner = artImg(placed != null ? FITTED_KINDS[kindIndexFor(q.id, placed)] : "hole",
                        "pipe-hole-img")
       + '<span class="pipe-hole-no">' + (index + 1) + '</span>';
     if (placed != null) {
@@ -190,7 +227,8 @@
       + '<div class="pipe-panel">'
       + artImg("panel", "pipe-panel-img")
       + '<div class="pipe-holes">'
-      + s.questions.map(holeHtml).join("")
+      + (holeOrder.length === s.questions.length ? holeOrder : s.questions.map(function (it, i) { return i; }))
+          .map(function (qi, pos) { return holeHtml(s.questions[qi], pos); }).join("")
       + '</div>'
       /* the start button and the signal light are part of the panel now:
          their paintings had their backgrounds removed, so they sit on the
@@ -262,7 +300,9 @@
 
   function holeIndex(qid) {
     var s = stage(), idx = -1;
-    s.questions.forEach(function (it, i) { if (it.q.id === qid) idx = i; });
+    var order = holeOrder.length === s.questions.length
+      ? holeOrder : s.questions.map(function (it, i) { return i; });
+    order.forEach(function (qi, pos) { if (s.questions[qi].q.id === qid) idx = pos; });
     return idx;
   }
 
@@ -283,10 +323,13 @@
     var placed = placements[q.id];
 
     var pipes = '<div class="pipe-tray">';
-    optionsOf(q).forEach(function (label, i) {
+    var tray = trayOrders[q.id] && trayOrders[q.id].length === optionsOf(q).length
+      ? trayOrders[q.id] : optionsOf(q).map(function (label, i) { return i; });
+    tray.forEach(function (i) {
+      var label = optionsOf(q)[i];
       pipes += '<button type="button" class="pipe-piece' + (placed === i ? " is-placed" : "")
         + '" draggable="true" data-pipe-option="' + i + '">'
-        + artImg(PIPE_KINDS[i % PIPE_KINDS.length], "pipe-piece-img")
+        + artImg(PIPE_KINDS[kindIndexFor(q.id, i)], "pipe-piece-img")
         + '<span class="pipe-piece-word">' + escapeHtml(label) + '</span></button>';
     });
     pipes += '</div>';
@@ -300,7 +343,7 @@
       + (arts.length ? '<div class="pipe-context">' + arts.map(function (a) { return cloth(a); }).join("") + '</div>' : '')
       + '<div class="pipe-fit" data-pipe-fit>'
       + (placed != null
-        ? artImg(FITTED_KINDS[placed % FITTED_KINDS.length], "pipe-fit-img")
+        ? artImg(FITTED_KINDS[kindIndexFor(q.id, placed)], "pipe-fit-img")
           + '<span class="pipe-fit-word">' + escapeHtml(optionsOf(q)[placed] || "") + '</span>'
         : artImg("hole", "pipe-fit-socket")
           + '<span class="pipe-fit-hint">' + escapeHtml(t("把喉拖來這裡", "Drag a pipe here")) + '</span>')
@@ -347,7 +390,7 @@
     var fit = pop ? pop.querySelector("[data-pipe-fit]") : null;
     if (fit) {
       var item = findItem(qid);
-      fit.innerHTML = artImg(FITTED_KINDS[optionIndex % FITTED_KINDS.length], "pipe-fit-img")
+      fit.innerHTML = artImg(FITTED_KINDS[kindIndexFor(qid, optionIndex)], "pipe-fit-img")
         + '<span class="pipe-fit-word">' + escapeHtml(optionsOf(item.q)[optionIndex] || "") + '</span>';
       fit.classList.add("is-fitted");
     }
@@ -417,6 +460,7 @@
     card.querySelector("[data-flag-next]").addEventListener("click", function () {
       if (last) { showEnding(); return; }
       stageIndex += 1;
+      prepareStage();
       selected = null;
       buildMachine();
     });
@@ -429,6 +473,7 @@
     placements = {};
     selected = null;
     stageIndex = 0;
+    prepareStage();
     filed = false;
     setProgress(t("溪谷旗桿", "The valley flagpole"));
     showStory(intro, 0, t("遊戲 4", "Game 4"), function () { buildMachine(); });
