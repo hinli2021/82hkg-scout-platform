@@ -212,23 +212,23 @@
         {
           "id": "q8",
           "part": "small",
-          "prompt_zh": "四顆小星代表甚麼？",
-          "prompt_en": "What do the four small stars stand for?",
+          "prompt_zh": "四顆小星代表四個階級。以下哪一個不是四顆小星所代表的階級？",
+          "prompt_en": "The four small stars stand for four classes. Which of the following is not one of those classes?",
           "options_zh": [
             "工人階級",
             "農民階級",
-            "城市小資產階級和民族資產階級",
-            "以上皆是"
+            "城市小資產階級",
+            "地主階級"
           ],
           "options_en": [
             "The working class",
             "The peasantry",
-            "The urban petty bourgeoisie and the national bourgeoisie",
-            "All of these"
+            "The urban petty bourgeoisie",
+            "The landlord class"
           ],
           "answer": 3,
-          "echo_zh": "四顆小星代表的，以上皆是。",
-          "echo_en": "The four small stars stand for all of these."
+          "echo_zh": "四顆小星代表工人階級、農民階級、城市小資產階級和民族資產階級。地主階級不在其中。",
+          "echo_en": "The four small stars stand for the working class, the peasantry, the urban petty bourgeoisie and the national bourgeoisie. The landlord class is not one of them."
         },
         {
           "id": "q9",
@@ -280,8 +280,8 @@
           "body_en": "Each small star has one point aimed at the centre of the big star.",
           "art": "flag-national",
           "part": "point",
-          "fact_zh": "四顆小星代表工人階級、農民階級、城市小資產階級和民族資產階級，以上皆是。這個指向，表示中國共產黨領導下的革命人民大團結。",
-          "fact_en": "The four small stars stand for the working class, the peasantry, the urban petty bourgeoisie and the national bourgeoisie — all of these. The pointing shows the great unity of the revolutionary people under the leadership of the Communist Party of China."
+          "fact_zh": "四顆小星代表工人階級、農民階級、城市小資產階級和民族資產階級。這個指向，表示中國共產黨領導下的革命人民大團結。",
+          "fact_en": "The four small stars stand for the working class, the peasantry, the urban petty bourgeoisie and the national bourgeoisie. The pointing shows the great unity of the revolutionary people under the leadership of the Communist Party of China."
         }
       ]
     },

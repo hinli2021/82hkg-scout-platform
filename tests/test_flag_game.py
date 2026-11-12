@@ -133,6 +133,31 @@ def test_holes_stay_inside_the_black_board_and_answers_are_dealt_at_random():
     assert "There are \" + s.questions.length + \" holes arranged neatly" not in js
 
 
+def test_pipes_are_dragged_not_clicked_lyrics_stay_in_order_and_no_all_of_these():
+    root = pathlib.Path(__file__).resolve().parent.parent
+    js = (root / "static" / "js" / "flag.js").read_text(encoding="utf-8")
+    css = (root / "static" / "styles.css").read_text(encoding="utf-8")
+    # fitting a pipe takes a drag onto the socket: a click on a pipe fits
+    # nothing, and the drag works by pointer so touch screens can do it
+    assert 'addEventListener("click", function () { fitPipe' not in js
+    assert "pointerdown" in js and "pipe-drag-ghost" in js
+    assert ".pipe-drag-ghost" in css and "touch-action: none" in css
+    # the anthem run deals its general questions first, then the six lyric
+    # gaps one after another in song order, not shuffled among the rest
+    assert 'it.station.id === "sing"' in js and "lyricOrder" in js
+    sing = next(s for s in BANK["stations"] if s["id"] == "sing")
+    assert [q["id"] for q in sing["questions"]] == ["q23", "q24", "q25", "q26", "q27", "q28"]
+    assert [q["options_zh"][q["answer"]] for q in sing["questions"]] == [
+        "奴隸", "長城", "中華民族", "吼聲", "萬眾一心", "進"]
+    # no "all of the above": the small-stars question asks which class is
+    # not one of the four, so exactly one of its four options is right
+    assert "以上皆是" not in json.dumps(BANK, ensure_ascii=False)
+    q8 = next(q for s in BANK["stations"] for q in s["questions"] if q["id"] == "q8")
+    assert len(q8["options_zh"]) == 4 and len(q8["options_en"]) == 4
+    assert "不是" in q8["prompt_zh"] and "not one" in q8["prompt_en"]
+    assert q8["options_zh"][q8["answer"]] == "地主階級"
+
+
 def test_the_flag_game_speaks_written_chinese():
     """Every scout-facing Chinese line is simple 書面語 — no colloquial
     Cantonese (撳／揀／嗰／窿／掣／駁…), in the bank, the page and the script."""

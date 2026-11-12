@@ -4406,8 +4406,15 @@ body.is-game main { padding-top: 6px; }
   padding: .35rem .4rem .45rem; border-radius: .6rem; cursor: grab; font: inherit;
   background: #f7efdb; color: #2a2418; border: 1px solid rgba(120, 90, 40, .4);
   box-shadow: 0 8px 18px rgba(0,0,0,.3);
+  touch-action: none; user-select: none; -webkit-user-select: none;
 }
 .pipe-piece:active { cursor: grabbing; }
+.pipe-piece.is-dragging { opacity: .45; }
+/* the copy of the pipe that follows the pointer while it is carried */
+.pipe-drag-ghost {
+  position: fixed; z-index: 999; transform: translate(-50%, -50%);
+  pointer-events: none; opacity: .92; cursor: grabbing;
+}
 .pipe-piece-img { width: 100%; height: 3.4rem; object-fit: contain; display: block; }
 .pipe-piece-word { display: block; margin-top: .25rem; font-weight: 800; text-align: center; line-height: 1.3; }
 .pipe-piece.is-placed { box-shadow: 0 0 0 3px #2f8f57 inset; background: #e4f4e6; }

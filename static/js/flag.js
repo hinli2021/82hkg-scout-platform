@@ -135,7 +135,19 @@
     var s = stage();
     kindMaps = {}; trayOrders = {}; wrongIds = {}; startState = "";
     if (!s) { holeOrder = []; return; }
-    holeOrder = shuffled(s.questions.map(function (it, i) { return i; }));
+    /* The anthem run keeps its lyric gaps together, in the order they are
+       sung: the general anthem questions are dealt first, then the six
+       words of the song follow one after another (q23 to q28), so the
+       scout fills the song in as it flows instead of hunting for the
+       next word among shuffled holes. Every other run is fully shuffled. */
+    var lyricOrder = [], otherOrder = [];
+    s.questions.forEach(function (it, i) {
+      if (it.station && it.station.id === "sing") lyricOrder.push(i);
+      else otherOrder.push(i);
+    });
+    holeOrder = lyricOrder.length
+      ? shuffled(otherOrder).concat(lyricOrder)
+      : shuffled(s.questions.map(function (it, i) { return i; }));
     s.questions.forEach(function (it) {
       var n = Math.max(1, optionsOf(it.q).length);
       var kinds = shuffled(PIPE_KINDS.map(function (k, i) { return i; }));
@@ -292,8 +304,8 @@
     card.innerHTML = cardHtml(
       stageName(),
       t("接好這一組喉管", "Connect this run of pipe"),
-      message || t("按一個孔，選出正確的喉管接上；全部孔都接好後，按啟動按鈕。",
-                   "Tap a hole and fit the right pipe; fill every hole, then press the start button."),
+      message || t("按一個孔打開問題，然後把正確的喉管拖到孔口；全部孔都接好後，按啟動按鈕。",
+                   "Tap a hole to open its question, then drag the right pipe onto the socket; fill every hole, then press the start button."),
       '<div class="cave-actions"><span class="pipe-card-count">'
         + escapeHtml(t("已接好", "Connected")) + " " + filled + " / " + s.questions.length + '</span>'
         + '<button type="button" class="btn ghost" data-flag-howto>'
@@ -334,7 +346,7 @@
     tray.forEach(function (i) {
       var label = optionsOf(q)[i];
       pipes += '<button type="button" class="pipe-piece' + (placed === i ? " is-placed" : "")
-        + '" draggable="true" data-pipe-option="' + i + '">'
+        + '" data-pipe-option="' + i + '">'
         + artImg(PIPE_KINDS[kindIndexFor(q.id, i)], "pipe-piece-img")
         + '<span class="pipe-piece-word">' + escapeHtml(label) + '</span></button>';
     });
@@ -375,12 +387,50 @@
       var parts = raw.split(":");
       fitPipe(parts[0], parseInt(parts[1], 10));
     });
+    /* Pipes are fitted by dragging only. A tap or click on a pipe does
+       nothing: the scout has to pick the pipe up, carry it to the socket
+       at the top and let go there. The drag is built on pointer events,
+       so the same gesture works with a mouse and on a touch screen. */
     pop.querySelectorAll("[data-pipe-option]").forEach(function (btn) {
       var idx = parseInt(btn.getAttribute("data-pipe-option"), 10);
-      btn.addEventListener("dragstart", function (ev) {
-        ev.dataTransfer.setData("text/plain", q.id + ":" + idx);
+      btn.addEventListener("pointerdown", function (ev) {
+        ev.preventDefault();
+        var startX = ev.clientX, startY = ev.clientY;
+        var ghost = null, dragging = false;
+        try { btn.setPointerCapture(ev.pointerId); } catch (e) { /* mouse still reports moves */ }
+        function moveGhost(x, y) {
+          if (ghost) { ghost.style.left = x + "px"; ghost.style.top = y + "px"; }
+          var r = fit.getBoundingClientRect();
+          fit.classList.toggle("is-over", x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+        }
+        function onMove(moveEv) {
+          if (!dragging) {
+            if (Math.abs(moveEv.clientX - startX) + Math.abs(moveEv.clientY - startY) < 8) return;
+            dragging = true;
+            ghost = btn.cloneNode(true);
+            ghost.classList.add("pipe-drag-ghost");
+            ghost.style.width = btn.offsetWidth + "px";
+            document.body.appendChild(ghost);
+            btn.classList.add("is-dragging");
+          }
+          moveGhost(moveEv.clientX, moveEv.clientY);
+        }
+        function onUp(upEv) {
+          btn.removeEventListener("pointermove", onMove);
+          btn.removeEventListener("pointerup", onUp);
+          btn.removeEventListener("pointercancel", onUp);
+          btn.classList.remove("is-dragging");
+          if (ghost) ghost.remove();
+          var r = fit.getBoundingClientRect();
+          var dropped = dragging && upEv.clientX >= r.left && upEv.clientX <= r.right
+            && upEv.clientY >= r.top && upEv.clientY <= r.bottom;
+          fit.classList.remove("is-over");
+          if (dropped) fitPipe(q.id, idx);
+        }
+        btn.addEventListener("pointermove", onMove);
+        btn.addEventListener("pointerup", onUp);
+        btn.addEventListener("pointercancel", onUp);
       });
-      btn.addEventListener("click", function () { fitPipe(q.id, idx); });
     });
     var remove = pop.querySelector("[data-pipe-remove]");
     if (remove) remove.addEventListener("click", function () {
@@ -440,8 +490,8 @@
       card.innerHTML = cardHtml(
         stageName(),
         t("啟動按鈕變成紅色", "The start button turns red"),
-        t("機器咳了兩聲便停下來。接錯的喉管已被紅色光圈標示。請打開左邊的筆記核對，再按被圈著的孔，換上另一條喉管，然後再按啟動按鈕。",
-          "The machine coughs twice and stops, and the start button turns red. The wrong pipes are ringed in red light. Check the notebook on the left, tap a ringed hole to swap its pipe, then press start again."),
+        t("機器咳了兩聲便停下來。接錯的喉管已被紅色光圈標示。請打開左邊的筆記核對，再按被圈著的孔打開，把另一條喉管拖到孔口，然後再按啟動按鈕。",
+          "The machine coughs twice and stops, and the start button turns red. The wrong pipes are ringed in red light. Check the notebook on the left, tap a ringed hole to open it, drag another pipe onto the socket, then press start again."),
         "");
       return;
     }
@@ -572,9 +622,9 @@
         diagram: panelShot(
           '<span class="howto-hole" style="left:50%;top:53%;width:23%">' + artImg("hole", "howto-hole-img") + '</span>'
           + ring(50, 53, 26)) },
-      { title: t("第 2 步：選出正確的喉管", "Step 2: Choose the right pipe"),
-        body: t("看清楚問題，想一想筆記中的答案，然後按那個答案的喉管（或把喉管拖到孔口）。每道問題有幾個答案，每個答案都是一條不同的喉管。",
-                "Read the question, think of the answer from the notes, then tap that answer's pipe (or drag it to the hole). Each answer is a different pipe."),
+      { title: t("第 2 步：把正確的喉管拖到孔口", "Step 2: Drag the right pipe to the socket"),
+        body: t("看清楚問題，想一想筆記中的答案，然後把那個答案的喉管拖到上方的孔口，再放手。只按喉管是不會把它裝上的。每道問題有幾個答案，每個答案都是一條不同的喉管。",
+                "Read the question, think of the answer from the notes, then drag that answer's pipe to the socket above and let go. Tapping a pipe on its own will not fit it. Each answer is a different pipe."),
         diagram: '<div class="howto-tray">'
           + ["pipe-straight", "pipe-elbow", "pipe-zigzag", "pipe-wave"].map(function (k, i) {
               return '<span class="howto-piece' + (i === 1 ? " is-picked" : "") + '">'
@@ -584,8 +634,8 @@
           + '<span class="howto-drop-pipe">' + artImg("pipe-elbow", "howto-drop-img") + '</span>'
           + '<span class="howto-drop-hole">' + artImg("hole", "howto-hole-img") + '</span></div>' },
       { title: t("第 3 步：喉管會裝進孔內", "Step 3: The pipe fits into the hole"),
-        body: t("選好之後，整個孔會變成裝好喉管的樣子。按任何一個孔，都可以隨時換上另一條喉管。",
-                "The whole hole picture changes to the fitted pipe. Tap any hole at any time to swap its pipe."),
+        body: t("拖好之後，整個孔會變成裝好喉管的樣子。按任何一個孔打開它，都可以隨時把另一條喉管拖進去，換走原本那一條。",
+                "Once the pipe is dragged in, the whole hole picture changes to the fitted pipe. Tap any hole to open it and drag a different pipe in to swap it."),
         diagram: '<div class="howto-swap">'
           + artImg("hole", "howto-swap-a") + artImg("hole-pipe-wave", "howto-swap-b") + '</div>' },
       { title: t("第 4 步：全部接好後，按啟動按鈕", "Step 4: Fill every hole, then press Start"),
@@ -596,8 +646,8 @@
           + ring(90, 57, 15)
           + '<span class="howto-count">9 / 9</span>') },
       { title: t("第 5 步：留意啟動按鈕", "Step 5: Watch the start button"),
-        body: t("啟動按鈕變紅，表示有喉管接錯：接錯的孔會被紅光圈著，按開它換上另一條喉管，再按啟動按鈕。啟動按鈕發出綠光，表示全部正確，旗會升起四分之一。四組喉管都接對，旗便升到桿頂。",
-                "If the start button turns red, a pipe is wrong: the wrong holes are ringed in red — tap one, swap its pipe, press start again. If it glows green, all is correct and the flag rises a quarter. Finish all four runs to raise it to the top."),
+        body: t("啟動按鈕變紅，表示有喉管接錯：接錯的孔會被紅光圈著，按開它，再把另一條喉管拖到孔口，然後再按啟動按鈕。啟動按鈕發出綠光，表示全部正確，旗會升起四分之一。四組喉管都接對，旗便升到桿頂。",
+                "If the start button turns red, a pipe is wrong: the wrong holes are ringed in red — tap one to open it, drag another pipe onto the socket, then press start again. If it glows green, all is correct and the flag rises a quarter. Finish all four runs to raise it to the top."),
         diagram: '<div class="howto-lights">'
           + '<span class="howto-light-case">' + artImg("button-start-red", "howto-button-img")
           + '<span class="howto-wrong">' + artImg("hole-pipe-elbow", "howto-hole-img") + '</span></span>'
