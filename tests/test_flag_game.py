@@ -110,6 +110,10 @@ def test_holes_stay_inside_the_black_board_and_answers_are_dealt_at_random():
     # the notes are shown before the machine, at the start of every run
     assert "function showStageNotes()" in js
     assert 'showStory(intro, 0, t("遊戲 4", "Game 4"), function () { showStageNotes(); });' in js
+    # … and read against an open-notebook background
+    assert '"is-notes"' in js and ".flag-board.is-notes" in css
+    assert (pathlib.Path(__file__).resolve().parent.parent / "static" / "img"
+            / "quest" / "flag" / "pipe" / "notebook-bg.jpg").is_file()
 
 
 def test_the_task_page_redirects_into_the_game(scout_client, store):

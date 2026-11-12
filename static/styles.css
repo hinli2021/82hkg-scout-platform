@@ -4065,6 +4065,13 @@ body.is-game main { padding-top: 6px; }
   position: relative; width: min(100%, 46rem); height: 100%;
   margin: 0 auto;
 }
+/* the notes are read in an open notebook: the patrol's book lies open
+   behind the page's picture, which sits on the paper like a pasted print */
+.flag-board.is-notes {
+  background: url("img/quest/flag/pipe/notebook-bg.jpg") center 42% / contain no-repeat;
+}
+.flag-board.is-notes .pipe-story-prop { width: min(44%, 15rem); top: 46%; }
+.flag-board.is-notes .pipe-story-book { display: none; }
 
 /* the cloths the scout names and hangs — diagrams, drawn to the specification */
 .flag-cloth {

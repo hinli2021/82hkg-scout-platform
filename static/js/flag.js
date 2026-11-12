@@ -155,21 +155,22 @@
     var old = picture.querySelector(".flag-scene");
     if (old) old.remove();
   }
-  function scene() {
+  function scene(boardClass) {
     var el = document.createElement("div");
     el.className = "flag-scene";
-    el.innerHTML = '<div class="flag-board" data-flag-board></div>';
+    el.innerHTML = '<div class="flag-board' + (boardClass ? " " + boardClass : "")
+      + '" data-flag-board></div>';
     picture.appendChild(el);
     return el.querySelector("[data-flag-board]");
   }
 
   /* ── story pages (the walk in, and the way out) ─────────────────────── */
 
-  function showStory(pages, index, kicker, onDone) {
+  function showStory(pages, index, kicker, onDone, boardClass) {
     if (index >= pages.length) { onDone(); return; }
     var page = pages[index];
     clearScene();
-    var board = scene();
+    var board = scene(boardClass);
     var prop = document.createElement("div");
     prop.className = "pipe-story-prop";
     prop.innerHTML = page.art ? cloth(page.art) : artImg("notebook", "pipe-story-book");
@@ -183,7 +184,7 @@
       + '<div class="cave-actions"><button class="btn primary" type="button" data-flag-next>'
       + escapeHtml(last ? t("繼續", "Go on") : t("下一頁", "Next page")) + '</button></div>');
     card.querySelector("[data-flag-next]").addEventListener("click", function () {
-      showStory(pages, index + 1, kicker, onDone);
+      showStory(pages, index + 1, kicker, onDone, boardClass);
     });
   }
 
@@ -500,7 +501,7 @@
     if (!pages.length) { buildMachine(); return; }
     showStory(pages, 0,
       stageName() + "  ·  " + t("上一隊的筆記", "The last patrol's notebook"),
-      function () { buildMachine(); });
+      function () { buildMachine(); }, "is-notes");
   }
 
   function showEnding() {
