@@ -894,12 +894,14 @@
       "body_en": "The parade ground is still above you. The path turns past the cliff and drops. The mist thins. You hear a stream, and a little of the sea."
     },
     {
+      "prop": "notebook",
       "title_zh": "空著的旗桿",
       "title_en": "The empty flagpole",
       "body_zh": "溪邊立著一支旗桿，繩子垂下來，上面沒有旗。桿腳綁著一個帆布袋，袋帶下壓著一本被水浸過的筆記。",
       "body_en": "A flagpole stands by the stream, its rope hanging empty. A canvas pack is tied at the foot, and a water-stained notebook is tucked under the strap."
     },
     {
+      "prop": "notebook",
       "title_zh": "上一小隊的筆記",
       "title_en": "The last patrol's notebook",
       "body_zh": "第一頁寫著：去海邊的路，要等清晨的升旗禮做對了才會開。先讀這本筆記，再自己做一次。旗升到桿頂，谷口就通向木筏。",

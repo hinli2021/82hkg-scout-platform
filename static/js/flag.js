@@ -196,10 +196,15 @@
     var page = pages[index];
     clearScene();
     var board = scene(boardClass);
-    var prop = document.createElement("div");
-    prop.className = "pipe-story-prop";
-    prop.innerHTML = page.art ? cloth(page.art) : artImg("notebook", "pipe-story-book");
-    board.appendChild(prop);
+    /* a story page only shows a prop when its own words call for one:
+       the notebook appears on the page that first mentions it (tucked
+       under the pack strap), not from the very first page of the walk */
+    if (page.art || page.prop === "notebook") {
+      var prop = document.createElement("div");
+      prop.className = "pipe-story-prop";
+      prop.innerHTML = page.art ? cloth(page.art) : artImg("notebook", "pipe-story-book");
+      board.appendChild(prop);
+    }
     var last = index === pages.length - 1;
     card.innerHTML = cardHtml(
       kicker + "  ·  " + (index + 1) + " / " + pages.length,

@@ -37,6 +37,11 @@ def test_the_story_teaches_before_the_play():
     assert len(BANK["intro"]) >= 3 and len(BANK["ending"]) >= 2
     assert "木筏" in BANK["intro"][-1]["body_zh"]
     assert "raft" in BANK["intro"][-1]["body_en"]
+    # the notebook is only shown once the story mentions it: the first
+    # page of the walk has no book, the pages that speak of it do
+    assert "prop" not in BANK["intro"][0]
+    assert all(page.get("prop") == "notebook" for page in BANK["intro"][1:])
+    assert all("prop" not in page and "art" not in page for page in BANK["ending"])
     for station in BANK["stations"]:
         assert station.get("learn"), station["id"]
         for question in station["questions"]:
@@ -71,6 +76,7 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     assert red == 0, f"the unraised flagpole still shows {red} red pixels"
     # …but at the ending the same painting is swapped for the raised one,
     # with the flag up high at the top of the pole, and nothing over it
+    assert 'page.prop === "notebook"' in js_text
     assert 'swapSceneArt(sourceUrl("raise-4"))' in js_text
     assert 'root.classList.add("is-ending")' in js_text
     assert "#flag-root.is-ending .pipe-story-prop" in css_text
