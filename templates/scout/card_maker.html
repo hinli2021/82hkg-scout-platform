@@ -9,18 +9,27 @@
       <span class="breadcrumb-arrow">›</span>{{ L('卡牌生成器', 'Card maker') }}</div>
     <h1 style="margin:0">🎴 {{ L('卡牌生成器', 'Card maker') }}</h1>
     <p class="muted small" style="margin:.2rem 0 0">
-      {{ L('這裡只提供寶可夢款卡牌。在下面生成你的卡，下載圖片後，回到這一頁把圖片上載，卡圖就會出現在你的個人檔案。',
-           'Only Pokémon-style cards are offered here. Make your card below, download the picture, then upload it on this page to put it on your profile.') }}
+      {{ L('打開卡牌生成器，選寶可夢款生成你的卡。下載圖片後，回到這一頁把圖片上載，卡圖就會出現在你的個人檔案。',
+           'Open the card maker, choose the Pokémon style and make your card. Download the picture, then upload it on this page to put it on your profile.') }}
     </p>
   </div>
   <a class="btn ghost" href="{{ url_for('profile_routes.page') }}">{{ L('回到我的個人檔案', 'Back to my profile') }}</a>
 </div>
 
 <section class="card stack">
-  <strong>1. {{ L('生成卡圖', 'Make the card picture') }}</strong>
+  <strong>1. {{ L('打開卡牌生成器出圖', 'Open the card maker and make your card') }}</strong>
   <p class="muted small" style="margin:0">
-    {{ L('在下面的生成器輸入資料並生成卡牌。如果生成器要求 API 金鑰，請把你的 Gemini API 金鑰貼到生成器右上角的金鑰欄；金鑰只會存在你這部裝置。',
-         'Fill in the generator below and make your card. If it asks for an API key, paste your Gemini API key into the key field at its top right; the key stays on this device only.') }}
+    {{ L('生成器在 Google 上運行，需要登入 Google 帳戶；在那邊出圖不用自己貼 API 金鑰。Google 不准其他網站直接內嵌它，所以要按下面的按鈕在新視窗打開。',
+         'The card maker runs on Google and needs a Google sign-in; making cards there does not need your own API key. Google does not allow other sites to embed it directly, so open it in a new window with the button below.') }}
+  </p>
+  <div>
+    <a class="btn primary" href="https://gemini.google.com/share/026550477ded?social_preview=false&amp;skid=3d18a0fe-33d5-4380-b694-89b8fb4c6eb1" target="_blank" rel="noopener">
+      🎴 {{ L('打開卡牌生成器', 'Open the card maker') }}
+    </a>
+  </div>
+  <p class="muted small" style="margin:0">
+    {{ L('如果沒有 Google 帳戶，也可以用下面的頁內版本；頁內版本需要在生成器右上角貼上自己的 Gemini API 金鑰。',
+         'Without a Google account, use the in-page copy below instead; it needs your own Gemini API key, pasted at the top right of the generator.') }}
   </p>
   <iframe class="card-maker-frame" src="{{ url_for('static', filename='card-generator.html') }}"
           title="{{ L('卡牌生成器', 'Card maker') }}" loading="lazy"></iframe>

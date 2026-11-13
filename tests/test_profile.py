@@ -196,6 +196,10 @@ def test_my_profile_links_to_the_card_maker(store, new_scout):
     assert maker.status_code == 200
     body = maker.get_data(as_text=True)
     assert "card-generator.html" in body and "上載卡圖" in body
+    # the original Google link is one tap away (Google forbids embedding it,
+    # so it opens in a new window where its key is provided automatically)
+    assert "https://gemini.google.com/share/026550477ded" in body
+    assert 'target="_blank"' in body
 
     # the embedded generator is locked to the Pokémon system
     generator = new_scout.client.get("/static/card-generator.html").get_data(as_text=True)
