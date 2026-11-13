@@ -10,7 +10,12 @@ so this page never keeps a second set of books.
 """
 from __future__ import annotations
 
-from flask import Blueprint, abort, flash, g, redirect, render_template, request, url_for
+import base64
+import os
+from datetime import datetime, timezone
+
+import requests
+from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, url_for
 
 from ..auth import scout_required
 from ..engine import progress_for
@@ -53,6 +58,9 @@ def load_profile(st, user_id: str) -> dict:
         "share": str(row.get("share") or ""),
         "visible": to_bool(row.get("visible")),
         "updated_at": row.get("updated_at") or "",
+        "card_image_url": str(row.get("card_image_url") or ""),
+        "card_image_id": str(row.get("card_image_id") or ""),
+        "card_generated_at": str(row.get("card_generated_at") or ""),
     }
 
 
@@ -103,16 +111,59 @@ def patrol_groups(st, viewer_id: str) -> list[dict]:
     return groups
 
 
+#: For the AI card picture, each patrol mascot becomes the scout's partner
+#: creature, with the type the card generator expects.
+CARD_PARTNERS = {
+    "Tiger": {"partner": "老虎", "type": "火"},
+    "Otter": {"partner": "水獺", "type": "水"},
+    "Seagull": {"partner": "海鷗", "type": "超能"},
+}
+
+
+def card_fields(person: dict, profile: dict, stats: dict, overall: dict) -> dict:
+    """The card generator's Pokémon fields, filled from the profile itself.
+
+    The scout never fills a second form: 職位 and 興趣 become the ability,
+    童軍經驗 and 想和大家分享的事 become the two moves, and the progress
+    numbers become their damage.
+    """
+    english = request.cookies.get("scout_lang") == "en"
+    partner = CARD_PARTNERS.get(str(person.get("patrol") or ""), {"partner": "小狐狸", "type": "草"})
+    name = str(person.get("display_name_en") if english else person.get("display_name_zh")
+               or person.get("display_name_zh") or person.get("display_name_en") or "")
+    position = profile["position_en"] if english else profile["position_zh"]
+    kind = partner["type"]
+    return {
+        "name": name,
+        "partner_pokemon": partner["partner"],
+        "pokemon_type": kind,
+        "move1_name": "Scout experience" if english else "童軍經驗",
+        "move1_energy": f"2{kind}",
+        "move1_damage": str(max(10, int(overall.get("tasks_done") or 0) * 10)),
+        "move1_text": profile["experience"],
+        "move2_name": "Something to share" if english else "想和大家分享的事",
+        "move2_energy": f"3{kind}",
+        "move2_damage": str(max(50, int(stats.get("badges_done") or 0) * 50)),
+        "move2_text": profile["share"],
+        "ability": (f"Ability: {position}. {profile['interests']}" if english
+                    else f"特性：{position}。{profile['interests']}"),
+        "finish_pokemon": "Full Art Rainbow Holographic Foil",
+        "card_number": str(person.get("scout_no") or "82HKG"),
+    }
+
+
 def _context(st, person: dict, *, own: bool) -> dict:
     progress = progress_for(st, person["id"])
+    profile = load_profile(st, person["id"])
     return {
         "person": person,
-        "profile": load_profile(st, person["id"]),
+        "profile": profile,
         "progress": progress,
         "stats": progress["stats"],
         "overall": progress["overall"],
         "earned_badges": [b for b in progress["badges"] if b["earned"]],
         "groups": patrol_groups(st, g.user["id"]),
+        "card": card_fields(person, profile, progress["stats"], progress["overall"]),
         "own": own,
     }
 
@@ -159,6 +210,90 @@ def save():
     if return_to.startswith("/") and not return_to.startswith("//"):
         return redirect(return_to)
     return redirect(url_for("profile_routes.page"))
+
+
+CARD_PROMPT_MAX = 12000
+CARD_WAIT_SECONDS = 30
+
+
+def _call_gemini(api_key: str, model: str, prompt: str) -> tuple[bytes, str]:
+    """One image from Gemini. Returns (bytes, mime); raises on any failure."""
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    response = requests.post(
+        url, params={"key": api_key}, timeout=110,
+        json={"contents": [{"role": "user", "parts": [{"text": prompt}]}],
+              "generationConfig": {"imageConfig": {"aspectRatio": "2:3"}}},
+    )
+    if response.status_code != 200:
+        raise RuntimeError(f"Gemini answered {response.status_code}")
+    payload = response.json()
+    candidates = payload.get("candidates") or []
+    parts = ((candidates[0].get("content") or {}).get("parts") if candidates else []) or []
+    for part in parts:
+        data = part.get("inlineData") or part.get("inline_data") or {}
+        if data.get("data"):
+            return base64.b64decode(data["data"]), data.get("mimeType") or data.get("mime_type") or "image/png"
+    raise RuntimeError("Gemini returned no image")
+
+
+def _card_display_url(uploaded: dict) -> str:
+    # A Drive file's web link opens a viewer page, not the picture itself;
+    # the thumbnail address is the one an <img> can show (the upload is
+    # shared with anyone who has the link).
+    if uploaded.get("stored") == "drive" and uploaded.get("id"):
+        return f"https://drive.google.com/thumbnail?id={uploaded['id']}&sz=w1000"
+    return str(uploaded.get("url") or "")
+
+
+@profile_routes.post("/profile/card-image")
+@scout_required
+def card_image():
+    """Generate this scout's AI card picture and keep it on the profile.
+
+    The browser builds the prompt with the card generator's remote prompt
+    vault; this route only lends it the platform's Gemini key (which never
+    reaches the page) and stores the finished picture.
+    """
+    st = store()
+    profile = load_profile(st, g.user["id"])
+    if not profile_complete(profile):
+        return fail(400, "profile_incomplete", "請先完成個人檔案，才可以生成卡圖。",
+                    "Please complete your profile before making a card picture.")
+    body = request.get_json(silent=True) or {}
+    prompt = str(body.get("prompt") or "").strip()
+    if not prompt or len(prompt) > CARD_PROMPT_MAX:
+        return fail(400, "card_prompt", "卡圖資料不完整，請再試一次。",
+                    "The card details are incomplete — please try again.")
+    if profile["card_generated_at"]:
+        try:
+            last = datetime.fromisoformat(profile["card_generated_at"].replace("Z", "+00:00"))
+            if (datetime.now(timezone.utc) - last).total_seconds() < CARD_WAIT_SECONDS:
+                return fail(429, "card_wait", "剛生成了一張卡圖，請等半分鐘再試。",
+                            "A card picture was just made — please wait half a minute.")
+        except ValueError:
+            pass
+    api_key = str(current_app.config.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY") or "")
+    if not api_key:
+        return fail(503, "card_no_key", "領袖尚未開啟卡圖生成功能。",
+                    "Card pictures are not switched on yet — please ask a leader.")
+    model = str(current_app.config.get("GEMINI_IMAGE_MODEL") or "gemini-2.5-flash-image")
+    try:
+        data, mime = _call_gemini(api_key, model, prompt)
+    except Exception:
+        return fail(502, "card_failed", "卡圖生成失敗，請稍後再試。",
+                    "The card picture could not be made — please try again later.")
+    ext = ".jpg" if "jpeg" in mime or "jpg" in mime else ".png"
+    uploaded = st.upload_file(name=f"card-{g.user['id']}{ext}", mime_type=mime, data=data)
+    url = _card_display_url(uploaded)
+    stamp = now_iso()
+    patch = {"card_image_url": url, "card_image_id": str(uploaded.get("id") or ""),
+             "card_generated_at": stamp}
+    if st.get("profiles", g.user["id"]):
+        st.update("profiles", g.user["id"], patch)
+    else:
+        st.insert("profiles", {"user_id": g.user["id"], **patch})
+    audit(g.user, "profile_card_image", "profiles", g.user["id"], {"stored": uploaded.get("stored")})
+    return ok(card_image_url=url)
 
 
 @profile_routes.get("/profile/<user_id>")

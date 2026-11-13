@@ -122,6 +122,10 @@ def create_app(config: dict | None = None) -> Flask:
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "false").lower() == "true",
         MAX_CONTENT_LENGTH=6 * 1024 * 1024,  # photo evidence cap
+        # AI card pictures (個人檔案 → 生成我的卡圖): the leader sets one shared
+        # Gemini key in the hosting environment; scouts never see it.
+        GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY", ""),
+        GEMINI_IMAGE_MODEL=os.environ.get("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image"),
     )
     if config:
         app.config.update(config)

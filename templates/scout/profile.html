@@ -30,6 +30,9 @@
   <div class="char-scene">
     <div class="char-card" data-char-card style="--char-tint: {{ m.tint }}; --char-tint-dark: {{ m.tint_dark }}; --char-soft: {{ m.soft }}">
       <section class="char-face char-front" data-char-front aria-label="{{ L('角色卡正面', 'Character card front') }}">
+        {% if profile.card_image_url %}
+        <img class="char-generated-img" src="{{ profile.card_image_url }}" alt="{{ L('AI 生成的個人卡圖', 'My AI card picture') }}">
+        {% else %}
         <div class="poke-head">
           <span class="poke-name">{{ name_of(person) }}</span>
           <span class="poke-hp"><small>HP</small> {{ stats.points_balance }}<span class="poke-type">{{ m.emoji }}</span></span>
@@ -76,6 +79,7 @@
           <span>{{ L('港島第八十二旅童軍團', '82nd Hong Kong Island Scout Group') }}</span>
           <span class="poke-rarity" title="{{ L('已考獲獎章', 'Badges earned') }}">{{ '★' * stats.badges_done }}{{ '☆' * (overall.badges_total - stats.badges_done) }}</span>
         </div>
+        {% endif %}
       </section>
 
       <section class="char-face char-back" data-char-back aria-label="{{ L('角色卡背面', 'Character card back') }}">
@@ -114,6 +118,18 @@
   <button class="btn primary char-flip-btn" type="button" data-char-flip aria-expanded="false">
     🔄 <span data-char-flip-label>{{ L('看背面', 'See the back') }}</span>
   </button>
+  {% if own %}
+  <div class="card-gen-box">
+    <button class="btn" type="button" data-card-gen>
+      🎴 {{ L('重新生成卡圖', 'Make my card picture again') if profile.card_image_url else L('生成我的卡圖', 'Make my card picture') }}
+    </button>
+    <p class="muted small" data-card-gen-status style="margin:0; text-align:center">
+      {{ L('卡圖會用你的個人檔案資料自動組成，通常需要 10 至 40 秒。',
+           'Your card picture is made from your profile. It usually takes 10 to 40 seconds.') }}
+    </p>
+    <script type="application/json" id="card-gen-fields">{{ card | tojson }}</script>
+  </div>
+  {% endif %}
 </div>
 
 {% if own %}
@@ -200,4 +216,112 @@
   });
 })();
 </script>
+{% if own %}
+<script>
+/* AI card picture: the prompt comes from the card generator's remote vault
+   (the same one the standalone generator uses); only the finished prompt is
+   sent to the platform, which lends it the shared Gemini key and stores the
+   picture. The key itself never reaches this page. */
+(function () {
+  var btn = document.querySelector('[data-card-gen]');
+  var status = document.querySelector('[data-card-gen-status]');
+  var fieldsEl = document.getElementById('card-gen-fields');
+  if (!btn || !fieldsEl) return;
+  var FIELDS = {};
+  try { FIELDS = JSON.parse(fieldsEl.textContent); } catch (e) { /* no fields, no card */ }
+  var LANG = {{ lang | tojson }};
+  var TEXT = {
+    connecting: {{ L('正在連接卡圖倉庫……', 'Connecting to the card vault…') | tojson }},
+    making: {{ L('正在生成卡圖，通常需要 10 至 40 秒……', 'Making your card picture — usually 10 to 40 seconds…') | tojson }},
+    vaultFail: {{ L('連接不到卡圖倉庫，請等一分鐘再試。', 'The card vault cannot be reached — please wait a minute and try again.') | tojson }},
+    failed: {{ L('卡圖生成失敗，請稍後再試。', 'The card picture could not be made — please try again later.') | tojson }}
+  };
+  var VAULT_URL = 'https://script.google.com/macros/s/AKfycbwgZuF2t1bt0RPkEb_93wZ5RjnTgMv0fU7SaaC0ZaocmvFB-tjR2lbKY-8JJSGn5p6z/exec';
+  var VAULT_TOK = 'mkb-XVc1cbs1TLSxQ8GD7gU1';
+  var SYS_META = {}, SYS_TEXTS = {}, SYS_NO = {}, SYS_FAMILY = {}, SYS_DIMS = {}, DEFAULTS = {}, VCODE = null;
+
+  function uid() {
+    try {
+      var u = localStorage.getItem('scout_card_uid');
+      if (!u) { u = Math.random().toString(36).slice(2, 10); localStorage.setItem('scout_card_uid', u); }
+      return u;
+    } catch (e) { return 'web'; }
+  }
+  function sd(s) { var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+  function us(b64) {
+    var bin = atob(b64 || ''), nb = new Uint8Array(bin.length);
+    var K = sd(VAULT_TOK + '|' + uid() + '|mk1') || 1;
+    for (var i = 0; i < bin.length; i++) { K = (Math.imul(K, 1664525) + 1013904223) >>> 0; nb[i] = bin.charCodeAt(i) ^ (K >>> 24); }
+    return new TextDecoder().decode(nb);
+  }
+  function applyVault(raw) {
+    try {
+      var d = JSON.parse(raw);
+      if (!d || !d.sys || !d.code || !d.code.bcd) return false;
+      SYS_META = d.sys.meta || {}; SYS_TEXTS = d.sys.texts || {}; SYS_NO = d.sys.no || {};
+      SYS_FAMILY = d.sys.family || {}; SYS_DIMS = d.sys.dims || {}; DEFAULTS = d.def || {};
+      VCODE = new Function(d.code.bcd + '\n' + d.code.bld + '\n' + d.code.bp +
+        '\n; return { bcd: buildCardData, bld: buildLazyData, bp: buildPrompt };')();
+      return true;
+    } catch (e) { return false; }
+  }
+  function applyCached() {
+    try {
+      var c = JSON.parse(localStorage.getItem('scout_card_vault') || 'null');
+      if (c && c.t === VAULT_TOK && c.d) return applyVault(us(c.d));
+    } catch (e) { /* fall through */ }
+    return false;
+  }
+  async function loadVault() {
+    if (VCODE) return true;
+    try {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function () { ctrl.abort(); }, 10000);
+      var res = await fetch(VAULT_URL + '?t=' + encodeURIComponent(VAULT_TOK) + '&u=' + encodeURIComponent(uid()), { signal: ctrl.signal });
+      clearTimeout(timer);
+      var j = await res.json().catch(function () { return null; });
+      if (res.ok && j && j.ok && j.d && applyVault(us(j.d))) {
+        try { localStorage.setItem('scout_card_vault', JSON.stringify({ t: VAULT_TOK, d: j.d })); } catch (e) { /* cache is a bonus */ }
+        return true;
+      }
+    } catch (e) { /* try the cache below */ }
+    return applyCached();
+  }
+  function val(id) { return FIELDS[id] || ''; }
+  function ctx() {
+    return {
+      identityMode: function () { return 'random'; }, val: val, currentSystem: 'pokemon',
+      scAvatar: 'human', SYS_META: SYS_META, SYS_TEXTS: SYS_TEXTS, SYS_NO: SYS_NO,
+      SYS_FAMILY: SYS_FAMILY, SYS_DIMS: SYS_DIMS, aspect: function () { return '2:3'; }
+    };
+  }
+  btn.addEventListener('click', async function () {
+    btn.disabled = true;
+    status.textContent = TEXT.connecting;
+    try {
+      if (!await loadVault()) { status.textContent = TEXT.vaultFail; return; }
+      var c = ctx();
+      var prompt = VCODE.bp(VCODE.bcd(c), FIELDS.name || '', c);
+      status.textContent = TEXT.making;
+      var res = await fetch('/profile/card-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'fetch' },
+        body: JSON.stringify({ prompt: prompt })
+      });
+      var body = await res.json().catch(function () { return null; });
+      if (!res.ok || !body || !body.ok) {
+        var msg = body && (LANG === 'en' ? body.message_en : body.message_zh);
+        status.textContent = msg || TEXT.failed;
+        return;
+      }
+      window.location.reload();
+    } catch (e) {
+      status.textContent = TEXT.failed;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

@@ -180,8 +180,83 @@ def test_english_profile_carries_no_chinese_headings(store, new_scout):
     assert "我的個人檔案" not in page and "狀態總覽" not in page
 
 
+def _complete(new_scout):
+    new_scout.post("/profile", data={
+        "position": "小隊長", "interests": "露營、繩結",
+        "experience": "我參加了童軍兩年。", "share": "我喜歡教新成員綁繩結。",
+    })
+
+
+def test_the_card_fields_come_from_the_profile_itself(store, new_scout):
+    _complete(new_scout)
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "card-gen-fields" in page and "生成我的卡圖" in page
+    fields = page[page.index("card-gen-fields"):]
+    # patrol mascot as partner, experience and share as the two moves,
+    # position and interests as the ability — no second form to fill
+    assert "海鷗" in fields and "童軍經驗" in fields and "想和大家分享的事" in fields
+    assert "我喜歡教新成員綁繩結" in fields and "小隊長" in fields
+
+
+def test_a_card_picture_needs_a_complete_profile_first(store, new_scout):
+    reply = new_scout.post("/profile/card-image", json={"prompt": "畫一張卡"})
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_incomplete"
+
+
+def test_a_card_picture_needs_the_leaders_key(store, new_scout, monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    _complete(new_scout)
+    reply = new_scout.post("/profile/card-image", json={"prompt": "畫一張卡"})
+    assert reply.status_code == 503
+    assert reply.get_json()["error"] == "card_no_key"
+    reply = new_scout.post("/profile/card-image", json={"prompt": " "})
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "card_prompt"
+
+
+def test_a_card_picture_is_made_and_kept_on_the_card(store, new_scout, app, monkeypatch):
+    from scout.routes import profile_routes
+    app.config["GEMINI_API_KEY"] = "test-key"
+    seen = {}
+    def fake_gemini(api_key, model, prompt):
+        seen.update(api_key=api_key, model=model, prompt=prompt)
+        return b"\x89PNG fake picture", "image/png"
+    monkeypatch.setattr(profile_routes, "_call_gemini", fake_gemini)
+    _complete(new_scout)
+
+    reply = new_scout.post("/profile/card-image", json={"prompt": "畫一張 Pokémon 卡"})
+    assert reply.status_code == 200
+    assert seen == {"api_key": "test-key", "model": "gemini-2.5-flash-image",
+                    "prompt": "畫一張 Pokémon 卡"}
+    row = store.get("profiles", new_scout.id)
+    assert row["card_image_url"].startswith("/uploads/") and row["card_generated_at"]
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "char-generated-img" in page and row["card_image_url"] in page
+    assert "重新生成卡圖" in page
+
+    # one at a time: an instant second try is asked to wait
+    reply = new_scout.post("/profile/card-image", json={"prompt": "再畫一張"})
+    assert reply.status_code == 429
+    assert reply.get_json()["error"] == "card_wait"
+
+
+def test_a_failed_card_picture_keeps_the_old_state(store, new_scout, app, monkeypatch):
+    from scout.routes import profile_routes
+    app.config["GEMINI_API_KEY"] = "test-key"
+    def broken(api_key, model, prompt):
+        raise RuntimeError("upstream is busy")
+    monkeypatch.setattr(profile_routes, "_call_gemini", broken)
+    _complete(new_scout)
+    reply = new_scout.post("/profile/card-image", json={"prompt": "畫一張卡"})
+    assert reply.status_code == 502
+    assert reply.get_json()["error"] == "card_failed"
+    assert not store.get("profiles", new_scout.id).get("card_image_url")
+
+
 def test_the_profiles_tab_exists_in_the_schema():
     from scout.schema import COLLECTIONS, key_field
     assert COLLECTIONS["profiles"]["fields"] == [
-        "user_id", "position", "interests", "experience", "share", "visible", "updated_at"]
+        "user_id", "position", "interests", "experience", "share", "visible", "updated_at",
+        "card_image_url", "card_image_id", "card_generated_at"]
     assert key_field("profiles") == "user_id"

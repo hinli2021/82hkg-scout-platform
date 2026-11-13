@@ -234,9 +234,10 @@ def test_a_tab_from_before_a_field_existed_gains_the_column(sheets, fake):
     ]
     row = sheets.get("profiles", "u1")
     assert row["interests"] == "露營"                       # old data intact
-    assert fake.tabs["profiles"][0] == [
-        "user_id", "interests", "experience", "share", "visible", "updated_at", "position",
-    ]                                                        # appended, nothing moved
+    old_header = ["user_id", "interests", "experience", "share", "visible", "updated_at"]
+    gained = [f for f in COLLECTIONS["profiles"]["fields"] if f not in old_header]
+    assert "position" in gained
+    assert fake.tabs["profiles"][0] == old_header + gained   # appended, nothing moved
 
     sheets.update("profiles", "u1", {"position": "小隊長"})
     assert sheets.get("profiles", "u1")["position"] == "小隊長"
