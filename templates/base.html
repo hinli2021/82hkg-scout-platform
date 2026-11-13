@@ -51,6 +51,7 @@
             ('scout_routes.badges', '🎖', '獎章', 'Badges'),
             ('daily_routes.daily_page', '🎲', '每日挑戰', 'Daily')
           ] + ([('gacha_routes.page', '🃏', '抽卡', 'Cards')] if flags.get('gacha', True) else [])
+            + [('feedback_routes.page', '💡', '意見箱', 'Feedback')]
             + ([('scout_routes.rewards', '🎁', '獎品', 'Rewards')] if flags.get('redeem') else [])
             + ([('scout_routes.leaderboard_page', '🏆', '龍虎榜', 'Board')] if flags.get('leaderboard') else [])
             + [('scout_routes.history', '📜', '我的紀錄', 'History')] %}
@@ -59,6 +60,7 @@
             ('leader_routes.overview', '🧭', '總覽', 'Overview'),
             ('leader_routes.content', '📚', '內容', 'Content'),
             ('leader_routes.review', '✅', '審批', 'Review'),
+            ('feedback_routes.leader_feedback', '💡', '意見箱', 'Feedback'),
             ('leader_routes.accounts', '🧑‍🤝‍🧑', '帳戶', 'Accounts'),
             ('leader_routes.announcements', '📣', '公告', 'Notices')
           ] + ([('leader_routes.rewards', '🎁', '獎品', 'Rewards')] if flags.get('redeem') else [])

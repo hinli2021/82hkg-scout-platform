@@ -57,7 +57,7 @@
 {% endif %}
 {# ── 每日挑戰 and 抽卡 — square buttons, the same shape as the badge tiles
       below, so the two features are scanned at a glance like badges ── #}
-{% if daily or gacha %}
+{% if daily or gacha or feedback %}
 <div class="badge-tiles feature-tiles">
   {% if daily %}
   <a class="badge-tile feature-tile {{ 'earned' if daily.played }}" href="{{ url_for('daily_routes.daily_page') }}">
@@ -87,6 +87,25 @@
     </span>
     <span class="tile-meta">{{ L('打開卡包，收集技能卡', 'Open packs and collect skill cards') }}</span>
     <span class="tile-bar"><i style="width: {{ 100 if gacha.packs else 0 }}%"></i></span>
+  </a>
+  {% endif %}
+
+  {% if feedback %}
+  <a class="badge-tile feature-tile" href="{{ url_for('feedback_routes.page') }}">
+    <span class="tile-state">{{ feedback.waiting if feedback.waiting else '▶' }}</span>
+    <span class="tile-emoji plate">💡</span>
+    <span class="tile-title">{{ L('意見箱', 'Feedback') }}</span>
+    <span class="tile-meta">
+      {% if feedback.waiting %}
+        {{ L('你有 ' ~ feedback.waiting ~ ' 項意見等領袖查看', feedback.waiting ~ ' of your entries are waiting for a leader') }}
+      {% elif feedback.sent %}
+        {{ L('你共送出了 ' ~ feedback.sent ~ ' 項意見', 'You have sent ' ~ feedback.sent ~ ' entries so far') }}
+      {% else %}
+        {{ L('平台有問題，或者你有新主意，都可以在這裏提出。', 'Report a problem, or share an idea for the platform.') }}
+      {% endif %}
+    </span>
+    <span class="tile-meta">{{ L('領袖查看後，可能會給你積分作獎勵', 'A leader may give you points for a good entry') }}</span>
+    <span class="tile-bar"><i style="width: {{ 100 if feedback.waiting else 0 }}%"></i></span>
   </a>
   {% endif %}
 </div>

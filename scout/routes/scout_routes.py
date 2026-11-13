@@ -64,6 +64,7 @@ def _home_context(user: dict) -> dict:
         "next_task": progress["overall"]["next_task"],
         "daily": _daily_teaser(st, user["id"]),
         "gacha": _gacha_teaser(st, user),
+        "feedback": _feedback_teaser(st, user["id"]),
     }
 
 
@@ -78,6 +79,12 @@ def _daily_teaser(st, user_id: str) -> dict:
                  and row.get("ref_id") == key for row in st.list("points_ledger"))
     return {"date": today, "kind": daily.puzzle()["kind"], "meta": meta,
             "played": played, "points": daily.POINTS_FAST}
+
+
+def _feedback_teaser(st, user_id: str) -> dict:
+    """Home tile for the 意見箱: how many of this scout's entries still wait."""
+    from .feedback_routes import teaser
+    return teaser(st, user_id)
 
 
 def _gacha_teaser(st, user: dict):

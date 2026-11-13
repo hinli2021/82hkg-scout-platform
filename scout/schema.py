@@ -111,6 +111,16 @@ COLLECTIONS: dict[str, dict] = {
         "label": "Settings",
         "fields": ["key", "value_json", "updated_at"],
     },
+    # One row per scout report or idea sent from the 意見箱. A new tab only —
+    # existing Sheet columns are untouched. (The older `suggestions` tab is
+    # the leader-written recommendation list on Home, a different thing.)
+    "feedback": {
+        "label": "Feedback",
+        "fields": [
+            "id", "user_id", "kind", "title", "body", "status",
+            "points_awarded", "leader_comment", "created_at", "decided_at", "decided_by",
+        ],
+    },
     # One row per scout. A new tab only — existing Sheet columns are untouched.
     "gacha": {
         "label": "Gacha",

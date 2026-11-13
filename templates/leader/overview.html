@@ -26,6 +26,17 @@
   {% endfor %}
 </div>
 
+{% if counts.feedback %}
+  <div class="card reset-banner" style="margin-top:1rem">
+    <div class="spread wrap">
+      <div><strong>💡 {{ L('意見箱有新意見', 'New entries in the feedback box') }}</strong>
+        <div class="small muted">{{ L('童軍報告了問題或提出了建議，好的意見可以給積分作獎勵。', 'Scouts reported problems or shared ideas — good entries can earn points.') }}</div>
+      </div>
+      <a class="btn primary" href="{{ url_for('feedback_routes.leader_feedback') }}">{{ L('去查看', 'Read them') }} ({{ counts.feedback }})</a>
+    </div>
+  </div>
+{% endif %}
+
 {% if counts.resets %}
   <div class="card reset-banner" style="margin-top:1rem">
     <div class="spread wrap">

@@ -121,6 +121,7 @@ def _overview_context() -> dict:
             "tasks": len([t for t in tasks if t.get("status") == "published"]),
             "pending": len(pending), "awards": len(awards),
             "resets": len([r for r in resets if r.get("status") == "pending"]),
+            "feedback": len([r for r in st.list("feedback") if r.get("status") == "new"]),
             "drafts": len([b for b in badges if b.get("status") != "published"]),
         },
         "pending": pending[:6],

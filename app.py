@@ -31,6 +31,7 @@ from scout.mascots import MASCOTS, mascot_for
 from scout.store import Store, storage_advice, storage_advice_en
 from scout.routes.auth_routes import auth_routes
 from scout.routes.daily_routes import daily_routes
+from scout.routes.feedback_routes import feedback_routes
 from scout.routes.gacha_routes import gacha_routes
 from scout.routes.leader_routes import leader_routes
 from scout.routes.scout_routes import scout_routes
@@ -189,6 +190,7 @@ def create_app(config: dict | None = None) -> Flask:
     app.register_blueprint(auth_routes)
     app.register_blueprint(scout_routes)
     app.register_blueprint(daily_routes)
+    app.register_blueprint(feedback_routes)
     app.register_blueprint(gacha_routes)
     app.register_blueprint(leader_routes)
 

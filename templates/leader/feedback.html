@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state, name_of, patrol_name with context %}
+{% block title %}{{ L('意見箱', 'Feedback') }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="margin:0">💡 {{ L('意見箱', 'Feedback') }}</h1>
+    <p class="muted small" style="margin:0">{{ L('童軍在這裏報告平台問題和提出建議。好的意見可以給積分作獎勵，每項只可以給一次。', 'Scouts report platform problems and ideas here. Good entries can earn points — each entry can only be paid once.') }}</p>
+  </div>
+  <div class="tabs" style="border:0; margin:0">
+    <a class="{{ 'on' if not show_handled else '' }}" href="{{ url_for('feedback_routes.leader_feedback') }}">{{ L('待處理', 'Waiting') }} ({{ waiting | length }})</a>
+    <a class="{{ 'on' if show_handled else '' }}" href="{{ url_for('feedback_routes.leader_feedback', status='handled') }}">{{ L('已處理', 'Handled') }} ({{ handled | length }})</a>
+  </div>
+</div>
+
+{% if show_handled %}
+  <div class="card">
+    {% if handled %}
+      <ul class="tl">
+        {% for row in handled %}
+          <li>
+            <div class="spread wrap">
+              <span>
+                <span class="chip light">{{ kinds[row.kind].emoji }} {{ L(kinds[row.kind].zh, kinds[row.kind].en) }}</span>
+                <strong>{{ row.title }}</strong>
+                · {{ name_of(row.who) }}
+                <div class="small muted" style="white-space:pre-wrap">{{ row.body }}</div>
+                {% if row.leader_comment %}<div class="small muted">{{ L('回覆：', 'Reply: ') }}{{ row.leader_comment }}</div>{% endif %}
+              </span>
+              <span class="row">
+                {% if row.status == 'rewarded' %}
+                  <span class="chip ok">⭐ +{{ row.points_awarded }} {{ L('分', 'points') }}</span>
+                {% else %}
+                  <span class="chip">{{ L('已結束', 'Closed') }}</span>
+                {% endif %}
+                <span class="timeline-when">{{ (row.decided_at or row.created_at or '')[:10] }}</span>
+                <form method="post" action="{{ url_for('feedback_routes.leader_feedback_action', feedback_id=row.id) }}">
+                  <input type="hidden" name="action" value="reopen">
+                  <button class="btn small ghost" type="submit">{{ L('放回待處理', 'Reopen') }}</button>
+                </form>
+              </span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      {{ empty_state('🗂️', '還沒有處理過的意見。', 'Nothing handled yet.') }}
+    {% endif %}
+  </div>
+{% else %}
+  <div class="stack">
+    {% if waiting %}
+      {% for row in waiting %}
+        <div class="card">
+          <div class="spread wrap">
+            <div>
+              <span class="chip light">{{ kinds[row.kind].emoji }} {{ L(kinds[row.kind].zh, kinds[row.kind].en) }}</span>
+              <strong>{{ row.title }}</strong>
+              <div class="small muted">
+                {{ name_of(row.who) }} · {{ patrol_name(row.who.get('patrol', '')) }}
+                · <span class="timeline-when">{{ (row.created_at or '')[:16].replace('T', ' ') }}</span>
+              </div>
+              <div class="small" style="white-space:pre-wrap; margin-top:.35rem">{{ row.body }}</div>
+            </div>
+          </div>
+          <form method="post" action="{{ url_for('feedback_routes.leader_feedback_action', feedback_id=row.id) }}" style="margin-top:.7rem">
+            <div class="row wrap" style="gap:.5rem; align-items:end">
+              <label class="field" style="margin:0"><span>{{ L('獎勵積分（1 至 ' ~ max_points ~ ' 分）', 'Reward points (1–' ~ max_points ~ ')') }}</span>
+                <input type="number" name="points" min="1" max="{{ max_points }}" value="5" style="width:7rem">
+              </label>
+              <label class="field grow" style="margin:0"><span>{{ L('回覆（童軍會看到）', 'Reply (the scout will see this)') }}</span>
+                <input type="text" name="comment" maxlength="300" placeholder="{{ L('例如：謝謝你，我們已修正。', 'e.g. Thank you — we have fixed it.') }}">
+              </label>
+            </div>
+            <div class="row wrap" style="gap:.5rem; margin-top:.6rem">
+              <button class="btn primary small" type="submit" name="action" value="reward">⭐ {{ L('給積分獎勵', 'Give points') }}</button>
+              <button class="btn small ghost" type="submit" name="action" value="close" formnovalidate>{{ L('不給分，結束處理', 'Close without points') }}</button>
+            </div>
+          </form>
+        </div>
+      {% endfor %}
+    {% else %}
+      {{ empty_state('🎉', '沒有待處理的意見。', 'Nothing waiting.') }}
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}
