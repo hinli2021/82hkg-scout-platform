@@ -1055,6 +1055,8 @@ body[data-lang="en"] .scene-prompt .en {
 .char-generated-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
 .card-gen-box { display: flex; flex-direction: column; align-items: center; gap: .45rem; max-width: 400px; }
 .card-gen-box [data-card-gen][disabled] { opacity: .6; }
+/* the embedded card generator keeps its own scrolling inside the frame */
+.card-maker-frame { width: 100%; height: min(78vh, 900px); border: 1.5px solid var(--line); border-radius: 12px; background: #0e0e10; }
 @media (prefers-reduced-motion: reduce) { .char-card { transition: none; } }
 @media print { .topbar, .tabbar, .btn, .row-actions { display: none !important; } }
 

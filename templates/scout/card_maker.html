@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('卡牌生成器', 'Card maker') }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a>
+      <span class="breadcrumb-arrow">›</span><a href="{{ url_for('profile_routes.page') }}">{{ L('我的個人檔案', 'My profile') }}</a>
+      <span class="breadcrumb-arrow">›</span>{{ L('卡牌生成器', 'Card maker') }}</div>
+    <h1 style="margin:0">🎴 {{ L('卡牌生成器', 'Card maker') }}</h1>
+    <p class="muted small" style="margin:.2rem 0 0">
+      {{ L('這裡只提供寶可夢款卡牌。在下面生成你的卡，下載圖片後，回到這一頁把圖片上載，卡圖就會出現在你的個人檔案。',
+           'Only Pokémon-style cards are offered here. Make your card below, download the picture, then upload it on this page to put it on your profile.') }}
+    </p>
+  </div>
+  <a class="btn ghost" href="{{ url_for('profile_routes.page') }}">{{ L('回到我的個人檔案', 'Back to my profile') }}</a>
+</div>
+
+<section class="card stack">
+  <strong>1. {{ L('生成卡圖', 'Make the card picture') }}</strong>
+  <p class="muted small" style="margin:0">
+    {{ L('在下面的生成器輸入資料並生成卡牌。如果生成器要求 API 金鑰，請把你的 Gemini API 金鑰貼到生成器右上角的金鑰欄；金鑰只會存在你這部裝置。',
+         'Fill in the generator below and make your card. If it asks for an API key, paste your Gemini API key into the key field at its top right; the key stays on this device only.') }}
+  </p>
+  <iframe class="card-maker-frame" src="{{ url_for('static', filename='card-generator.html') }}"
+          title="{{ L('卡牌生成器', 'Card maker') }}" loading="lazy"></iframe>
+</section>
+
+<section class="card stack" style="margin-top:.8rem">
+  <strong>2. {{ L('把卡圖放到個人檔案', 'Put the picture on your profile') }}</strong>
+  {% if profile.card_image_url %}
+    <p class="muted small" style="margin:0">{{ L('你的個人檔案已經有一張卡圖。上載新圖會換走舊圖。', 'Your profile already has a card picture. Uploading a new one replaces it.') }}</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('profile_routes.card_upload') }}" enctype="multipart/form-data" class="row wrap" style="gap:.6rem; align-items:center">
+    <input type="file" name="card_image" accept="image/png,image/jpeg,image/webp" required>
+    <button class="btn primary" type="submit">⬆️ {{ L('上載卡圖', 'Upload card picture') }}</button>
+  </form>
+</section>
+{% endblock %}

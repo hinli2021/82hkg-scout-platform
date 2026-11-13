@@ -187,15 +187,41 @@ def _complete(new_scout):
     })
 
 
-def test_the_card_fields_come_from_the_profile_itself(store, new_scout):
+def test_my_profile_links_to_the_card_maker(store, new_scout):
     _complete(new_scout)
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert "card-gen-fields" in page and "生成我的卡圖" in page
-    fields = page[page.index("card-gen-fields"):]
-    # patrol mascot as partner, experience and share as the two moves,
-    # position and interests as the ability — no second form to fill
-    assert "海鷗" in fields and "童軍經驗" in fields and "想和大家分享的事" in fields
-    assert "我喜歡教新成員綁繩結" in fields and "小隊長" in fields
+    assert 'href="/card-maker' in page and "生成我的卡圖" in page
+
+    maker = new_scout.get("/card-maker")
+    assert maker.status_code == 200
+    body = maker.get_data(as_text=True)
+    assert "card-generator.html" in body and "上載卡圖" in body
+
+    # the embedded generator is locked to the Pokémon system
+    generator = new_scout.client.get("/static/card-generator.html").get_data(as_text=True)
+    assert "scout-pokemon-lock" in generator and 'data-sys="pokemon"' in generator
+
+
+def test_an_uploaded_card_picture_lands_on_my_card(store, new_scout):
+    import io
+    reply = new_scout.post("/profile/card-upload",
+                            data={"card_image": (io.BytesIO(b"\x89PNG fake"), "card.png")})
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_incomplete"
+
+    _complete(new_scout)
+    reply = new_scout.post("/profile/card-upload",
+                            data={"card_image": (io.BytesIO(b"notes"), "notes.txt")})
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "card_file"
+
+    reply = new_scout.post("/profile/card-upload",
+                            data={"card_image": (io.BytesIO(b"\x89PNG fake"), "card.png")})
+    assert reply.status_code == 200
+    row = store.get("profiles", new_scout.id)
+    assert row["card_image_url"].startswith("/uploads/")
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "char-generated-img" in page and row["card_image_url"] in page
 
 
 def test_a_card_picture_needs_a_complete_profile_first(store, new_scout):
@@ -233,7 +259,6 @@ def test_a_card_picture_is_made_and_kept_on_the_card(store, new_scout, app, monk
     assert row["card_image_url"].startswith("/uploads/") and row["card_generated_at"]
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "char-generated-img" in page and row["card_image_url"] in page
-    assert "重新生成卡圖" in page
 
     # one at a time: an instant second try is asked to wait
     reply = new_scout.post("/profile/card-image", json={"prompt": "再畫一張"})

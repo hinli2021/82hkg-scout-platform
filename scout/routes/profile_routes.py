@@ -111,47 +111,6 @@ def patrol_groups(st, viewer_id: str) -> list[dict]:
     return groups
 
 
-#: For the AI card picture, each patrol mascot becomes the scout's partner
-#: creature, with the type the card generator expects.
-CARD_PARTNERS = {
-    "Tiger": {"partner": "老虎", "type": "火"},
-    "Otter": {"partner": "水獺", "type": "水"},
-    "Seagull": {"partner": "海鷗", "type": "超能"},
-}
-
-
-def card_fields(person: dict, profile: dict, stats: dict, overall: dict) -> dict:
-    """The card generator's Pokémon fields, filled from the profile itself.
-
-    The scout never fills a second form: 職位 and 興趣 become the ability,
-    童軍經驗 and 想和大家分享的事 become the two moves, and the progress
-    numbers become their damage.
-    """
-    english = request.cookies.get("scout_lang") == "en"
-    partner = CARD_PARTNERS.get(str(person.get("patrol") or ""), {"partner": "小狐狸", "type": "草"})
-    name = str(person.get("display_name_en") if english else person.get("display_name_zh")
-               or person.get("display_name_zh") or person.get("display_name_en") or "")
-    position = profile["position_en"] if english else profile["position_zh"]
-    kind = partner["type"]
-    return {
-        "name": name,
-        "partner_pokemon": partner["partner"],
-        "pokemon_type": kind,
-        "move1_name": "Scout experience" if english else "童軍經驗",
-        "move1_energy": f"2{kind}",
-        "move1_damage": str(max(10, int(overall.get("tasks_done") or 0) * 10)),
-        "move1_text": profile["experience"],
-        "move2_name": "Something to share" if english else "想和大家分享的事",
-        "move2_energy": f"3{kind}",
-        "move2_damage": str(max(50, int(stats.get("badges_done") or 0) * 50)),
-        "move2_text": profile["share"],
-        "ability": (f"Ability: {position}. {profile['interests']}" if english
-                    else f"特性：{position}。{profile['interests']}"),
-        "finish_pokemon": "Full Art Rainbow Holographic Foil",
-        "card_number": str(person.get("scout_no") or "82HKG"),
-    }
-
-
 def _context(st, person: dict, *, own: bool) -> dict:
     progress = progress_for(st, person["id"])
     profile = load_profile(st, person["id"])
@@ -163,7 +122,6 @@ def _context(st, person: dict, *, own: bool) -> dict:
         "overall": progress["overall"],
         "earned_badges": [b for b in progress["badges"] if b["earned"]],
         "groups": patrol_groups(st, g.user["id"]),
-        "card": card_fields(person, profile, progress["stats"], progress["overall"]),
         "own": own,
     }
 
@@ -294,6 +252,53 @@ def card_image():
         st.insert("profiles", {"user_id": g.user["id"], **patch})
     audit(g.user, "profile_card_image", "profiles", g.user["id"], {"stored": uploaded.get("stored")})
     return ok(card_image_url=url)
+
+
+@profile_routes.get("/card-maker")
+@scout_required
+def card_maker():
+    """The card generator, embedded: Pokémon cards only.
+
+    The generator page itself talks to its remote prompt vault and to
+    Gemini with the key typed into it; the platform only hosts the page and
+    keeps the finished picture (see the upload below).
+    """
+    return render_template("scout/card_maker.html",
+                           profile=load_profile(store(), g.user["id"]))
+
+
+@profile_routes.post("/profile/card-upload")
+@scout_required
+def card_upload():
+    """Keep a card picture made in the generator on this scout's profile."""
+    st = store()
+    if not profile_complete(load_profile(st, g.user["id"])):
+        return fail(400, "profile_incomplete", "請先完成個人檔案，才可以放上卡圖。",
+                    "Please complete your profile before adding a card picture.")
+    file = request.files.get("card_image")
+    name = str(getattr(file, "filename", "") or "")
+    ext = name.rsplit(".", 1)[-1].lower() if "." in name else ""
+    if file is None or ext not in {"png", "jpg", "jpeg", "webp"}:
+        return fail(400, "card_file", "請選擇一張卡圖（PNG 或 JPG）。",
+                    "Please choose a card picture (PNG or JPG).")
+    data = file.read()
+    if not data:
+        return fail(400, "card_file", "請選擇一張卡圖（PNG 或 JPG）。",
+                    "Please choose a card picture (PNG or JPG).")
+    uploaded = st.upload_file(name=f"card-{g.user['id']}.{ext}",
+                              mime_type=file.mimetype or "image/png", data=data)
+    url = _card_display_url(uploaded)
+    patch = {"card_image_url": url, "card_image_id": str(uploaded.get("id") or ""),
+             "card_generated_at": now_iso()}
+    if st.get("profiles", g.user["id"]):
+        st.update("profiles", g.user["id"], patch)
+    else:
+        st.insert("profiles", {"user_id": g.user["id"], **patch})
+    audit(g.user, "profile_card_upload", "profiles", g.user["id"], {"stored": uploaded.get("stored")})
+    if wants_json():
+        return ok(card_image_url=url)
+    flash({"kind": "success", "zh": "卡圖已放到你的個人檔案。", "en": "Your card picture is on your profile."}, "result")
+    return redirect(url_for("profile_routes.page"))
 
 
 @profile_routes.get("/profile/<user_id>")
