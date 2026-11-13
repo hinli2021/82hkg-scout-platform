@@ -10,7 +10,6 @@ so this page never keeps a second set of books.
 """
 from __future__ import annotations
 
-import base64
 import os
 import re
 from datetime import datetime, timezone
@@ -19,7 +18,6 @@ import requests
 from flask import (Blueprint, Response, abort, current_app, flash, g, jsonify,
                    redirect, render_template, request, url_for)
 
-from .. import r2store
 from ..auth import scout_required
 from ..engine import progress_for
 from ..schema import patrol_label
@@ -173,28 +171,7 @@ def save():
     return redirect(url_for("profile_routes.page"))
 
 
-CARD_PROMPT_MAX = 12000
 CARD_WAIT_SECONDS = 30
-
-
-def _call_gemini(api_key: str, model: str, prompt: str) -> tuple[bytes, str]:
-    """One image from Gemini. Returns (bytes, mime); raises on any failure."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-    response = requests.post(
-        url, params={"key": api_key}, timeout=110,
-        json={"contents": [{"role": "user", "parts": [{"text": prompt}]}],
-              "generationConfig": {"imageConfig": {"aspectRatio": "2:3"}}},
-    )
-    if response.status_code != 200:
-        raise RuntimeError(f"Gemini answered {response.status_code}")
-    payload = response.json()
-    candidates = payload.get("candidates") or []
-    parts = ((candidates[0].get("content") or {}).get("parts") if candidates else []) or []
-    for part in parts:
-        data = part.get("inlineData") or part.get("inline_data") or {}
-        if data.get("data"):
-            return base64.b64decode(data["data"]), data.get("mimeType") or data.get("mime_type") or "image/png"
-    raise RuntimeError("Gemini returned no image")
 
 
 def _compact_card_picture(data: bytes, mime: str, ext: str) -> tuple[bytes, str, str]:
@@ -226,22 +203,6 @@ def _compact_card_picture(data: bytes, mime: str, ext: str) -> tuple[bytes, str,
     return data, mime, ext
 
 
-def _store_card_picture(st, *, data: bytes, mime: str, ext: str) -> dict:
-    """Keep a card picture: Cloudflare R2 when set up, the unit Drive otherwise.
-
-    R2 failing is not the scout's problem — the picture falls back to the
-    Drive, so a card is never lost to a storage hiccup.
-    """
-    name = f"card-{g.user['id']}.{ext}"
-    cfg = r2store.config(current_app.config, os.environ)
-    if r2store.configured(cfg):
-        try:
-            return r2store.upload(cfg, name=name, mime_type=mime, data=data)
-        except Exception:
-            pass
-    return st.upload_file(name=name, mime_type=mime, data=data)
-
-
 def _card_display_url(uploaded: dict) -> str:
     # A Drive file's web link opens a viewer page, not the picture itself;
     # the thumbnail address is the one an <img> can show (the upload is
@@ -249,58 +210,6 @@ def _card_display_url(uploaded: dict) -> str:
     if uploaded.get("stored") == "drive" and uploaded.get("id"):
         return f"https://drive.google.com/thumbnail?id={uploaded['id']}&sz=w1000"
     return str(uploaded.get("url") or "")
-
-
-@profile_routes.post("/profile/card-image")
-@scout_required
-def card_image():
-    """Generate this scout's AI card picture and keep it on the profile.
-
-    The browser builds the prompt with the card generator's remote prompt
-    vault; this route only lends it the platform's Gemini key (which never
-    reaches the page) and stores the finished picture.
-    """
-    st = store()
-    profile = load_profile(st, g.user["id"])
-    if not profile_complete(profile):
-        return fail(400, "profile_incomplete", "請先完成個人檔案，才可以生成卡圖。",
-                    "Please complete your profile before making a card picture.")
-    body = request.get_json(silent=True) or {}
-    prompt = str(body.get("prompt") or "").strip()
-    if not prompt or len(prompt) > CARD_PROMPT_MAX:
-        return fail(400, "card_prompt", "卡圖資料不完整，請再試一次。",
-                    "The card details are incomplete — please try again.")
-    if profile["card_generated_at"]:
-        try:
-            last = datetime.fromisoformat(profile["card_generated_at"].replace("Z", "+00:00"))
-            if (datetime.now(timezone.utc) - last).total_seconds() < CARD_WAIT_SECONDS:
-                return fail(429, "card_wait", "剛生成了一張卡圖，請等半分鐘再試。",
-                            "A card picture was just made — please wait half a minute.")
-        except ValueError:
-            pass
-    api_key = str(current_app.config.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY") or "")
-    if not api_key:
-        return fail(503, "card_no_key", "領袖尚未開啟卡圖生成功能。",
-                    "Card pictures are not switched on yet — please ask a leader.")
-    model = str(current_app.config.get("GEMINI_IMAGE_MODEL") or "gemini-2.5-flash-image")
-    try:
-        data, mime = _call_gemini(api_key, model, prompt)
-    except Exception:
-        return fail(502, "card_failed", "卡圖生成失敗，請稍後再試。",
-                    "The card picture could not be made — please try again later.")
-    data, mime, ext = _compact_card_picture(
-        data, mime, "jpg" if "jpeg" in mime or "jpg" in mime else "png")
-    uploaded = _store_card_picture(st, data=data, mime=mime, ext=ext)
-    url = _card_display_url(uploaded)
-    stamp = now_iso()
-    patch = {"card_image_url": url, "card_image_id": str(uploaded.get("id") or ""),
-             "card_generated_at": stamp}
-    if st.get("profiles", g.user["id"]):
-        st.update("profiles", g.user["id"], patch)
-    else:
-        st.insert("profiles", {"user_id": g.user["id"], **patch})
-    audit(g.user, "profile_card_image", "profiles", g.user["id"], {"stored": uploaded.get("stored")})
-    return ok(card_image_url=url)
 
 
 CARD_PROXY_MAX_BYTES = 12 * 1024 * 1024
@@ -398,7 +307,7 @@ def card_upload():
         return fail(400, "card_file", "請選擇一張卡圖（PNG、JPG 或 WebP）。",
                     "Please choose a card picture (PNG, JPG or WebP).")
     data, mime, ext = _compact_card_picture(data, file.mimetype or "image/png", ext)
-    uploaded = _store_card_picture(st, data=data, mime=mime, ext=ext)
+    uploaded = st.upload_file(name=f"card-{g.user['id']}.{ext}", mime_type=mime, data=data)
     url = _card_display_url(uploaded)
     patch = {"card_image_url": url, "card_image_id": str(uploaded.get("id") or ""),
              "card_generated_at": now_iso()}

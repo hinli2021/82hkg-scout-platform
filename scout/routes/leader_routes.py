@@ -1499,10 +1499,19 @@ def setup_checks(st) -> dict:
     mail_ready = bool(str(settings.get("smtp_host") or "").strip())
     import os
 
-    from .. import r2store
-
     card_key_ready = bool(str(os.environ.get("GEMINI_API_KEY") or "").strip())
-    r2_ready = r2store.configured(r2store.config(None, os.environ))
+    drive_folder = str(getattr(st.driver, "drive_folder_id", "") or "")
+    service_email = str((getattr(st.driver, "service_account", None) or {}).get("client_email") or "")
+    if not on_sheets:
+        card_folder_ok, card_folder_zh, card_folder_en = True, \
+            "本機模式：卡圖存在伺服器的 uploads 資料夾", "Local mode — card pictures are in the server uploads folder"
+    elif drive_folder:
+        card_folder_ok, card_folder_zh, card_folder_en = True, \
+            "卡圖會存到你的 Google Drive 資料夾", "Card pictures are stored in your Google Drive folder"
+    else:
+        card_folder_ok, card_folder_zh, card_folder_en = False, \
+            "未設定資料夾；卡圖會存在服務帳戶的 Drive，你在自己的 Drive 看不到（服務帳戶電郵：" + (service_email or "—") + "）", \
+            "No folder set — card pictures land in the service account's Drive, out of your sight (service account: " + (service_email or "—") + ")"
 
     def row(key, ok, zh, en, detail_zh, detail_en, fix_zh="", fix_en="", optional=False):
         return {"key": key, "ok": bool(ok), "zh": zh, "en": en, "detail_zh": detail_zh,
@@ -1552,13 +1561,10 @@ def setup_checks(st) -> dict:
             else "Not set — scouts can still use the Google link; set it to open the in-page maker too",
             "在 Vercel 加入 GEMINI_API_KEY（在 Google AI Studio 申請），然後 Redeploy",
             "Add GEMINI_API_KEY (from Google AI Studio) in Vercel, then Redeploy", optional=True),
-        row("card_storage", r2_ready, "卡圖存放位置", "Card picture storage",
-            "已設定 Cloudflare R2，卡圖會存到 R2" if r2_ready
-            else "未設定 R2；卡圖暫存在 Google Drive",
-            "Cloudflare R2 is set — card pictures are stored there" if r2_ready
-            else "R2 is not set — card pictures are stored in Google Drive for now",
-            "在 Cloudflare 建立 R2 儲存桶和存取金鑰，把 CLOUDFLARE_ACCOUNT_ID、R2_ACCESS_KEY_ID、R2_SECRET_ACCESS_KEY、R2_BUCKET、R2_PUBLIC_BASE_URL 加入 Vercel，然後 Redeploy",
-            "Create an R2 bucket and access key in Cloudflare, add CLOUDFLARE_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET and R2_PUBLIC_BASE_URL in Vercel, then Redeploy", optional=True),
+        row("card_storage", card_folder_ok, "卡圖存放資料夾", "Card picture folder",
+            card_folder_zh, card_folder_en,
+            "在你的 Google Drive 建立資料夾，與服務帳戶電郵共用（編輯者），把資料夾 ID 加入 Vercel 的 GOOGLE_DRIVE_FOLDER_ID，然後 Redeploy（docs/02）",
+            "Create a folder in your Google Drive, share it with the service account email (Editor), add the folder ID as GOOGLE_DRIVE_FOLDER_ID in Vercel, then Redeploy (docs/02)", optional=True),
     ]
     required = [item for item in checks if not item["optional"]]
     return {

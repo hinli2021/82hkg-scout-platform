@@ -10,12 +10,9 @@ storage and includes a one-file offline walkthrough.
 
 ---
 
-## 文件：一份合訂本 + 一個打包 / the docs, compiled and packed
+## 文件 / the docs
 
-全部說明文件（README、LAUNCH、DEMO、docs/01–06）已合併成單一檔案
-**`docs/ALL-DOCS.md`** —— 有目錄、可整份閱讀或列印。改過任何一份之後：
-
-    python3 tools/compile_docs.py      # 重新合併 → docs/ALL-DOCS.md
+說明文件在本檔、`LAUNCH.md`、`DEMO.md` 和 `docs/01–06`，直接開啟閱讀即可。
 
 要把整個平台（程式、內容、文件、截圖、原稿）收成一個檔案保存或交收：
 

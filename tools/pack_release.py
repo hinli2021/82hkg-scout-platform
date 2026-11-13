@@ -4,7 +4,7 @@
 What goes in:
   · every file needed to run or redeploy the app (app.py, scout/, templates/,
     static/, content/, tools/, tests/, requirements.txt, vercel.json, api/)
-  · the documents, including the compiled ALL-DOCS.md and the screenshots
+  · the documents and the screenshots
   · the original artwork the leader uploaded (uploads/)
   · a MANIFEST.txt listing every member with its size
 
@@ -71,7 +71,7 @@ def main() -> None:
         manifest = [f"港島第八十二旅童軍團 · 平台打包 {stamp}",
                     "82nd Hong Kong Group — Scout Platform release pack", "",
                     "解壓後：scout-platform-py/ 是平台，uploads/ 是你上載的原稿。",
-                    "Unzip, then read scout-platform-py/docs/ALL-DOCS.md first.", "",
+                    "Unzip, then read scout-platform-py/README.md first.", "",
                     "不含（可重新產生）：.git、離線示範 HTML、data/db 執行時資料。",
                     "Not included: git history, the offline demo HTML files, runtime data.", "",
                     f"{'檔案 file':<58} {'bytes':>10}", "-" * 70]

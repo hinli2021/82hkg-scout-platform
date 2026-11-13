@@ -55,7 +55,8 @@ def test_a_ready_deployment_shows_every_check_green():
     assert by_key["card_key"]["ok"] is False and by_key["card_key"]["optional"] is True
     assert "GEMINI_API_KEY" in by_key["card_key"]["fix_zh"]
     assert by_key["card_storage"]["ok"] is False and by_key["card_storage"]["optional"] is True
-    assert "R2_BUCKET" in by_key["card_storage"]["fix_zh"]
+    assert "GOOGLE_DRIVE_FOLDER_ID" in by_key["card_storage"]["fix_zh"]
+    assert "服務帳戶" in by_key["card_storage"]["detail_zh"]
     assert checks["optional_pending"] == 3
 
 
