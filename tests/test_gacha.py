@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import random
+import re
 
 from scout import gacha
 
@@ -134,12 +135,20 @@ def test_album_is_split_into_categories(store, new_scout):
     assert "童軍誓詞" in page and "平結" in page
     assert page.count("mini-card") == 46
     assert page.index("會員章") < page.index("繩結") < page.index("技能組")
+    # categories are filter buttons now, like the rarity chips: every card
+    # stays on the page and the browser narrows the album in place
+    assert 'data-category-filter="knots"' in page and 'data-category="knots"' in page
+    assert re.search(r'class="chip brass"\s+data-category-filter="all"', page)
     knots = new_scout.get("/cards?cat=knots").get_data(as_text=True)
+    # ?cat= only preselects the filter; nothing is left off the page
+    assert re.search(r'class="chip brass"\s+data-category-filter="knots"', knots)
     assert "平結" in knots and "稱人結" in knots
-    assert "童軍誓詞" not in knots and "烹飪" not in knots
-    assert "cat=knots" in knots and "aria-current" in knots
+    assert "童軍誓詞" in knots and "烹飪" in knots
+    assert knots.count("mini-card") == 46
     # an unknown category falls back to showing everything
-    assert "童軍誓詞" in new_scout.get("/cards?cat=nope").get_data(as_text=True)
+    unknown = new_scout.get("/cards?cat=nope").get_data(as_text=True)
+    assert "童軍誓詞" in unknown
+    assert re.search(r'class="chip brass"\s+data-category-filter="all"', unknown)
     new_scout.get("/set-language/en")
     english = new_scout.get("/cards").get_data(as_text=True)
     assert "Skill cards" in english and "Membership" in english
@@ -147,7 +156,8 @@ def test_album_is_split_into_categories(store, new_scout):
     assert "Choose a category" not in english
     assert english.index("Membership") < english.index("Knots") < english.index("Pursuit")
     knots_en = new_scout.get("/cards?cat=knots").get_data(as_text=True)
-    assert "Reef knot" in knots_en and "Scout Promise" not in knots_en
+    assert "Reef knot" in knots_en and "Scout Promise" in knots_en
+    assert re.search(r'class="chip brass"\s+data-category-filter="knots"', knots_en)
     for word in ("技能卡", "會員章", "專科徽章", "技能組", "圖鑑分類", "平結", "童軍誓詞"):
         assert word not in knots_en
 

@@ -56,9 +56,8 @@ def _view(user, *, reveal: bool, category: str = "") -> dict:
     packs = state["packs_json"]
     nxt = packs[0] if packs else None
     sections = album_sections(state)
-    keep = {"reveal": 1} if reveal else {}
-    for section in sections:
-        section["href"] = url_for("gacha_routes.page", cat=section["id"], **keep)
+    # Every category is always on the page: picking one filters in place,
+    # exactly like the rarity chips. ?cat= only chooses the starting filter.
     chosen = next((section for section in sections if section["id"] == category), None)
     return {
         "summary": {
@@ -78,9 +77,7 @@ def _view(user, *, reveal: bool, category: str = "") -> dict:
         "reveal": opened,
         "families": _families(sections),
         "category": chosen,
-        # the album opens on every card; a category narrows it to one set
-        "all_href": url_for("gacha_routes.page", **keep),
-        "sections": [chosen] if chosen else sections,
+        "sections": sections,
         "rates": [
             {"code": code, "zh": RARITY_NAME[code][0], "en": RARITY_NAME[code][1],
              "rate": weight / 10}

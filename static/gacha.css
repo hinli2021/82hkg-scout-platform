@@ -508,7 +508,7 @@
 }
 .album-section-head h3 { margin: 0; font-size: 1.05rem; }
 .album-section-head .count { font-size: .78rem; color: var(--muted); font-weight: 600; }
-.mini-card[hidden], .album-none[hidden] { display: none !important; }
+.mini-card[hidden], .album-none[hidden], .album-section[hidden] { display: none !important; }
 .album-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));

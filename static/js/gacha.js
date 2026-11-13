@@ -123,33 +123,66 @@
     });
   }
 
-  function applyAlbumFilter(want) {
-    var section = document.querySelector('[data-album-section]');
-    if (!section) return;
-    var any = false;
-    section.querySelectorAll('.mini-card').forEach(function (card) {
-      var rarity = card.getAttribute('data-rarity') || '';
-      var owned = card.getAttribute('data-owned') === '1';
-      var show = want === 'all'
-        || (want === 'owned' && owned)
-        || (want === 'SR' && owned && (rarity === 'SR' || rarity === 'SSR' || rarity === 'UR' || rarity === 'LR'))
-        || rarity === want;
-      card.hidden = !show;
-      if (show) any = true;
-    });
-    var empty = section.querySelector('[data-album-none]');
-    if (empty) empty.hidden = any;
+  // Two filters, one result: the category chips and the rarity chips both
+  // narrow the album in place, and a card shows only when it passes both.
+  var categoryWant = 'all';
+  var rarityWant = 'all';
+
+  function rarityMatches(card) {
+    var rarity = card.getAttribute('data-rarity') || '';
+    var owned = card.getAttribute('data-owned') === '1';
+    return rarityWant === 'all'
+      || (rarityWant === 'owned' && owned)
+      || (rarityWant === 'SR' && owned && (rarity === 'SR' || rarity === 'SSR' || rarity === 'UR' || rarity === 'LR'))
+      || rarity === rarityWant;
   }
 
-  document.querySelectorAll('[data-filters] [data-filter]').forEach(function (button) {
+  function applyAlbumFilters() {
+    document.querySelectorAll('[data-album-section]').forEach(function (section) {
+      var inCategory = categoryWant === 'all'
+        || section.getAttribute('data-category') === categoryWant;
+      var any = false;
+      section.querySelectorAll('.mini-card').forEach(function (card) {
+        var show = inCategory && rarityMatches(card);
+        card.hidden = !show;
+        if (show) any = true;
+      });
+      section.hidden = !inCategory;
+      var empty = section.querySelector('[data-album-none]');
+      if (empty) empty.hidden = !(inCategory && !any);
+    });
+  }
+
+  document.querySelectorAll('[data-categories] [data-category-filter]').forEach(function (button) {
+    if (button.classList.contains('brass')) {
+      categoryWant = button.getAttribute('data-category-filter');
+    }
     button.addEventListener('click', function () {
-      var want = button.getAttribute('data-filter');
+      categoryWant = button.getAttribute('data-category-filter');
+      document.querySelectorAll('[data-categories] [data-category-filter]').forEach(function (other) {
+        var on = other === button;
+        other.classList.toggle('brass', on);
+        other.classList.toggle('light', !on);
+        other.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      applyAlbumFilters();
+    });
+  });
+
+  document.querySelectorAll('[data-filters] [data-filter]').forEach(function (button) {
+    if (button.classList.contains('brass')) {
+      rarityWant = button.getAttribute('data-filter');
+    }
+    button.addEventListener('click', function () {
+      rarityWant = button.getAttribute('data-filter');
       document.querySelectorAll('[data-filters] [data-filter]').forEach(function (other) {
         other.classList.toggle('brass', other === button);
       });
-      applyAlbumFilter(want);
+      applyAlbumFilters();
     });
   });
+
+  applyAlbumFilters();
 
   bind(stage);
   play(stage);

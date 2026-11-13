@@ -110,15 +110,15 @@
     <h2>{{ L('圖鑑', 'Album') }}</h2>
     <span class="count">{{ summary.owned }}/{{ summary.total }}</span>
   </div>
-  <div class="album-filters" role="navigation" aria-label="{{ L('圖鑑分類', 'Album categories') }}">
+  <div class="album-filters" role="group" aria-label="{{ L('圖鑑分類', 'Album categories') }}" data-categories>
     <div class="album-filter-group">
       <p class="album-filter-label">{{ L('全部', 'All') }}</p>
       <div class="album-jumps">
-        <a class="chip {{ 'brass' if not category else 'light' }}" href="{{ all_href }}"
-           {% if not category %}aria-current="true"{% endif %}>
+        <button type="button" class="chip {{ 'brass' if not category else 'light' }}"
+                data-category-filter="all" aria-pressed="{{ 'true' if not category else 'false' }}">
           {{ L('全部卡', 'All cards') }}
           <span class="album-chip-count">{{ summary.owned }}/{{ summary.total }}</span>
-        </a>
+        </button>
       </div>
     </div>
     {% for family in families %}
@@ -126,12 +126,11 @@
         <p class="album-filter-label">{{ L(family.zh, family.en) }}</p>
         <div class="album-jumps">
           {% for section in family.sections %}
-            <a class="chip {{ 'brass' if category and category.id == section.id else 'light' }}"
-               href="{{ section.href }}"
-               {% if category and category.id == section.id %}aria-current="true"{% endif %}>
+            <button type="button" class="chip {{ 'brass' if category and category.id == section.id else 'light' }}"
+                    data-category-filter="{{ section.id }}" aria-pressed="{{ 'true' if category and category.id == section.id else 'false' }}">
               {{ L(section.zh, section.en) }}
               <span class="album-chip-count">{{ section.owned }}/{{ section.total }}</span>
-            </a>
+            </button>
           {% endfor %}
         </div>
       </div>
@@ -146,7 +145,7 @@
     {% endfor %}
   </div>
   {% for section in sections %}
-    <section class="album-section" id="album-{{ section.id }}" data-album-section>
+    <section class="album-section" id="album-{{ section.id }}" data-album-section data-category="{{ section.id }}">
       <div class="album-section-head">
         <h3>{{ L(section.zh, section.en) }}</h3>
         <span class="count">{{ section.owned }}/{{ section.total }}</span>
