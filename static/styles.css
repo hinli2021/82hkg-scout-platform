@@ -4295,6 +4295,8 @@ body.is-game main { padding-top: 6px; }
   font-size: .74rem; font-weight: 750; line-height: 1.25;
 }
 .pipe-panel { position: relative; flex: 1 1 auto; min-width: 0; }
+.pipe-panel-inner { position: relative; }
+.pipe-pan-hint { display: none; }
 .pipe-panel-img { width: 100%; height: auto; display: block; border-radius: .5rem; box-shadow: 0 16px 36px rgba(0,0,0,.45); }
 /* holes scattered over the panel's dark board; the fitted pipe (its
    painting with the background removed) lies across its hole */
@@ -4566,6 +4568,22 @@ body.is-game main { padding-top: 6px; }
      diagram, short words and the next button — fits the screen at once */
   .howto { position: fixed; inset: 4.4rem .55rem .55rem; z-index: 80; }
   .pipe-note { top: 2.4rem; }
+  /* phone holes are tiny at board width, so the panel is shown enlarged:
+     twice as wide inside a frame the scout swipes sideways, which makes
+     every hole about twice as wide and far easier to tap. The frame
+     opens centred on the black board (see flag.js). */
+  .pipe-panel {
+    overflow-x: auto; overflow-y: hidden; border-radius: .5rem;
+    overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin; scrollbar-color: rgba(217, 164, 65, .6) transparent;
+  }
+  .pipe-panel-inner { width: 200%; }
+  .pipe-pan-hint {
+    display: block; position: absolute; right: .55rem; bottom: .3rem; z-index: 6;
+    padding: .12rem .55rem; border-radius: 999px; pointer-events: none;
+    background: rgba(9, 26, 18, .78); color: #fff7e0;
+    border: 1px solid rgba(255, 210, 90, .55); font-size: .68rem; font-weight: 800;
+  }
   .notebook-open { padding: 6% 7.5% 8%; column-gap: 6%; }
   .notebook-page-right h3 { font-size: .82rem; margin-bottom: .25rem; }
   .notebook-page-right p { font-size: .64rem; line-height: 1.45; margin-bottom: .3rem; }

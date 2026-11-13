@@ -255,7 +255,7 @@
       + '<button type="button" class="pipe-notebook" data-pipe-notebook>'
       + artImg("notebook", "pipe-notebook-img")
       + '<span>' + escapeHtml(t("上一小隊的筆記", "The last patrol's notebook")) + '</span></button>'
-      + '<div class="pipe-panel">'
+      + '<div class="pipe-panel"><div class="pipe-panel-inner">'
       + artImg("panel", "pipe-panel-img")
       + '<div class="pipe-holes">'
       + (holeOrder.length === s.questions.length ? holeOrder : s.questions.map(function (it, i) { return i; }))
@@ -270,11 +270,20 @@
       + artImg(startState === "wrong" ? "button-start-red" : "button-start", "pipe-start-img")
       + '<span>' + escapeHtml(t("啟動", "Start")) + '</span></button>'
       + '<span class="pipe-count">' + filled + " / " + s.questions.length + '</span>'
-      + '</div>'
+      + '</div></div>'
+      + '<span class="pipe-pan-hint">' + escapeHtml(t("左右滑動，可以看整塊控制板", "Swipe sideways to see the whole panel")) + '</span>'
       + '<div class="pipe-note" data-pipe-note hidden></div>'
       + '<div class="pipe-popup" data-pipe-popup hidden></div>'
       + '</div>';
     board.innerHTML = html;
+
+    /* on a phone the panel is enlarged inside its sideways-scrolling
+       frame (see styles.css): start with the black board centred, so the
+       holes are in view before any swiping */
+    var panelFrame = board.querySelector(".pipe-panel");
+    if (panelFrame && panelFrame.scrollWidth > panelFrame.clientWidth) {
+      panelFrame.scrollLeft = (panelFrame.scrollWidth - panelFrame.clientWidth) / 2;
+    }
 
     board.querySelectorAll(".pipe-hole").forEach(function (hole) {
       hole.addEventListener("click", function () {

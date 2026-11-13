@@ -191,6 +191,12 @@ def test_pipes_are_dragged_not_clicked_lyrics_stay_in_order_and_no_all_of_these(
     assert "#flag-root.is-start-screen .cave-picture" in css
     assert "position: fixed; inset: 4.4rem .55rem .55rem" in css
     assert ".pipe-fit { min-height: 5.4rem; position: sticky; top: 0" in css
+    # phone holes are enlarged instead of shrunk onto the small screen:
+    # the panel sits at twice width in a sideways-scrolling frame that
+    # opens centred on the black board, with a swipe hint
+    assert "pipe-panel-inner" in js and ".pipe-panel-inner { width: 200%; }" in css
+    assert "pipe-pan-hint" in js and "pipe-pan-hint" in css
+    assert "panelFrame.scrollLeft" in js
     # the anthem run deals its general questions first, then the six lyric
     # gaps one after another in song order, not shuffled among the rest
     assert 'it.station.id === "sing"' in js and "lyricOrder" in js
