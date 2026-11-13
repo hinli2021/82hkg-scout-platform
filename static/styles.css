@@ -411,6 +411,8 @@ tbody tr:hover { background: #fcfdfb; }
 @media (min-width: 560px) { .badge-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 /* 進度性獎章 come in fives — let them sit in one row on a laptop */
 @media (min-width: 1020px) { .badge-tiles { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* the home features （每日挑戰 and 抽卡） wear the same square shape */
+.feature-tiles { margin: .9rem 0 .4rem; }
 .badge-tile {
   aspect-ratio: 1 / 1; position: relative; overflow: hidden; cursor: pointer;
   background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-lg);
@@ -3976,16 +3978,6 @@ body.is-game main { padding-top: 6px; }
 .daily-history-miss { color: var(--muted); }
 .daily-games { display: flex; flex-wrap: wrap; gap: .35rem; }
 .daily-games .chip.is-now { background: var(--brass-light); border-color: var(--brass-dark); color: #2b1d0c; font-weight: 800; }
-
-/* Home: the daily-challenge strip */
-.daily-teaser {
-  display: flex; align-items: center; gap: .8rem; text-decoration: none;
-  padding: .8rem 1rem; margin: .8rem 0;
-}
-.daily-teaser-emoji { font-size: 1.8rem; line-height: 1; }
-.daily-teaser-text { display: grid; gap: .15rem; flex: 1 1 auto; }
-.daily-teaser-text strong { color: var(--ink); }
-.daily-teaser.is-done { opacity: .75; }
 
 /* ── 龍虎榜：三張榜 ───────────────────────────────────────────────────── */
 .lb-mine { margin-bottom: 1.1rem; }

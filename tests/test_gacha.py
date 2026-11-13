@@ -135,6 +135,9 @@ def test_album_is_split_into_categories(store, new_scout):
 
 
 def test_cards_page_is_bilingual_and_can_be_switched_off(new_scout, store):
+    # cards get a square home button too, the same shape as a badge tile
+    home = new_scout.get("/home").get_data(as_text=True)
+    assert "badge-tile feature-tile" in home and "抽卡" in home
     page = new_scout.get("/cards?cat=membership").get_data(as_text=True)
     assert "抽卡" in page and "童軍誓詞" in page
     new_scout.get("/set-language/en")
