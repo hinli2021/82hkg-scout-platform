@@ -1499,7 +1499,10 @@ def setup_checks(st) -> dict:
     mail_ready = bool(str(settings.get("smtp_host") or "").strip())
     import os
 
+    from .. import r2store
+
     card_key_ready = bool(str(os.environ.get("GEMINI_API_KEY") or "").strip())
+    r2_ready = r2store.configured(r2store.config(None, os.environ))
 
     def row(key, ok, zh, en, detail_zh, detail_en, fix_zh="", fix_en="", optional=False):
         return {"key": key, "ok": bool(ok), "zh": zh, "en": en, "detail_zh": detail_zh,
@@ -1549,6 +1552,13 @@ def setup_checks(st) -> dict:
             else "Not set — scouts can still use the Google link; set it to open the in-page maker too",
             "在 Vercel 加入 GEMINI_API_KEY（在 Google AI Studio 申請），然後 Redeploy",
             "Add GEMINI_API_KEY (from Google AI Studio) in Vercel, then Redeploy", optional=True),
+        row("card_storage", r2_ready, "卡圖存放位置", "Card picture storage",
+            "已設定 Cloudflare R2，卡圖會存到 R2" if r2_ready
+            else "未設定 R2；卡圖暫存在 Google Drive",
+            "Cloudflare R2 is set — card pictures are stored there" if r2_ready
+            else "R2 is not set — card pictures are stored in Google Drive for now",
+            "在 Cloudflare 建立 R2 儲存桶和存取金鑰，把 CLOUDFLARE_ACCOUNT_ID、R2_ACCESS_KEY_ID、R2_SECRET_ACCESS_KEY、R2_BUCKET、R2_PUBLIC_BASE_URL 加入 Vercel，然後 Redeploy",
+            "Create an R2 bucket and access key in Cloudflare, add CLOUDFLARE_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET and R2_PUBLIC_BASE_URL in Vercel, then Redeploy", optional=True),
     ]
     required = [item for item in checks if not item["optional"]]
     return {

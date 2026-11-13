@@ -19,6 +19,7 @@ import requests
 from flask import (Blueprint, Response, abort, current_app, flash, g, jsonify,
                    redirect, render_template, request, url_for)
 
+from .. import r2store
 from ..auth import scout_required
 from ..engine import progress_for
 from ..schema import patrol_label
@@ -225,6 +226,22 @@ def _compact_card_picture(data: bytes, mime: str, ext: str) -> tuple[bytes, str,
     return data, mime, ext
 
 
+def _store_card_picture(st, *, data: bytes, mime: str, ext: str) -> dict:
+    """Keep a card picture: Cloudflare R2 when set up, the unit Drive otherwise.
+
+    R2 failing is not the scout's problem — the picture falls back to the
+    Drive, so a card is never lost to a storage hiccup.
+    """
+    name = f"card-{g.user['id']}.{ext}"
+    cfg = r2store.config(current_app.config, os.environ)
+    if r2store.configured(cfg):
+        try:
+            return r2store.upload(cfg, name=name, mime_type=mime, data=data)
+        except Exception:
+            pass
+    return st.upload_file(name=name, mime_type=mime, data=data)
+
+
 def _card_display_url(uploaded: dict) -> str:
     # A Drive file's web link opens a viewer page, not the picture itself;
     # the thumbnail address is the one an <img> can show (the upload is
@@ -273,7 +290,7 @@ def card_image():
                     "The card picture could not be made — please try again later.")
     data, mime, ext = _compact_card_picture(
         data, mime, "jpg" if "jpeg" in mime or "jpg" in mime else "png")
-    uploaded = st.upload_file(name=f"card-{g.user['id']}.{ext}", mime_type=mime, data=data)
+    uploaded = _store_card_picture(st, data=data, mime=mime, ext=ext)
     url = _card_display_url(uploaded)
     stamp = now_iso()
     patch = {"card_image_url": url, "card_image_id": str(uploaded.get("id") or ""),
@@ -381,8 +398,7 @@ def card_upload():
         return fail(400, "card_file", "請選擇一張卡圖（PNG、JPG 或 WebP）。",
                     "Please choose a card picture (PNG, JPG or WebP).")
     data, mime, ext = _compact_card_picture(data, file.mimetype or "image/png", ext)
-    uploaded = st.upload_file(name=f"card-{g.user['id']}.{ext}",
-                              mime_type=mime, data=data)
+    uploaded = _store_card_picture(st, data=data, mime=mime, ext=ext)
     url = _card_display_url(uploaded)
     patch = {"card_image_url": url, "card_image_id": str(uploaded.get("id") or ""),
              "card_generated_at": now_iso()}

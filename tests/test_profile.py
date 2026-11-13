@@ -409,6 +409,74 @@ def test_the_embedded_generator_uses_the_proxy_not_a_pasted_key(new_scout):
     assert ".gear { display: none" in generator
 
 
+# ── card pictures live in Cloudflare R2 when the leader sets it up ──────
+
+_R2_CONFIG = {
+    "CLOUDFLARE_ACCOUNT_ID": "acc-123",
+    "R2_ACCESS_KEY_ID": "test-access",
+    "R2_SECRET_ACCESS_KEY": "test-secret",
+    "R2_BUCKET": "scout-cards",
+    "R2_PUBLIC_BASE_URL": "https://pub.example.test",
+}
+
+
+def _png_bytes():
+    import io
+
+    from PIL import Image
+    buffer = io.BytesIO()
+    Image.new("RGB", (240, 360), (30, 90, 60)).save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+def test_a_card_picture_goes_to_r2_when_it_is_set_up(store, new_scout, app, monkeypatch):
+    import io
+
+    import requests as requests_module
+    app.config.update(_R2_CONFIG)
+    seen = {}
+
+    class _Ok:
+        status_code = 200
+
+    def fake_put(url, data=None, headers=None, timeout=None):
+        seen.update(url=url, data=data, headers=headers)
+        return _Ok()
+
+    monkeypatch.setattr(requests_module, "put", fake_put)
+    _complete(new_scout)
+    reply = new_scout.post("/profile/card-upload",
+                           data={"card_image": (io.BytesIO(_png_bytes()), "card.png")})
+    assert reply.status_code == 200
+    row = store.get("profiles", new_scout.id)
+    assert row["card_image_url"].startswith("https://pub.example.test/cards/card-")
+    assert row["card_image_url"].endswith(".avif")
+    assert "acc-123.r2.cloudflarestorage.com/scout-cards/cards/card-" in seen["url"]
+    assert seen["headers"]["Content-Type"] == "image/avif"
+    auth = seen["headers"]["Authorization"]
+    assert auth.startswith("AWS4-HMAC-SHA256 Credential=test-access/")
+    assert "SignedHeaders=host;x-amz-content-sha256;x-amz-date" in auth
+    assert seen["headers"]["x-amz-content-sha256"]
+
+
+def test_a_card_picture_falls_back_to_the_drive_when_r2_fails(store, new_scout, app, monkeypatch):
+    import io
+
+    import requests as requests_module
+    app.config.update(_R2_CONFIG)
+
+    def broken_put(url, data=None, headers=None, timeout=None):
+        raise RuntimeError("R2 is down")
+
+    monkeypatch.setattr(requests_module, "put", broken_put)
+    _complete(new_scout)
+    reply = new_scout.post("/profile/card-upload",
+                           data={"card_image": (io.BytesIO(_png_bytes()), "card.png")})
+    assert reply.status_code == 200
+    row = store.get("profiles", new_scout.id)
+    assert row["card_image_url"].startswith("/uploads/")
+
+
 def test_the_profiles_tab_exists_in_the_schema():
     from scout.schema import COLLECTIONS, key_field
     assert COLLECTIONS["profiles"]["fields"] == [

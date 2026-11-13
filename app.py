@@ -126,6 +126,13 @@ def create_app(config: dict | None = None) -> Flask:
         # Gemini key in the hosting environment; scouts never see it.
         GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY", ""),
         GEMINI_IMAGE_MODEL=os.environ.get("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image"),
+        # Card pictures live in Cloudflare R2 when the leader sets these;
+        # until then they stay in the unit Drive (see scout/r2store.py).
+        CLOUDFLARE_ACCOUNT_ID=os.environ.get("CLOUDFLARE_ACCOUNT_ID", ""),
+        R2_ACCESS_KEY_ID=os.environ.get("R2_ACCESS_KEY_ID", ""),
+        R2_SECRET_ACCESS_KEY=os.environ.get("R2_SECRET_ACCESS_KEY", ""),
+        R2_BUCKET=os.environ.get("R2_BUCKET", ""),
+        R2_PUBLIC_BASE_URL=os.environ.get("R2_PUBLIC_BASE_URL", ""),
     )
     if config:
         app.config.update(config)

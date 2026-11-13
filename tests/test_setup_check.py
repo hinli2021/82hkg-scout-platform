@@ -54,7 +54,9 @@ def test_a_ready_deployment_shows_every_check_green():
     assert "docs/03" in by_key["email"]["fix_zh"]
     assert by_key["card_key"]["ok"] is False and by_key["card_key"]["optional"] is True
     assert "GEMINI_API_KEY" in by_key["card_key"]["fix_zh"]
-    assert checks["optional_pending"] == 2
+    assert by_key["card_storage"]["ok"] is False and by_key["card_storage"]["optional"] is True
+    assert "R2_BUCKET" in by_key["card_storage"]["fix_zh"]
+    assert checks["optional_pending"] == 3
 
 
 def test_an_empty_deployment_points_at_what_is_missing():
