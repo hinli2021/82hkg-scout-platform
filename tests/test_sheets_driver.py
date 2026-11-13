@@ -222,6 +222,34 @@ def test_list_skips_blank_rows(sheets, fake):
     assert [row["title_zh"] for row in rows] == ["獎品二"]
 
 
+def test_a_tab_from_before_a_field_existed_gains_the_column(sheets, fake):
+    """The Profiles tab was created before 職位 existed, so it has no column
+    for it. Without a migration the field is silently dropped on every save
+    and the profile can never be completed — the pop-up comes back forever.
+    The driver must append the column, keep existing data where it is, and
+    then store the new field like any other."""
+    fake.tabs["profiles"] = [
+        ["user_id", "interests", "experience", "share", "visible", "updated_at"],
+        ["u1", "露營", "參加了童軍兩年。", "喜歡幫忙。", "true", "2026-01-01"],
+    ]
+    row = sheets.get("profiles", "u1")
+    assert row["interests"] == "露營"                       # old data intact
+    assert fake.tabs["profiles"][0] == [
+        "user_id", "interests", "experience", "share", "visible", "updated_at", "position",
+    ]                                                        # appended, nothing moved
+
+    sheets.update("profiles", "u1", {"position": "小隊長"})
+    assert sheets.get("profiles", "u1")["position"] == "小隊長"
+    assert cell(fake, "profiles", 2, "position") == "小隊長"
+    assert cell(fake, "profiles", 2, "interests") == "露營"
+
+    created = sheets.insert("profiles", {
+        "user_id": "u2", "position": "隊員", "interests": "音樂",
+        "experience": "參加了童軍一年。", "share": "喜歡唱歌。", "visible": True,
+    })
+    assert sheets.get("profiles", created["user_id"])["position"] == "隊員"
+
+
 def test_update_writes_only_that_row(sheets, fake):
     sheets.ensure_schema()
     a = sheets.insert("announcements", {"title_zh": "第一則"})

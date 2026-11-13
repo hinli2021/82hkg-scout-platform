@@ -167,6 +167,20 @@ class SheetsDriver:
         data = self._api(f"{SHEETS_API}/{self.spreadsheet_id}/values/{rng}")
         values = data.get("values", []) or []
         sheet_headers = [str(h) for h in (values[0] if values else headers)] or headers
+        # A tab created before a field existed has no column for it: reads
+        # would never see the field and writes would silently drop it (a
+        # profile's 職位 vanished this way, so the completion pop-up never
+        # closed). Append the missing columns to the end of the header row —
+        # existing columns keep their places, so no data moves.
+        missing = [field for field in headers if field not in sheet_headers]
+        if missing and values:
+            sheet_headers = sheet_headers + missing
+            header_range = f"{collection}!A1:{_column_letter(len(sheet_headers))}1"
+            self._api(
+                f"{SHEETS_API}/{self.spreadsheet_id}/values/{header_range}?valueInputOption=RAW",
+                method="PUT",
+                body={"values": [sheet_headers]},
+            )
         rows: list[dict] = []
         index_by_id: dict[str, int] = {}
         last_row = 1                                   # the header row
