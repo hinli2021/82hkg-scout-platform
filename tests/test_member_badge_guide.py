@@ -265,7 +265,7 @@ def test_a_first_time_scout_is_told_the_story_in_pictures(new_scout, store):
     badge = member_badge(store)
     # the profile pop-up must be finished before the story page can be used
     new_scout.post("/profile", data={
-        "position": "member", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。",
+        "position": "隊員", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。",
     })
     page = new_scout.get(f"/badges/{badge['id']}").get_data(as_text=True)
     assert 'data-quest-intro' in page and 'data-quest-page' in page

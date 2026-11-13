@@ -146,13 +146,8 @@
       <div class="modal-body">
         <input type="hidden" name="return_to" value="{{ request.path }}">
         <label class="field"><span>{{ L('職位', 'Position') }}</span>
-          <select name="position" required>
-            <option value="">{{ L('請選擇職位', 'Choose your position') }}</option>
-            <option value="member" {{ 'selected' if profile_setup.position == 'member' }}>{{ L('隊員', 'Patrol member') }}</option>
-            <option value="apl" {{ 'selected' if profile_setup.position == 'apl' }}>{{ L('副小隊長', 'Assistant Patrol Leader') }}</option>
-            <option value="pl" {{ 'selected' if profile_setup.position == 'pl' }}>{{ L('小隊長', 'Patrol Leader') }}</option>
-            <option value="spl" {{ 'selected' if profile_setup.position == 'spl' }}>{{ L('高級小隊長', 'Senior Patrol Leader') }}</option>
-          </select>
+          <input type="text" name="position" required maxlength="40" value="{{ profile_setup.position_edit }}"
+                 placeholder="{{ L('例如：小隊長、副小隊長、隊員', 'e.g. Patrol Leader, Assistant Patrol Leader, Patrol member') }}">
         </label>
         <label class="field"><span>{{ L('興趣', 'Interests') }}</span>
           <input type="text" name="interests" required maxlength="120" value="{{ profile_setup.interests }}"

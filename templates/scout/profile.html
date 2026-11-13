@@ -93,12 +93,8 @@
 <div class="section-title"><h2>✏️ {{ L('編輯個人檔案', 'Edit my profile') }}</h2></div>
 <form class="card" method="post" action="{{ url_for('profile_routes.save') }}">
   <label class="field"><span>{{ L('職位', 'Position') }}</span>
-    <select name="position" required>
-      <option value="">{{ L('請選擇職位', 'Choose your position') }}</option>
-      {% for code, label in positions.items() %}
-        <option value="{{ code }}" {{ 'selected' if profile.position == code }}>{{ L(label.zh, label.en) }}</option>
-      {% endfor %}
-    </select>
+    <input type="text" name="position" required maxlength="40" value="{{ profile.position_edit }}"
+           placeholder="{{ L('例如：小隊長、副小隊長、隊員', 'e.g. Patrol Leader, Assistant Patrol Leader, Patrol member') }}">
   </label>
   <label class="field"><span>{{ L('興趣', 'Interests') }}</span>
     <input type="text" name="interests" required maxlength="120" value="{{ profile.interests }}"
