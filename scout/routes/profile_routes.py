@@ -12,10 +12,12 @@ from __future__ import annotations
 
 import base64
 import os
+import re
 from datetime import datetime, timezone
 
 import requests
-from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, url_for
+from flask import (Blueprint, Response, abort, current_app, flash, g, jsonify,
+                   redirect, render_template, request, url_for)
 
 from ..auth import scout_required
 from ..engine import progress_for
@@ -252,6 +254,69 @@ def card_image():
         st.insert("profiles", {"user_id": g.user["id"], **patch})
     audit(g.user, "profile_card_image", "profiles", g.user["id"], {"stored": uploaded.get("stored")})
     return ok(card_image_url=url)
+
+
+CARD_PROXY_MAX_BYTES = 12 * 1024 * 1024
+CARD_PROXY_DAILY_MAX = 20
+
+
+def _gemini_error(status: int, message: str):
+    """An error in Gemini's own shape, so the generator can show it as-is."""
+    return jsonify(error={"message": message}), status
+
+
+@profile_routes.post("/profile/card-image-proxy")
+@scout_required
+def card_image_proxy():
+    """Lend the platform's Gemini key to the in-page card generator.
+
+    The generator builds its own prompt (and may attach the scout's photo);
+    this route only forwards the request with the server-side key, so no
+    scout ever needs an API key of their own. The key never reaches the
+    browser, and the audit trail caps how often each scout may generate.
+    """
+    st = store()
+    profile = load_profile(st, g.user["id"])
+    if not profile_complete(profile):
+        return _gemini_error(400, "請先完成個人檔案，才可以生成卡圖。")
+    if (request.content_length or 0) > CARD_PROXY_MAX_BYTES:
+        return _gemini_error(400, "相片太大，請用一張較小的相片再試。")
+    body = request.get_json(silent=True) or {}
+    contents = body.get("contents")
+    if not isinstance(contents, list) or not contents:
+        return _gemini_error(400, "卡圖資料不完整，請再試一次。")
+    api_key = str(current_app.config.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY") or "")
+    if not api_key:
+        return _gemini_error(400, "平台尚未設定出圖金鑰，請告訴領袖。")
+    mine = [row for row in st.list("audit_log")
+            if row.get("actor_id") == g.user["id"] and row.get("action") == "profile_card_proxy"]
+    now = datetime.now(timezone.utc)
+    if mine:
+        try:
+            last = datetime.fromisoformat(str(mine[-1].get("created_at") or "").replace("Z", "+00:00"))
+            if (now - last).total_seconds() < CARD_WAIT_SECONDS:
+                return _gemini_error(429, "生成太頻密，請等半分鐘再試。")
+        except ValueError:
+            pass
+        today = now.strftime("%Y-%m-%d")
+        if sum(1 for row in mine if str(row.get("created_at") or "")[:10] == today) >= CARD_PROXY_DAILY_MAX:
+            return _gemini_error(429, "今日的出圖次數已用完，請明天再試。")
+    aspect = str(((body.get("generationConfig") or {}).get("imageConfig") or {}).get("aspectRatio") or "2:3")
+    if not re.fullmatch(r"\d{1,2}:\d{1,2}", aspect):
+        aspect = "2:3"
+    model = str(current_app.config.get("GEMINI_IMAGE_MODEL") or "gemini-2.5-flash-image")
+    audit(g.user, "profile_card_proxy", "profiles", g.user["id"], {})
+    try:
+        upstream = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            params={"key": api_key}, timeout=110,
+            json={"contents": contents,
+                  "generationConfig": {"imageConfig": {"aspectRatio": aspect}}},
+        )
+    except Exception:
+        return _gemini_error(502, "出圖服務暫時未能連接，請稍後再試。")
+    return Response(upstream.content, status=upstream.status_code,
+                    content_type="application/json")
 
 
 @profile_routes.get("/card-maker")

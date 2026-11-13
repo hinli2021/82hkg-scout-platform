@@ -1497,6 +1497,9 @@ def setup_checks(st) -> dict:
     on_sheets = st.driver.name == "sheets"
     sheet_id = str(getattr(st.driver, "spreadsheet_id", "") or "")
     mail_ready = bool(str(settings.get("smtp_host") or "").strip())
+    import os
+
+    card_key_ready = bool(str(os.environ.get("GEMINI_API_KEY") or "").strip())
 
     def row(key, ok, zh, en, detail_zh, detail_en, fix_zh="", fix_en="", optional=False):
         return {"key": key, "ok": bool(ok), "zh": zh, "en": en, "detail_zh": detail_zh,
@@ -1539,6 +1542,13 @@ def setup_checks(st) -> dict:
             "Set up — reset links can be sent" if mail_ready else "Not set — scouts fall back to the on-the-spot method",
             "設定 → 寄信信箱（docs/03-email-setup.md）",
             "Settings → Mailbox (docs/03-email-setup.md)", optional=True),
+        row("card_key", card_key_ready, "卡圖出圖金鑰", "Card picture key",
+            "已設定，童軍可以在平台內生成卡圖，不用自己的 API 金鑰" if card_key_ready
+            else "未設定；童軍仍可用 Google 連結出圖，設定後頁內版本亦可出圖",
+            "Set — scouts can make card pictures in the platform without their own API key" if card_key_ready
+            else "Not set — scouts can still use the Google link; set it to open the in-page maker too",
+            "在 Vercel 加入 GEMINI_API_KEY（在 Google AI Studio 申請），然後 Redeploy",
+            "Add GEMINI_API_KEY (from Google AI Studio) in Vercel, then Redeploy", optional=True),
     ]
     required = [item for item in checks if not item["optional"]]
     return {

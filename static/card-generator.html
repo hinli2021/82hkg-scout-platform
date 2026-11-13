@@ -252,6 +252,8 @@
 <style id="scout-pokemon-lock">
   /* 82HKG embedded copy: Pokémon cards only — every other system is hidden. */
   #sysTabs .tab:not([data-sys="pokemon"]), .fx:not([data-sys="pokemon"]) { display: none !important; }
+  /* The platform lends its own key through the server, so the key box goes. */
+  .gear { display: none !important; }
 </style>
 </head>
 <body>
@@ -1468,6 +1470,36 @@ loadVaultRemote().then(ok => { ping('app', {}); if (ok) toast('✅ 已連接 Pro
 <script>
   /* Keep the embedded copy on the Pokémon system. */
   window.addEventListener('load', function () { try { setSystem('pokemon'); } catch (e) { /* default is already pokemon */ } });
+
+  /* 82HKG: scouts never paste an API key here. Picture calls go through the
+     platform server, which lends its own Gemini key (see /profile/card-image-proxy);
+     the request body is the very one the generator would have sent itself. */
+  window.callImageAPI = async function (prompt, aspect, model, key) {
+    var photoObj = null;
+    try { photoObj = (identityMode() === 'photo') ? (window.photo || null) : null; } catch (e) { photoObj = null; }
+    var parts = [];
+    if (photoObj) parts.push({ inlineData: { mimeType: photoObj.mime, data: photoObj.b64 } });
+    parts.push({ text: prompt });
+    var res = await fetch('/profile/card-image-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: parts }],
+                             generationConfig: { imageConfig: { aspectRatio: aspect } } })
+    });
+    var json = await res.json().catch(function () { return {}; });
+    if (!res.ok) {
+      var msg = (json.error && json.error.message) || '';
+      if (res.status === 429) throw new Error('生成太頻密，或今日次數已用完，請稍後再試');
+      throw new Error('生成失敗：' + (msg || ('HTTP ' + res.status)));
+    }
+    var cand = (json.candidates || [])[0];
+    var outParts = (cand && cand.content && cand.content.parts) || [];
+    var part = outParts.find(function (p) { return p.inlineData || p.inline_data; });
+    if (!part) throw new Error('AI 沒有返回圖片，請再試一次');
+    var d = part.inlineData || part.inline_data;
+    var mime = d.mimeType || d.mime_type || 'image/png';
+    return { url: 'data:' + mime + ';base64,' + d.data, mime: mime };
+  };
 </script>
 </body>
 </html>

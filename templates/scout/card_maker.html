@@ -28,8 +28,8 @@
     </a>
   </div>
   <p class="muted small" style="margin:0">
-    {{ L('如果沒有 Google 帳戶，也可以用下面的頁內版本；頁內版本需要在生成器右上角貼上自己的 Gemini API 金鑰。',
-         'Without a Google account, use the in-page copy below instead; it needs your own Gemini API key, pasted at the top right of the generator.') }}
+    {{ L('如果沒有 Google 帳戶，也可以用下面的頁內版本；頁內版本會用平台的金鑰出圖，你不用貼上自己的 API 金鑰。每人每日的出圖次數有限，請不要重複按生成。',
+         'Without a Google account, use the in-page copy below instead; it makes pictures with the platform’s key, so you do not need your own API key. Each scout has a daily picture limit, so please do not press generate again and again.') }}
   </p>
   <iframe class="card-maker-frame" src="{{ url_for('static', filename='card-generator.html') }}"
           title="{{ L('卡牌生成器', 'Card maker') }}" loading="lazy"></iframe>

@@ -283,6 +283,93 @@ def test_a_failed_card_picture_keeps_the_old_state(store, new_scout, app, monkey
     assert not store.get("profiles", new_scout.id).get("card_image_url")
 
 
+# ── the in-page generator borrows the platform key through the proxy ─────
+
+_PROXY_BODY = {"contents": [{"role": "user", "parts": [{"text": "畫一張 Pokémon 卡"}]}],
+               "generationConfig": {"imageConfig": {"aspectRatio": "2:3"}}}
+
+
+class _FakeUpstream:
+    def __init__(self, status=200, payload=None):
+        self.status_code = status
+        import json as _json
+        self.content = _json.dumps(payload if payload is not None else {
+            "candidates": [{"content": {"parts": [
+                {"inlineData": {"mimeType": "image/png", "data": "aGVsbG8="}}]}}],
+        }).encode()
+
+
+def test_the_card_proxy_needs_a_complete_profile_and_a_platform_key(store, new_scout, monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
+    assert reply.status_code == 400
+    assert "完成個人檔案" in reply.get_json()["error"]["message"]
+
+    _complete(new_scout)
+    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
+    assert reply.status_code == 400
+    assert "平台尚未設定出圖金鑰" in reply.get_json()["error"]["message"]
+
+    reply = new_scout.post("/profile/card-image-proxy", json={"contents": []})
+    assert reply.status_code == 400
+    assert "不完整" in reply.get_json()["error"]["message"]
+
+
+def test_the_card_proxy_forwards_with_the_platform_key(store, new_scout, app, monkeypatch):
+    import requests as requests_module
+    from scout.routes import profile_routes
+    app.config["GEMINI_API_KEY"] = "platform-key"
+    seen = {}
+
+    def fake_post(url, params=None, timeout=None, json=None):
+        seen.update(url=url, params=params, json=json)
+        return _FakeUpstream()
+
+    monkeypatch.setattr(requests_module, "post", fake_post)
+    _complete(new_scout)
+    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
+    assert reply.status_code == 200
+    assert reply.get_json()["candidates"][0]["content"]["parts"][0]["inlineData"]["data"] == "aGVsbG8="
+    # the platform key goes upstream; it is never part of the answer
+    assert seen["params"] == {"key": "platform-key"}
+    assert "gemini-2.5-flash-image" in seen["url"]
+    assert seen["json"]["contents"] == _PROXY_BODY["contents"]
+    assert b"platform-key" not in reply.data
+    rows = [r for r in store.list("audit_log") if r.get("action") == "profile_card_proxy"]
+    assert len(rows) == 1
+
+    # half a minute between generations
+    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
+    assert reply.status_code == 429
+    assert "等半分鐘" in reply.get_json()["error"]["message"]
+
+
+def test_the_card_proxy_has_a_daily_limit(store, new_scout, app, monkeypatch):
+    import requests as requests_module
+    app.config["GEMINI_API_KEY"] = "platform-key"
+    monkeypatch.setattr(requests_module, "post", lambda *a, **kw: _FakeUpstream())
+    _complete(new_scout)
+    from scout.util import now_iso
+    for _ in range(25):
+        store.insert("audit_log", {
+            "actor_id": new_scout.id, "actor_role": "scout", "action": "profile_card_proxy",
+            "entity": "profiles", "entity_id": new_scout.id, "detail_json": "{}",
+            "created_at": now_iso(),
+        })
+    # jump the last entry back so only the daily cap can refuse this call
+    rows = [r for r in store.list("audit_log") if r.get("action") == "profile_card_proxy"]
+    store.update("audit_log", rows[-1]["id"], {"created_at": "2020-01-01T00:00:00.000Z"})
+    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
+    assert reply.status_code == 429
+    assert "今日的出圖次數已用完" in reply.get_json()["error"]["message"]
+
+
+def test_the_embedded_generator_uses_the_proxy_not_a_pasted_key(new_scout):
+    generator = new_scout.client.get("/static/card-generator.html").get_data(as_text=True)
+    assert "/profile/card-image-proxy" in generator
+    assert ".gear { display: none" in generator
+
+
 def test_the_profiles_tab_exists_in_the_schema():
     from scout.schema import COLLECTIONS, key_field
     assert COLLECTIONS["profiles"]["fields"] == [
