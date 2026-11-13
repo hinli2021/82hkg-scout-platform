@@ -41,6 +41,11 @@ def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_sc
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "露營、繩結、音樂" in page and "小隊長" in page  # the card shows the position
     assert "請先完成個人檔案" not in page  # complete: the pop-up is gone
+    # the front follows a monster trading card: name and HP, picture window,
+    # info strip (number, patrol, position), then the moves
+    front = page[page.index("data-char-front"):page.index("data-char-back")]
+    assert "poke-head" in front and "HP" in front and "poke-info" in front
+    assert "poke-moves" in front and "童軍經驗" in front and "poke-rarity" in front
 
 
 def test_a_scout_can_write_any_position_in_their_own_words(store, new_scout):

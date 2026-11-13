@@ -28,10 +28,13 @@
 {# ── 角色卡：正面是人物與簡介，背面是狀態總覽與詳細資料 ─────────────────── #}
 <div class="char-wrap">
   <div class="char-scene">
-    <div class="char-card" data-char-card style="--char-tint: {{ m.tint }}; --char-tint-dark: {{ m.tint_dark }}">
+    <div class="char-card" data-char-card style="--char-tint: {{ m.tint }}; --char-tint-dark: {{ m.tint_dark }}; --char-soft: {{ m.soft }}">
       <section class="char-face char-front" data-char-front aria-label="{{ L('角色卡正面', 'Character card front') }}">
-        <div class="char-banner"><span class="char-name">{{ name_of(person) }}</span></div>
-        <div class="char-portrait">
+        <div class="poke-head">
+          <span class="poke-name">{{ name_of(person) }}</span>
+          <span class="poke-hp"><small>HP</small> {{ stats.points_balance }}<span class="poke-type">{{ m.emoji }}</span></span>
+        </div>
+        <div class="char-portrait poke-art">
           {% if m.img %}
             <img src="{{ m.img }}" alt="">
           {% else %}
@@ -39,14 +42,39 @@
           {% endif %}
           <span class="char-avatar" aria-hidden="true">{{ person.avatar or '🦊' }}</span>
         </div>
-        <div class="char-tags">
-          <span class="char-tag">{{ patrol_name(person.get('patrol', '')) }}</span>
-          <span class="char-tag char-tag-pos">{{ L(profile.position_zh, profile.position_en) or L('尚未填寫職位', 'No position yet') }}</span>
+        <div class="poke-info">
+          <span>NO. {{ person.scout_no or '—' }}</span>
+          <span>{{ patrol_name(person.get('patrol', '')) }}</span>
+          <span>{{ L(profile.position_zh, profile.position_en) or L('尚未填寫職位', 'No position yet') }}</span>
         </div>
-        <p class="char-desc">{{ profile.experience or L('尚未填寫童軍經驗。', 'No Scout experience written yet.') }}</p>
-        <div class="char-foot">
-          <span class="char-foot-label">{{ L('興趣', 'Interests') }}</span>
-          <span class="char-foot-text">{{ profile.interests or L('尚未填寫', 'Not written yet') }}</span>
+        <div class="poke-moves">
+          <div class="poke-ability">
+            <span class="poke-ability-label">{{ L('興趣', 'Interests') }}</span>
+            <span class="poke-ability-text">{{ profile.interests or L('尚未填寫', 'Not written yet') }}</span>
+          </div>
+          <div class="poke-move">
+            <div class="poke-move-head">
+              <span class="poke-cost">{{ m.emoji }}</span>
+              <span class="poke-move-name">{{ L('童軍經驗', 'Scout experience') }}</span>
+            </div>
+            <p class="poke-move-text">{{ profile.experience or L('尚未填寫童軍經驗。', 'No Scout experience written yet.') }}</p>
+          </div>
+          <div class="poke-move">
+            <div class="poke-move-head">
+              <span class="poke-cost">⭐</span>
+              <span class="poke-move-name">{{ L('想和大家分享的事', 'Something to share') }}</span>
+            </div>
+            <p class="poke-move-text poke-clamp-2">{{ profile.share or L('尚未填寫。', 'Not written yet.') }}</p>
+          </div>
+        </div>
+        <div class="poke-bottom">
+          <span><small>{{ L('獎章', 'Badges') }}</small>{{ stats.badges_done }}/{{ overall.badges_total }}</span>
+          <span><small>{{ L('任務', 'Tasks') }}</small>{{ overall.tasks_done }}/{{ overall.tasks_total }}</span>
+          <span><small>{{ L('連續天數', 'Day streak') }}</small>{{ stats.streak_current }}</span>
+        </div>
+        <div class="poke-foot">
+          <span>{{ L('港島第八十二旅童軍團', '82nd Hong Kong Island Scout Group') }}</span>
+          <span class="poke-rarity" title="{{ L('已考獲獎章', 'Badges earned') }}">{{ '★' * stats.badges_done }}{{ '☆' * (overall.badges_total - stats.badges_done) }}</span>
         </div>
       </section>
 
