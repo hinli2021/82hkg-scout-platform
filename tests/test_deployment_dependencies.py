@@ -27,6 +27,7 @@ DISTRIBUTION = {
     "werkzeug": "werkzeug",
     "jinja2": "jinja2",
     "markupsafe": "markupsafe",
+    "PIL": "pillow",
 }
 
 

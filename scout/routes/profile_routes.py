@@ -196,6 +196,35 @@ def _call_gemini(api_key: str, model: str, prompt: str) -> tuple[bytes, str]:
     raise RuntimeError("Gemini returned no image")
 
 
+def _compact_card_picture(data: bytes, mime: str, ext: str) -> tuple[bytes, str, str]:
+    """Store card art as AVIF (or WebP): the same picture at a tenth of the size.
+
+    Gemini and phones hand us PNG/JPEG files of a megabyte or more, and every
+    one is kept on the unit's Drive. AVIF (WebP where AVIF is unavailable)
+    holds the same card far more lightly. Any failure — Pillow missing, or a
+    file that is not really a picture — keeps the scout's original bytes.
+    """
+    try:
+        from io import BytesIO
+
+        from PIL import Image, features
+    except Exception:
+        return data, mime, ext
+    try:
+        image = Image.open(BytesIO(data))
+        image.load()
+        out = BytesIO()
+        if features.check("avif"):
+            image.save(out, format="AVIF", quality=80)
+            return out.getvalue(), "image/avif", "avif"
+        if features.check("webp"):
+            image.save(out, format="WEBP", quality=85, method=6)
+            return out.getvalue(), "image/webp", "webp"
+    except Exception:
+        pass
+    return data, mime, ext
+
+
 def _card_display_url(uploaded: dict) -> str:
     # A Drive file's web link opens a viewer page, not the picture itself;
     # the thumbnail address is the one an <img> can show (the upload is
@@ -242,8 +271,9 @@ def card_image():
     except Exception:
         return fail(502, "card_failed", "卡圖生成失敗，請稍後再試。",
                     "The card picture could not be made — please try again later.")
-    ext = ".jpg" if "jpeg" in mime or "jpg" in mime else ".png"
-    uploaded = st.upload_file(name=f"card-{g.user['id']}{ext}", mime_type=mime, data=data)
+    data, mime, ext = _compact_card_picture(
+        data, mime, "jpg" if "jpeg" in mime or "jpg" in mime else "png")
+    uploaded = st.upload_file(name=f"card-{g.user['id']}.{ext}", mime_type=mime, data=data)
     url = _card_display_url(uploaded)
     stamp = now_iso()
     patch = {"card_image_url": url, "card_image_id": str(uploaded.get("id") or ""),
@@ -343,15 +373,16 @@ def card_upload():
     file = request.files.get("card_image")
     name = str(getattr(file, "filename", "") or "")
     ext = name.rsplit(".", 1)[-1].lower() if "." in name else ""
-    if file is None or ext not in {"png", "jpg", "jpeg", "webp"}:
-        return fail(400, "card_file", "請選擇一張卡圖（PNG 或 JPG）。",
-                    "Please choose a card picture (PNG or JPG).")
+    if file is None or ext not in {"png", "jpg", "jpeg", "webp", "avif"}:
+        return fail(400, "card_file", "請選擇一張卡圖（PNG、JPG 或 WebP）。",
+                    "Please choose a card picture (PNG, JPG or WebP).")
     data = file.read()
     if not data:
-        return fail(400, "card_file", "請選擇一張卡圖（PNG 或 JPG）。",
-                    "Please choose a card picture (PNG or JPG).")
+        return fail(400, "card_file", "請選擇一張卡圖（PNG、JPG 或 WebP）。",
+                    "Please choose a card picture (PNG, JPG or WebP).")
+    data, mime, ext = _compact_card_picture(data, file.mimetype or "image/png", ext)
     uploaded = st.upload_file(name=f"card-{g.user['id']}.{ext}",
-                              mime_type=file.mimetype or "image/png", data=data)
+                              mime_type=mime, data=data)
     url = _card_display_url(uploaded)
     patch = {"card_image_url": url, "card_image_id": str(uploaded.get("id") or ""),
              "card_generated_at": now_iso()}

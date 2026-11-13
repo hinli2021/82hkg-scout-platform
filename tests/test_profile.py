@@ -228,6 +228,45 @@ def test_an_uploaded_card_picture_lands_on_my_card(store, new_scout):
     assert "char-generated-img" in page and row["card_image_url"] in page
 
 
+def test_an_uploaded_card_picture_is_stored_as_avif_or_webp(store, new_scout):
+    import io
+    import pathlib
+
+    from PIL import Image
+    _complete(new_scout)
+    buffer = io.BytesIO()
+    Image.new("RGB", (240, 360), (30, 90, 60)).save(buffer, format="PNG")
+    reply = new_scout.post("/profile/card-upload",
+                           data={"card_image": (io.BytesIO(buffer.getvalue()), "card.png")})
+    assert reply.status_code == 200
+    row = store.get("profiles", new_scout.id)
+    assert row["card_image_url"].endswith((".avif", ".webp"))
+    # the stored file really is that format, not just renamed
+    name = row["card_image_url"].rsplit("/", 1)[-1]
+    raw = (pathlib.Path(store.driver.uploads_dir) / name).read_bytes()
+    assert len(raw) < len(buffer.getvalue())
+    with Image.open(io.BytesIO(raw)) as stored:
+        assert stored.format in ("AVIF", "WEBP") and stored.size == (240, 360)
+
+
+def test_a_generated_card_picture_is_stored_as_avif_or_webp(store, new_scout, app, monkeypatch):
+    import io
+
+    from PIL import Image
+
+    from scout.routes import profile_routes
+    app.config["GEMINI_API_KEY"] = "test-key"
+    buffer = io.BytesIO()
+    Image.new("RGB", (240, 360), (90, 30, 60)).save(buffer, format="PNG")
+    monkeypatch.setattr(profile_routes, "_call_gemini",
+                        lambda api_key, model, prompt: (buffer.getvalue(), "image/png"))
+    _complete(new_scout)
+    reply = new_scout.post("/profile/card-image", json={"prompt": "畫一張 Pokémon 卡"})
+    assert reply.status_code == 200
+    row = store.get("profiles", new_scout.id)
+    assert row["card_image_url"].endswith((".avif", ".webp"))
+
+
 def test_a_card_picture_needs_a_complete_profile_first(store, new_scout):
     reply = new_scout.post("/profile/card-image", json={"prompt": "畫一張卡"})
     assert reply.status_code == 400
