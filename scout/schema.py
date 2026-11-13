@@ -122,7 +122,7 @@ COLLECTIONS: dict[str, dict] = {
         ],
     },
     # One row per scout's public profile (興趣、童軍經驗、想分享的事).
-    # `visible` starts off: a scout chooses to share before anyone can visit.
+    # `visible` is set when all three fields are complete: profiles are public.
     "profiles": {
         "label": "Profiles",
         "fields": ["user_id", "interests", "experience", "share", "visible", "updated_at"],

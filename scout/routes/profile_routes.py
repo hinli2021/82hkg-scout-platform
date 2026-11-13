@@ -1,10 +1,12 @@
 """我的個人檔案 — a scout's profile: progress at a glance, a few words about
 themselves, and the other scouts whose profiles are open to visit.
 
-Personal words live in their own `profiles` row (one per scout). A profile is
-private until the scout switches `visible` on; only then can another scout
-open it from the patrol list. The progress figures are the ordinary
-`progress_for` numbers, so this page never keeps a second set of books.
+Personal words live in their own `profiles` row (one per scout). Every scout
+must complete all three fields and publish the profile: the platform shows a
+blocking pop-up after sign-in until that is done, and saving always sets
+`visible` on. Only a complete, published profile can be opened from the
+patrol list. The progress figures are the ordinary `progress_for` numbers,
+so this page never keeps a second set of books.
 """
 from __future__ import annotations
 
@@ -32,6 +34,16 @@ def load_profile(st, user_id: str) -> dict:
         "visible": to_bool(row.get("visible")),
         "updated_at": row.get("updated_at") or "",
     }
+
+
+def profile_complete(profile: dict) -> bool:
+    """All personal information is filled in and the profile is public."""
+    return bool(
+        str(profile.get("interests") or "").strip()
+        and str(profile.get("experience") or "").strip()
+        and str(profile.get("share") or "").strip()
+        and to_bool(profile.get("visible"))
+    )
 
 
 def save_profile(st, user_id: str, values: dict) -> dict:
@@ -63,7 +75,7 @@ def patrol_groups(st, viewer_id: str) -> list[dict]:
             members.append({
                 "user": user, "profile": profile,
                 "is_self": user["id"] == viewer_id,
-                "can_visit": user["id"] == viewer_id or profile["visible"],
+                "can_visit": user["id"] == viewer_id or profile_complete(profile),
             })
         if members:
             groups.append({"patrol": patrol, "label": patrol_label(patrol), "members": members})
@@ -88,7 +100,9 @@ def _context(st, person: dict, *, own: bool) -> dict:
 @scout_required
 def page():
     st = store()
-    return render_template("scout/profile.html", **_context(st, g.user, own=True))
+    context = _context(st, g.user, own=True)
+    context["profile_required"] = not profile_complete(context["profile"])
+    return render_template("scout/profile.html", **context)
 
 
 @profile_routes.post("/profile")
@@ -100,17 +114,25 @@ def save():
         "interests": str(body.get("interests") or "").strip(),
         "experience": str(body.get("experience") or "").strip(),
         "share": str(body.get("share") or "").strip(),
-        "visible": "visible" in body,
+        # Profiles are public by rule, not by choice: completing the form is
+        # also the scout's agreement to let the rest of the troop read it.
+        "visible": True,
     }
+    if not values["interests"] or not values["experience"] or not values["share"]:
+        return fail(400, "profile_empty", "請填寫全部三項資料，才可以繼續。",
+                    "Please fill in all three sections before you continue.")
     if len(values["interests"]) > INTERESTS_MAX or len(values["experience"]) > TEXT_MAX \
             or len(values["share"]) > TEXT_MAX:
         return fail(400, "profile_long", "內容太長，請寫短一點。",
                     "That is too long — please keep it shorter.")
     save_profile(st, g.user["id"], values)
-    audit(g.user, "profile_update", "profiles", g.user["id"], {"visible": values["visible"]})
+    audit(g.user, "profile_update", "profiles", g.user["id"], {"visible": True})
     if wants_json():
-        return ok(visible=values["visible"])
-    flash({"kind": "success", "zh": "個人檔案已儲存。", "en": "Your profile is saved."}, "result")
+        return ok(visible=True)
+    flash({"kind": "success", "zh": "個人檔案已儲存並公開。", "en": "Your profile is saved and public."}, "result")
+    return_to = str(body.get("return_to") or "")
+    if return_to.startswith("/") and not return_to.startswith("//"):
+        return redirect(return_to)
     return redirect(url_for("profile_routes.page"))
 
 
@@ -124,9 +146,9 @@ def visit(user_id: str):
     if not person or person.get("role") != "scout":
         abort(404)
     profile = load_profile(st, user_id)
-    if not profile["visible"]:
+    if not profile_complete(profile):
         # the name and patrol are already on the patrol list; nothing else
-        # is shared until this scout switches their profile on
+        # is shared until this scout has completed and published a profile
         return render_template("scout/profile.html", person=person, profile=None,
                                progress=None, stats=None, overall=None,
                                earned_badges=[], groups=[], own=False, locked=True)

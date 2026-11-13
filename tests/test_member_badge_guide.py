@@ -263,6 +263,10 @@ def test_a_first_time_scout_is_told_the_story_in_pictures(new_scout, store):
        the escape-route map is one of the cards, and the last card sets off
        for stop 1 (leader's ask, 2026-10-18)."""
     badge = member_badge(store)
+    # the profile pop-up must be finished before the story page can be used
+    new_scout.post("/profile", data={
+        "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。",
+    })
     page = new_scout.get(f"/badges/{badge['id']}").get_data(as_text=True)
     assert 'data-quest-intro' in page and 'data-quest-page' in page
     assert page.count('data-slide="') == 9

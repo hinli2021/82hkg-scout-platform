@@ -34,7 +34,7 @@ from scout.routes.daily_routes import daily_routes
 from scout.routes.feedback_routes import feedback_routes
 from scout.routes.gacha_routes import gacha_routes
 from scout.routes.leader_routes import leader_routes
-from scout.routes.profile_routes import profile_routes
+from scout.routes.profile_routes import load_profile, profile_complete, profile_routes
 from scout.routes.scout_routes import scout_routes
 
 
@@ -144,9 +144,19 @@ def create_app(config: dict | None = None) -> Flask:
             except OSError:
                 return "0"
 
+        current_user = g.get("user")
+        profile_setup = None
+        profile_setup_required = False
+        if (current_user and current_user.get("role") == "scout"
+                and not auth_module.needs_first_time(current_user)):
+            profile_setup = load_profile(store, current_user["id"])
+            profile_setup_required = not profile_complete(profile_setup)
+
         return {
             "lang": lang,
             "L": lambda zh, en="": (en or zh) if lang == "en" else (zh or en),
+            "profile_setup": profile_setup,
+            "profile_setup_required": profile_setup_required,
             "settings": store.settings_cached(),
             "asset_v": asset_v,
             # Templates never see password columns — only the public view.

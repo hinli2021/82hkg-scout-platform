@@ -130,6 +130,41 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
+
+  {% if profile_setup_required and user and user.role == 'scout' %}
+  <div class="modal-backdrop profile-setup-backdrop" data-profile-setup role="dialog" aria-modal="true" aria-labelledby="profile-setup-title">
+    <form class="modal profile-setup-modal" method="post" action="{{ url_for('profile_routes.save') }}">
+      <div class="modal-head">
+        <div>
+          <h2 id="profile-setup-title">👤 {{ L('請先完成個人檔案', 'Complete your profile first') }}</h2>
+          <p class="muted small" style="margin:.25rem 0 0">
+            {{ L('請填寫全部三項資料。儲存後，你的個人檔案會公開給其他童軍看。填妥後才可以繼續使用平台。',
+                 'Please fill in all three sections. When you save, other scouts will be able to see your profile. You can continue after it is complete.') }}
+          </p>
+        </div>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="return_to" value="{{ request.path }}">
+        <label class="field"><span>{{ L('興趣', 'Interests') }}</span>
+          <input type="text" name="interests" required maxlength="120" value="{{ profile_setup.interests }}"
+                 placeholder="{{ L('例如：露營、繩結、音樂、足球', 'e.g. Camping, knots, music, football') }}">
+        </label>
+        <label class="field"><span>{{ L('童軍經驗', 'My Scout experience') }}</span>
+          <textarea name="experience" required maxlength="1000" rows="4"
+                    placeholder="{{ L('例如：我參加了童軍兩年，去過一次大露營。', 'e.g. I have been a Scout for two years and went to a jamboree once.') }}">{{ profile_setup.experience }}</textarea>
+        </label>
+        <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }}</span>
+          <textarea name="share" required maxlength="1000" rows="4"
+                    placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile_setup.share }}</textarea>
+        </label>
+        <p class="muted small">{{ L('請不要填寫電話號碼、住址或學校名稱。', 'Please do not write a phone number, home address or school name.') }}</p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn primary" type="submit">{{ L('儲存並公開個人檔案', 'Save and publish my profile') }}</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
 {% endblock %}
 
 <div id="fx-root"></div>

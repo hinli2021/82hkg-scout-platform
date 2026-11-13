@@ -20,7 +20,7 @@
 
 {% if locked %}
   <section class="card pad-lg">
-    {{ empty_state('🔒', '這位童軍尚未公開個人檔案。', 'This scout has not made their profile public yet.') }}
+    {{ empty_state('🔒', '這位童軍尚未完成並公開個人檔案。', 'This scout has not completed and published their profile yet.') }}
   </section>
 {% else %}
 
@@ -51,20 +51,20 @@
 {% if own %}
   <form class="card" method="post" action="{{ url_for('profile_routes.save') }}">
     <label class="field"><span>{{ L('興趣', 'Interests') }}</span>
-      <input type="text" name="interests" maxlength="120" value="{{ profile.interests }}"
+      <input type="text" name="interests" required maxlength="120" value="{{ profile.interests }}"
              placeholder="{{ L('例如：露營、繩結、音樂、足球', 'e.g. Camping, knots, music, football') }}">
     </label>
     <label class="field"><span>{{ L('童軍經驗', 'My Scout experience') }}</span>
-      <textarea name="experience" maxlength="1000" rows="4"
+      <textarea name="experience" required maxlength="1000" rows="4"
                 placeholder="{{ L('例如：我參加了童軍兩年，去過一次大露營。', 'e.g. I have been a Scout for two years and went to a jamboree once.') }}">{{ profile.experience }}</textarea>
     </label>
     <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }}</span>
-      <textarea name="share" maxlength="1000" rows="4"
+      <textarea name="share" required maxlength="1000" rows="4"
                 placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile.share }}</textarea>
     </label>
     <p class="muted small">{{ L('請不要填寫電話號碼、住址或學校名稱。', 'Please do not write a phone number, home address or school name.') }}</p>
-    <label class="switch"><input type="checkbox" name="visible" value="1" {{ 'checked' if profile.visible }}>
-      {{ L('讓其他童軍看我的個人檔案', 'Let other scouts see my profile') }}</label>
+    <p class="chip brass">🌐 {{ L('個人檔案會公開給其他童軍看', 'Your profile will be shown to other scouts') }}</p>
+    <input type="hidden" name="visible" value="1">
     <div style="margin-top:.8rem">
       <button class="btn primary" type="submit">💾 {{ L('儲存', 'Save') }}</button>
     </div>
@@ -108,7 +108,7 @@
                 {{ L('看個人檔案', 'View profile') }}
               </a>
             {% else %}
-              <span class="chip">{{ L('未公開', 'Private') }}</span>
+              <span class="chip">{{ L('尚未完成', 'Not completed') }}</span>
             {% endif %}
           </div>
         {% endfor %}
