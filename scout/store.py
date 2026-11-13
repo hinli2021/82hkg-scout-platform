@@ -384,6 +384,7 @@ class Store:
                 "user_id": user_id,
                 "points_balance": 0, "tasks_done": 0, "badges_done": 0,
                 "streak_current": 0, "streak_best": 0, "last_active_date": "",
+                "streak_run_start": "",
                 "updated_at": now_iso(),
             })
         return stats
@@ -399,19 +400,28 @@ class Store:
         awards = [row for row in self.list("badge_awards") if row.get("user_id") == user_id]
         balance = sum(int(float(row.get("points_delta") or 0)) for row in ledger)
         done = [row for row in records if row.get("status") == "completed"]
-        days = sorted({str(row.get("decided_at") or row.get("submitted_at") or "")[:10] for row in done})
+        # The flame counts a day only when points were gained that day, so a
+        # rebuild reads the same days the ledger hook counted live.
+        days = sorted({str(row.get("created_at") or "")[:10] for row in ledger
+                       if int(float(row.get("points_delta") or 0)) > 0
+                       and row.get("entry_type") != "gacha"
+                       and row.get("created_by") != "opening"})
         streak_current, streak_best = 0, 0
+        run_start = ""
         if days:
-            run = 1
-            for previous, current in zip(days, days[1:]):
-                from .util import days_between
-
-                run = run + 1 if days_between(previous, current) == 1 else 1
-                streak_best = max(streak_best, run)
-            streak_best = max(streak_best, 1)
             from .util import days_between
 
+            run = 1
+            run_begin = days[0]
+            for previous, current in zip(days, days[1:]):
+                if days_between(previous, current) == 1:
+                    run += 1
+                else:
+                    run, run_begin = 1, current
+                streak_best = max(streak_best, run)
+            streak_best = max(streak_best, 1)
             streak_current = run if days_between(days[-1], today_iso()) <= 1 else 0
+            run_start = run_begin if streak_current else ""
         patch = {
             "points_balance": max(0, balance),
             "tasks_done": len(done),
@@ -419,6 +429,7 @@ class Store:
             "streak_current": streak_current,
             "streak_best": streak_best,
             "last_active_date": days[-1] if days else "",
+            "streak_run_start": run_start,
             "updated_at": now_iso(),
         }
         return self.update("stats", user_id, patch) or patch

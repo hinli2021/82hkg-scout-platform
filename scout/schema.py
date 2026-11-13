@@ -32,7 +32,7 @@ COLLECTIONS: dict[str, dict] = {
         "label": "Stats",
         "fields": [
             "user_id", "points_balance", "tasks_done", "badges_done",
-            "streak_current", "streak_best", "last_active_date", "updated_at",
+            "streak_current", "streak_best", "last_active_date", "streak_run_start", "updated_at",
         ],
     },
     "badges": {

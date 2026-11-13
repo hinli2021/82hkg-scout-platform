@@ -3,8 +3,10 @@
 The opening is the familiar one: tap a foil pack, flip five cards, rarities
 from Common to Legend Rare, and a pity counter so ten dry packs guarantee an
 SR or better. Packs do not refill on a timer. A scout earns one by finishing
-a game, a task, the daily challenge, or a badge. Points can buy a normal pack
-only; a gold pack cannot be bought.
+a game, a task, the daily challenge, or a badge. Keeping the points streak
+alive also pays: a normal pack every 7 days, a gold pack every 30 and a
+legendary pack every 100. Points can buy a normal pack only; gold and
+legendary packs cannot be bought.
 
 The cards are this troop's own skills — membership, knots, drill, the three
 patrols, and the proficiency badges already on the platform. They are not
@@ -265,7 +267,7 @@ def grant_pack(store, user: dict, *, key: str, kind: str, source: str, ref_id: s
     packs = list(state["packs_json"])
     packs.append({
         "id": new_id(),
-        "kind": "gold" if kind == "gold" else "standard",
+        "kind": kind if kind in ("gold", "legendary") else "standard",
         "source": source,
         "ref_id": ref_id,
         "reason_zh": reason_zh,
@@ -389,11 +391,14 @@ def present_card(card: dict, rarity: str, *, is_new: bool, upgraded: bool, count
     }
 
 
-def draw_cards(rng: random.Random, owned: dict, *, guarantee: bool) -> tuple[list[dict], dict]:
+def draw_cards(rng: random.Random, owned: dict, *, guarantee: bool,
+               floor: str | None = None) -> tuple[list[dict], dict]:
     """Five distinct cards. `owned` is updated in a copy and returned."""
     chosen = rng.sample(pool(), PACK_SIZE)
     rarities = [roll_rarity(rng) for _ in chosen]
-    if guarantee and not any(rarity in SR_PLUS for rarity in rarities):
+    if floor and not any(RANK[rarity] >= RANK[floor] for rarity in rarities):
+        rarities[rng.randrange(PACK_SIZE)] = roll_rarity(rng, floor=floor)
+    elif guarantee and not any(rarity in SR_PLUS for rarity in rarities):
         rarities[rng.randrange(PACK_SIZE)] = roll_rarity(rng, floor="SR")
     owned = {key: dict(value) for key, value in owned.items()}
     seen = set(owned)
@@ -424,7 +429,9 @@ def open_next(store, user: dict, rng: random.Random | None = None) -> dict | Non
     pack = packs.pop(0)
     rng = rng or random.SystemRandom()
     guarantee = pack.get("kind") == "gold" or int(state["pity"] or 0) >= PITY_AFTER
-    pulled, owned = draw_cards(rng, state["owned_json"], guarantee=guarantee)
+    # A legendary pack (100-day flame) promises more than gold: SSR or better.
+    floor = "SSR" if pack.get("kind") == "legendary" else None
+    pulled, owned = draw_cards(rng, state["owned_json"], guarantee=guarantee, floor=floor)
     hit = any(card["rarity"] in SR_PLUS for card in pulled)
     state["packs_json"] = packs
     state["owned_json"] = owned
@@ -538,6 +545,7 @@ def summary(store, user: dict) -> dict:
     return {
         "packs": len(packs),
         "gold": sum(1 for pack in packs if pack.get("kind") == "gold"),
+        "legendary": sum(1 for pack in packs if pack.get("kind") == "legendary"),
         "owned": sum(1 for slot in state["owned_json"].values() if int(slot.get("count") or 0) > 0),
         "total": len(pool()),
         "until_sr": until_sr(state["pity"]),

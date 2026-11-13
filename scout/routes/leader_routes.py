@@ -1058,9 +1058,6 @@ def review_action(record_id: str):
         result = award_task_completion(st, user=user, task=override_task, badge=badge,
                                        record={**record, "points_awarded": 0}, awarded_by=g.user["id"])
         events = result["events"]
-        from ..engine import touch_streak
-
-        touch_streak(st, user.get("id", ""))
     audit(g.user, "approve", "progress_records", record_id,
           {"comment": comment, "points": points_override, "from": record.get("status")})
     if wants_json():

@@ -48,6 +48,20 @@ def test_a_gold_pack_also_guarantees_sr(store, new_scout):
     assert any(card["rarity"] in gacha.SR_PLUS for card in opened["cards"])
 
 
+def test_a_legendary_pack_guarantees_ssr_or_better(store, new_scout):
+    user = new_scout.user
+    gacha.grant_pack(
+        store, user, key="streak:test:100", kind="legendary", source="streak",
+        ref_id="streak:test:100", reason_zh="連續 100 天賺到積分",
+        reason_en="Earned points 100 days in a row",
+    )
+    assert gacha.load_state(store, user["id"])["packs_json"][0]["kind"] == "legendary"
+    opened = gacha.open_next(store, user, rng=AlwaysCommon())
+    assert any(gacha.RANK[card["rarity"]] >= gacha.RANK["SSR"] for card in opened["cards"])
+    summary = gacha.summary(store, user)
+    assert "legendary" in summary
+
+
 def test_opening_credit_does_not_earn_a_pack_but_a_real_task_does(store, new_scout):
     user = new_scout.user
     task = next(row for row in store.list("tasks") if row.get("status") == "published")

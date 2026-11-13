@@ -64,6 +64,7 @@ def _view(user, *, reveal: bool, category: str = "") -> dict:
         "summary": {
             "packs": len(packs),
             "gold": sum(1 for pack in packs if pack.get("kind") == "gold"),
+            "legendary": sum(1 for pack in packs if pack.get("kind") == "legendary"),
             "owned": sum(1 for slot in state["owned_json"].values() if int(slot.get("count") or 0) > 0),
             "total": len(album(state)),
             "until_sr": until_sr(state["pity"]),

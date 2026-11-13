@@ -20,7 +20,7 @@ from ..content import (cave_adventure, cave_images, ceremony, ceremony_questions
 from ..engine import (
     GAME_MAX_MS, GAME_MIN_MS, as_int, as_json, award_task_completion, build_suggestions,
     credit_opening_stages, evaluate_submission, game_areas, points_summary, progress_for,
-    stage_list, touch_streak,
+    stage_list,
 )
 from ..content import member_badge_guide
 from ..schema import TASK_TYPES, patrol_label
@@ -602,7 +602,6 @@ def cave_submit(task_id: str):
         if decorated:
             award_task_completion(st, user=g.user, task=decorated, badge=badge,
                                   record=record, awarded_by="auto")
-            touch_streak(st, g.user["id"])
         audit(g.user, "cave_submit", "tasks", task_id,
               {"status": "completed", "score": graded["score"]})
     return ok(score=graded["score"], passed=True, status="completed",
@@ -1141,7 +1140,6 @@ def submit(task_id: str):
     if evaluation["auto_award"]:
         result = award_task_completion(st, user=user, task=task, badge=badge, record=record, awarded_by="auto")
         events = result["events"]
-        touch_streak(st, user["id"])
     audit(user, "submit_task", "tasks", task_id, {"status": evaluation["status"], "score": evaluation.get("score")})
 
     fresh = progress_for(st, user["id"])

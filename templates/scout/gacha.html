@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-{% macro foil_pack(gold, ghost=false) %}
+{% macro foil_pack(kind, ghost=false) %}
 <span class="foil-scene">
   <span class="foil-shadow" aria-hidden="true"></span>
   <span class="foil-box">
@@ -29,7 +29,7 @@
       <span class="foil-body">
         <span class="foil-seal" aria-hidden="true"><b>82</b></span>
         {% if not ghost %}
-          <span class="foil-title">{{ L('金卡包' if gold else '童軍卡包', 'Gold pack' if gold else 'Scout pack') }}</span>
+          <span class="foil-title">{{ L('傳說卡包' if kind == 'legendary' else ('金卡包' if kind == 'gold' else '童軍卡包'), 'Legendary pack' if kind == 'legendary' else ('Gold pack' if kind == 'gold' else 'Scout pack')) }}</span>
           <span class="foil-sub">{{ L('五張技能卡', 'Five skill cards') }}</span>
           {% if summary.next_reason_zh %}
             <span class="foil-why">{{ L(summary.next_reason_zh, summary.next_reason_en) }}</span>
@@ -61,6 +61,7 @@
     <p class="gacha-count" data-pack-count-label>
       {{ L('卡包', 'Packs') }} <strong data-pack-count>{{ summary.packs }}</strong>
       {% if summary.gold %}<span class="gacha-gold-note">· {{ L(summary.gold ~ ' 個金卡包', summary.gold ~ ' gold') }}</span>{% endif %}
+      {% if summary.legendary %}<span class="gacha-legendary-note">· {{ L(summary.legendary ~ ' 個傳說卡包', summary.legendary ~ ' legendary') }}</span>{% endif %}
     </p>
     <p class="gacha-pity">
       {% if summary.until_sr == 0 %}
@@ -71,15 +72,15 @@
       {% endif %}
     </p>
     <form method="post" action="{{ url_for('gacha_routes.open_pack') }}" data-pack-form>
-      <button class="foil {{ 'is-gold' if summary.next_kind == 'gold' else '' }}" type="submit"
+      <button class="foil {{ 'is-gold' if summary.next_kind == 'gold' else ('is-legendary' if summary.next_kind == 'legendary' else '') }}" type="submit"
               aria-label="{{ L('打開卡包', 'Open pack') }}">
-        {{ foil_pack(summary.next_kind == 'gold') }}
+        {{ foil_pack(summary.next_kind) }}
       </button>
     </form>
     <p class="gacha-tap">▲ {{ L('點一下打開', 'Tap to open') }} ▲</p>
   {% else %}
     <div class="gacha-empty">
-      <span class="foil is-ghost" aria-hidden="true">{{ foil_pack(false, true) }}</span>
+      <span class="foil is-ghost" aria-hidden="true">{{ foil_pack('standard', true) }}</span>
       <p>{{ L('還沒有卡包。完成一個遊戲、一項任務或一個獎章，或者用積分換一個普通卡包。',
               'No pack yet. Finish a game, a task or a badge, or buy a normal pack with points.') }}</p>
       <a class="btn" href="{{ url_for('scout_routes.badges') }}">{{ L('去看獎章', 'See badges') }}</a>
@@ -180,8 +181,8 @@
 <details class="card gacha-rules">
   <summary>{{ L('稀有度與保底', 'Rarities and pity') }}</summary>
   <p class="muted small">
-    {{ L('每包五張。十包都沒有 SR 或以上，下一包一定有一張。考獲獎章的是金卡包，打開時必定有 SR 或以上。積分只能換普通卡包。',
-         'Five cards in a pack. After ten packs with nothing of SR or better, the next pack has one. A badge earns a gold pack, which always has an SR or better. Points buy a normal pack only.') }}
+    {{ L('每包五張。十包都沒有 SR 或以上，下一包一定有一張。考獲獎章的是金卡包，打開時必定有 SR 或以上。傳說卡包必定有 SSR 或以上。積分只能換普通卡包。連續賺到積分的日子滿 7 天會有普通卡包，滿 30 天會有金卡包，滿 100 天會有傳說卡包。',
+         'Five cards in a pack. After ten packs with nothing of SR or better, the next pack has one. A badge earns a gold pack, which always has an SR or better. A legendary pack always has an SSR or better. Points buy a normal pack only. Earning points 7 days in a row earns a normal pack, 30 days a gold pack, and 100 days a legendary pack.') }}
   </p>
   <table class="gacha-rate-table">
     <thead><tr><th>{{ L('稀有度', 'Rarity') }}</th><th>{{ L('名稱', 'Name') }}</th><th>{{ L('機率', 'Rate') }}</th><th>{{ L('倍數', 'Multiplier') }}</th></tr></thead>

@@ -135,6 +135,73 @@ def test_streak_increments_across_consecutive_days(store):
     assert stats["last_active_date"] == today_iso()
 
 
+def test_a_day_only_counts_when_points_are_gained(store):
+    scout = next(u for u in store.list("users") if u["username"] == "scout06")
+    store.update("stats", scout["id"], {"streak_current": 0, "streak_best": 0, "last_active_date": ""})
+    engine.write_ledger(store, user_id=scout["id"], entry_type="manual", points_delta=5,
+                        reason_zh="加分", reason_en="points")
+    stats = store.stats_for(scout["id"])
+    assert stats["streak_current"] == 1 and stats["last_active_date"] == today_iso()
+
+    # spending points, a zero entry and the opening credit never light the flame
+    other = next(u for u in store.list("users") if u["username"] == "scout05")
+    store.update("stats", other["id"], {"streak_current": 0, "streak_best": 0, "last_active_date": ""})
+    engine.write_ledger(store, user_id=other["id"], entry_type="manual", points_delta=-5,
+                        reason_zh="扣分", reason_en="deduct")
+    engine.write_ledger(store, user_id=other["id"], entry_type="task", points_delta=0,
+                        reason_zh="零分", reason_en="zero")
+    engine.write_ledger(store, user_id=other["id"], entry_type="task", points_delta=10,
+                        reason_zh="開局", reason_en="opening", created_by="opening")
+    assert store.stats_for(other["id"])["streak_current"] == 0
+
+
+def test_streak_packs_arrive_at_7_30_and_100_days(store):
+    from scout import gacha
+    scout = next(u for u in store.list("users") if u["username"] == "scout06")
+    store.update("stats", scout["id"], {"streak_current": 6, "streak_best": 6,
+                                        "last_active_date": shift_date(today_iso(), -1)})
+    stats = engine.touch_streak(store, scout["id"])
+    assert stats["streak_current"] == 7
+    state = gacha.load_state(store, scout["id"])
+    assert [pack["kind"] for pack in state["packs_json"]] == ["standard"]
+    assert state["packs_json"][0]["source"] == "streak"
+
+    # the same milestone never pays twice inside one run
+    engine.touch_streak(store, scout["id"])
+    assert len(gacha.load_state(store, scout["id"])["packs_json"]) == 1
+
+    store.update("stats", scout["id"], {"streak_current": 29,
+                                        "last_active_date": shift_date(today_iso(), -1)})
+    engine.touch_streak(store, scout["id"])
+    kinds = [pack["kind"] for pack in gacha.load_state(store, scout["id"])["packs_json"]]
+    assert kinds.count("standard") == 4 and kinds.count("gold") == 1   # 7/14/21/28 + 30
+
+    store.update("stats", scout["id"], {"streak_current": 99,
+                                        "last_active_date": shift_date(today_iso(), -1)})
+    engine.touch_streak(store, scout["id"])
+    kinds = [pack["kind"] for pack in gacha.load_state(store, scout["id"])["packs_json"]]
+    assert kinds.count("standard") == 14 and kinds.count("gold") == 3
+    assert kinds.count("legendary") == 1                               # day 100
+
+
+def test_a_new_streak_run_can_earn_the_milestones_again(store):
+    from scout import gacha
+    scout = next(u for u in store.list("users") if u["username"] == "scout06")
+    store.update("stats", scout["id"], {"streak_current": 6, "streak_best": 6,
+                                        "last_active_date": shift_date(today_iso(), -1)})
+    engine.touch_streak(store, scout["id"])
+    assert len(gacha.load_state(store, scout["id"])["packs_json"]) == 1
+
+    # the flame goes out for a week, then a fresh run reaches day 7 again
+    store.update("stats", scout["id"], {"streak_current": 6,
+                                        "last_active_date": shift_date(today_iso(), -8)})
+    engine.touch_streak(store, scout["id"])          # gap: back to day 1 of a new run
+    store.update("stats", scout["id"], {"streak_current": 6,
+                                        "last_active_date": shift_date(today_iso(), -1)})
+    engine.touch_streak(store, scout["id"])
+    assert len(gacha.load_state(store, scout["id"])["packs_json"]) == 2
+
+
 def test_streak_resets_after_a_gap(store):
     scout = next(u for u in store.list("users") if u["username"] == "scout06")
     store.update("stats", scout["id"], {"streak_current": 9, "streak_best": 9,

@@ -206,6 +206,10 @@ def write_ledger(store, *, user_id: str, entry_type: str, points_delta: int,
         "points_balance": max(0, as_int(stats.get("points_balance")) + points_delta),
         "updated_at": now_iso(),
     })
+    # The flame counts a day only when points were gained that day. Spending
+    # points (or the opening credit a scout never asked for) does not light it.
+    if points_delta > 0 and entry_type != "gacha" and created_by != "opening":
+        touch_streak(store, user_id)
     return entry
 
 
@@ -451,6 +455,27 @@ def check_badge_completion(store, *, user: dict, badge: dict | None) -> dict | N
 
 # ── streaks ─────────────────────────────────────────────────────────────────
 
+#: Keeping the flame alive earns packs: a normal pack every 7 days, a gold
+#: pack every 30 days and a legendary pack every 100 days (per streak run).
+STREAK_PACK_MILESTONES = ((7, "standard"), (30, "gold"), (100, "legendary"))
+
+
+def _grant_streak_packs(store, user_id: str, current: int, run_start: str) -> None:
+    from .gacha import grant_pack
+
+    # The run's first day names the run, so a broken-and-restarted flame can
+    # earn the same milestones again while repeats inside one run cannot.
+    for step, kind in STREAK_PACK_MILESTONES:
+        for n in range(1, current // step + 1):
+            days = n * step
+            grant_pack(
+                store, {"id": user_id}, key=f"streak:{run_start}:{days}", kind=kind,
+                source="streak", ref_id=f"streak:{run_start}:{days}",
+                reason_zh=f"連續 {days} 天賺到積分",
+                reason_en=f"Earned points {days} days in a row",
+            )
+
+
 def touch_streak(store, user_id: str) -> dict:
     settings = store.settings()
     stats = store.stats_for(user_id)
@@ -460,18 +485,24 @@ def touch_streak(store, user_id: str) -> dict:
     gap = days_between(stats.get("last_active_date") or "", today)
     current = as_int(stats.get("streak_current"))
     if gap == 0:
-        pass                      # already counted today
+        run_start = str(stats.get("streak_run_start") or "")
     elif gap == 1:
         current += 1
+        # Older rows have no run start on file; work it out once, then keep it.
+        run_start = str(stats.get("streak_run_start") or shift_date(today, -(current - 1)))
     else:
         current = 1
+        run_start = today
     patch = {
         "streak_current": current,
         "streak_best": max(current, as_int(stats.get("streak_best"))),
         "last_active_date": today,
+        "streak_run_start": run_start,
         "updated_at": now_iso(),
     }
     store.update("stats", user_id, patch)
+    if gap != 0 and current >= STREAK_PACK_MILESTONES[0][0]:
+        _grant_streak_packs(store, user_id, current, run_start)
     return {**stats, **patch}
 
 

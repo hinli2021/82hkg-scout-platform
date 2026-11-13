@@ -224,6 +224,28 @@
   box-shadow: 0 8px 0 rgba(60, 30, 0, .2), inset 0 0 0 3px #6b4510, inset 0 0 0 7px rgba(255, 244, 210, .45);
 }
 .foil.is-gold .foil-title { text-shadow: 0 1px 0 rgba(255, 248, 220, .45); }
+.gacha-legendary-note { color: #d9b8ff; }
+.foil.is-legendary .foil-front {
+  color: #fff7e0;
+  background:
+    linear-gradient(118deg, transparent 30%, rgba(255, 255, 255, .55) 46%, transparent 58%),
+    repeating-linear-gradient(128deg, transparent 0 16px, rgba(24, 6, 48, .3) 16px 17px),
+    linear-gradient(168deg, #b388ff 0%, #6a3df0 30%, #2a1065 55%, #c86bff 78%, #3d1a8a 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 214, 120, .7), inset 0 18px 20px rgba(255, 255, 255, .25);
+}
+.foil.is-legendary .foil-back { background: linear-gradient(180deg, #3d1a8a, #1c0745); }
+.foil.is-legendary .foil-edge.left, .foil.is-legendary .foil-edge.right {
+  background: linear-gradient(90deg, #1c0745, #8a5cff 46%, #2a1065);
+}
+.foil.is-legendary .foil-edge.top, .foil.is-legendary .foil-edge.bottom {
+  background: repeating-linear-gradient(90deg, #ffd98a 0 8px, #4a1da0 8px 11px);
+}
+.foil.is-legendary .foil-seal {
+  color: #2a1065;
+  background: radial-gradient(circle at 35% 28%, #fff6d2, #d9b8ff 42%, #6a3df0 74%);
+  box-shadow: 0 8px 0 rgba(20, 4, 50, .25), inset 0 0 0 3px #ffd98a, inset 0 0 0 7px rgba(255, 244, 210, .4);
+}
+.foil.is-legendary .foil-title { text-shadow: 0 1px 2px rgba(20, 4, 50, .6); }
 .foil.is-opening { pointer-events: none; }
 .foil.is-opening .foil-box { animation: pack-tear 1.05s cubic-bezier(.2, .7, .2, 1) forwards; }
 .foil.is-opening .foil-crimp:not(.bottom) { animation: crimp-off .7s ease forwards; }
