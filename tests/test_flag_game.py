@@ -213,6 +213,18 @@ def test_pipes_are_dragged_not_clicked_lyrics_stay_in_order_and_no_all_of_these(
     assert q8["options_zh"][q8["answer"]] == "地主階級"
 
 
+def test_the_notebook_is_just_called_notebook():
+    root = pathlib.Path(__file__).resolve().parent.parent
+    text = json.dumps(BANK, ensure_ascii=False)
+    text += (root / "static" / "js" / "flag.js").read_text(encoding="utf-8")
+    text += (root / "templates" / "scout" / "flag.html").read_text(encoding="utf-8")
+    text += (root / "content" / "member-badge" / "guide.json").read_text(encoding="utf-8")
+    # it is simply the notebook — no "last patrol's" anywhere it is named
+    assert "上一小隊" not in text and "上一隊" not in text
+    assert "last patrol" not in text
+    assert 't("筆記", "Notebook")' in text
+
+
 def test_the_flag_game_speaks_written_chinese():
     """Every scout-facing Chinese line is simple 書面語 — no colloquial
     Cantonese (撳／揀／嗰／窿／掣／駁…), in the bank, the page and the script."""

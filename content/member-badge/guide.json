@@ -421,8 +421,8 @@
     "icon": "🏞️",
     "name_zh": "溪谷旗桿",
     "name_en": "The valley flagpole",
-    "hint_zh": "溪邊的旗桿空著。先讀上一隊的筆記，再自己把國旗升到桿頂。",
-    "hint_en": "The flagpole by the stream is empty. Read the last patrol's notebook, then raise the flag yourself.",
+    "hint_zh": "溪邊的旗桿空著。先讀筆記，再自己把國旗升到桿頂。",
+    "hint_en": "The flagpole by the stream is empty. Read the notebook, then raise the flag yourself.",
     "items": [
      7,
      8,
@@ -536,8 +536,8 @@
     "kicker_en": "STOP 4 · GAME 4",
     "title_zh": "溪谷旗桿",
     "title_en": "The valley flagpole",
-    "text_zh": "沿溪流走進南面的谷裡。旗桿空著，上一隊留下一本筆記。讀完，再自己把旗升到桿頂，谷口才通向海邊。",
-    "text_en": "Follow the stream down into the southern valley. The flagpole is empty, and the last patrol left a notebook. Read it, then raise the flag yourself — only then does the valley open toward the sea.",
+    "text_zh": "沿溪流走進南面的谷裡。旗桿空著，旁邊有一本筆記。讀完，再自己把旗升到桿頂，谷口才通向海邊。",
+    "text_en": "Follow the stream down into the southern valley. The flagpole is empty, and a notebook lies beside it. Read it, then raise the flag yourself — only then does the valley open toward the sea.",
     "alt_zh": "溪谷營地與旗桿",
     "alt_en": "The stream, the camp and the flagpole"
    },

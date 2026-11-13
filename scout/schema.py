@@ -335,8 +335,8 @@ SEED_BADGES = [
                 "code": "M07",
                 "title_zh": "第 7 項：溪谷旗桿（遊戲 4）",
                 "title_en": "Item 7 — the valley flagpole (game 4)",
-                "instruction_zh": "能辨認中華人民共和國國旗和國徽，並能說明其含意。第四個區域只有這一個遊戲：沿溪讀上一隊留下的筆記，學懂旗徽、升旗禮儀和國歌，再自己做一次升旗禮。禮做完，第 7 至 10 項一起完成。",
-                "instruction_en": "Recognise the national flag and emblem of the PRC and explain their meaning. The fourth area's only game: follow the stream, read the notebook the last patrol left, learn the flags, the ceremony and the anthem, then perform the ceremony yourself. Finishing it clears items 7 to 10 together.",
+                "instruction_zh": "能辨認中華人民共和國國旗和國徽，並能說明其含意。第四個區域只有這一個遊戲：沿溪讀筆記，學懂旗徽、升旗禮儀和國歌，再自己做一次升旗禮。禮做完，第 7 至 10 項一起完成。",
+                "instruction_en": "Recognise the national flag and emblem of the PRC and explain their meaning. The fourth area's only game: follow the stream, read the notebook, learn the flags, the ceremony and the anthem, then perform the ceremony yourself. Finishing it clears items 7 to 10 together.",
                 "type": "quiz", "points": 10, "pass_score": 0,
                 "config_json": {"kind": "flag", "require_all": True,
                                 "links": [

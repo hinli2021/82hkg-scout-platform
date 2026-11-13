@@ -254,7 +254,7 @@
     var html = '<div class="pipe-machine">'
       + '<button type="button" class="pipe-notebook" data-pipe-notebook>'
       + artImg("notebook", "pipe-notebook-img")
-      + '<span>' + escapeHtml(t("上一小隊的筆記", "The last patrol's notebook")) + '</span></button>'
+      + '<span>' + escapeHtml(t("筆記", "Notebook")) + '</span></button>'
       + '<div class="pipe-panel"><div class="pipe-panel-inner">'
       + artImg("panel", "pipe-panel-img")
       + '<div class="pipe-holes">'
@@ -309,7 +309,7 @@
     if (!note.hidden) { note.hidden = true; return; }
     var s = stage();
     var html = '<div class="pipe-note-head"><strong>'
-      + escapeHtml(t("上一小隊的筆記", "The last patrol's notebook")) + '</strong>'
+      + escapeHtml(t("筆記", "Notebook")) + '</strong>'
       + '<button type="button" class="pipe-note-close" data-note-close aria-label="'
       + escapeHtml(t("合上筆記", "Close the notebook")) + '">✕</button></div>';
     s.learn.forEach(function (p) {
@@ -585,7 +585,7 @@
     showStory(intro, 0, t("遊戲 4", "Game 4"), function () { showStageNotes(); });
   }
 
-  /* the notes come first: read this run's pages from the last patrol's
+  /* the notes come first: read this run's pages from the
      notebook, then the control panel appears and the fitting starts.
      The notebook stays on the panel afterwards for checking. Each page
      is an open spread: the picture on the left page, the words on the
@@ -625,9 +625,9 @@
     setProgress((stageIndex + 1) + " / " + stages.length + "  " + stageName()
       + "  ·  " + t("旗", "Flag") + " " + stageIndex + "/4");
     card.innerHTML = cardHtml(
-      stageName() + "  ·  " + t("上一小隊的筆記", "The last patrol's notebook")
+      stageName() + "  ·  " + t("筆記", "Notebook")
         + "  ·  " + (index + 1) + " / " + pages.length,
-      t("上一小隊的筆記", "The last patrol's notebook"),
+      t("筆記", "Notebook"),
       "",
       '<div class="cave-actions"><button class="btn primary" type="button" data-flag-next>'
       + escapeHtml(last ? t("繼續", "Go on") : t("下一頁", "Next page")) + '</button></div>');
