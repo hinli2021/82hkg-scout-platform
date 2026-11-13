@@ -25,6 +25,7 @@ from ..engine import (
     as_json, award_task_completion, check_badge_completion, leaderboard, progress_for,
     public_badge, public_task, write_ledger,
 )
+from ..gacha import grant_pack as grant_card_pack
 from ..schema import SEED_BADGES, DEFAULT_SETTINGS, PATROL_LABELS, TASK_TYPES, patrol_label
 from ..util import generate_password, hash_password, new_id, now_iso, parse_time, slug, to_bool
 from .helpers import audit, checkbox, fail, field_list, ok, parse_csv, sanitize, store, to_csv, wants_json
@@ -1418,6 +1419,41 @@ def adjust_points():
                  ref_type="manual", ref_id="", created_by=g.user["id"])
     audit(g.user, "adjust_points", "users", user["id"], {"delta": delta, "reason": reason})
     return _done("已調整積分", "Points adjusted", "leader_routes.accounts")
+
+
+#: Pack kinds a leader may hand out, with the names scouts will read on the foil.
+PACK_KIND_NAMES = {
+    "standard": ("普通卡包", "normal pack"),
+    "gold": ("金卡包", "gold pack"),
+    "legendary": ("傳說卡包", "legendary pack"),
+}
+
+
+@leader_routes.post("/leader/accounts/grant-pack")
+@leader_required
+def grant_pack():
+    """A leader hands one scout a card pack — for a prize, or to test the game.
+
+    Every grant gets a fresh key, so the same leader can give the same scout
+    another pack later; the audit log says who gave what, and when.
+    """
+    st = store()
+    form = request.form.to_dict() if request.form else (request.get_json(silent=True) or {})
+    user = st.get("users", form.get("user_id"))
+    if not user or user.get("role") != "scout":
+        return fail(404, "not_found", "找不到此童軍", "Scout not found")
+    kind = (form.get("kind") or "").strip()
+    if kind not in PACK_KIND_NAMES:
+        return fail(400, "bad_kind", "請選擇卡包種類", "Choose a pack kind")
+    kind_zh, kind_en = PACK_KIND_NAMES[kind]
+    key = f"leader:{new_id()}"
+    grant_card_pack(
+        st, user, key=key, kind=kind, source="leader", ref_id=key,
+        reason_zh=f"領袖派發的{kind_zh}",
+        reason_en=f"A {kind_en} from your leader",
+    )
+    audit(g.user, "grant_pack", "users", user["id"], {"kind": kind})
+    return _done("已派發卡包", "Pack given", "leader_routes.accounts")
 
 
 # ══ 上線檢查（只讀：一眼看到設定是否齊全）═════════════════════════════════

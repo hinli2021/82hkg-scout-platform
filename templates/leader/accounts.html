@@ -182,6 +182,24 @@
       </div>
       <div class="form-actions"><button class="btn" type="submit">{{ L('套用', 'Apply') }}</button><span data-inline-note></span></div>
     </form>
+
+    <div class="section-title"><h2>🎴 {{ L('派發卡包', 'Give a card pack') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('leader_routes.grant_pack') }}" data-inline>
+      <label class="field"><span>{{ L('童軍', 'Scout') }}</span>
+        <select name="user_id">
+          {% for scout in scouts %}<option value="{{ scout.id }}">{{ scout.display_name_en or scout.display_name_zh }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="field"><span>{{ L('卡包種類', 'Pack kind') }}</span>
+        <select name="kind">
+          <option value="standard">{{ L('普通卡包', 'Normal pack') }}</option>
+          <option value="gold">{{ L('金卡包（保證 SR 或以上）', 'Gold pack (guarantees SR or better)') }}</option>
+          <option value="legendary">{{ L('傳說卡包（保證 SSR 或以上）', 'Legendary pack (guarantees SSR or better)') }}</option>
+        </select>
+      </label>
+      <p class="small muted">{{ L('卡包會即時出現在童軍的抽卡頁，派發紀錄會寫入審計紀錄。', 'The pack appears on the scout’s cards page at once, and the grant is written to the audit log.') }}</p>
+      <div class="form-actions"><button class="btn" type="submit">{{ L('派發', 'Give') }}</button><span data-inline-note></span></div>
+    </form>
   </div>
 </div>
 {% endblock %}

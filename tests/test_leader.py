@@ -262,6 +262,47 @@ def test_import_without_content_is_refused(leader_client):
     assert leader_client.post("/leader/accounts/import", json={"csv": "   "}).status_code == 400
 
 
+def test_a_leader_can_give_a_pack_of_any_kind(leader_client, store):
+    from scout import gacha
+    scout = next(u for u in store.list("users") if u["username"] == "scout06")
+    for kind in ("standard", "gold", "legendary"):
+        answer = leader_client.post("/leader/accounts/grant-pack",
+                                    data={"user_id": scout["id"], "kind": kind})
+        assert answer.status_code in (200, 302)
+    state = gacha.load_state(store, scout["id"])
+    assert [pack["kind"] for pack in state["packs_json"]] == ["standard", "gold", "legendary"]
+    assert all(pack["source"] == "leader" for pack in state["packs_json"])
+    assert state["packs_json"][2]["reason_zh"] == "領袖派發的傳說卡包"
+    # a second grant of the same kind is a second pack, not a duplicate refusal
+    leader_client.post("/leader/accounts/grant-pack",
+                       data={"user_id": scout["id"], "kind": "legendary"})
+    assert len(gacha.load_state(store, scout["id"])["packs_json"]) == 4
+    import json
+    rows = [r for r in store.list("audit_log") if r.get("action") == "grant_pack"]
+    assert len(rows) == 4 and json.loads(rows[-1]["detail_json"])["kind"] == "legendary"
+
+
+def test_giving_a_pack_validates_the_scout_and_the_kind(leader_client, store):
+    scout = next(u for u in store.list("users") if u["username"] == "scout06")
+    bad_kind = leader_client.post("/leader/accounts/grant-pack",
+                                  data={"user_id": scout["id"], "kind": "rainbow"},
+                                  headers={"Accept": "application/json"})
+    assert bad_kind.status_code == 400
+    missing = leader_client.post("/leader/accounts/grant-pack",
+                                 data={"user_id": "no-such-user", "kind": "gold"},
+                                 headers={"Accept": "application/json"})
+    assert missing.status_code == 404
+
+
+def test_a_scout_cannot_give_packs(scout_client, store):
+    scout = next(u for u in store.list("users") if u["username"] == "scout06")
+    answer = scout_client.post("/leader/accounts/grant-pack",
+                               data={"user_id": scout["id"], "kind": "legendary"})
+    assert answer.status_code in (302, 403, 404)
+    from scout import gacha
+    assert gacha.load_state(store, scout["id"])["packs_json"] == []
+
+
 def test_adjust_points_writes_a_labelled_ledger_entry(leader_client, store):
     scout = next(u for u in store.list("users") if u["username"] == "scout06")
     before = store.stats_for(scout["id"])["points_balance"]
