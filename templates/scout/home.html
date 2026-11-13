@@ -80,12 +80,11 @@
     <span class="tile-title">{{ L('抽卡', 'Cards') }}</span>
     <span class="tile-meta">
       {% if gacha.packs %}
-        {{ L('你有 ' ~ gacha.packs ~ ' 個卡包未打開', gacha.packs ~ ' unopened pack' ~ ('s' if gacha.packs != 1 else '')) }}
+        {{ L(gacha.packs ~ ' 個卡包未打開', gacha.packs ~ ' unopened pack' ~ ('s' if gacha.packs != 1 else '')) }}
       {% else %}
-        {{ L('完成遊戲就有卡包，也可以用積分換普通卡包。', 'Finish games for packs, or buy a normal pack with points.') }}
+        {{ L('收集技能卡', 'Collect skill cards') }}
       {% endif %}
     </span>
-    <span class="tile-meta">{{ L('打開卡包，收集技能卡', 'Open packs and collect skill cards') }}</span>
     <span class="tile-bar"><i style="width: {{ 100 if gacha.packs else 0 }}%"></i></span>
   </a>
   {% endif %}
@@ -97,14 +96,13 @@
     <span class="tile-title">{{ L('意見箱', 'Feedback') }}</span>
     <span class="tile-meta">
       {% if feedback.waiting %}
-        {{ L('你有 ' ~ feedback.waiting ~ ' 項意見等領袖查看', feedback.waiting ~ ' of your entries are waiting for a leader') }}
+        {{ L(feedback.waiting ~ ' 項等領袖查看', feedback.waiting ~ ' waiting for a leader') }}
       {% elif feedback.sent %}
-        {{ L('你共送出了 ' ~ feedback.sent ~ ' 項意見', 'You have sent ' ~ feedback.sent ~ ' entries so far') }}
+        {{ L('已送出 ' ~ feedback.sent ~ ' 項', feedback.sent ~ ' sent') }}
       {% else %}
-        {{ L('平台有問題，或者你有新主意，都可以在這裏提出。', 'Report a problem, or share an idea for the platform.') }}
+        {{ L('報告問題，提出建議', 'Report bugs, share ideas') }}
       {% endif %}
     </span>
-    <span class="tile-meta">{{ L('領袖查看後，可能會給你積分作獎勵', 'A leader may give you points for a good entry') }}</span>
     <span class="tile-bar"><i style="width: {{ 100 if feedback.waiting else 0 }}%"></i></span>
   </a>
   {% endif %}

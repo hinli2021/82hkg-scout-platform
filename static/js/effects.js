@@ -374,6 +374,29 @@
     document.querySelectorAll('[data-sound-toggle]').forEach(function (button) {
       button.addEventListener('click', function () { toggleSound(); });
     });
+    /* 窄畫面的漢堡選單：按一下開合，按連結、按外面或按 Esc 都會收起 */
+    document.querySelectorAll('[data-nav-toggle]').forEach(function (button) {
+      var menu = document.getElementById(button.getAttribute('aria-controls') || '');
+      if (!menu) return;
+      function setOpen(open) {
+        menu.classList.toggle('open', open);
+        button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        button.textContent = open ? '✕' : '☰';
+      }
+      button.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        setOpen(!menu.classList.contains('open'));
+      });
+      menu.addEventListener('click', function (ev) {
+        if (ev.target.closest && ev.target.closest('a')) setOpen(false);
+      });
+      document.addEventListener('click', function (ev) {
+        if (menu.classList.contains('open') && !menu.contains(ev.target)) setOpen(false);
+      });
+      document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape') setOpen(false);
+      });
+    });
     paintSoundToggle();
     initStageBoard();
     if (document.body.dataset.tour === '1') {

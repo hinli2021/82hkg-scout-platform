@@ -41,7 +41,7 @@
           <small>{{ L('童軍進度平台', 'Scout Progress Platform') }}</small>
         </span>
       </a>
-      <nav class="tabbar">
+      <nav class="tabbar" id="top-nav" data-nav-menu>
         {# 獎品 and 龍虎榜 only appear once the unit switches them on in
            設定 → 功能開關. Everything else is the everyday furniture. #}
         {% set flags = settings.feature_flags or {} %}
@@ -72,6 +72,10 @@
         {% endfor %}
       </nav>
       <div class="topbar-right">
+        {# 窄畫面時，主選單收進這粒漢堡掣裏（見 styles.css 的小畫面規則） #}
+        <button class="icon-btn nav-toggle" type="button" data-nav-toggle
+                aria-expanded="false" aria-controls="top-nav"
+                aria-label="{{ L('選單', 'Menu') }}" title="{{ L('選單', 'Menu') }}">☰</button>
         {# 只在遊戲頁出現（那裏 HUD 收起了），見 .topbar-points 的樣式 #}
         {{ points_chip('topbar-points') }}
         <button class="icon-btn" type="button" data-sound-toggle title="{{ L('遊戲音效', 'Game sound') }}">🔊</button>

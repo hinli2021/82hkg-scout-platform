@@ -80,7 +80,7 @@ def test_the_home_page_has_no_progress_overview(scout_client):
     assert "進度概覽" not in page
     assert "總進度" not in page
     assert "stat-strip" not in page
-    assert page.index("我的獎章") < page.index("建議")
+    assert page.index("我的獎章") < page.index("💡 建議")
 
 
 def test_home_is_the_minimal_dashboard(scout_client):
@@ -91,7 +91,7 @@ def test_home_is_the_minimal_dashboard(scout_client):
     assert "badge-tile" in page            # the square buttons themselves
     # the progress-overview section is gone, and the badges come first
     assert "進度概覽" not in page
-    assert page.index("我的獎章") < page.index("建議")
+    assert page.index("我的獎章") < page.index("💡 建議")
 
 
 def test_the_notice_rides_in_the_greeting_header(app, leader_client, store):
