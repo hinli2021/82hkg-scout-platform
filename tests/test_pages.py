@@ -13,7 +13,7 @@ import pytest
 from scout import engine
 
 
-SCOUT_PAGES = ["/home", "/badges", "/rewards", "/history", "/leaderboard"]
+SCOUT_PAGES = ["/home", "/badges", "/rewards", "/profile", "/leaderboard"]
 LEADER_PAGES = ["/leader", "/leader/content", "/leader/review", "/leader/accounts",
                 "/leader/announcements", "/leader/rewards", "/leader/settings", "/leader/audit"]
 
@@ -596,7 +596,7 @@ def test_the_language_switch_is_on_every_page(scout_client):
     Chinese is the default and keeps the English glosses (patrol names, English
     names); English hides the Chinese half of each bilingual pair.
     """
-    for path in ("/home", "/badges", "/daily", "/history"):
+    for path in ("/home", "/badges", "/daily", "/profile"):
         page = scout_client.get(path).get_data(as_text=True)
         assert 'class="lang-switch"' in page, f"{path} has no language switch"
         assert 'data-lang="zh"' in page
@@ -626,7 +626,7 @@ def test_prizes_and_board_start_hidden(scout_client, leader_client):
     home = scout_client.get("/home").get_data(as_text=True)
     assert "🎁" not in home and "/rewards" not in home
     assert "🏆" not in home and "/leaderboard" not in home
-    assert "🎖" in home and "📜" in home            # the basics are still there
+    assert "🎖" in home and "👤" in home            # the basics are still there
 
     assert scout_client.get("/rewards", follow_redirects=False).status_code == 302
     assert scout_client.get("/leaderboard", follow_redirects=False).status_code == 302

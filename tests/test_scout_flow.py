@@ -146,7 +146,7 @@ def test_every_page_shows_the_points_balance_beside_the_streak(scout_client):
     獎章頁上的「🪙 100 獎章積分」是獎章本身的獎分，不算餘額。)
     """
     checked = 0
-    for path in ("/home", "/badges", "/daily", "/history", "/leaderboard", "/rewards"):
+    for path in ("/home", "/badges", "/daily", "/profile", "/leaderboard", "/rewards"):
         page = scout_client.get(path, follow_redirects=True).get_data(as_text=True)
         if 'class="topbar"' not in page:
             continue                      # kept behind a feature flag: nothing to check
@@ -160,7 +160,7 @@ def test_every_page_shows_the_points_balance_beside_the_streak(scout_client):
     assert checked >= 5
     assert 'topbar-points' in scout_client.get("/home").get_data(as_text=True)
 def test_no_xp_or_levels_anywhere(scout_client):
-    for path in ("/home", "/badges", "/rewards", "/history", "/leaderboard"):
+    for path in ("/home", "/badges", "/rewards", "/profile", "/leaderboard"):
         page = scout_client.get(path).get_data(as_text=True).lower()
         for banned in ("experience points", "level up", "等級"):
             assert banned not in page, f"{path} leaks “{banned}”"
@@ -254,9 +254,13 @@ def test_rewards_show_shortfall_for_unaffordable_chests(app, store, extras_on):
 
 
 def test_history_lists_completions(scout_client, store):
-    page = scout_client.get("/history").get_data(as_text=True)
-    assert "我的紀錄" in page
-    assert "第 1 項" in page                   # scout03 has finished item 1 of 會員章
+    # 我的紀錄 is now 我的個人檔案 — the old address lands on the profile,
+    # whose overview carries the same progress figures
+    response = scout_client.get("/history")
+    assert response.status_code == 302
+    assert "/profile" in response.headers["Location"]
+    page = scout_client.get("/profile").get_data(as_text=True)
+    assert "我的個人檔案" in page and "進度總覽" in page
 
 
 def board_ids(page):

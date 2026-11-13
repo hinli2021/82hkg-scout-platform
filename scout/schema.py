@@ -121,6 +121,12 @@ COLLECTIONS: dict[str, dict] = {
             "points_awarded", "leader_comment", "created_at", "decided_at", "decided_by",
         ],
     },
+    # One row per scout's public profile (興趣、童軍經驗、想分享的事).
+    # `visible` starts off: a scout chooses to share before anyone can visit.
+    "profiles": {
+        "label": "Profiles",
+        "fields": ["user_id", "interests", "experience", "share", "visible", "updated_at"],
+    },
     # One row per scout. A new tab only — existing Sheet columns are untouched.
     "gacha": {
         "label": "Gacha",
@@ -148,11 +154,11 @@ NUMBER_FIELDS = {
     "pity", "opened",
 }
 #: Fields stored as booleans.
-BOOL_FIELDS = {"must_change_password", "show_on_leaderboard", "active", "pinned"}
+BOOL_FIELDS = {"must_change_password", "show_on_leaderboard", "active", "pinned", "visible"}
 
 
 def key_field(collection: str) -> str:
-    if collection in ("stats", "gacha"):
+    if collection in ("stats", "gacha", "profiles"):
         return "user_id"
     if collection == "settings":
         return "key"

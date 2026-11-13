@@ -34,6 +34,7 @@ from scout.routes.daily_routes import daily_routes
 from scout.routes.feedback_routes import feedback_routes
 from scout.routes.gacha_routes import gacha_routes
 from scout.routes.leader_routes import leader_routes
+from scout.routes.profile_routes import profile_routes
 from scout.routes.scout_routes import scout_routes
 
 
@@ -192,6 +193,7 @@ def create_app(config: dict | None = None) -> Flask:
     app.register_blueprint(daily_routes)
     app.register_blueprint(feedback_routes)
     app.register_blueprint(gacha_routes)
+    app.register_blueprint(profile_routes)
     app.register_blueprint(leader_routes)
 
     # Every link/form in every template goes through url_for, so carrying the

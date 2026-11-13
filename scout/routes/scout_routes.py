@@ -1311,42 +1311,14 @@ def rewards():
                            redemption_enabled=bool((st.settings_cached().get("feature_flags") or {}).get("redeem")))
 
 
-# ── 紀錄 (timeline) ─────────────────────────────────────────────────────────
+# ── 紀錄 (old address) ──────────────────────────────────────────────────────
+# 我的紀錄 is now 我的個人檔案: the profile page carries the progress
+# overview, so old bookmarks land there instead of on a separate timeline.
 
 @scout_routes.get("/history")
 @scout_required
 def history():
-    st = store()
-    user = g.user
-    tasks = {t["id"]: t for t in st.list("tasks")}
-    badges = {b["id"]: b for b in st.list("badges")}
-    records = [r for r in st.list("progress_records") if r.get("user_id") == user["id"]]
-    awards = [a for a in st.list("badge_awards") if a.get("user_id") == user["id"]]
-
-    timeline = []
-    for record in records:
-        task = tasks.get(record.get("task_id"), {})
-        timeline.append({
-            "kind": "task", "at": record.get("decided_at") or record.get("submitted_at"),
-            "status": record.get("status"),
-            "title_zh": task.get("title_zh", ""), "title_en": task.get("title_en", ""),
-            "type": task.get("type", ""), "score": record.get("score"),
-            "badge_zh": badges.get(record.get("badge_id"), {}).get("title_zh", ""),
-            "badge_en": badges.get(record.get("badge_id"), {}).get("title_en", ""),
-            "comment": record.get("leader_comment", ""),
-            "task_id": record.get("task_id"),
-            "attempt_no": record.get("attempt_no"),
-        })
-    for award in awards:
-        badge = badges.get(award.get("badge_id"), {})
-        timeline.append({
-            "kind": "badge", "at": award.get("awarded_at"), "status": "earned",
-            "title_zh": badge.get("title_zh", ""), "title_en": badge.get("title_en", ""),
-            "emoji": badge.get("emoji", "🎖"), "color": badge.get("color", ""),
-            "image_url": badge.get("image_url", ""),
-        })
-    timeline.sort(key=lambda row: str(row.get("at") or ""), reverse=True)
-    return render_template("scout/history.html", timeline=timeline, stats=progress_for(st, user["id"])["stats"])
+    return redirect(url_for("profile_routes.page"))
 
 
 # ── 龍虎榜 ─────────────────────────────────────────────────────────────────
