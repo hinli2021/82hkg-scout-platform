@@ -23,67 +23,102 @@
     {{ empty_state('🔒', '這位童軍尚未完成並公開個人檔案。', 'This scout has not completed and published their profile yet.') }}
   </section>
 {% else %}
+{% set m = mascot_for(person.get('patrol', '')) %}
 
-{# ── 進度總覽 ─────────────────────────────────────────────────────────── #}
-<div class="section-title"><h2>📊 {{ L('進度總覽', 'Progress overview') }}</h2></div>
-<div class="stat-strip">
-  <div class="stat"><div class="k">{{ L('獎章', 'Badges') }}</div><div class="v">{{ stats.badges_done }}/{{ overall.badges_total }}</div></div>
-  <div class="stat"><div class="k">{{ L('任務', 'Tasks') }}</div><div class="v">{{ overall.tasks_done }}/{{ overall.tasks_total }}</div></div>
-  <div class="stat"><div class="k">{{ L('積分', 'Points') }}</div><div class="v">{{ stats.points_balance }}</div></div>
-  <div class="stat"><div class="k">{{ L('連續天數', 'Day streak') }}</div><div class="v">{{ stats.streak_current }}</div></div>
-</div>
+{# ── 角色卡：正面是人物與簡介，背面是狀態總覽與詳細資料 ─────────────────── #}
+<div class="char-wrap">
+  <div class="char-scene">
+    <div class="char-card" data-char-card style="--char-tint: {{ m.tint }}; --char-tint-dark: {{ m.tint_dark }}">
+      <section class="char-face char-front" data-char-front aria-label="{{ L('角色卡正面', 'Character card front') }}">
+        <div class="char-banner"><span class="char-name">{{ name_of(person) }}</span></div>
+        <div class="char-portrait">
+          {% if m.img %}
+            <img src="{{ m.img }}" alt="">
+          {% else %}
+            <span class="char-portrait-emoji" aria-hidden="true">{{ m.emoji }}</span>
+          {% endif %}
+          <span class="char-avatar" aria-hidden="true">{{ person.avatar or '🦊' }}</span>
+        </div>
+        <div class="char-tags">
+          <span class="char-tag">{{ patrol_name(person.get('patrol', '')) }}</span>
+          <span class="char-tag char-tag-pos">{{ L(profile.position_zh, profile.position_en) or L('尚未填寫職位', 'No position yet') }}</span>
+        </div>
+        <p class="char-desc">{{ profile.experience or L('尚未填寫童軍經驗。', 'No Scout experience written yet.') }}</p>
+        <div class="char-foot">
+          <span class="char-foot-label">{{ L('興趣', 'Interests') }}</span>
+          <span class="char-foot-text">{{ profile.interests or L('尚未填寫', 'Not written yet') }}</span>
+        </div>
+      </section>
 
-<div class="card" style="margin-top:.8rem">
-  <div class="section-title" style="margin-top:0"><h2>🎖 {{ L('已考獲的獎章', 'Badges earned') }}</h2></div>
-  {% if earned_badges %}
-    <div class="row wrap" style="gap:.5rem">
-      {% for badge in earned_badges %}
-        <span class="chip brass">{{ badge.emoji or '🎖' }} {{ L(badge.title_zh, badge.title_en) }}</span>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p class="muted small" style="margin:0">{{ L('尚未考獲獎章。', 'No badges earned yet.') }}</p>
-  {% endif %}
-</div>
-
-{# ── 個人資料 ─────────────────────────────────────────────────────────── #}
-<div class="section-title"><h2>👤 {{ L('個人資料', 'About me') }}</h2></div>
-{% if own %}
-  <form class="card" method="post" action="{{ url_for('profile_routes.save') }}">
-    <label class="field"><span>{{ L('興趣', 'Interests') }}</span>
-      <input type="text" name="interests" required maxlength="120" value="{{ profile.interests }}"
-             placeholder="{{ L('例如：露營、繩結、音樂、足球', 'e.g. Camping, knots, music, football') }}">
-    </label>
-    <label class="field"><span>{{ L('童軍經驗', 'My Scout experience') }}</span>
-      <textarea name="experience" required maxlength="1000" rows="4"
-                placeholder="{{ L('例如：我參加了童軍兩年，去過一次大露營。', 'e.g. I have been a Scout for two years and went to a jamboree once.') }}">{{ profile.experience }}</textarea>
-    </label>
-    <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }}</span>
-      <textarea name="share" required maxlength="1000" rows="4"
-                placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile.share }}</textarea>
-    </label>
-    <p class="muted small">{{ L('請不要填寫電話號碼、住址或學校名稱。', 'Please do not write a phone number, home address or school name.') }}</p>
-    <p class="chip brass">🌐 {{ L('個人檔案會公開給其他童軍看', 'Your profile will be shown to other scouts') }}</p>
-    <input type="hidden" name="visible" value="1">
-    <div style="margin-top:.8rem">
-      <button class="btn primary" type="submit">💾 {{ L('儲存', 'Save') }}</button>
-    </div>
-  </form>
-{% else %}
-  <div class="card stack">
-    <div>
-      <strong>{{ L('興趣', 'Interests') }}</strong>
-      <p style="margin:.25rem 0 0; white-space:pre-wrap">{{ profile.interests or L('尚未填寫。', 'Not written yet.') }}</p>
-    </div>
-    <div>
-      <strong>{{ L('童軍經驗', 'Scout experience') }}</strong>
-      <p style="margin:.25rem 0 0; white-space:pre-wrap">{{ profile.experience or L('尚未填寫。', 'Not written yet.') }}</p>
-    </div>
-    <div>
-      <strong>{{ L('想和大家分享的事', 'Something to share') }}</strong>
-      <p style="margin:.25rem 0 0; white-space:pre-wrap">{{ profile.share or L('尚未填寫。', 'Not written yet.') }}</p>
+      <section class="char-face char-back" data-char-back aria-label="{{ L('角色卡背面', 'Character card back') }}">
+        <div class="char-back-head">
+          <span class="char-back-name">{{ name_of(person) }}</span>
+          <span class="char-back-sub">{{ L('狀態總覽', 'Status overview') }}</span>
+        </div>
+        <div class="char-stats">
+          <div class="char-stat"><span class="char-stat-k">{{ L('獎章', 'Badges') }}</span><span class="char-stat-v">{{ stats.badges_done }}/{{ overall.badges_total }}</span></div>
+          <div class="char-stat"><span class="char-stat-k">{{ L('任務', 'Tasks') }}</span><span class="char-stat-v">{{ overall.tasks_done }}/{{ overall.tasks_total }}</span></div>
+          <div class="char-stat"><span class="char-stat-k">{{ L('積分', 'Points') }}</span><span class="char-stat-v">{{ stats.points_balance }}</span></div>
+          <div class="char-stat"><span class="char-stat-k">{{ L('連續天數', 'Day streak') }}</span><span class="char-stat-v">{{ stats.streak_current }}</span></div>
+        </div>
+        <div class="char-badges">
+          <span class="char-row-k">{{ L('已考獲的獎章', 'Badges earned') }}</span>
+          {% if earned_badges %}
+            <span class="row wrap" style="gap:.35rem">
+              {% for badge in earned_badges %}
+                <span class="chip brass">{{ badge.emoji or '🎖' }} {{ L(badge.title_zh, badge.title_en) }}</span>
+              {% endfor %}
+            </span>
+          {% else %}
+            <span class="char-row-v">{{ L('尚未考獲獎章。', 'No badges earned yet.') }}</span>
+          {% endif %}
+        </div>
+        <div class="char-details">
+          <div class="char-row"><span class="char-row-k">{{ L('職位', 'Position') }}</span><span class="char-row-v">{{ L(profile.position_zh, profile.position_en) or L('尚未填寫', 'Not written yet') }}</span></div>
+          <div class="char-row"><span class="char-row-k">{{ L('小隊', 'Patrol') }}</span><span class="char-row-v">{{ patrol_name(person.get('patrol', '')) }}</span></div>
+          <div class="char-row"><span class="char-row-k">{{ L('興趣', 'Interests') }}</span><span class="char-row-v">{{ profile.interests or L('尚未填寫。', 'Not written yet.') }}</span></div>
+          <div class="char-row"><span class="char-row-k">{{ L('童軍經驗', 'Scout experience') }}</span><span class="char-row-v">{{ profile.experience or L('尚未填寫。', 'Not written yet.') }}</span></div>
+          <div class="char-row"><span class="char-row-k">{{ L('想和大家分享的事', 'Something to share') }}</span><span class="char-row-v">{{ profile.share or L('尚未填寫。', 'Not written yet.') }}</span></div>
+        </div>
+      </section>
     </div>
   </div>
+  <button class="btn primary char-flip-btn" type="button" data-char-flip aria-expanded="false">
+    🔄 <span data-char-flip-label>{{ L('看背面', 'See the back') }}</span>
+  </button>
+</div>
+
+{% if own %}
+{# ── 編輯個人檔案 ─────────────────────────────────────────────────────── #}
+<div class="section-title"><h2>✏️ {{ L('編輯個人檔案', 'Edit my profile') }}</h2></div>
+<form class="card" method="post" action="{{ url_for('profile_routes.save') }}">
+  <label class="field"><span>{{ L('職位', 'Position') }}</span>
+    <select name="position" required>
+      <option value="">{{ L('請選擇職位', 'Choose your position') }}</option>
+      {% for code, label in positions.items() %}
+        <option value="{{ code }}" {{ 'selected' if profile.position == code }}>{{ L(label.zh, label.en) }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label class="field"><span>{{ L('興趣', 'Interests') }}</span>
+    <input type="text" name="interests" required maxlength="120" value="{{ profile.interests }}"
+           placeholder="{{ L('例如：露營、繩結、音樂、足球', 'e.g. Camping, knots, music, football') }}">
+  </label>
+  <label class="field"><span>{{ L('童軍經驗', 'My Scout experience') }}</span>
+    <textarea name="experience" required maxlength="1000" rows="4"
+              placeholder="{{ L('例如：我參加了童軍兩年，去過一次大露營。', 'e.g. I have been a Scout for two years and went to a jamboree once.') }}">{{ profile.experience }}</textarea>
+  </label>
+  <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }}</span>
+    <textarea name="share" required maxlength="1000" rows="4"
+              placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile.share }}</textarea>
+  </label>
+  <p class="muted small">{{ L('請不要填寫電話號碼、住址或學校名稱。', 'Please do not write a phone number, home address or school name.') }}</p>
+  <p class="chip brass">🌐 {{ L('個人檔案會公開給其他童軍看', 'Your profile will be shown to other scouts') }}</p>
+  <input type="hidden" name="visible" value="1">
+  <div style="margin-top:.8rem">
+    <button class="btn primary" type="submit">💾 {{ L('儲存', 'Save') }}</button>
+  </div>
+</form>
 {% endif %}
 
 {# ── 各小隊成員 ───────────────────────────────────────────────────────── #}
@@ -117,4 +152,28 @@
   {% endfor %}
 </div>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var card = document.querySelector('[data-char-card]');
+  var button = document.querySelector('[data-char-flip]');
+  if (!card || !button) return;
+  var label = button.querySelector('[data-char-flip-label]');
+  var backText = {{ L('看背面', 'See the back') | tojson }};
+  var frontText = {{ L('看正面', 'See the front') | tojson }};
+  function flip() {
+    var flipped = card.classList.toggle('is-flipped');
+    button.setAttribute('aria-expanded', flipped ? 'true' : 'false');
+    if (label) label.textContent = flipped ? frontText : backText;
+    if (window.FX && FX.sfx) { try { FX.sfx('flip'); } catch (e) { /* sound is a bonus */ } }
+  }
+  button.addEventListener('click', flip);
+  card.addEventListener('click', function (ev) {
+    if (ev.target.closest && ev.target.closest('a, button')) return;
+    flip();
+  });
+})();
+</script>
 {% endblock %}

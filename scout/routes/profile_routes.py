@@ -23,11 +23,24 @@ profile_routes = Blueprint("profile_routes", __name__)
 INTERESTS_MAX = 120
 TEXT_MAX = 1000
 
+#: 職位 — the scout's job in the patrol, shown on the front of the card.
+POSITIONS = {
+    "member": {"zh": "隊員", "en": "Patrol member"},
+    "apl": {"zh": "副小隊長", "en": "Assistant Patrol Leader"},
+    "pl": {"zh": "小隊長", "en": "Patrol Leader"},
+    "spl": {"zh": "高級小隊長", "en": "Senior Patrol Leader"},
+}
+
 
 def load_profile(st, user_id: str) -> dict:
     row = st.get("profiles", user_id) or {}
+    position = str(row.get("position") or "")
+    labels = POSITIONS.get(position, {})
     return {
         "user_id": user_id,
+        "position": position,
+        "position_zh": labels.get("zh", ""),
+        "position_en": labels.get("en", ""),
         "interests": str(row.get("interests") or ""),
         "experience": str(row.get("experience") or ""),
         "share": str(row.get("share") or ""),
@@ -39,7 +52,8 @@ def load_profile(st, user_id: str) -> dict:
 def profile_complete(profile: dict) -> bool:
     """All personal information is filled in and the profile is public."""
     return bool(
-        str(profile.get("interests") or "").strip()
+        str(profile.get("position") or "") in POSITIONS
+        and str(profile.get("interests") or "").strip()
         and str(profile.get("experience") or "").strip()
         and str(profile.get("share") or "").strip()
         and to_bool(profile.get("visible"))
@@ -92,6 +106,7 @@ def _context(st, person: dict, *, own: bool) -> dict:
         "overall": progress["overall"],
         "earned_badges": [b for b in progress["badges"] if b["earned"]],
         "groups": patrol_groups(st, g.user["id"]),
+        "positions": POSITIONS,
         "own": own,
     }
 
@@ -111,6 +126,7 @@ def save():
     st = store()
     body = request.form
     values = {
+        "position": str(body.get("position") or "").strip(),
         "interests": str(body.get("interests") or "").strip(),
         "experience": str(body.get("experience") or "").strip(),
         "share": str(body.get("share") or "").strip(),
@@ -118,9 +134,12 @@ def save():
         # also the scout's agreement to let the rest of the troop read it.
         "visible": True,
     }
+    if values["position"] not in POSITIONS:
+        return fail(400, "profile_position", "請選擇你的職位。",
+                    "Please choose your position.")
     if not values["interests"] or not values["experience"] or not values["share"]:
-        return fail(400, "profile_empty", "請填寫全部三項資料，才可以繼續。",
-                    "Please fill in all three sections before you continue.")
+        return fail(400, "profile_empty", "請填寫全部資料，才可以繼續。",
+                    "Please fill in everything before you continue.")
     if len(values["interests"]) > INTERESTS_MAX or len(values["experience"]) > TEXT_MAX \
             or len(values["share"]) > TEXT_MAX:
         return fail(400, "profile_long", "內容太長，請寫短一點。",

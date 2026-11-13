@@ -125,7 +125,7 @@ COLLECTIONS: dict[str, dict] = {
     # `visible` is set when all three fields are complete: profiles are public.
     "profiles": {
         "label": "Profiles",
-        "fields": ["user_id", "interests", "experience", "share", "visible", "updated_at"],
+        "fields": ["user_id", "position", "interests", "experience", "share", "visible", "updated_at"],
     },
     # One row per scout. A new tab only — existing Sheet columns are untouched.
     "gacha": {

@@ -260,7 +260,7 @@ def test_history_lists_completions(scout_client, store):
     assert response.status_code == 302
     assert "/profile" in response.headers["Location"]
     page = scout_client.get("/profile").get_data(as_text=True)
-    assert "我的個人檔案" in page and "進度總覽" in page
+    assert "我的個人檔案" in page and "狀態總覽" in page
 
 
 def board_ids(page):

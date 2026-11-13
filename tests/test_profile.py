@@ -8,11 +8,14 @@ def find(store, username):
 
 def test_my_profile_shows_a_progress_overview(store, new_scout):
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert "我的個人檔案" in page and "進度總覽" in page
+    assert "我的個人檔案" in page and "狀態總覽" in page
     assert "獎章" in page and "任務" in page and "積分" in page
     assert "興趣" in page and "童軍經驗" in page and "想和大家分享的事" in page
     assert "個人檔案會公開給其他童軍看" in page
     assert "請先完成個人檔案" in page  # the blocking pop-up is already up
+    # the profile is a character card now: portrait front, status back
+    assert "data-char-card" in page and "data-char-front" in page and "data-char-back" in page
+    assert "看背面" in page and "職位" in page
 
 
 def test_the_old_history_address_lands_on_my_profile(store, new_scout):
@@ -25,17 +28,18 @@ def test_the_old_history_address_lands_on_my_profile(store, new_scout):
 
 def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_scout):
     reply = new_scout.post("/profile", data={
+        "position": "pl",
         "interests": "露營、繩結、音樂",
         "experience": "我參加了童軍兩年，去過一次大露營。",
         "share": "我喜歡畫畫，也喜歡教新成員綁繩結。",
     })
     assert reply.status_code == 200
     row = store.get("profiles", new_scout.id)
-    assert row["interests"] == "露營、繩結、音樂"
+    assert row["position"] == "pl" and row["interests"] == "露營、繩結、音樂"
     assert row["visible"] in (True, "true", 1)
 
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert "露營、繩結、音樂" in page
+    assert "露營、繩結、音樂" in page and "小隊長" in page  # the card shows the position
     assert "請先完成個人檔案" not in page  # complete: the pop-up is gone
 
 
@@ -50,17 +54,17 @@ def test_an_unfinished_profile_cannot_be_visited(store, new_scout, scout_client)
     assert "天文" not in locked
 
     new_scout.post("/profile", data={
-        "interests": "天文", "experience": "參加了童軍三年。", "share": "想分享星星的故事。",
+        "position": "member", "interests": "天文", "experience": "參加了童軍三年。", "share": "想分享星星的故事。",
     })
     open_page = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
     assert "天文" in open_page and "參加了童軍三年" in open_page
-    assert "想分享星星的故事" in open_page and "進度總覽" in open_page
+    assert "想分享星星的故事" in open_page and "狀態總覽" in open_page
 
 
 def test_the_patrol_list_groups_scouts_and_marks_who_is_open(store, new_scout, scout_client):
     other = find(store, "scout04")
     store.insert("profiles", {
-        "user_id": other["id"], "interests": "足球", "experience": "參加了童軍一年。",
+        "user_id": other["id"], "position": "pl", "interests": "足球", "experience": "參加了童軍一年。",
         "share": "喜歡在營地幫忙煮食。", "visible": True, "updated_at": "2026-01-01",
     })
     page = new_scout.get("/profile").get_data(as_text=True)
@@ -80,21 +84,24 @@ def test_the_pop_up_blocks_a_scout_until_the_profile_is_complete(store, new_scou
     # leaders never see the scout pop-up
     assert "data-profile-setup" not in leader_client.get("/leader").get_data(as_text=True)
 
-    # every field is required — a half-filled profile is refused and not saved
-    reply = new_scout.post("/profile", data={"interests": "露營", "experience": "", "share": ""})
+    # every field is required — no position, or a half-filled profile, is refused
+    reply = new_scout.post("/profile", data={"interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。"})
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_position"
+    reply = new_scout.post("/profile", data={"position": "member", "interests": "露營", "experience": "", "share": ""})
     assert reply.status_code == 400
     assert reply.get_json()["error"] == "profile_empty"
     assert store.get("profiles", new_scout.id) is None
 
     new_scout.post("/profile", data={
-        "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。",
+        "position": "apl", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。",
     })
     assert "data-profile-setup" not in new_scout.get("/home").get_data(as_text=True)
 
 
 def test_saving_from_the_pop_up_returns_to_the_page_in_use(store, new_scout):
     response = new_scout.client.post("/profile", data={
-        "interests": "音樂", "experience": "參加了童軍一年。", "share": "想和大家組樂隊。",
+        "position": "member", "interests": "音樂", "experience": "參加了童軍一年。", "share": "想和大家組樂隊。",
         "return_to": "/daily",
     })
     assert response.status_code == 302
@@ -126,13 +133,13 @@ def test_leaders_and_unknown_scouts_stay_out(store, new_scout, leader_client):
 def test_english_profile_carries_no_chinese_headings(store, new_scout):
     new_scout.get("/set-language/en")
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert "My profile" in page and "Progress overview" in page
+    assert "My profile" in page and "Status overview" in page
     assert "Scouts by patrol" in page
-    assert "我的個人檔案" not in page and "進度總覽" not in page
+    assert "我的個人檔案" not in page and "狀態總覽" not in page
 
 
 def test_the_profiles_tab_exists_in_the_schema():
     from scout.schema import COLLECTIONS, key_field
     assert COLLECTIONS["profiles"]["fields"] == [
-        "user_id", "interests", "experience", "share", "visible", "updated_at"]
+        "user_id", "position", "interests", "experience", "share", "visible", "updated_at"]
     assert key_field("profiles") == "user_id"
