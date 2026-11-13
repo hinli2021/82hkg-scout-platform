@@ -115,18 +115,22 @@ def test_album_is_split_into_categories(store, new_scout):
     assert sections[6]["show_family"] and sections[6]["family"] == "badge"
     page = new_scout.get("/cards").get_data(as_text=True)
     assert "技能卡" in page and "會員章" in page and "專科徽章" in page and "技能組" in page
-    assert "選一個類別" in page
-    assert "童軍誓詞" not in page and "平結" not in page
+    # every card is shown by default; a category only narrows the album
+    assert "全部卡" in page and "選一個類別" not in page
+    assert "童軍誓詞" in page and "平結" in page
+    assert page.count("mini-card") == 46
     assert page.index("會員章") < page.index("繩結") < page.index("技能組")
     knots = new_scout.get("/cards?cat=knots").get_data(as_text=True)
     assert "平結" in knots and "稱人結" in knots
     assert "童軍誓詞" not in knots and "烹飪" not in knots
     assert "cat=knots" in knots and "aria-current" in knots
-    assert "童軍誓詞" not in new_scout.get("/cards?cat=nope").get_data(as_text=True)
+    # an unknown category falls back to showing everything
+    assert "童軍誓詞" in new_scout.get("/cards?cat=nope").get_data(as_text=True)
     new_scout.get("/set-language/en")
     english = new_scout.get("/cards").get_data(as_text=True)
     assert "Skill cards" in english and "Membership" in english
-    assert "Proficiency badges" in english and "Choose a category" in english
+    assert "Proficiency badges" in english and "All cards" in english
+    assert "Choose a category" not in english
     assert english.index("Membership") < english.index("Knots") < english.index("Pursuit")
     knots_en = new_scout.get("/cards?cat=knots").get_data(as_text=True)
     assert "Reef knot" in knots_en and "Scout Promise" not in knots_en

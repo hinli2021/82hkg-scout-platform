@@ -77,6 +77,9 @@ def _view(user, *, reveal: bool, category: str = "") -> dict:
         "reveal": opened,
         "families": _families(sections),
         "category": chosen,
+        # the album opens on every card; a category narrows it to one set
+        "all_href": url_for("gacha_routes.page", **keep),
+        "sections": [chosen] if chosen else sections,
         "rates": [
             {"code": code, "zh": RARITY_NAME[code][0], "en": RARITY_NAME[code][1],
              "rate": weight / 10}
