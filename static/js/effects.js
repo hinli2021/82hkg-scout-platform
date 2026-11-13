@@ -64,7 +64,11 @@
   function setSound(on) {
     pref = !!on;
     setItem(PREF_KEY, pref ? 'on' : 'off');
-    if (pref) sfx('tap');
+    if (!pref) pauseMusic();
+    if (pref) {
+      sfx('tap');
+      if (pageWantsMusic()) startMusic();
+    }
     paintSoundToggle();
     return pref;
   }
@@ -109,13 +113,95 @@
     tick: function () { tone(880, 0.05, { type: 'triangle', gain: 0.03 }); },
     submit: function () { tone(523, 0.1, { gain: 0.04 }); tone(659, 0.14, { gain: 0.04, delay: 0.08 }); },
     unlock: function () { tone(320, 0.5, { type: 'triangle', gain: 0.05, sweep: 1180 }); },
-    badge: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, 0.28, { gain: 0.05, delay: i * 0.11 }); }); }
+    badge: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, 0.28, { gain: 0.05, delay: i * 0.11 }); }); },
+    pop: function () { tone(420, 0.09, { type: 'triangle', gain: 0.04, sweep: 760 }); },
+    place: function () { tone(330, 0.08, { type: 'triangle', gain: 0.045 }); tone(660, 0.12, { type: 'triangle', gain: 0.04, delay: 0.055 }); },
+    flip: function () { tone(520, 0.06, { type: 'triangle', gain: 0.03, sweep: 980 }); tone(880, 0.08, { type: 'triangle', gain: 0.025, delay: 0.05 }); },
+    sparkle: function () { [1320, 1760, 2210].forEach(function (f, i) { tone(f, 0.12, { type: 'sine', gain: 0.022, delay: i * 0.055 }); }); },
+    win: function () { [523, 659, 784, 1046, 1318].forEach(function (f, i) { tone(f, 0.24, { type: 'triangle', gain: 0.045, delay: i * 0.09 }); }); },
+    fanfare: function () {
+      [392, 523, 659, 784].forEach(function (f, i) { tone(f, 0.22, { type: 'triangle', gain: 0.05, delay: i * 0.1 }); });
+      [1046, 1318].forEach(function (f, i) { tone(f, 0.38, { type: 'triangle', gain: 0.045, delay: 0.42 + i * 0.1 }); });
+    }
   };
 
   function sfx(name) {
     if (!soundOn()) return;
     var recipe = RECIPES[name];
     if (recipe) recipe();
+  }
+
+  /* ── background music ──────────────────────────────────────────────────
+     A short cheerful tune, synthesised note by note — no music file, so it
+     works offline. It only plays on game pages (the four member-badge games
+     carry `is-game`; the daily challenge and the cards page ask for it with
+     `data-music`). Browsers will not let a page make sound before the scout
+     touches it, so the tune waits for the first tap or key press, then
+     loops quietly underneath the sound effects. The 🔊 button in the top
+     bar switches music and effects off together. */
+  var MUSIC_STEP = 0.24;               // eighth notes at about 125 bpm
+  var MUSIC_CHORDS = [                 // C – G – Am – F, sixteen steps each
+    { bass: 130.81, fifth: 196.00 },
+    { bass: 98.00, fifth: 146.83 },
+    { bass: 110.00, fifth: 164.81 },
+    { bass: 87.31, fifth: 130.81 }
+  ];
+  var MUSIC_MELODY = [
+    659, 784, 1046, 784, 880, 784, 659, 784, 1046, 784, 659, 587, 659, 0, 784, 0,
+    587, 784, 988, 784, 880, 784, 587, 784, 988, 784, 587, 659, 784, 0, 587, 0,
+    659, 880, 1046, 880, 784, 659, 523, 659, 880, 1046, 1318, 1046, 880, 0, 784, 659,
+    698, 880, 1046, 880, 784, 659, 587, 659, 523, 659, 784, 659, 587, 0, 0, 0
+  ];
+  var musicTimer = null;
+  var musicStep = 0;
+  var musicNextAt = 0;
+  var musicWanted = false;
+
+  function musicPlaying() { return musicTimer !== null; }
+
+  function scheduleMusic() {
+    var ac = audio();
+    if (!ac || ac.state !== 'running') return;
+    /* the clock stood still while the browser held the sound back — do not
+       try to play every missed note at once */
+    if (musicNextAt < ac.currentTime - 0.1) musicNextAt = ac.currentTime + 0.05;
+    while (musicNextAt < ac.currentTime + 0.45) {
+      var delay = Math.max(0, musicNextAt - ac.currentTime);
+      var step = musicStep % MUSIC_MELODY.length;
+      var chord = MUSIC_CHORDS[Math.floor(step / 16) % MUSIC_CHORDS.length];
+      var note = MUSIC_MELODY[step];
+      if (note) tone(note, 0.19, { type: 'triangle', gain: 0.02, delay: delay });
+      if (step % 8 === 0) tone(chord.bass, 0.34, { type: 'sine', gain: 0.032, delay: delay });
+      if (step % 8 === 4) tone(chord.fifth, 0.3, { type: 'sine', gain: 0.026, delay: delay });
+      if (step % 4 === 2) tone(1900, 0.03, { type: 'triangle', gain: 0.005, delay: delay });
+      musicStep += 1;
+      musicNextAt += MUSIC_STEP;
+    }
+  }
+
+  function startMusic() {
+    musicWanted = true;
+    if (!soundOn() || musicTimer !== null) return;
+    var ac = audio();
+    if (!ac) return;
+    musicStep = 0;
+    musicNextAt = ac.currentTime + 0.06;
+    musicTimer = window.setInterval(scheduleMusic, 120);
+    scheduleMusic();
+  }
+
+  function pauseMusic() {
+    if (musicTimer !== null) { window.clearInterval(musicTimer); musicTimer = null; }
+  }
+
+  function stopMusic() {
+    musicWanted = false;
+    pauseMusic();
+  }
+
+  function pageWantsMusic() {
+    return !!(document.body && (document.body.classList.contains('is-game')
+      || document.body.getAttribute('data-music') === 'game'));
   }
 
   /* ── motion ──────────────────────────────────────────────────────────── */
@@ -357,7 +443,7 @@
       button.textContent = on ? '🔊' : '🔇';
       button.classList.toggle('off', !on);
       button.setAttribute('aria-pressed', on ? 'true' : 'false');
-      button.title = on ? L('遊戲音效：開', 'Game sound: on') : L('遊戲音效：關', 'Game sound: off');
+      button.title = on ? L('遊戲音樂與音效：開', 'Game music and sound: on') : L('遊戲音樂與音效：關', 'Game music and sound: off');
     });
   }
 
@@ -398,6 +484,20 @@
       });
     });
     paintSoundToggle();
+    /* game pages get the background tune: it starts on the scout's first
+       tap or key press (the browser insists on one), pauses while the tab
+       is hidden, and stops for good when the sound button is switched off */
+    if (pageWantsMusic()) {
+      musicWanted = true;
+      var kickMusic = function () { if (musicWanted && soundOn()) startMusic(); };
+      document.addEventListener('pointerdown', kickMusic);
+      document.addEventListener('keydown', kickMusic);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) pauseMusic();
+        else if (musicWanted && soundOn()) startMusic();
+      });
+      startMusic();
+    }
     initStageBoard();
     if (document.body.dataset.tour === '1') {
       maybeShowTour({
@@ -454,6 +554,7 @@
 
   window.FX = {
     sfx: sfx, soundOn: soundOn, setSound: setSound, toggleSound: toggleSound,
+    music: { start: startMusic, stop: stopMusic, playing: musicPlaying },
     reducedMotion: reducedMotion, enter: enter, countUp: countUp, ring: ring,
     burst: burst, pressable: pressable, maybeShowTour: maybeShowTour, resetTour: resetTour,
     hydrateRings: hydrateRings, hydrateCounters: hydrateCounters, L: L, lang: lang

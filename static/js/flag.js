@@ -18,6 +18,7 @@
 
   var lang = document.documentElement.lang === "en" ? "en" : "zh";
   function t(zh, en) { return lang === "en" ? (en || zh || "") : (zh || en || ""); }
+  function sfx(name) { if (window.FX && FX.sfx) { try { FX.sfx(name); } catch (e) { /* sound is a bonus */ } } }
 
   var stations = config.stations || [];
   var intro = config.intro || [];
@@ -214,6 +215,7 @@
       + '<div class="cave-actions"><button class="btn primary" type="button" data-flag-next>'
       + escapeHtml(last ? t("繼續", "Go on") : t("下一頁", "Next page")) + '</button></div>');
     card.querySelector("[data-flag-next]").addEventListener("click", function () {
+      sfx("tap");
       showStory(pages, index + 1, kicker, onDone, boardClass);
     });
   }
@@ -288,6 +290,7 @@
     board.querySelectorAll(".pipe-hole").forEach(function (hole) {
       hole.addEventListener("click", function () {
         if (!machineLive) return;
+        sfx("tap");
         openPopup(hole.getAttribute("data-qid"));
       });
     });
@@ -462,6 +465,7 @@
     });
     var remove = pop.querySelector("[data-pipe-remove]");
     if (remove) remove.addEventListener("click", function () {
+      sfx("pop");
       delete placements[q.id];
       delete wrongIds[q.id];
       startState = "";
@@ -471,6 +475,7 @@
 
   function fitPipe(qid, optionIndex) {
     if (qid !== selected || isNaN(optionIndex)) return;
+    sfx("place");
     placements[qid] = optionIndex;
     delete wrongIds[qid];
     startState = "";
@@ -496,6 +501,7 @@
     var startBtn = picture.querySelector(".pipe-start");
     var startImg = picture.querySelector(".pipe-start-img");
     if (missing.length) {
+      sfx("tick");
       buildMachine(t("還有 " + missing.length + " 個孔尚未接上喉管。先接好全部喉管，才可以啟動。",
                      missing.length + " hole(s) still empty. Connect every pipe before you press start."));
       openPopup(missing[0].q.id);
@@ -513,6 +519,7 @@
         hole.classList.toggle("is-wrong", !!wrongIds[hole.getAttribute("data-qid")]);
       });
       startState = "wrong";
+      sfx("wrong");
       if (startImg) startImg.src = sourceUrl("button-start-red");
       if (startBtn) startBtn.classList.add("is-wrong");
       card.innerHTML = cardHtml(
@@ -525,6 +532,7 @@
     }
     machineLive = false;
     startState = "right";
+    sfx("win");
     if (startBtn) startBtn.classList.add("is-right");
     card.innerHTML = cardHtml(
       stageName(),
@@ -558,6 +566,7 @@
         + escapeHtml(last ? t("完成升旗禮", "Finish the ceremony") : t("接下一組喉管", "Fit the next pipe run"))
         + '</button></div>');
     card.querySelector("[data-flag-next]").addEventListener("click", function () {
+      sfx(last ? "fanfare" : "unlock");
       if (last) { showEnding(); return; }
       stageIndex += 1;
       prepareStage();

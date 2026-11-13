@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}{{ L('抽卡', 'Cards') }}{% endblock %}
+{% block body_attrs %}data-music="game"{% endblock %}
 {% block head %}
   <link rel="stylesheet" href="{{ url_for('static', filename='gacha.css') }}?v={{ asset_v('gacha.css') }}">
 {% endblock %}

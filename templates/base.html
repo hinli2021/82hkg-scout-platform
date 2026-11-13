@@ -78,7 +78,7 @@
                 aria-label="{{ L('選單', 'Menu') }}" title="{{ L('選單', 'Menu') }}">☰</button>
         {# 只在遊戲頁出現（那裏 HUD 收起了），見 .topbar-points 的樣式 #}
         {{ points_chip('topbar-points') }}
-        <button class="icon-btn" type="button" data-sound-toggle title="{{ L('遊戲音效', 'Game sound') }}">🔊</button>
+        <button class="icon-btn" type="button" data-sound-toggle title="{{ L('遊戲音樂與音效', 'Game music and sound') }}">🔊</button>
         {# 語言切換：中／EN 兩格，按完留在同一頁（/set-language/<code>?next=…）。
            中文版保留英文（小隊名、英文名），英文版不顯示中文。 #}
         {% set here = request.full_path if request.query_string else request.path %}

@@ -53,7 +53,7 @@
       showCard(stack, at);
       reveal._timer = setTimeout(function () {
         card.classList.add('is-up');
-        sfx(rare ? 'badge' : 'correct');
+        sfx(rare ? 'sparkle' : 'flip');
         if (rare && window.FX && FX.burst) {
           FX.burst(card, rarity === 'LR' || rarity === 'UR' ? 20 : 12, ['✦', '★', '✧']);
         }
@@ -93,7 +93,7 @@
         var button = form.querySelector('button');
         if (button) button.disabled = true;
         if (foil) foil.classList.add('is-opening');
-        sfx('tap');
+        sfx('pop');
         var started = Date.now();
         fetch(form.action, {
           method: 'POST',
