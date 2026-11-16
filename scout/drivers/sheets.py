@@ -75,13 +75,29 @@ class SheetsDriver:
         headers = {"Authorization": f"Bearer {self._token()}"}
         if raw is None:
             headers["Content-Type"] = content_type
-        response = requests.request(
-            method, url, headers=headers,
-            data=json.dumps(body).encode("utf-8") if body is not None else raw,
-            timeout=30,
-        )
-        if response.status_code >= 400:
-            raise RuntimeError(f"Google API {method} {url} → {response.status_code}: {response.text[:400]}")
+        # When a whole class sets up accounts at the same moment, Google can
+        # answer with a rate-limit response even though nothing is wrong.
+        # That answer means the request was refused before it was carried
+        # out, so waiting a moment and asking again is safe — including for
+        # appends. Other errors are real and still surface at once.
+        for attempt in range(4):
+            response = requests.request(
+                method, url, headers=headers,
+                data=json.dumps(body).encode("utf-8") if body is not None else raw,
+                timeout=30,
+            )
+            if response.status_code < 400:
+                break
+            text = response.text or ""
+            rate_limited = response.status_code == 429 or (
+                response.status_code == 403
+                and ("rateLimitExceeded" in text or "quotaExceeded" in text
+                     or "Quota exceeded" in text)
+            )
+            if not rate_limited or attempt == 3:
+                raise RuntimeError(
+                    f"Google API {method} {url} → {response.status_code}: {text[:400]}")
+            time.sleep(0.5 * (2 ** attempt))
         if not response.content:
             return {}
         try:
@@ -220,46 +236,54 @@ class SheetsDriver:
                 return dict(row)
         return None
 
+    def _append_rows(self, collection: str, rows: list[dict], headers: list[str]) -> None:
+        """Add rows through Google's append, never by counting rows here.
+
+        The old way read the last row and wrote to the next one. Two scouts
+        saving at the same moment read the same last row, wrote to the same
+        row, and the second save silently replaced the first — a first-time
+        scout could lose the sign-in session or profile they had just made.
+        With :append, Google itself chooses where each new row lands, so
+        simultaneous saves each get their own row. INSERT_ROWS keeps every
+        existing row exactly where it is.
+        """
+        values = [[self._to_cell(field, row.get(field, "")) for field in headers]
+                  for row in rows]
+        rng = f"{collection}!A1"
+        self._api(
+            f"{SHEETS_API}/{self.spreadsheet_id}/values/{rng}:append"
+            "?valueInputOption=RAW&insertDataOption=INSERT_ROWS",
+            method="POST",
+            body={"range": rng, "majorDimension": "ROWS", "values": values},
+        )
+        self._cache.pop(collection, None)
+
     def insert(self, collection: str, record: dict) -> dict:
         self.ensure_schema()
-        entry = self._fetch(collection, force=True)
-        headers = entry["headers"]
+        headers = self._fetch(collection)["headers"]
         key = key_field(collection)
         record = dict(record)
         if not record.get(key):
             record[key] = new_id()
-        row_number = entry.get("last_row", len(entry["rows"]) + 1) + 1
-        self._write_row(collection, row_number, record, headers)
+        self._append_rows(collection, [record], headers)
         return dict(record)
 
     def append_many(self, collection: str, records: list[dict]) -> list[dict]:
         """Add several rows in one request — used when a fresh Sheet is set up.
 
-        One GET for the headers, one PUT for the whole block: a first boot costs
-        two calls per table instead of two per row, which is what keeps it
-        inside a serverless function's time limit.
+        One append for the whole block keeps a first boot inside a
+        serverless function's time limit.
         """
         records = [dict(record) for record in records]
         if not records:
             return []
         self.ensure_schema()
-        entry = self._fetch(collection, force=True)
-        headers = entry["headers"]
+        headers = self._fetch(collection)["headers"]
         key = key_field(collection)
         for record in records:
             if not record.get(key):
                 record[key] = new_id()
-        start = entry.get("last_row", len(entry["rows"]) + 1) + 1
-        end = start + len(records) - 1
-        values = [[self._to_cell(field, record.get(field, "")) for field in headers]
-                  for record in records]
-        rng = f"{collection}!A{start}:{_column_letter(len(headers))}{end}"
-        self._api(
-            f"{SHEETS_API}/{self.spreadsheet_id}/values/{rng}?valueInputOption=RAW",
-            method="PUT",
-            body={"values": values},
-        )
-        self._cache.pop(collection, None)
+        self._append_rows(collection, records, headers)
         return records
 
     def update(self, collection: str, key: Any, patch: dict) -> dict | None:

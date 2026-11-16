@@ -121,14 +121,15 @@ def test_a_failing_catalogue_never_blocks_the_site(monkeypatch):
 
 
 def test_the_two_writes_are_whole_tables_not_rows(monkeypatch):
-    """獎章一次、任務一次（另外一格是「建立中」記號）—— 這樣才不會超時。"""
+    """獎章一次附加、任務一次附加（另一次是「建立中」記號）—— 這樣才不會超時，
+    而附加位置由 Google 決定，多人同時寫入也不會互相覆蓋。"""
     fake = FakeGoogle()
     boot(fake, monkeypatch)
-    puts = [url for method, url in fake.calls if method == "PUT"]
-    assert len(puts) <= 3, puts
-    assert any("badges!A2:" in url for url in puts), puts
-    assert any("tasks!A2:" in url for url in puts), puts
-    assert all("!A2:" in url or "settings!" in url for url in puts), puts
+    appends = [url for method, url in fake.calls if ":append" in url]
+    assert len(appends) <= 3, appends
+    assert any("badges!A1:append" in url for url in appends), appends
+    assert any("tasks!A1:append" in url for url in appends), appends
+    assert all("!A1:append" in url or "settings!" in url for url in appends), appends
 
 
 def test_duplicate_catalogue_rows_are_merged_and_repointed(monkeypatch):

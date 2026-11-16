@@ -91,6 +91,15 @@ class FakeGoogle:
                     row[column] = value
             return {"updatedRows": len((body or {}).get("values", []))}
 
+        if method == "POST" and path.endswith(":append"):
+            _reject_non_scalars(url, (body or {}).get("values", []))
+            range_part = url.split("/values/")[1].partition("?")[0]
+            tab = range_part.partition("!")[0]
+            grid = self.tabs.setdefault(tab, [])
+            for row_values in (body or {}).get("values", []):
+                grid.append(list(row_values))
+            return {"updates": {"updatedRows": len((body or {}).get("values", []))}}
+
         if method == "POST" and "upload/drive" in url:
             self.uploads.append(raw or b"")
             return {"id": "drive-file-1", "webViewLink": "https://drive.google.com/file/d/drive-file-1/view"}
@@ -199,6 +208,87 @@ def test_insert_appends_a_row_and_reads_back(sheets, fake):
     assert back["title_zh"] == "會員章"
     assert int(back["points_reward"]) == 50
     assert back["prerequisite_badge_ids"] == []
+
+
+def test_insert_uses_append_instead_of_a_counted_row(sheets, fake):
+    """A new row must be placed by Google (:append), not by this driver
+    reading the last row and writing to the next one — that read-then-write
+    is what let two simultaneous saves land on the same row."""
+    sheets.ensure_schema()
+    fake.calls.clear()
+    sheets.insert("sessions", {"token": "tok-1", "user_id": "u1"})
+    appends = [url for method, url in fake.calls if ":append" in url]
+    assert len(appends) == 1 and "insertDataOption=INSERT_ROWS" in appends[0]
+    assert not [url for method, url in fake.calls if method == "PUT"]
+
+
+def test_two_scouts_saving_at_the_same_moment_keep_both_rows(fake):
+    """Two server instances (as on Vercel) sharing one Sheet, both saving a
+    first-time profile at the same moment: both profiles must survive."""
+    import threading
+
+    def make_driver():
+        driver = SheetsDriver("sheet-123", {"client_email": "svc@example.iam.gserviceaccount.com",
+                                            "private_key": "x", "project_id": "p"})
+        driver._api = fake.api
+        return driver
+
+    first, second = make_driver(), make_driver()
+    first.ensure_schema()
+    first.list("profiles")
+    second.list("profiles")                 # both read before either saves
+
+    barrier = threading.Barrier(2)
+    errors = []
+
+    def save(driver, user_id, position):
+        try:
+            barrier.wait(timeout=10)
+            driver.insert("profiles", {"user_id": user_id, "position": position,
+                                       "interests": "露營", "experience": "一年",
+                                       "share": "你好", "visible": True})
+        except Exception as exc:            # noqa: BLE001
+            errors.append(exc)
+
+    threads = [threading.Thread(target=save, args=(first, "u1", "隊員")),
+               threading.Thread(target=save, args=(second, "u2", "小隊長"))]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=20)
+
+    assert not errors
+    saved = {row["user_id"]: row["position"] for row in first.list("profiles")}
+    assert saved == {"u1": "隊員", "u2": "小隊長"}
+
+
+def test_a_rate_limit_answer_is_retried_not_an_error(monkeypatch):
+    """A 429 from Google means 'wait and ask again', not a broken page —
+    that is the answer a busy first morning of account setup can draw."""
+    import scout.drivers.sheets as sheets_module
+
+    sheets = SheetsDriver("sheet-123", {"client_email": "svc@example.iam.gserviceaccount.com",
+                                        "private_key": "x", "project_id": "p"})
+
+    attempts = []
+
+    class Answer:
+        def __init__(self, status, payload=None):
+            self.status_code = status
+            self.text = "" if payload else '{"error": "Quota exceeded"}'
+            self.content = json.dumps(payload).encode() if payload else b"{}"
+        def json(self):
+            return json.loads(self.content)
+
+    def request(method, url, headers=None, data=None, timeout=None):
+        attempts.append(url)
+        return Answer(429) if len(attempts) == 1 else Answer(200, {"sheets": []})
+
+    monkeypatch.setattr(sheets, "_token", lambda: "token")
+    monkeypatch.setattr(sheets_module.requests, "request", request)
+    monkeypatch.setattr(sheets_module.time, "sleep", lambda seconds: None)
+    assert sheets._api("https://sheets.googleapis.com/v4/spreadsheets/x") == {"sheets": []}
+    assert len(attempts) == 2
 
 
 def test_insert_keeps_json_in_a_single_cell(sheets, fake):
