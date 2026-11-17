@@ -1495,14 +1495,19 @@ def setup_checks(st) -> dict:
     scouts = [row for row in users if row.get("role") == "scout"]
     games = _game_content(tasks)
     on_sheets = st.driver.name == "sheets"
+    on_supabase = st.driver.name == "supabase"
     sheet_id = str(getattr(st.driver, "spreadsheet_id", "") or "")
+    supabase_host = str(getattr(st.driver, "base_url", "") or "").replace("https://", "")
     mail_ready = bool(str(settings.get("smtp_host") or "").strip())
     import os
 
     card_key_ready = bool(str(os.environ.get("GEMINI_API_KEY") or "").strip())
     drive_folder = str(getattr(st.driver, "drive_folder_id", "") or "")
     service_email = str((getattr(st.driver, "service_account", None) or {}).get("client_email") or "")
-    if not on_sheets:
+    if on_supabase:
+        card_folder_ok, card_folder_zh, card_folder_en = True, \
+            "卡圖會存到 Supabase 的儲存空間", "Card pictures are stored in Supabase Storage"
+    elif not on_sheets:
         card_folder_ok, card_folder_zh, card_folder_en = True, \
             "本機模式：卡圖存在伺服器的 uploads 資料夾", "Local mode — card pictures are in the server uploads folder"
     elif drive_folder:
@@ -1518,10 +1523,14 @@ def setup_checks(st) -> dict:
                 "detail_en": detail_en, "fix_zh": fix_zh, "fix_en": fix_en, "optional": optional}
 
     checks = [
-        row("storage", on_sheets,
-            "資料儲存在 Google 試算表" if on_sheets else "連不上 Google 試算表，資料暫存中",
-            "Data lives in the Google Sheet" if on_sheets else "Cannot reach the Sheet — storage is temporary",
+        row("storage", on_sheets or on_supabase,
+            "資料儲存在 Supabase" if on_supabase else
+            "資料儲存在 Google 試算表" if on_sheets else "連不上儲存空間，資料暫存中",
+            "Data lives in Supabase" if on_supabase else
+            "Data lives in the Google Sheet" if on_sheets else "Cannot reach storage — data is temporary",
+            ("Supabase：" + supabase_host) if on_supabase else
             ("試算表 ID：" + sheet_id[:12] + "…") if on_sheets else reason or "目前寫在執行個體暫存空間，會被回收",
+            ("Supabase: " + supabase_host) if on_supabase else
             ("Spreadsheet ID: " + sheet_id[:12] + "…") if on_sheets else "Currently in the instance /tmp — it will be recycled",
             advice or "在 Vercel 加入 GOOGLE_SHEET_ID 與 GOOGLE_SERVICE_ACCOUNT_JSON，然後 Redeploy（docs/02）",
             "Add GOOGLE_SHEET_ID and GOOGLE_SERVICE_ACCOUNT_JSON in Vercel, then Redeploy (docs/02)"),

@@ -46,21 +46,33 @@ def setup_health_checks(store, counts: dict, on_sheets: bool) -> list[dict]:
     error = getattr(store, "config", {}).get("storage_error", "")
     reason, advice = storage_advice(error)
     reason_en, advice_en = storage_advice_en(error)
+    on_supabase = getattr(store.driver, "name", "") == "supabase"
+    stored = on_sheets or on_supabase
     return [
         {
-            "ok": on_sheets,
-            "title": ("資料儲存在 Google 試算表" if on_sheets else
+            "ok": stored,
+            "title": ("資料儲存在 Supabase" if on_supabase else
+                      "資料儲存在 Google 試算表" if on_sheets else
+                      "儲存空間連不上，暫時寫在執行個體空間"
+                      if reason and ("SUPABASE" in error or "Supabase" in error) else
                       "試算表連不上，暫時寫在執行個體空間" if reason else
                       "資料暫存在執行個體空間"),
-            "title_en": ("Data lives in your Google Sheet" if on_sheets else
+            "title_en": ("Data lives in Supabase" if on_supabase else
+                         "Data lives in your Google Sheet" if on_sheets else
+                         "Storage is unreachable — writing to instance storage for now"
+                         if reason and ("SUPABASE" in error or "Supabase" in error) else
                          "The Sheet is unreachable — writing to instance storage for now" if reason else
                          "Data is held in instance storage"),
-            "detail": ("帳戶、進度、積分都存在你的試算表，重新部署不會影響。"
+            "detail": ("帳戶、進度、積分都存在 Supabase，重新部署不會影響。"
+                       if on_supabase else
+                       "帳戶、進度、積分都存在你的試算表，重新部署不會影響。"
                        if on_sheets else
                        reason + " 現在寫在執行個體的 /tmp，一段時間沒有流量就會被回收 —— 帳戶與進度會消失。"
                        if reason else
                        "現在寫在執行個體的 /tmp，一段時間沒有流量就會被回收 —— 帳戶與進度會消失。"),
-            "detail_en": ("Accounts, progress and points all live in your Sheet; redeploying will not touch them."
+            "detail_en": ("Accounts, progress and points all live in Supabase; redeploying will not touch them."
+                          if on_supabase else
+                          "Accounts, progress and points all live in your Sheet; redeploying will not touch them."
                           if on_sheets else
                           reason_en + " For now everything is written to /tmp on the instance, which is "
                           "reclaimed after a quiet spell — accounts and progress will be lost."

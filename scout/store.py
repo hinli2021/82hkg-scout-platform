@@ -102,6 +102,22 @@ def _sheets_driver(env: dict):
     )
 
 
+def _supabase_driver(env: dict):
+    """Build the Supabase driver from the environment (trial store)."""
+    from .drivers.supabase import SupabaseDriver
+
+    url = (env.get("SUPABASE_URL") or "").strip()
+    key = (env.get("SUPABASE_SERVICE_ROLE_KEY") or env.get("SUPABASE_KEY") or "").strip()
+    if not url:
+        raise ValueError("未設定 SUPABASE_URL")
+    if not key:
+        raise ValueError("未設定 SUPABASE_SERVICE_ROLE_KEY")
+    if not url.startswith("https://") or "/rest/" in url:
+        raise ValueError("SUPABASE_URL 格式不對；應是 https://<專案編號>.supabase.co")
+    return SupabaseDriver(url=url, service_role_key=key,
+                          bucket=env.get("SUPABASE_BUCKET", "uploads"))
+
+
 def _probe(driver) -> None:
     """Prove the key, the ID and the sharing before the app relies on them.
 
@@ -123,6 +139,18 @@ def storage_advice(error: str) -> tuple[str, str]:
     text = str(error or "")
     if not text.strip():
         return ("", "")                      # 沒有錯誤就不要嚇人
+    if "SUPABASE" in text or "Supabase" in text:
+        if "資料表未建立" in text:
+            return ("Supabase 已連上，但資料表還未建立。",
+                    "在 Supabase 的 SQL Editor 執行 tools/supabase_schema.sql，然後 Redeploy。")
+        if "SUPABASE_URL" in text or "SUPABASE_SERVICE_ROLE_KEY" in text:
+            return ("未設定 Supabase 連線資料。",
+                    "在 Vercel 加入 SUPABASE_URL 與 SUPABASE_SERVICE_ROLE_KEY（service_role 金鑰，只放在伺服器），然後 Redeploy。")
+        if "401" in text or "403" in text:
+            return ("Supabase 拒絕存取：金鑰不正確。",
+                    "檢查 Vercel 的 SUPABASE_SERVICE_ROLE_KEY 是否為專案的 service_role 金鑰，然後 Redeploy。")
+        return ("連不上 Supabase：" + text[:160],
+                "檢查 SUPABASE_URL、SUPABASE_SERVICE_ROLE_KEY 與資料表，然後 Redeploy。")
     if "ModuleNotFoundError" in text or "No module named" in text:
         missing = text.split("'")[1] if "'" in text else "某個套件"
         return (f"部署缺少套件（{missing}），所以連不上 Google。",
@@ -181,6 +209,18 @@ def storage_advice_en(error: str) -> tuple[str, str]:
     text = str(error or "")
     if not text.strip():
         return ("", "")
+    if "SUPABASE" in text or "Supabase" in text:
+        if "資料表未建立" in text:
+            return ("Supabase is reachable, but its tables are not created yet.",
+                    "Run tools/supabase_schema.sql in the Supabase SQL Editor, then Redeploy.")
+        if "SUPABASE_URL" in text or "SUPABASE_SERVICE_ROLE_KEY" in text:
+            return ("The Supabase connection details are not set.",
+                    "Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel (the service_role key, server-side only), then Redeploy.")
+        if "401" in text or "403" in text:
+            return ("Supabase refused access: the key is not correct.",
+                    "Check that SUPABASE_SERVICE_ROLE_KEY in Vercel is the project's service_role key, then Redeploy.")
+        return ("Cannot reach Supabase: " + text[:160],
+                "Check SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and the tables, then Redeploy.")
     if "ModuleNotFoundError" in text or "No module named" in text:
         missing = text.split("'")[1] if "'" in text else "a package"
         return (f"The deployment is missing a package ({missing}), so it cannot reach Google.",
@@ -255,6 +295,13 @@ class Store:
             try:
                 driver = _sheets_driver(env)
                 _probe(driver)                      # read one tab: proves key + id + sharing
+            except Exception as exc:                # noqa: BLE001 — never let config kill the site
+                config["storage_error"] = f"{type(exc).__name__}: {exc}"
+                driver = LocalDriver(config["data_dir"])
+        elif driver_name == "supabase":
+            try:
+                driver = _supabase_driver(env)
+                _probe(driver)                      # proves URL + key + tables exist
             except Exception as exc:                # noqa: BLE001 — never let config kill the site
                 config["storage_error"] = f"{type(exc).__name__}: {exc}"
                 driver = LocalDriver(config["data_dir"])
