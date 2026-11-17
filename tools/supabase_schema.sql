@@ -159,3 +159,8 @@ alter table public.gacha enable row level security;
 -- 上載檔案（證據相片、卡圖）存放的儲存桶，公開讀取、只有伺服器可以寫入。
 insert into storage.buckets (id, name, public) values ('uploads', 'uploads', true)
 on conflict (id) do nothing;
+
+-- 平台透過 Data API 以 service_role 連接；新專案未必自動給予權限，所以明確補上。
+-- 只有 service_role 有權限；公開金鑰仍然被 RLS 擋住，讀不到任何一列。
+grant select, insert, update, delete on all tables in schema public to service_role;
+grant usage, select on all sequences in schema public to service_role;
