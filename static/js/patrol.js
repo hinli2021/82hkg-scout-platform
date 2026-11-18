@@ -170,6 +170,9 @@
   }
 
   function startStage1() {
+    /* the story picture belongs to the opening only: once the game is
+       under way the words panel takes the whole window */
+    root.classList.add("is-playing");
     $("[data-pat-cards]").hidden = true;
     $("[data-pat-intro]").hidden = true;
     $("[data-pat-stage1]").hidden = false;
@@ -338,6 +341,7 @@
           result.textContent = "❌ " + (lang === "en" ? j.message_en : j.message_zh);
           $("[data-pat-quiz]").hidden = true;
           $("[data-pat-cards]").hidden = false;
+          root.classList.remove("is-playing");
           assign = {}; picked = {};
           $("[data-pat-start]").hidden = false;
           renderProgress("cards");
@@ -374,6 +378,7 @@
     $("[data-pat-back-cards]").addEventListener("click", function () {
       $("[data-pat-stage1]").hidden = true;
       $("[data-pat-cards]").hidden = false;
+      root.classList.remove("is-playing");
       renderProgress("cards");
       var wrap = $(".cave-card-wrap");
       if (wrap) wrap.scrollTop = 0;

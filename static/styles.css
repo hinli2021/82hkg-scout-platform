@@ -4733,6 +4733,17 @@ body.is-game main { padding-top: 6px; }
    cards flip inside the same dark glass panel as the other games, and the
    matching game's choices read like the cave's options. ═══════════════════ */
 .patrol .cave-picture { background: #e9c883; }
+/* The painting belongs to the story at the opening. Once the game is
+   under way (stage 1 and the raft) the picture folds to a slim HUD
+   strip — home, progress and badge still ride on it — and the words
+   panel takes the rest of the window. */
+.patrol.is-playing .cave-picture {
+  flex: 0 0 2.5rem; min-height: 0; padding-top: 0; background: #081611;
+}
+.patrol.is-playing .cave-art,
+.patrol.is-playing .cave-art-backdrop,
+.patrol.is-playing .cave-shade { display: none; }
+.patrol.is-playing .cave-card-wrap { flex: 1 1 auto; max-height: none; }
 /* the step dots ride inside the HUD pill, next to the step words */
 .pat-dots { margin-left: .45rem; }
 .pat-dots i {

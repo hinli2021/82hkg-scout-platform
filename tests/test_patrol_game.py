@@ -114,6 +114,15 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert "@media (max-width: 700px)" in css and ".pat-card" in css
     assert "@media (min-width: 701px) and (max-width: 1100px)" in css
     assert "min-height: 44px" in css
+    # the painting belongs to the story at the opening: once the game is
+    # under way it folds away and the panel takes the whole window
+    assert ".patrol.is-playing .cave-picture" in css
+    assert ".patrol.is-playing .cave-card-wrap" in css
+    import pathlib as _p
+    js = (_p.Path(__file__).resolve().parent.parent / "static" / "js"
+          / "patrol.js").read_text(encoding="utf-8")
+    assert 'root.classList.add("is-playing")' in js
+    assert 'root.classList.remove("is-playing")' in js
     members = {m["id"]: m for m in scene["members"]}
     # every Otter scout is on a card: the seeded pair, the new members, and
     # the member with no profile at all
