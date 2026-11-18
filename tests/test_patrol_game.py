@@ -1,11 +1,13 @@
 """遊戲 5 — 小隊名冊卡（第 2 項，M02）.
 
 The bluff's game is the patrol itself: member cards are read live from the
-accounts and profiles, so a scout who joins appears at once. The member
-whose 職位 is 聯絡 is asked about by name, and the way to reach them is the
-email on their account. Members without a finished profile still appear —
-their name and 職位 are tested, nothing more. Scoring 80% completes item 2
-with no leader code; below that, nothing is filed.
+accounts and profiles, so a scout who joins appears at once. The scout
+then seats the patrol on the raft — every station states a requirement
+worded from one member's own facts, and the member whose 職位 is 聯絡
+always takes the signal station, reached by the email on their account.
+Members without a finished profile still appear. Seating 80% of the
+stations right completes item 2 with no leader code; below that, nothing
+is filed.
 """
 from __future__ import annotations
 
@@ -115,14 +117,19 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert members[rookie["id"]]["complete"] is False
     assert members[singer["id"]]["strength"] == "唱歌"
 
-    kinds = {q["kind"] for q in scene["questions"]}
-    assert {"contact_who", "contact_way", "position", "clue"} <= kinds
-    contact_way = next(q for q in scene["questions"] if q["kind"] == "contact_way")
-    assert any("contact@82hkg.example" in o["zh"] for o in contact_way["options"])
-    # the answers themselves never reach the page
+    # the raft: one station per crew member, each with its own requirement,
+    # and the contact's signal station carries the way to reach them
+    seats = scene["raft"]
+    assert len(seats) == len(scene["crew"]) >= 4
+    assert {viewer["id"], contact["id"], singer["id"], rookie["id"]} <= set(scene["crew"])
+    signal = next(s for s in seats if s["role_zh"] == "通訊站")
+    assert "contact@82hkg.example" in signal["criterion_zh"]
+    assert len({s["criterion_zh"] for s in seats}) == len(seats)
+    # who sits where never reaches the page — the key stays in the token
     assert "run_key" in scene and scene["run_key"]
-    for question in scene["questions"]:
-        assert "answer" not in question
+    for seat in seats:
+        assert "member" not in seat and "member_id" not in seat
+    assert set(key_of(scene).values()) == set(scene["crew"])
 
 
 def test_the_test_account_is_ignored_but_can_play(store, app):
@@ -151,8 +158,7 @@ def test_the_test_account_is_ignored_but_can_play(store, app):
     _, scene = scene_of(client, task["id"])
     assert tester["id"] not in {m["id"] for m in scene["members"]}
     assert tester["id"] not in key_of(scene).values()
-    for question in scene["questions"]:
-        assert tester["id"] not in [o["value"] for o in question["options"]]
+    assert tester["id"] not in scene["crew"]
 
     # …but the test account itself signs in and plays the real patrol
     client = login(app, tester)
@@ -260,34 +266,50 @@ def member(uid, name, position="", complete=False, **fields):
     return base
 
 
-def test_every_question_can_be_answered_from_its_options():
-    from scout.patrol_game import build_questions
+def test_the_raft_seats_every_member_once_and_stays_solvable():
+    """Each station's wording picks out exactly one member, so the cards
+    the scout just flipped are always enough to seat the raft."""
+    from scout.patrol_game import build_raft
 
     members = [member("me", "阿明", "隊員", True, interests="足球", strength="跑步")]
     members += [member(f"m{i}", f"成員{i}", position, True,
                        interests=f"興趣{i}", strength=f"強項{i}")
                 for i, position in enumerate(
                     ["小隊長", "副小隊長", "隊員", "小隊聯絡", "紀錄", "物資管理"])]
-    questions, key = build_questions(members, "me", seed=7)
-    assert questions and len(questions) == len(key)
-    for question in questions:
-        values = [o["value"] for o in question["options"]]
-        assert key[question["id"]] in values, question
-        assert len(values) <= 4
-    contact_who = next(q for q in questions if q["kind"] == "contact_who")
-    assert key[contact_who["id"]] == "m3"          # the member whose job is 聯絡
-    assert any("強項" in q["zh"] for q in questions)  # strengths are asked about
+    seats, key, crew = build_raft(members, "me", seed=7)
+    assert len(seats) == len(key) == len(crew) == 7
+    assert set(key.values()) == {m["id"] for m in members}
+    assert len({s["criterion_zh"] for s in seats}) == len(seats)
+    for seat in seats:
+        assert "member" not in seat          # the seating plan stays server-side
+    signal = next(s for s in seats if s["role_zh"] == "通訊站")
+    assert key[signal["id"]] == "m3"          # the member whose job is 聯絡
+    assert "c@example.com" in signal["criterion_zh"]
+
+
+def test_two_members_with_the_same_job_are_still_told_apart():
+    """A shared 職位 cannot name a member on its own; the wording adds a
+    second fact until only one member matches both."""
+    from scout.patrol_game import build_raft
+
+    members = [member("me", "阿明", "隊員", True, interests="足球", strength="跑步"),
+               member("m1", "成員一", "隊員", True, interests="音樂", strength="唱歌"),
+               member("m2", "成員二", "小隊聯絡", True, interests="露營", strength="繩結")]
+    seats, key, _crew = build_raft(members, "me", seed=3)
+    by_member = {key[s["id"]]: s for s in seats}
+    assert "唱歌" in by_member["m1"]["criterion_zh"]
+    assert "跑步" in by_member["me"]["criterion_zh"]
+    assert key[by_member["m2"]["id"]] == "m2"
 
 
 def test_the_contact_can_play_too():
-    from scout.patrol_game import build_questions
+    from scout.patrol_game import build_raft
 
     members = [member("me", "阿明", "小隊聯絡", True, interests="足球", strength="跑步"),
                member("m1", "成員一", "隊員", True, interests="音樂", strength="唱歌")]
-    questions, key = build_questions(members, "me", seed=3)
-    contact_who = next(q for q in questions if q["kind"] == "contact_who")
-    assert key[contact_who["id"]] == "me"
-    assert any(o["value"] == "me" for o in contact_who["options"])
+    seats, key, _crew = build_raft(members, "me", seed=3)
+    signal = next(s for s in seats if s["role_zh"] == "通訊站")
+    assert key[signal["id"]] == "me"          # the contact seats themselves
 
 
 def test_strength_is_part_of_a_finished_profile(store, new_scout):

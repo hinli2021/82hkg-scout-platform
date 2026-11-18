@@ -1,6 +1,7 @@
-/* 遊戲 5：小隊名冊卡 — flip the patrol's member cards, then match names,
-   jobs and clues. The browser never holds an answer key: it shows the
-   questions and sends the choices back, and the server re-grades them. */
+/* 遊戲 5：小隊名冊卡 — flip the patrol's member cards, then seat everyone
+   on the raft: each station states its requirement, worked out from the
+   cards. The browser never holds the seating plan: it sends the choices
+   back, and the server re-grades them. */
 (function () {
   "use strict";
   /* the scene rides on the root element, the same way the cave, the drill
@@ -25,7 +26,7 @@
   function renderProgress(step) {
     $("[data-pat-progress]").innerHTML = (step === "cards"
       ? (lang === "en" ? "Step 1 of 2: member cards" : "第 1 步，共 2 步：翻開成員卡")
-      : (lang === "en" ? "Step 2 of 2: matching game" : "第 2 步，共 2 步：配對遊戲"))
+      : (lang === "en" ? "Step 2 of 2: seat the raft" : "第 2 步，共 2 步：安排木筏崗位"))
       + progress(step);
   }
 
@@ -106,8 +107,8 @@
     if (data.playable && state.flipped.size >= members.length) {
       start.hidden = false;
       hint.textContent = lang === "en"
-        ? "You have flipped every card. Time for the matching game."
-        : "所有成員卡都已翻開。可以開始配對遊戲。";
+        ? "You have flipped every card. Time to seat the raft."
+        : "所有成員卡都已翻開。可以去安排木筏崗位。";
     } else if (data.playable) {
       start.hidden = true;
       hint.textContent = (lang === "en" ? "Flipped: " : "已翻開：")
@@ -115,8 +116,8 @@
     }
     if (!data.playable) {
       hint.textContent = lang === "en"
-        ? "Your patrol has very few members, so there is nothing to match yet. Ask your leader to add your patrol mates first."
-        : "小隊的成員太少，暫時未有足夠的卡可以配對。請先向領袖查詢，請領袖把隊員加入平台。";
+        ? "Your patrol has very few members, so the raft cannot be seated yet. Ask your leader to add your patrol mates first."
+        : "小隊的成員太少，暫時未能安排木筏崗位。請先向領袖查詢，請領袖把隊員加入平台。";
     }
   }
 
@@ -129,24 +130,92 @@
     /* the words panel scrolls inside the stage, like the other games */
     var wrap = $(".cave-card-wrap");
     if (wrap) wrap.scrollTop = 0;
-    buildQuestions();
+    renderRaft();
   }
 
-  function buildQuestions() {
-    var box = $("[data-pat-questions]");
-    box.innerHTML = "";
-    (data.questions || []).forEach(function (q, i) {
-      var fs = document.createElement("fieldset");
-      fs.className = "pat-question";
-      var options = (q.options || []).map(function (o) {
-        return '<label class="pat-option"><input type="radio" required name="'
-          + esc(q.id) + '" value="' + esc(o.value) + '">' + esc(lang === "en" ? o.en : o.zh)
-          + "</label>";
-      }).join("");
-      fs.innerHTML = "<legend>" + (i + 1) + ". " + esc(lang === "en" ? q.en : q.zh)
-        + "</legend>" + options;
-      box.appendChild(fs);
+  /* ── the raft: tap a member on the shore, then a station ──────────────
+     Each station states its requirement; the seating is worked out from
+     the member cards. The browser holds no plan — the choices are sent
+     back and the server re-grades them. */
+  var assign = {};       // seat id -> member id
+  var selected = null;   // member id waiting on the shore
+
+  function memberName(m) { return lang === "en" ? m.name_en : m.name_zh; }
+
+  function memberById(id) {
+    var found = null;
+    (data.members || []).forEach(function (m) { if (m.id === id) found = m; });
+    return found;
+  }
+
+  function crewMembers() {
+    var crew = (data.crew && data.crew.length) ? data.crew
+      : (data.members || []).map(function (m) { return m.id; });
+    return (data.members || []).filter(function (m) { return crew.indexOf(m.id) >= 0; });
+  }
+
+  function renderRaft() {
+    var raftBox = $("[data-pat-raft]");
+    var pool = $("[data-pat-pool]");
+    raftBox.innerHTML = (data.raft || []).map(function (seat) {
+      var occ = assign[seat.id] ? memberById(assign[seat.id]) : null;
+      return '<div class="pat-seat' + (occ ? " is-filled" : "") + '" data-seat="'
+        + esc(seat.id) + '" role="button" tabindex="0">'
+        + '<b class="pat-role">' + esc(lang === "en" ? seat.role_en : seat.role_zh) + "</b>"
+        + '<span class="pat-duty">' + esc(lang === "en" ? seat.duty_en : seat.duty_zh) + "</span>"
+        + '<p class="pat-criterion">' + esc(lang === "en" ? seat.criterion_en : seat.criterion_zh) + "</p>"
+        + '<span class="pat-occupant">' + (occ
+            ? esc(occ.avatar || "🦊") + " " + esc(memberName(occ))
+            : esc(lang === "en" ? "— empty —" : "— 尚未安排 —")) + "</span></div>";
+    }).join("");
+    pool.innerHTML = crewMembers().map(function (m) {
+      var placed = Object.keys(assign).some(function (k) { return assign[k] === m.id; });
+      return '<button type="button" class="pat-chip' + (selected === m.id ? " is-selected" : "")
+        + (placed ? " is-placed" : "") + '" data-member="' + esc(m.id) + '">'
+        + '<span aria-hidden="true">' + esc(m.avatar || "🦊") + "</span> "
+        + esc(memberName(m)) + "</button>";
+    }).join("");
+    var hint = $("[data-pat-poolhint]");
+    var placedCount = Object.keys(assign).length;
+    var total = (data.raft || []).length;
+    if (selected) {
+      var sm = memberById(selected);
+      hint.textContent = lang === "en"
+        ? "Seating " + memberName(sm) + ": tap a station on the raft."
+        : "正在安排 " + memberName(sm) + "：點木筏上的崗位。";
+    } else if (total && placedCount >= total) {
+      hint.textContent = lang === "en"
+        ? "Everyone is seated and the raft is ready. Press “Board the raft”."
+        : "全部成員已安排好，木筏準備好了。按「登上木筏」出發。";
+    } else {
+      hint.textContent = (lang === "en" ? "Seated: " : "已安排：") + placedCount + " / " + total
+        + (lang === "en" ? ". Tap a member on the shore, then a station on the raft."
+                          : "。先點岸邊的一位成員，再點木筏上的崗位。");
+    }
+    raftBox.querySelectorAll("[data-seat]").forEach(function (node) {
+      node.addEventListener("click", function () { seatTap(node.getAttribute("data-seat")); });
+      node.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); seatTap(node.getAttribute("data-seat")); }
+      });
     });
+    pool.querySelectorAll("[data-member]").forEach(function (node) {
+      node.addEventListener("click", function () {
+        var id = node.getAttribute("data-member");
+        selected = (selected === id) ? null : id;
+        renderRaft();
+      });
+    });
+  }
+
+  function seatTap(seatId) {
+    if (selected) {
+      Object.keys(assign).forEach(function (k) { if (assign[k] === selected) delete assign[k]; });
+      assign[seatId] = selected;
+      selected = null;
+    } else if (assign[seatId]) {
+      delete assign[seatId];
+    }
+    renderRaft();
   }
 
   function submit(e) {
@@ -158,10 +227,8 @@
     var fd = new FormData(form);
     fd.set("run_key", data.run_key || "");
     fd.set("elapsed_ms", Math.max(0, Math.round(performance.now() - startTime)).toString());
-    var results = {};
-    (data.questions || []).forEach(function (q) {
-      var chosen = form.querySelector('input[name="' + q.id + '"]:checked');
-      fd.set(q.id, chosen ? chosen.value : "");
+    (data.raft || []).forEach(function (seat) {
+      fd.set(seat.id, assign[seat.id] || "");
     });
     fetch(data.submit_url, {
       method: "POST",
@@ -186,8 +253,8 @@
           renderProgress("cards");
           state.reloadToRetry = true;
           $("[data-pat-start]").textContent = lang === "en"
-            ? "🎲 Look at the cards again, then play again"
-            : "🎲 再看一次成員卡，然後重玩";
+            ? "🚣 Look at the cards again, then seat the raft once more"
+            : "🚣 再看一次成員卡，重新安排木筏";
         }
       }).catch(function () {
         result.className = "pat-result pat-bad";

@@ -4817,20 +4817,48 @@ body.is-game main { padding-top: 6px; }
 .pat-count { color: #cfdbcf; font-size: .85rem; margin: .45rem 0 0; }
 .pat-flipnav { margin: .7rem 0 .3rem; }
 
-/* the matching game: dark glass question cards, cave-style choices */
-.pat-questions { display: grid; gap: .9rem; margin-top: .6rem; }
-.pat-question {
-  border: 1px solid rgba(255, 255, 255, .16); border-radius: 12px;
-  padding: .8rem .9rem; background: rgba(255, 255, 255, .05); min-width: 0;
+/* the raft: wooden planks, one station card per seat, and the shore where
+   the members wait to be seated */
+.pat-raft {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem;
+  margin-top: .7rem; padding: .7rem; border-radius: 14px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .13) 0 2px, transparent 2px 74px),
+    repeating-linear-gradient(0deg, #9a774e 0 34px, #8a6a45 34px 68px);
+  border: 3px solid #6f5433;
+  box-shadow: inset 0 0 0 2px rgba(255, 235, 190, .25), 0 10px 24px rgba(0, 0, 0, .3);
 }
-.pat-question legend { font-weight: 700; padding: 0 .3rem; color: #fff; }
-.pat-option {
-  display: block; padding: .5rem .65rem; margin-top: .4rem; border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, .22); cursor: pointer;
-  background: rgba(255, 255, 255, .06); color: #eef5ee;
+.pat-seat {
+  background: #fff8ea; color: var(--ink, #1b2320); border-radius: 10px;
+  padding: .6rem .7rem; cursor: pointer; border: 2px solid transparent;
+  display: flex; flex-direction: column; gap: .25rem; min-width: 0;
 }
-.pat-option:hover { border-color: var(--brass, #d9a441); }
-.pat-option input { margin-right: .45rem; accent-color: var(--brass, #d9a441); }
+.pat-seat:hover, .pat-seat:focus-visible { border-color: var(--brass, #d9a441); outline: none; }
+.pat-role { color: #17452c; font-size: 1rem; }
+.pat-duty { font-size: .8rem; color: #7a6a4d; }
+.pat-criterion { margin: .15rem 0; font-size: .9rem; line-height: 1.5; }
+.pat-occupant {
+  margin-top: auto; border: 1.5px dashed #c9b894; border-radius: 8px;
+  padding: .35rem .5rem; font-size: .9rem; color: #7b8a84; text-align: center;
+}
+.pat-seat.is-filled .pat-occupant {
+  border-style: solid; border-color: #4aa96c; background: #e6f2ea; color: #17452c; font-weight: 700;
+}
+.pat-pool { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .8rem; }
+.pat-chip {
+  border: 1.5px solid rgba(255, 255, 255, .3); background: rgba(255, 255, 255, .08);
+  color: #eef5ee; border-radius: 999px; padding: .4rem .8rem; cursor: pointer;
+  font-size: .95rem;
+}
+.pat-chip:hover { border-color: var(--brass, #d9a441); }
+.pat-chip.is-selected {
+  border-color: var(--brass, #d9a441); background: rgba(217, 164, 65, .25);
+  transform: translateY(-2px); font-weight: 700;
+}
+.pat-chip.is-placed { opacity: .45; }
+@media (max-width: 560px) {
+  .pat-raft { grid-template-columns: minmax(0, 1fr); }
+}
 .pat-result { min-height: 1.4em; font-weight: 700; margin: .7rem 0 0; }
 .pat-ok { color: #c8f2c3; }
 .pat-bad { color: #ffc9bd; }

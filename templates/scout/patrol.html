@@ -4,13 +4,15 @@
 
 {% block title %}{{ L('小隊名冊卡', 'Patrol cards') }}{% endblock %}
 
-{# ── 小隊名冊卡 — the fifth game of 會員章 (第 2 項). On the seaward bluff the
-      patrol gathers: flip through every member card (name, position,
-      interests, strengths — and who the patrol contact is, and how to reach
-      them), then play the matching game. The roster is read live from the
-      patrol's accounts and profiles, so a new member appears at once. The
-      browser never holds an answer key; the server re-grades the choices.
-      Everything runs in static/js/patrol.js. ── #}
+{# ── 小隊名冊卡 — the fifth game of 會員章 (第 2 項). The four challenges are
+      done and the scout reaches the seaside, where the patrol waits by a
+      raft. Flip through every member card (name, position, interests,
+      strengths — and who the patrol contact is, and how to reach them),
+      then seat each member at the raft station whose requirement they
+      match. The roster is read live from the patrol's accounts and
+      profiles, so a new member appears at once. The browser never holds
+      the seating plan; the server re-grades it. Everything runs in
+      static/js/patrol.js. ── #}
 {% block content %}
 <div class="crumbs">
   <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
@@ -39,14 +41,16 @@
         <div data-pat-intro>
           {% if cleared_now %}
             <span class="cave-kicker cave-kicker-good">{{ L('第 2 項', 'Item 2') }}</span>
-            <h1 class="cave-title">{{ L('名冊已翻好', 'You know this patrol') }}</h1>
-            <p class="cave-line">{{ L('你已完成第 2 項。名冊有新面孔時，隨時回來再翻卡。',
-                                      'You have already completed item 2. Come back and flip the cards whenever the roster gains a new face.') }}</p>
+            <h1 class="cave-title">{{ L('木筏已經離岸', 'The raft has left the island') }}</h1>
+            <p class="cave-line">{{ L('你已完成第 2 項。名冊有新面孔時，隨時回來再翻卡，重新安排一次木筏崗位。',
+                                      'You have already completed item 2. Come back and flip the cards whenever the roster gains a new face, and seat the raft once more.') }}</p>
           {% else %}
             <span class="cave-kicker">{{ L('遊戲 5', 'Game 5') }}</span>
-            <h1 class="cave-title">{{ L('山崗上全隊集合', 'The patrol gathers on the bluff') }}</h1>
-            <p class="cave-line">{{ L('先逐張翻開小隊成員卡，記下每位成員的姓名、職位、興趣和強項，也要知道誰是小隊的聯絡和怎樣聯絡他。之後玩配對遊戲，答中八成即可完成第 2 項。',
-                                      'Flip through the member cards one by one and learn everyone\'s name, position, interests and strengths — and who the patrol contact is and how to reach them. Then play the matching game; scoring 80% completes item 2.') }}</p>
+            <h1 class="cave-title">{{ L('終於到了海邊', 'The seaside at last') }}</h1>
+            <p class="cave-line">{{ L('你走出山洞，過了橫木橋，在訓練場整好隊形，又在溪谷升起旗幟，四個考驗都完成了。走下山崗，前面就是海邊——小隊的其他成員正在岸邊等你，他們紮好了一隻木筏，可以載全隊離開小島。',
+                                      'You came out of the cave, crossed the log bridge, drilled on the parade ground and raised the flag in the valley: all four challenges are behind you. Down the bluff is the seaside — and the rest of your patrol is waiting on the shore. They have built a raft that can carry the whole patrol off the island.') }}</p>
+            <p class="cave-line">{{ L('不過，木筏上每個崗位都有要求：瞭望、掌舵、通訊，都要由最合適的成員負責，人人合作，木筏才行得穩。要安排得好，先要認識每一位成員。逐張翻開成員卡，記下各人的姓名、職位、興趣和強項，也要知道誰是小隊聯絡和怎樣聯絡他；然後按每個崗位的要求安排成員。八成崗位安排正確，全隊即可登上木筏，離開小島，完成第 2 項。',
+                                      'But every station on the raft has its own requirement: the lookout, the steering, the signal station — each needs the member who suits it best, and only a patrol working together keeps the raft steady. To seat everyone well, you first have to know them. Flip through the member cards one by one and learn everyone\'s name, position, interests and strengths — and who the patrol contact is and how to reach them. Then seat each member at the station whose requirement they match. With 80% of the stations right, the whole patrol boards the raft and leaves the island, and item 2 is complete.') }}</p>
             <p class="cave-line small">{{ L('成員卡來自大家的個人檔案。小隊有新成員加入時，名冊會自動更新。',
                                             'The cards come from everyone\'s profile. The roster updates itself when a new member joins the patrol.') }}</p>
           {% endif %}
@@ -66,25 +70,27 @@
           </div>
           <p class="cave-line small" data-pat-hint></p>
           <div class="cave-actions">
-            <button class="btn primary big" type="button" data-pat-start data-cheer="🃏,✨" hidden>
-              🎲 {{ L('開始配對遊戲', 'Start the matching game') }}
+            <button class="btn primary big" type="button" data-pat-start data-cheer="🚣,🌊" hidden>
+              🚣 {{ L('去安排木筏崗位', 'Seat the raft') }}
             </button>
           </div>
         </section>
 
-        {# 第 2 步：配對遊戲 #}
+        {# 第 2 步：安排木筏崗位 #}
         <section data-pat-quiz hidden>
-          <h2 class="cave-subtitle">{{ L('第二步：配對遊戲', 'Step 2: the matching game') }}</h2>
+          <h2 class="cave-subtitle">{{ L('第二步：安排木筏崗位', 'Step 2: seat the raft') }}</h2>
           <p class="cave-line small">
-            {{ L('選出正確答案。全部答完後按「提交」。答中八成（80%）即完成第 2 項。',
-                 'Choose the right answer for each question. Press “Submit” when you finish. Scoring 80% completes item 2.') }}
+            {{ L('木筏泊在岸邊，每個崗位都寫明要求。先點一位成員，再點木筏上的崗位，把他安排到那裡；點已安排的崗位，可以把成員送回岸邊。全部安排好後按「登上木筏」。八成崗位正確，木筏就會出發。',
+                 'The raft waits at the shore, and every station states its requirement. Tap a member, then tap a station on the raft to seat them there; tap a filled station to send its member back to the shore. When everyone is seated, press “Board the raft”. With 80% of the stations right, the raft sets off.') }}
           </p>
           <form data-pat-form method="post" action="">
-            <div class="pat-questions" data-pat-questions></div>
+            <div class="pat-raft" data-pat-raft></div>
+            <div class="pat-pool" data-pat-pool></div>
+            <p class="cave-line small" data-pat-poolhint></p>
             <p class="pat-result" data-pat-result role="status" aria-live="polite"></p>
             <div class="cave-actions">
-              <button class="btn primary big" type="submit" data-pat-submit>
-                ✅ {{ L('提交', 'Submit') }}
+              <button class="btn primary big" type="submit" data-pat-submit data-cheer="🚣,🌊">
+                🚣 {{ L('登上木筏', 'Board the raft') }}
               </button>
             </div>
           </form>

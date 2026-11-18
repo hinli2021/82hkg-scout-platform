@@ -1080,12 +1080,13 @@ def task_patrol(task_id: str):
 
     The cards are the scout's own patrol, read live from accounts and
     profiles: a member who joins appears at once, and the member whose
-    profile is unfinished still shows — only their name and job are tested.
-    The scout first flips through every card, then plays the matching game;
-    80% completes item 2. The answer key is signed into the run token, so
-    the browser only ever sees the questions.
+    profile is unfinished still shows on a card. The scout first flips
+    through every card, then seats the patrol on the raft: each station's
+    requirement is worded from a member's own facts, and 80% of the
+    stations right completes item 2. The seating plan is signed into the
+    run token, so the browser only ever sees the requirements.
     """
-    from ..patrol_game import build_questions, patrol_members
+    from ..patrol_game import build_raft, patrol_members
 
     st = store()
     task = st.get("tasks", task_id)
@@ -1101,13 +1102,15 @@ def task_patrol(task_id: str):
     cleared_now = any(r.get("status") == "completed" for r in mine)
     onward = _journey_next(g.user, task)
 
-    playable = len(members) >= 2
-    questions: list = []
+    # a raft puzzle needs at least three members to work out
+    playable = len(members) >= 3
+    raft: list = []
+    crew: list = []
     run_key = ""
     if playable:
         import time as _time
 
-        questions, key = build_questions(members, g.user["id"], seed=int(_time.time()) % 100000)
+        raft, key, crew = build_raft(members, g.user["id"], seed=int(_time.time()) % 100000)
         run_key = _patrol_signer().dumps({"task": task_id, "scout": g.user["id"], "key": key})
 
     scenes = {
@@ -1115,7 +1118,8 @@ def task_patrol(task_id: str):
         "patrol_zh": patrol_label(g.user.get("patrol") or ""),
         "patrol_en": patrol_label(g.user.get("patrol") or ""),
         "members": members,
-        "questions": questions,
+        "raft": raft,
+        "crew": crew,
         "run_key": run_key,
         "playable": playable,
         "pass_score": as_int(task.get("pass_score")) or 80,
@@ -1138,11 +1142,12 @@ def task_patrol(task_id: str):
 @scout_routes.post("/tasks/<task_id>/patrol-submit")
 @scout_required
 def patrol_submit(task_id: str):
-    """Grade the matching game again on the server, then file item 2.
+    """Grade the raft seating again on the server, then file item 2.
 
-    The browser's score is never trusted: the signed run token carries the
-    key, and 80% of the questions must be right. A miss is not a lock-out —
-    the scout reads the cards again and replays with fresh questions.
+    The browser's seating is never trusted: the signed run token carries
+    the plan, and 80% of the stations must hold the right member. A miss
+    is not a lock-out — the scout reads the cards again and re-seats the
+    raft with a fresh plan.
     """
     from ..patrol_game import grade
 
@@ -1175,8 +1180,8 @@ def patrol_submit(task_id: str):
 
     if not passed and not already:
         return fail(400, "patrol_short",
-                    f"你答中了 {correct}／{total} 題，要答中八成（{pass_score}%）才完成。再看一次成員卡，然後重玩。",
-                    f"You scored {correct} of {total}. You need {pass_score}% to finish. Read the member cards again, then play again.",
+                    f"木筏還未坐穩：你安排對了 {correct}／{total} 個崗位，要有八成（{pass_score}%）崗位正確，木筏才可以出發。再看一次成員卡，重新安排。",
+                    f"The raft is not seated yet: {correct} of {total} stations hold the right member, and {pass_score}% must be right before the raft can leave. Read the member cards again, then seat the raft once more.",
                     detail={"score": correct, "of": total, "percent": percent})
     if not already:
         record = st.insert("progress_records", {
@@ -1196,8 +1201,8 @@ def patrol_submit(task_id: str):
               {"score": correct, "of": total, "percent": percent})
     return ok(passed=True, status="completed", already_done=already,
               detail={"score": correct, "of": total, "percent": percent},
-              message_zh="全隊到齊。第 2 項完成。",
-              message_en="The whole patrol is here. Item 2 is done.")
+              message_zh="全隊按崗位登上木筏，木筏離開小島。第 2 項完成。",
+              message_en="Everyone is at their station and the raft leaves the island. Item 2 is done.")
 
 
 @scout_routes.post("/tasks/<task_id>/submit")

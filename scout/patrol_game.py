@@ -1,22 +1,34 @@
 """遊戲 5：小隊名冊卡 — knowing your patrol (item 2, M02).
 
-The roster is read live from the platform's own records, never copied into a
-separate list that can go stale:
+The story: after the four challenges the scout reaches the seaside, where
+the rest of the patrol is waiting by a raft. The raft carries the whole
+patrol off the island, but every station on it — lookout, steering, the
+signal station — needs the member who suits it best. So the scout first
+gets to know the patrol from their member cards, then works out, station
+by station, who belongs where. Eighty percent of the stations right and
+the raft leaves the island.
+
+The roster is read live from the platform's own records, never copied into
+a separate list that can go stale:
 
   • members      — scout accounts in the same patrol (leaders create the
                    account when a scout joins, so a new member appears in
                    the game automatically, and a member who leaves is gone).
                    The leaders' test account (username `test`) is not a
-                   member: it is left out of every roster and question,
+                   member: it is left out of every roster and station,
                    though the account itself can still play the game.
   • 職位／興趣／強項 — each member's own profile (`profiles`), which the
-                   member keeps up to date on 我的個人檔案
-  • 聯絡          — the member whose 職位 contains 「聯絡」 (one per patrol);
-                   the way to reach them is the email on their account
+                   member keeps up to date on 我的個人檔案. A station's
+                   requirement is built from these facts, and the server
+                   checks the wording picks out exactly one member, so the
+                   puzzle can always be solved from the cards.
+  • 聯絡          — the member whose 職位 contains 「聯絡」 (one per patrol)
+                   always takes the signal station; the way to reach them
+                   is the email on their account.
 
-Members who have not finished their profile still appear — the game tests
-their name and 職位 — but their card says so, and no interest/strength
-question is drawn from an empty field.
+Members who have not finished their profile still appear — their card
+says so, and their station is worked out from what little is known
+(their job, or their avatar).
 """
 from __future__ import annotations
 
@@ -92,141 +104,169 @@ def contact_of(members: list[dict]) -> dict | None:
     return next((m for m in members if m["is_contact"]), None)
 
 
-def _options(rng: random.Random, pool: list[dict], target: dict, label: str) -> list[dict]:
-    others = [m for m in pool if m["id"] != target["id"]]
-    rng.shuffle(others)
-    chosen = [target] + others[:3]
-    rng.shuffle(chosen)
-    return [{"value": m["id"], "zh": m[f"name_zh"], "en": m[f"name_en"]} for m in chosen]
+# ── the raft ─────────────────────────────────────────────────────────────
+# Every station on the raft, with the job it does. The signal station is
+# reserved for the patrol contact; the rest are filled in order.
+RAFT_ROLES = [
+    ("signal", "通訊站", "Signal station",
+     "負責和岸上保持聯絡，記下全隊的位置。",
+     "Keeps contact with the shore and notes where everyone is."),
+    ("bow", "船頭瞭望", "Bow lookout",
+     "留意前面的水面和礁石，及早提醒大家。",
+     "Watches the water and rocks ahead and warns everyone in good time."),
+    ("helm", "掌舵", "Steering",
+     "控制木筏的方向，讓木筏避開礁石。",
+     "Steers the raft clear of the rocks."),
+    ("sail", "揚帆", "Sail hand",
+     "照顧船帆和繩索，順著風前進。",
+     "Looks after the sail and ropes and rides the wind."),
+    ("stern", "船尾瞭望", "Stern lookout",
+     "留意後面的水面，確保沒有人掉隊。",
+     "Watches the water behind so nobody is left behind."),
+    ("rope", "繩索整理", "Rope hand",
+     "收好繩索，準備隨時靠岸。",
+     "Coils the ropes, ready to reach shore."),
+    ("port", "左舷船員", "Port-side crew",
+     "保持木筏平衡，照顧這一邊的成員。",
+     "Keeps the raft balanced and looks after this side."),
+    ("starboard", "右舷船員", "Starboard-side crew",
+     "保持木筏平衡，照顧這一邊的成員。",
+     "Keeps the raft balanced and looks after this side."),
+    ("middle", "船中船員", "Mid-raft crew",
+     "照顧行李和物資，讓大家安心工作。",
+     "Looks after the bags and supplies so everyone can work."),
+]
+
+MAX_SEATS = 8
+
+# A station's requirement is worded from the member's own facts, in this
+# order of preference: a strength or an interest usually names one member
+# on its own; a shared job (two 隊員, say) is pinned down with a second fact.
+_FACT_ORDER = ["strength", "interests", "position", "experience", "share"]
+_FACT_LABEL = {
+    "strength": ("強項是「{t}」", "strength is “{t}”"),
+    "interests": ("興趣是「{t}」", "interests are “{t}”"),
+    "position": ("職位是「{t}」", "patrol job is “{t}”"),
+    "experience": ("童軍經驗是「{t}」", "Scout experience is “{t}”"),
+    "share": ("想和大家分享「{t}」", "thing to share is “{t}”"),
+    "avatar": ("頭像是 {t}", "avatar is {t}"),
+}
 
 
-MAX_QUESTIONS = 12
+def _facts(member: dict) -> list[tuple[str, str, str, str]]:
+    """(field, value, wording_zh, wording_en) for everything known of a member."""
+    facts = []
+    for field in _FACT_ORDER:
+        raw = str(member.get(field) or "").strip()
+        if not raw:
+            continue
+        if field == "position":
+            zh = str(member.get("position_zh") or raw)
+            en = str(member.get("position_en") or raw)
+        else:
+            zh = en = raw[:48]
+        facts.append((field, raw, zh, en))
+    avatar = str(member.get("avatar") or "🦊")
+    facts.append(("avatar", avatar, avatar, avatar))
+    return facts
 
 
-def build_questions(members: list[dict], viewer_id: str, seed: int) -> tuple[list[dict], dict]:
-    """(questions for the page, {question id: right value} for the server).
+def _criterion(member: dict, crew: list[dict]) -> tuple[str, str]:
+    """Wording that picks `member` out of the crew — and nobody else.
 
-    Right answers never reach the browser: the page shows the prompts and
-    options only, and the server signs the key into the run token.
+    The server tries one fact, then two together, until only the member
+    the station belongs to matches everything the wording says. What the
+    scout read on the member cards is therefore always enough to solve
+    the station, and never points at two members at once.
+    """
+    facts = _facts(member)
+
+    def matches(combo) -> int:
+        return sum(1 for m in crew
+                   if all(str(m.get(f) or "").strip() == v for f, v, _z, _e in combo))
+
+    def render(combo) -> tuple[str, str]:
+        zh = "需要一位" + "，而且".join(_FACT_LABEL[f][0].format(t=z) for f, _v, z, _e in combo) + "的成員"
+        en = "Needs the member whose " + " and whose ".join(
+            _FACT_LABEL[f][1].format(t=e) for f, _v, _z, e in combo)
+        return zh, en
+
+    for fact in facts:
+        if matches([fact]) == 1:
+            return render([fact])
+    for i, first in enumerate(facts):
+        for second in facts[i + 1:]:
+            if second[0] == first[0]:
+                continue
+            if matches([first, second]) == 1:
+                return render([first, second])
+    return render(facts[:1])
+
+
+def _contact_criterion(member: dict) -> tuple[str, str]:
+    email = str(member.get("contact_email") or "").strip()
+    if email:
+        return (f"需要由小隊聯絡負責。有事要找他，可以發電郵至 {email}。",
+                f"Needs the patrol contact. To reach them, send an email to {email}.")
+    return ("需要由小隊聯絡負責。他尚未登記電郵，有事請向領袖查詢。",
+            "Needs the patrol contact. They have no email yet — ask your leader.")
+
+
+def _pick_crew(members: list[dict], viewer_id: str) -> list[dict]:
+    """Who gets a station: the whole patrol, or the eight who suit it best."""
+    if len(members) <= MAX_SEATS:
+        return list(members)
+    contact = contact_of(members)
+
+    def rank(member: dict):
+        if contact and member["id"] == contact["id"]:
+            return 0
+        if member["id"] == viewer_id:
+            return 1
+        if member.get("complete"):
+            return 2
+        if member.get("position"):
+            return 3
+        return 4
+
+    chosen = sorted(members, key=rank)[:MAX_SEATS]
+    keep = {m["id"] for m in chosen}
+    return [m for m in members if m["id"] in keep]
+
+
+def build_raft(members: list[dict], viewer_id: str, seed: int) -> tuple[list[dict], dict, list[str]]:
+    """(stations for the page, {station id: member id} for the server, crew ids).
+
+    Who sits where never reaches the browser: the page shows each
+    station's job and its requirement only, and the server signs the
+    seating plan into the run token.
     """
     rng = random.Random(seed)
-    others = [m for m in members if m["id"] != viewer_id]
-    questions: list[dict] = []
+    crew = _pick_crew(members, viewer_id)
+    contact = contact_of(crew)
+    roles = [r for r in RAFT_ROLES if r[0] != "signal"]
+    seats: list[dict] = []
     key: dict[str, str] = {}
-
-    def add(kind: str, target: dict, zh: str, en: str, options: list[dict], answer: str,
-            member_id: str = ""):
-        qid = f"q{len(questions) + 1}"
-        questions.append({"id": qid, "kind": kind, "zh": zh, "en": en,
-                          "options": options, "member_id": member_id})
-        key[qid] = answer
-
-    contact = contact_of(members)
-    if contact:
-        add("contact_who", contact,
-            "誰是本小隊的聯絡？", "Who is your patrol's contact?",
-            _options(rng, members, contact, "name"), contact["id"], contact["id"])
-    else:
-        qid = f"q{len(questions) + 1}"
-        questions.append({"id": qid, "kind": "contact_none",
-                          "zh": "本小隊現在有誰擔任聯絡？",
-                          "en": "Who is your patrol's contact right now?",
-                          "options": [
-                              {"value": "none", "zh": "尚未有人擔任，請向領袖查詢",
-                               "en": "Nobody yet — ask your leader"},
-                              {"value": "leader", "zh": "由領袖擔任", "en": "The leader"}],
-                          "member_id": ""})
-        key[qid] = "none"
-
-    if contact:
-        options = []
-        if contact["contact_email"]:
-            options.append({"value": "email",
-                            "zh": f"發電郵：{contact['contact_email']}",
-                            "en": f"Send an email: {contact['contact_email']}"})
-            answer = "email"
+    role_at = 0
+    for member in crew:
+        if contact and member["id"] == contact["id"]:
+            role = RAFT_ROLES[0]
+            criterion = _contact_criterion(member)
         else:
-            answer = "meeting"
-        options += [
-            {"value": "meeting", "zh": "在集會時親自向領袖查詢",
-             "en": "Ask your leader in person at a meeting"},
-            {"value": "noticeboard", "zh": "在小隊布告板留言",
-             "en": "Leave a note on the patrol noticeboard"},
-        ]
-        rng.shuffle(options)
-        add("contact_way", contact,
-            "有事要聯絡小隊的聯絡，可以怎樣做？",
-            "How can you reach your patrol's contact?",
-            options, answer, contact["id"])
-
-    # Names and positions: one question per other member who holds a position.
-    positions = []
-    for member in members:
-        label = member["position"] or ""
-        if label and label not in [p["value"] for p in positions]:
-            positions.append({"value": label, "zh": member["position_zh"] or label,
-                              "en": member["position_en"] or label})
-    if not any(p["value"] == "" for p in positions):
-        positions.append(dict(NO_POSITION))
-    for member in others:
-        if not member["position"]:
-            continue
-        # at most four options, but the right one is never trimmed away
-        target_opt = next(p for p in positions if p["value"] == member["position"])
-        rest = [p for p in positions if p["value"] != member["position"]]
-        rng.shuffle(rest)
-        opts = [target_opt] + rest[:3]
-        rng.shuffle(opts)
-        add("position", member,
-            f"{member['name_zh']}（{member['name_en']}）在本小隊擔任甚麼職位？",
-            f"What job does {member['name_en']} hold in the patrol?",
-            opts, member["position"], member["id"])
-
-    # Knowing the person: a clue from their own words, name the member.
-    clue_fields = [
-        ("interests", "以下哪一位成員的興趣是：{text}",
-         "Which member's interests are these: {text}"),
-        ("strength", "以下哪一位成員的強項是：{text}",
-         "Which member's strength is this: {text}"),
-        ("share", "以下哪一位成員想和大家分享：{text}",
-         "Which member wants to share this: {text}"),
-        ("experience", "以下哪一位成員的童軍經驗是：{text}",
-         "Whose Scout experience is this: {text}"),
-    ]
-    clues = []
-    for member in others:
-        if not member["complete"]:
-            continue
-        for field, zh_tpl, en_tpl in clue_fields:
-            text = member[field].strip()
-            if text:
-                clues.append((member, text[:60], zh_tpl, en_tpl))
-    rng.shuffle(clues)
-    clue_counts: dict[str, int] = {}
-    for member, text, zh_tpl, en_tpl in clues:
-        # at most two clues per member, so the whole patrol gets a turn
-        if clue_counts.get(member["id"], 0) >= 2:
-            continue
-        clue_counts[member["id"]] = clue_counts.get(member["id"], 0) + 1
-        add("clue", member,
-            zh_tpl.format(text=text), en_tpl.format(text=text),
-            _options(rng, members, member, "name"), member["id"], member["id"])
-
-    rng.shuffle(questions)
-    # Keep the contact questions in play even when the roster is large.
-    contact_qs = [q for q in questions if q["kind"].startswith("contact")]
-    rest = [q for q in questions if not q["kind"].startswith("contact")]
-    questions = (contact_qs + rest)[:MAX_QUESTIONS]
-    key = {q["id"]: key[q["id"]] for q in questions}
-    # Renumber so the ids run 1..n after trimming.
-    renumbered = []
-    new_key: dict[str, str] = {}
-    for index, question in enumerate(questions, start=1):
-        old = question["id"]
-        question = {**question, "id": f"q{index}"}
-        renumbered.append(question)
-        new_key[question["id"]] = key[old]
-    return renumbered, new_key
+            role = roles[min(role_at, len(roles) - 1)]
+            role_at += 1
+            criterion = _criterion(member, crew)
+        seats.append({
+            "role_zh": role[1], "role_en": role[2],
+            "duty_zh": role[3], "duty_en": role[4],
+            "criterion_zh": criterion[0], "criterion_en": criterion[1],
+            "_member": member["id"],
+        })
+    rng.shuffle(seats)
+    for index, seat in enumerate(seats, start=1):
+        seat["id"] = f"s{index}"
+        key[seat["id"]] = seat.pop("_member")
+    return seats, key, [m["id"] for m in crew]
 
 
 def grade(key: dict, given: dict) -> tuple[int, int]:
