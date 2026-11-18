@@ -326,6 +326,23 @@ class Store:
         return store
 
     # --- pass-throughs ------------------------------------------------------
+    def refresh(self, *collections: str) -> None:
+        """Throw away any brief driver read-cache for these collections.
+
+        Live games ask for this before reading people and profiles, so a
+        member added or a profile edited just now is matched at once —
+        even when the storage driver would otherwise serve a read that is
+        a few seconds old. Drivers that always read fresh simply ignore it.
+        """
+        refresh = getattr(self.driver, "refresh", None)
+        if not callable(refresh):
+            return
+        if collections:
+            for collection in collections:
+                refresh(collection)
+        else:
+            refresh()
+
     def list(self, collection: str) -> list[dict]:
         return self.driver.list(collection)
 

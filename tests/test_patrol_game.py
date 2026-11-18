@@ -202,6 +202,56 @@ def test_the_test_account_is_ignored_but_can_play(store, app):
     assert reply.get_json()["passed"] is True
 
 
+def test_new_members_and_profile_edits_are_matched_on_the_next_load(store, app):
+    """The game reads the patrol live on every load: a scout who joins
+    the patrol appears on the cards, the board and the raft at once, an
+    edit to anyone's profile redraws their card and re-words their
+    station, and a scout who leaves the patrol leaves the game."""
+    viewer, contact, singer, rookie = seed_patrol(store)
+    task = task_of(store)
+    client = login(app, viewer)
+
+    _, scene = scene_of(client, task["id"])
+    baseline_ids = {m["id"] for m in scene["members"]}
+
+    # a new member joins the patrol — with no profile written yet
+    newbie = add_member(store, "patrolnewbie", "新隊員", "New Member", "", None)
+    _, scene = scene_of(client, task["id"])
+    member_ids = {m["id"] for m in scene["members"]}
+    assert newbie["id"] in member_ids and newbie["id"] not in baseline_ids
+    assert newbie["id"] in {b["id"] for b in scene["roster_board"]}
+    assert newbie["id"] in scene["crew"]
+    assert newbie["id"] in key_of(scene).values()
+
+    # the new member then fills in their profile: the next load shows the
+    # new facts on the card, and their raft station is worded from them
+    store.insert("profiles", {"user_id": newbie["id"], "visible": True,
+                              "updated_at": "2026-01-02",
+                              **full_profile("康樂", "天文", "急救")})
+    _, scene = scene_of(client, task["id"])
+    by_id = {m["id"]: m for m in scene["members"]}
+    assert by_id[newbie["id"]]["strength"] == "急救"
+    assert by_id[newbie["id"]]["position"] == "康樂"
+    seat_id = next(sid for sid, uid in key_of(scene).items()
+                   if uid == newbie["id"])
+    seat = next(s for s in scene["raft"] if s["id"] == seat_id)
+    assert "急救" in seat["criterion_zh"]
+
+    # editing an existing member's details is matched too
+    store.update("profiles", singer["id"], {"strength": "彈結他"})
+    _, scene = scene_of(client, task["id"])
+    by_id = {m["id"]: m for m in scene["members"]}
+    assert by_id[singer["id"]]["strength"] == "彈結他"
+
+    # and a member who moves to another patrol is gone from the game,
+    # though their name stays on the unit board for stage 1
+    store.update("users", newbie["id"], {"patrol": "Tiger"})
+    _, scene = scene_of(client, task["id"])
+    assert newbie["id"] not in {m["id"] for m in scene["members"]}
+    assert newbie["id"] not in scene["crew"]
+    assert newbie["id"] in {b["id"] for b in scene["roster_board"]}
+
+
 def test_stage_one_needs_the_exact_patrol(store, app):
     """The board names the whole unit; only the exact patrol — nobody
     missing, nobody extra — opens stage 2, and a miss is answered with

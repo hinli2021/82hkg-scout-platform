@@ -91,6 +91,17 @@ class LocalDriver:
             self._write_file(path, self._cache.get(collection, []))
             self._stamps[collection] = self._stamp(path)
 
+    def refresh(self, collection: str | None = None) -> None:
+        """Forget cached rows; the file-stamp check would catch changes
+        anyway, this simply makes the next read unconditional."""
+        with self._lock:
+            if collection is None:
+                self._cache.clear()
+                self._stamps.clear()
+            else:
+                self._cache.pop(collection, None)
+                self._stamps.pop(collection, None)
+
     def list(self, collection: str) -> list[dict]:
         return [dict(row) for row in self._read(collection)]
 

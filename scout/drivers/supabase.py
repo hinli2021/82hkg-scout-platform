@@ -103,6 +103,9 @@ class SupabaseDriver:
         self._tables_checked = True
 
     # --- collection API -------------------------------------------------------
+    def refresh(self, collection: str | None = None) -> None:
+        """Nothing is cached here; every read already asks the database."""
+
     def list(self, collection: str) -> list[dict]:
         rows: list[dict] = []
         offset = 0

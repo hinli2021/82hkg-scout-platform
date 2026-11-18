@@ -226,6 +226,13 @@ class SheetsDriver:
         self._cache.pop(collection, None)
 
     # --- collection API -----------------------------------------------------
+    def refresh(self, collection: str | None = None) -> None:
+        """Forget cached reads, so the next list/get asks Google again."""
+        if collection is None:
+            self._cache.clear()
+        else:
+            self._cache.pop(collection, None)
+
     def list(self, collection: str) -> list[dict]:
         return [dict(row) for row in self._fetch(collection)["rows"]]
 

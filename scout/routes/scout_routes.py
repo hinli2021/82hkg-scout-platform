@@ -1096,6 +1096,10 @@ def task_patrol(task_id: str):
     if context["badge"].get("locked"):
         abort(403)
 
+    # Read the patrol as it is now, not as a cached read remembers it: a
+    # member added or a profile edited moments ago must be matched by the
+    # cards, the board and the raft on this very load.
+    st.refresh("users", "profiles")
     members = patrol_members(st, g.user)
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
