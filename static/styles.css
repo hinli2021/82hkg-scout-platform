@@ -4743,7 +4743,15 @@ body.is-game main { padding-top: 6px; }
 .patrol.is-playing .cave-art,
 .patrol.is-playing .cave-art-backdrop,
 .patrol.is-playing .cave-shade { display: none; }
-.patrol.is-playing .cave-card-wrap { flex: 1 1 auto; max-height: none; }
+.patrol.is-playing .cave-card-wrap {
+  flex: 1 1 auto; max-height: none;
+  /* the shore stays with the game: a soft seaside behind a dark veil,
+     so the board, the raft and the words stay easy to read */
+  background:
+    linear-gradient(180deg, rgba(4, 14, 10, .76), rgba(4, 14, 10, .86)),
+    url("img/quest/patrol/seaside.jpg") center / cover no-repeat;
+}
+.patrol.is-playing .cave-card { background: rgba(8, 22, 15, .62); }
 /* the step dots ride inside the HUD pill, next to the step words */
 .pat-dots { margin-left: .45rem; }
 .pat-dots i {

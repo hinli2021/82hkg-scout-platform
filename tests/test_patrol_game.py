@@ -123,6 +123,10 @@ def test_the_roster_is_the_live_patrol(store, app):
           / "patrol.js").read_text(encoding="utf-8")
     assert 'root.classList.add("is-playing")' in js
     assert 'root.classList.remove("is-playing")' in js
+    # while playing, the panel rests on a soft seaside background
+    assert "img/quest/patrol/seaside.jpg" in css
+    assert (_p.Path(__file__).resolve().parent.parent / "static" / "img"
+            / "quest" / "patrol" / "seaside.jpg").is_file()
     members = {m["id"]: m for m in scene["members"]}
     # every Otter scout is on a card: the seeded pair, the new members, and
     # the member with no profile at all
