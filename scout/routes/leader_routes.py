@@ -1433,6 +1433,26 @@ PACK_KIND_NAMES = {
 }
 
 
+def _write_position(st, user_id: str, value: str) -> bool:
+    """Set one scout's patrol position; True when anything actually changed.
+
+    Only the position (and the profile's updated_at) is touched — the rest
+    of a profile the scout wrote stays exactly as it was. A blank value
+    clears an existing position but never creates an empty profile row.
+    """
+    row = st.get("profiles", user_id)
+    if row:
+        if str(row.get("position") or "") == value:
+            return False
+        st.update("profiles", user_id, {"position": value, "updated_at": now_iso()})
+    elif value:
+        st.insert("profiles", {"user_id": user_id, "position": value,
+                               "updated_at": now_iso()})
+    else:
+        return False
+    return True
+
+
 @leader_routes.post("/leader/accounts/positions")
 @leader_required
 def set_positions():
@@ -1442,8 +1462,7 @@ def set_positions():
     drives Game 5 （小隊名冊卡）, where the member whose position names them
     the patrol contact is asked about by name. Scouts can still rewrite
     their own position on their profile page afterwards; this form is for
-    recording the patrol's decisions in one go. Only the position changes —
-    the rest of any profile is left exactly as it was.
+    recording the patrol's decisions in one go.
     """
     st = store()
     form = request.form if request.form else {}
@@ -1455,22 +1474,59 @@ def set_positions():
         if field not in form:
             continue
         value = (form.get(field) or "").strip()[:40]
-        row = st.get("profiles", user["id"])
-        if row:
-            if str(row.get("position") or "") == value:
-                continue
-            st.update("profiles", user["id"],
-                      {"position": value, "updated_at": now_iso()})
-        elif value:
-            st.insert("profiles", {"user_id": user["id"], "position": value,
-                                   "updated_at": now_iso()})
-        else:
-            continue
-        changed.append({"user_id": user["id"], "position": value})
+        if _write_position(st, user["id"], value):
+            changed.append({"user_id": user["id"], "position": value})
     if changed:
         audit(g.user, "set_positions", "profiles", "", {"changed": changed})
     return _done(f"已儲存 {len(changed)} 個職位", f"Saved {len(changed)} positions",
                  "leader_routes.accounts")
+
+
+@leader_routes.post("/leader/accounts/positions-paste")
+@leader_required
+def set_positions_paste():
+    """Apply a whole list of positions pasted in one go.
+
+    One scout per line — the scout's name, then the position — copied
+    straight out of a chat or a note. Lines are matched by the name on the
+    scout's account; anything that matches nobody is reported back in the
+    saved message, never silently dropped.
+    """
+    import re
+
+    st = store()
+    text = (request.form.get("bulk") or "") if request.form else ""
+    by_name: dict[str, dict] = {}
+    for user in st.list("users"):
+        if user.get("role") != "scout":
+            continue
+        name = str(user.get("display_name_zh") or "").strip()
+        if name:
+            by_name.setdefault(name, user)
+    changed, missed = [], []
+    for line in text.splitlines():
+        line = line.strip().strip(",")
+        if not line:
+            continue
+        parts = re.split(r"[\s,，、:：]+", line, maxsplit=1)
+        if len(parts) < 2:
+            missed.append(line)
+            continue
+        name, value = parts[0].strip(), parts[1].strip()[:40]
+        user = by_name.get(name)
+        if user is None or not value:
+            missed.append(name)
+            continue
+        if _write_position(st, user["id"], value):
+            changed.append({"user_id": user["id"], "position": value})
+    if changed:
+        audit(g.user, "set_positions", "profiles", "", {"changed": changed})
+    zh = f"已儲存 {len(changed)} 個職位"
+    en = f"Saved {len(changed)} positions"
+    if missed:
+        zh += f"；找不到以下姓名：{'、'.join(missed)}"
+        en += f"; these names were not found: {', '.join(missed)}"
+    return _done(zh, en, "leader_routes.accounts")
 
 
 @leader_routes.post("/leader/accounts/grant-pack")

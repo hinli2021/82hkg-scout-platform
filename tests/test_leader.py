@@ -343,6 +343,36 @@ def test_a_leader_records_patrol_positions_in_one_save(leader_client, store):
     assert len(rows) == 1
 
 
+def test_a_leader_can_paste_the_whole_patrol_list(leader_client, store):
+    """One pasted block records every job at once, matched by name.
+
+    This is how a leader copies the patrol's decisions out of a chat:
+    name, a space, the position. A line that matches nobody is reported
+    in the saved message instead of being silently dropped.
+    """
+    seagull = {u["display_name_zh"]: u for u in store.list("users")
+               if u.get("patrol") == "Seagull" and u.get("role") == "scout"}
+    s05, s06 = seagull["陳大文"], seagull["林小玲"]
+    page = leader_client.get("/leader/accounts").get_data(as_text=True)
+    assert 'name="bulk"' in page and "整批貼上" in page
+
+    answer = leader_client.post("/leader/accounts/positions-paste", data={
+        "bulk": "陳大文 小隊聯絡\n林小玲,康樂\n不存在的人 法官\n",
+    })
+    assert answer.status_code in (200, 302)
+    assert store.get("profiles", s05["id"])["position"] == "小隊聯絡"
+    assert store.get("profiles", s06["id"])["position"] == "康樂"
+    import json
+    rows = [r for r in store.list("audit_log") if r.get("action") == "set_positions"]
+    assert len(rows) == 1 and len(json.loads(rows[0]["detail_json"])["changed"]) == 2
+
+    # the same words pasted again change nothing
+    leader_client.post("/leader/accounts/positions-paste",
+                       data={"bulk": "陳大文 小隊聯絡\n林小玲 康樂"})
+    rows = [r for r in store.list("audit_log") if r.get("action") == "set_positions"]
+    assert len(rows) == 1
+
+
 def test_a_scout_cannot_set_positions(scout_client, store):
     scout = next(u for u in store.list("users") if u["username"] == "scout06")
     answer = scout_client.post("/leader/accounts/positions",
