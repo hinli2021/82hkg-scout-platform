@@ -4,7 +4,8 @@ The bluff's game is the patrol itself: member cards are read live from the
 accounts and profiles, so a scout who joins appears at once. The scout
 then seats the patrol on the raft — every station states a requirement
 worded from one member's own facts, and the member whose 職位 is 聯絡
-always takes the signal station, reached by the email on their account.
+always takes the signal station, reached in person or through the leader.
+Email addresses are private: none of them ever appears in the game.
 Members without a finished profile still appear. Seating 80% of the
 stations right completes item 2 with no leader code; below that, nothing
 is filed.
@@ -109,10 +110,12 @@ def test_the_roster_is_the_live_patrol(store, app):
     # the member with no profile at all
     assert {viewer["id"], contact["id"], singer["id"], rookie["id"]} <= set(members)
     assert members[contact["id"]]["is_contact"] is True
-    assert members[contact["id"]]["contact_email"] == "contact@82hkg.example"
-    # nobody else's address is handed to the game
-    assert all(m["contact_email"] == "" for m in members.values()
-               if m["id"] != contact["id"])
+    # email addresses are private: no member of the game carries one, and
+    # no address appears anywhere on the page
+    assert all("contact_email" not in m and "email" not in m
+               for m in members.values())
+    assert "contact@82hkg.example" not in page
+    assert "singer@82hkg.example" not in page
     # the unfinished profile is marked, not hidden
     assert members[rookie["id"]]["complete"] is False
     assert members[singer["id"]]["strength"] == "唱歌"
@@ -123,7 +126,7 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert len(seats) == len(scene["crew"]) >= 4
     assert {viewer["id"], contact["id"], singer["id"], rookie["id"]} <= set(scene["crew"])
     signal = next(s for s in seats if s["role_zh"] == "通訊站")
-    assert "contact@82hkg.example" in signal["criterion_zh"]
+    assert "小隊聯絡" in signal["criterion_zh"] and "@" not in signal["criterion_zh"]
     assert len({s["criterion_zh"] for s in seats}) == len(seats)
     # who sits where never reaches the page — the key stays in the token
     assert "run_key" in scene and scene["run_key"]
@@ -260,8 +263,7 @@ def member(uid, name, position="", complete=False, **fields):
             "position_zh": position, "position_en": position, "position": position,
             "interests": "", "experience": "", "share": "", "strength": "",
             "complete": complete, "is_self": False,
-            "is_contact": "聯絡" in position,
-            "contact_email": "c@example.com" if "聯絡" in position else ""}
+            "is_contact": "聯絡" in position}
     base.update(fields)
     return base
 
@@ -284,7 +286,7 @@ def test_the_raft_seats_every_member_once_and_stays_solvable():
         assert "member" not in seat          # the seating plan stays server-side
     signal = next(s for s in seats if s["role_zh"] == "通訊站")
     assert key[signal["id"]] == "m3"          # the member whose job is 聯絡
-    assert "c@example.com" in signal["criterion_zh"]
+    assert "小隊聯絡" in signal["criterion_zh"] and "@" not in signal["criterion_zh"]
 
 
 def test_two_members_with_the_same_job_are_still_told_apart():

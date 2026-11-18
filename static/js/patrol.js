@@ -56,12 +56,8 @@
     if (member.is_contact) {
       contactHow = '<p class="pat-contact">'
         + esc(lang === "en"
-            ? (member.contact_email
-                ? "How to reach them: send an email to " + member.contact_email
-                : "How to reach them: this member has no email yet — ask your leader.")
-            : (member.contact_email
-                ? "聯絡方法：發電郵至 " + member.contact_email
-                : "聯絡方法：這位成員尚未登記電郵，請向領袖查詢。"))
+            ? "How to reach them: find them in person at a meeting, or ask your leader to pass a message on."
+            : "聯絡方法：在集會時親自找他，或請領袖幫忙聯絡。")
         + "</p>";
     }
     return '<button type="button" class="pat-card" data-member="' + esc(member.id) + '">'

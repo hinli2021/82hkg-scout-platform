@@ -24,7 +24,8 @@ a separate list that can go stale:
                    puzzle can always be solved from the cards.
   • 聯絡          — the member whose 職位 contains 「聯絡」 (one per patrol)
                    always takes the signal station; the way to reach them
-                   is the email on their account.
+                   is in person at a meeting, or through the leader. Email
+                   addresses are private and never enter the game.
 
 Members who have not finished their profile still appear — their card
 says so, and their station is worked out from what little is known
@@ -86,10 +87,7 @@ def patrol_members(st, user: dict) -> list[dict]:
             "complete": profile_complete(profile),
             "is_self": row["id"] == user["id"],
             "is_contact": CONTACT_WORD in position,
-            # The contact's email is the way to reach them; only the contact
-            # member's address is handed to the game, nobody else's.
-            "contact_email": str(row.get("email") or "").strip()
-            if CONTACT_WORD in position else "",
+            # No email here: addresses are private and never enter the game.
         })
     # The contact first, then leaders of the patrol, then by name — the order
     # a scout would be introduced to the patrol.
@@ -204,12 +202,9 @@ def _criterion(member: dict, crew: list[dict]) -> tuple[str, str]:
 
 
 def _contact_criterion(member: dict) -> tuple[str, str]:
-    email = str(member.get("contact_email") or "").strip()
-    if email:
-        return (f"需要由小隊聯絡負責。有事要找他，可以發電郵至 {email}。",
-                f"Needs the patrol contact. To reach them, send an email to {email}.")
-    return ("需要由小隊聯絡負責。他尚未登記電郵，有事請向領袖查詢。",
-            "Needs the patrol contact. They have no email yet — ask your leader.")
+    return ("需要由小隊聯絡負責。有事要找他，可以在集會時親自找他，或者請領袖幫忙聯絡。",
+            "Needs the patrol contact. To reach them, find them in person at a "
+            "meeting, or ask your leader to pass a message on.")
 
 
 def _pick_crew(members: list[dict], viewer_id: str) -> list[dict]:
