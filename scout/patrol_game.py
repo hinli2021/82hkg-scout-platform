@@ -163,8 +163,6 @@ RAFT_ROLES = [
      "Looks after the bags and supplies so everyone can work."),
 ]
 
-MAX_SEATS = 8
-
 # A station's requirement is worded from the member's own facts, in this
 # order of preference: a strength or an interest usually names one member
 # on its own; a shared job (two 隊員, say) is pinned down with a second fact.
@@ -236,26 +234,20 @@ def _contact_criterion(member: dict) -> tuple[str, str]:
             "meeting, or ask your leader to pass a message on.")
 
 
-def _pick_crew(members: list[dict], viewer_id: str) -> list[dict]:
-    """Who gets a station: the whole patrol, or the eight who suit it best."""
-    if len(members) <= MAX_SEATS:
-        return list(members)
-    contact = contact_of(members)
+def _station_role(role_at: int) -> tuple:
+    """The next station on the raft, however big the patrol is.
 
-    def rank(member: dict):
-        if contact and member["id"] == contact["id"]:
-            return 0
-        if member["id"] == viewer_id:
-            return 1
-        if member.get("complete"):
-            return 2
-        if member.get("position"):
-            return 3
-        return 4
-
-    chosen = sorted(members, key=rank)[:MAX_SEATS]
-    keep = {m["id"] for m in chosen}
-    return [m for m in members if m["id"] in keep]
+    The named stations come first; a larger patrol simply adds crew
+    stations, so every member always gets a place — two members or
+    twelve, nobody is left standing on the shore.
+    """
+    roles = [r for r in RAFT_ROLES if r[0] != "signal"]
+    if role_at < len(roles):
+        return roles[role_at]
+    n = role_at - len(roles) + 1
+    return ("crew", f"船員 {n}", f"Crew member {n}",
+            "保持木筏平衡，幫助身邊的成員。",
+            "Keeps the raft balanced and helps the members nearby.")
 
 
 def build_raft(members: list[dict], viewer_id: str, seed: int) -> tuple[list[dict], dict, list[str]]:
@@ -266,9 +258,8 @@ def build_raft(members: list[dict], viewer_id: str, seed: int) -> tuple[list[dic
     seating plan into the run token.
     """
     rng = random.Random(seed)
-    crew = _pick_crew(members, viewer_id)
+    crew = list(members)          # every member gets a station, any patrol size
     contact = contact_of(crew)
-    roles = [r for r in RAFT_ROLES if r[0] != "signal"]
     seats: list[dict] = []
     key: dict[str, str] = {}
     role_at = 0
@@ -277,7 +268,7 @@ def build_raft(members: list[dict], viewer_id: str, seed: int) -> tuple[list[dic
             role = RAFT_ROLES[0]
             criterion = _contact_criterion(member)
         else:
-            role = roles[min(role_at, len(roles) - 1)]
+            role = _station_role(role_at)
             role_at += 1
             criterion = _criterion(member, crew)
         seats.append({

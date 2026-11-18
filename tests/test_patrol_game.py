@@ -228,6 +228,46 @@ def test_stage_one_needs_the_exact_patrol(store, app):
     assert reply.get_json()["error"] == "patrol_expired"
 
 
+def test_a_two_member_patrol_can_play_the_whole_game(store, app):
+    """Patrols are not always six: with just two members the cards, the
+    board and the raft all size themselves down and the game completes."""
+    viewer = find(store, "scout04")          # the seeded Otter pair
+    task = task_of(store)
+    client = login(app, viewer)
+    _, scene = scene_of(client, task["id"])
+    assert len(scene["members"]) == 2
+    assert len(scene["raft"]) == len(scene["crew"]) == 2
+
+    reply = client.post(f"/tasks/{task['id']}/patrol-stage1",
+                        data={"run_key": scene["run_key"],
+                              "members": [m["id"] for m in scene["members"]]},
+                        headers=HEADERS)
+    assert reply.get_json()["passed"] is True
+    reply = client.post(f"/tasks/{task['id']}/patrol-submit",
+                        data={**key_of(scene), "run_key": scene["run_key"],
+                              "elapsed_ms": "60000"}, headers=HEADERS)
+    assert reply.get_json()["passed"] is True
+    assert len(completed_records(store, viewer["id"], task["id"])) == 1
+
+
+def test_the_raft_sizes_itself_to_any_patrol():
+    """Fewer than six, exactly six, or far more: every member gets one
+    station, every station keeps its own name, and the plan covers all."""
+    from scout.patrol_game import build_raft
+
+    for size in (2, 5, 6, 7, 12, 13):
+        members = [member(f"m{i}", f"成員{i}",
+                          "小隊聯絡" if i == 0 else "隊員", True,
+                          interests=f"興趣{i}", strength=f"強項{i}")
+                   for i in range(size)]
+        seats, key, crew = build_raft(members, "m1", seed=11)
+        assert len(seats) == len(key) == len(crew) == size
+        assert set(key.values()) == {m["id"] for m in members}
+        assert len({s["role_zh"] for s in seats}) == size
+        signal = next(s for s in seats if s["role_zh"] == "通訊站")
+        assert key[signal["id"]] == "m0"
+
+
 def test_scoring_eighty_percent_completes_item_two(store, app):
     viewer, contact, singer, rookie = seed_patrol(store)
     task = task_of(store)

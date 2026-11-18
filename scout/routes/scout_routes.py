@@ -1102,8 +1102,9 @@ def task_patrol(task_id: str):
     cleared_now = any(r.get("status") == "completed" for r in mine)
     onward = _journey_next(g.user, task)
 
-    # a raft puzzle needs at least three members to work out
-    playable = len(members) >= 3
+    # any patrol with at least one other member can play: the board, the
+    # cards and the raft all size themselves to the patrol, small or large
+    playable = len(members) >= 2
     raft: list = []
     crew: list = []
     board: list = []
