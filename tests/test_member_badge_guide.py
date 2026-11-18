@@ -77,7 +77,7 @@ def test_the_guide_page_carries_the_units_own_requirements(guide_page):
     # the wording the unit decided on, straight from its reference doc
     assert "先讀筆記" in guide_page              # items 7–10 are the valley ceremony, not a paper
     assert "不設合格分數" in guide_page           # cave now clears on completion
-    assert "80 分合格" not in guide_page
+    assert "80 分合格" in guide_page               # item 2's patrol cards pass at 80%
     assert "六次團集會" in guide_page
     assert "小隊長商議" in guide_page
     assert "兒童侵害" in guide_page              # item 11 of the official scheme
@@ -116,7 +116,7 @@ def test_the_later_awards_keep_the_plain_task_list(app, store):
 # ── item 4: cave only (bank used to score the game) ──────────────────────────────────────────────────────
 
 def test_the_cave_bank_is_fifty_questions_with_an_answer_for_each(store):
-    quiz = next(t for t in tasks_of(store, member_badge(store)) if t["type"] == "quiz")
+    quiz = next(t for t in tasks_of(store, member_badge(store)) if t.get("code") == "M04")
     config = raw_config(store, quiz["id"])
     questions = config["questions"]
     assert len(questions) == 50 and quiz["pass_score"] == 0
@@ -178,7 +178,7 @@ def test_a_sample_scout_has_cave_progress_not_a_second_paper(store):
     badge = engine.progress_for(store, scout["id"])["badges"][0]
     cave = next(t for t in badge["tasks"] if t["code"] == "M04")
     assert cave["status"] == "completed" and cave["score"] < 100
-    assert badge["progress_done"] == 1 and not badge["earned"]
+    assert badge["progress_done"] == 2 and not badge["earned"]  # cave + item 2
 
 
 def test_a_leader_notes_item_reaches_the_review_queue(app, store):
@@ -265,7 +265,7 @@ def test_a_first_time_scout_is_told_the_story_in_pictures(new_scout, store):
     badge = member_badge(store)
     # the profile pop-up must be finished before the story page can be used
     new_scout.post("/profile", data={
-        "position": "隊員", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。",
+        "position": "隊員", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。", "strength": "繩結",
     })
     page = new_scout.get(f"/badges/{badge['id']}").get_data(as_text=True)
     assert 'data-quest-intro' in page and 'data-quest-page' in page
@@ -365,14 +365,14 @@ def test_a_cave_cleared_scout_lands_on_the_same_page(app, store):
     # a started scout opens on the escape route, not the story (2026-10-18)
     assert "你被困住了" not in page and '"story-hero"' not in page
     assert "你的逃生路線" in page and page.count('<li class="stage-chip') == 5
-    assert "1 / 5 個遊戲已完成" in page
+    assert "2 / 5 個遊戲已完成" in page
     first = page[page.index('class="stage-chip stage-chip-first'):]
     first = first[:first.index('</li>')]
     assert 'is-done' in first and '童軍歷史山洞' in first and '✔ 已完成' in first
     second = page[page.index('data-stage="2"'):]
     second = second[:second.index('</li>')]
     assert 'aria-current="step"' in second and '迷霧渡口' in second
-    assert "1 / 5 個遊戲已完成" in page
+    assert "2 / 5 個遊戲已完成" in page
     third = page[page.index('data-stage="3"'):]
     third = third[:third.index('</li>')]
     assert '步操訓練場' in third and '等你開始' in third   # game 3 is built and waiting
@@ -380,14 +380,15 @@ def test_a_cave_cleared_scout_lands_on_the_same_page(app, store):
 
 
 def test_the_badge_is_five_games_one_per_area(scout_client, store):
-    """Five markers, each showing its game in place; two are built so far."""
+    """Five markers, each showing its game in place; all five are built."""
     badge = member_badge(store)
     page = scout_client.get(f"/badges/{badge['id']}").get_data(as_text=True)
     assert page.count('<li class="stage-chip') == 5
     assert page.count('class="stage-chip-game"') == 5
     assert all(f"🎮 遊戲 {n}" in page for n in range(1, 6))
     assert "五個遊戲全部完成" in page
-    assert page.count('即將推出') == 1          # game 5 waits for the leader
+    assert page.count('即將推出') == 0          # game 5 is built: the patrol cards
+    assert '小隊名冊卡' in page
     assert page.count('data-journey-play') == 1  # …and only the next one is offered
     assert 'stage-picker' not in page and 'stage-panel' not in page
     assert '個遊戲已完成' in page
@@ -413,8 +414,8 @@ def test_a_cleared_game_says_so(scout_client, store):
     assert scout_client.post(f"/tasks/{paper['id']}/cave-submit", data=answers).get_json()["passed"]
 
     page = scout_client.get(f"/badges/{badge['id']}").get_data(as_text=True)
-    assert "1 / 5 個遊戲已完成" in page
-    assert page.count("即將推出") == 1, "game 5 is still to be made"
+    assert "2 / 5 個遊戲已完成" in page
+    assert page.count("即將推出") == 0, "all five games are built"
     assert page.count('data-journey-play') == 1, "the next game is the only offer on the page"
     bridge = next(t for t in tasks_of(store, badge) if t["code"] == "M05")
     launch = page[page.index('data-journey-play'):]

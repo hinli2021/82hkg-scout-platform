@@ -89,10 +89,25 @@ def test_member_badge_waits_for_five_ready_games(store):
     scout = next(u for u in store.list("users") if u["username"] == "scout07")
     badge = next(b for b in store.list("badges") if b.get("code") == "SC-01")
     result = engine.check_badge_completion(store, user=scout, badge=badge)
-    assert not result["awarded"] and result["reason"] == "games_unavailable"
+    # all five area games exist now — the badge waits on playing them, not
+    # on a game that has not been built
+    assert not result["awarded"] and result["reason"] == "incomplete"
     progress = engine.progress_for(store, scout["id"])["badges"][0]
     assert progress["is_game_badge"] and (progress["progress_done"], progress["progress_total"]) == (0, 5)
     assert len(progress["tasks"]) == 11, "the historical guide is reference, not a second exam"
+
+    # finishing the five games — item 2's patrol cards included — earns it
+    for code in ("M02", "M04", "M05", "M06", "M07"):
+        task = next(t for t in store.list("tasks") if t.get("code") == code)
+        store.insert("progress_records", {
+            "user_id": scout["id"], "badge_id": badge["id"], "task_id": task["id"],
+            "attempt_no": 1, "status": "completed", "score": 100,
+            "submitted_at": "2026-10-16T00:00:00.000Z",
+            "decided_at": "2026-10-16T00:00:00.000Z", "decided_by": "auto",
+            "points_awarded": 0,
+        })
+    result = engine.check_badge_completion(store, user=scout, badge=badge)
+    assert result["awarded"]
 
 
 def test_draft_tasks_do_not_block_an_award(store):

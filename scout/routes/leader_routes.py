@@ -242,7 +242,8 @@ def content():
                                       and _area_game(spec["area"]).get("task_code") == code)]
     names = {1: ("山洞的石室", "the cave"), 2: ("渡口的過橋遊戲", "the crossing game"),
              3: ("山嶺的步操訓練場", "the drill ground"),
-             4: ("溪谷的旗桿", "the flagpole")}
+             4: ("溪谷的旗桿", "the flagpole"),
+             5: ("臨海山崗的小隊名冊卡", "the patrol cards on the bluff")}
     context["areas_unset_names"] = [names.get(n, (str(n), str(n)))[0] for n in context["areas_unset"]]
 
     area_names = {1: ("第 1 區（石室）", "area 1 (the cave)"), 2: ("第 2 區（渡口）", "area 2 (the crossing)"),
@@ -1591,7 +1592,8 @@ def setup_checks(st) -> dict:
 BUILTIN_GAMES = {"M04": {"area": 1, "kind": "cave"},
                  "M05": {"area": 2, "kind": "bridge"},
                  "M06": {"area": 3, "kind": "drill"},
-                 "M07": {"area": 4, "kind": "flag"}}
+                 "M07": {"area": 4, "kind": "flag"},
+                 "M02": {"area": 5, "kind": "patrol"}}
 
 # 舊安裝的第 6 項曾是「簽收任務」（宣誓禮儀與中式隊列）。升級成遊戲 3
 # （步操訓練場）時，只有仍是這段預設文字的說明會被換成新的玩法說明；
@@ -1619,6 +1621,8 @@ def _builtin_specs() -> dict[str, dict]:
                                            for s in (drill_manual().get("sections") or []))
             elif config.get("kind") == "flag":
                 shape, size = "flag", 30
+            elif config.get("kind") == "patrol":
+                shape, size = "patrol", 0                    # 題目來自小隊名冊，沒有固定題庫
             elif config.get("bank") == "member-badge/item4":
                 shape, size = "list", len(item4_questions() or [])   # 洞裡的 50 題
             elif config.get("questions"):
@@ -1641,6 +1645,8 @@ def _empty_builtin_content(code: str, task: dict) -> bool:
         return str(config.get("kind") or "") != "drill"
     if code == "M07":
         return str(config.get("kind") or "") != "flag"
+    if code == "M02":
+        return str(config.get("kind") or "") != "patrol"
     return False
 
 
@@ -1763,6 +1769,19 @@ def repair_games():
         st.update("tasks", m06["id"], patch)
         tasks["M06"] = st.get("tasks", m06["id"]) or {**m06, **patch}
         upgraded.append("M06")
+    m02 = tasks.get("M02")
+    if m02 and str(m02.get("type") or "") != "quiz":
+        # 第 2 項原是簽收任務：升級成遊戲 5（小隊名冊卡）的形狀
+        canonical = next((t for t in SEED_BADGES[0]["tasks"] if t["code"] == "M02"), {})
+        st.update("tasks", m02["id"], {
+            "type": "quiz", "pass_score": canonical.get("pass_score", 80),
+            "title_zh": canonical.get("title_zh", ""), "title_en": canonical.get("title_en", ""),
+            "instruction_zh": canonical.get("instruction_zh", ""),
+            "instruction_en": canonical.get("instruction_en", ""),
+            "config_json": canonical.get("config_json") or {"kind": "patrol"},
+        })
+        tasks["M02"] = st.get("tasks", m02["id"]) or m02
+        upgraded.append("M02")
     for code in sorted(BUILTIN_GAMES):
         task = tasks.get(code)
         if task and _empty_builtin_content(code, task):

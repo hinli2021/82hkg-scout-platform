@@ -31,7 +31,7 @@ def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_sc
         "position": "小隊長",
         "interests": "露營、繩結、音樂",
         "experience": "我參加了童軍兩年，去過一次大露營。",
-        "share": "我喜歡畫畫，也喜歡教新成員綁繩結。",
+        "share": "我喜歡畫畫，也喜歡教新成員綁繩結。", "strength": "畫畫",
     })
     assert reply.status_code == 200
     row = store.get("profiles", new_scout.id)
@@ -56,7 +56,7 @@ def test_a_scout_can_write_any_position_in_their_own_words(store, new_scout):
 
     reply = new_scout.post("/profile", data={
         "position": "營火主持人",
-        "interests": "唱歌", "experience": "參加了童軍兩年。", "share": "喜歡帶大家唱營火歌。",
+        "interests": "唱歌", "experience": "參加了童軍兩年。", "share": "喜歡帶大家唱營火歌。", "strength": "唱歌",
     })
     assert reply.status_code == 200
     assert store.get("profiles", new_scout.id)["position"] == "營火主持人"
@@ -65,7 +65,7 @@ def test_a_scout_can_write_any_position_in_their_own_words(store, new_scout):
     # a position that is far too long is refused, like the other fields
     reply = new_scout.post("/profile", data={
         "position": "職" * 41,
-        "interests": "唱歌", "experience": "參加了童軍兩年。", "share": "喜歡帶大家唱營火歌。",
+        "interests": "唱歌", "experience": "參加了童軍兩年。", "share": "喜歡帶大家唱營火歌。", "strength": "唱歌",
     })
     assert reply.status_code == 400
     assert reply.get_json()["error"] == "profile_long"
@@ -76,7 +76,7 @@ def test_a_position_saved_as_an_old_code_still_reads_as_a_title(store, new_scout
     # profiles saved while the position was picked from a list hold a code
     store.insert("profiles", {
         "user_id": new_scout.id, "position": "pl", "interests": "足球",
-        "experience": "參加了童軍一年。", "share": "喜歡在營地幫忙。",
+        "experience": "參加了童軍一年。", "share": "喜歡在營地幫忙。", "strength": "生火",
         "visible": True, "updated_at": "2026-01-01",
     })
     page = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
@@ -96,7 +96,7 @@ def test_an_unfinished_profile_cannot_be_visited(store, new_scout, scout_client)
     assert "天文" not in locked
 
     new_scout.post("/profile", data={
-        "position": "隊員", "interests": "天文", "experience": "參加了童軍三年。", "share": "想分享星星的故事。",
+        "position": "隊員", "interests": "天文", "experience": "參加了童軍三年。", "share": "想分享星星的故事。", "strength": "觀星",
     })
     open_page = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
     assert "天文" in open_page and "參加了童軍三年" in open_page
@@ -107,7 +107,7 @@ def test_the_patrol_list_groups_scouts_and_marks_who_is_open(store, new_scout, s
     other = find(store, "scout04")
     store.insert("profiles", {
         "user_id": other["id"], "position": "pl", "interests": "足球", "experience": "參加了童軍一年。",
-        "share": "喜歡在營地幫忙煮食。", "visible": True, "updated_at": "2026-01-01",
+        "share": "喜歡在營地幫忙煮食。", "strength": "煮食", "visible": True, "updated_at": "2026-01-01",
     })
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "各小隊成員" in page
@@ -136,14 +136,14 @@ def test_the_pop_up_blocks_a_scout_until_the_profile_is_complete(store, new_scou
     assert store.get("profiles", new_scout.id) is None
 
     new_scout.post("/profile", data={
-        "position": "副小隊長", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。",
+        "position": "副小隊長", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。", "strength": "繩結",
     })
     assert "data-profile-setup" not in new_scout.get("/home").get_data(as_text=True)
 
 
 def test_saving_from_the_pop_up_returns_to_the_page_in_use(store, new_scout):
     response = new_scout.client.post("/profile", data={
-        "position": "隊員", "interests": "音樂", "experience": "參加了童軍一年。", "share": "想和大家組樂隊。",
+        "position": "隊員", "interests": "音樂", "experience": "參加了童軍一年。", "share": "想和大家組樂隊。", "strength": "唱歌",
         "return_to": "/daily",
     })
     assert response.status_code == 302
@@ -183,7 +183,7 @@ def test_english_profile_carries_no_chinese_headings(store, new_scout):
 def _complete(new_scout):
     new_scout.post("/profile", data={
         "position": "小隊長", "interests": "露營、繩結",
-        "experience": "我參加了童軍兩年。", "share": "我喜歡教新成員綁繩結。",
+        "experience": "我參加了童軍兩年。", "share": "我喜歡教新成員綁繩結。", "strength": "繩結",
     })
 
 
@@ -339,6 +339,6 @@ def test_the_embedded_generator_uses_the_proxy_not_a_pasted_key(new_scout):
 def test_the_profiles_tab_exists_in_the_schema():
     from scout.schema import COLLECTIONS, key_field
     assert COLLECTIONS["profiles"]["fields"] == [
-        "user_id", "position", "interests", "experience", "share", "visible", "updated_at",
+        "user_id", "position", "interests", "experience", "share", "strength", "visible", "updated_at",
         "card_image_url", "card_image_id", "card_generated_at"]
     assert key_field("profiles") == "user_id"

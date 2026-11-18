@@ -111,6 +111,7 @@
           <div class="char-row"><span class="char-row-k">{{ L('興趣', 'Interests') }}</span><span class="char-row-v">{{ profile.interests or L('尚未填寫。', 'Not written yet.') }}</span></div>
           <div class="char-row"><span class="char-row-k">{{ L('童軍經驗', 'Scout experience') }}</span><span class="char-row-v">{{ profile.experience or L('尚未填寫。', 'Not written yet.') }}</span></div>
           <div class="char-row"><span class="char-row-k">{{ L('想和大家分享的事', 'Something to share') }}</span><span class="char-row-v">{{ profile.share or L('尚未填寫。', 'Not written yet.') }}</span></div>
+          <div class="char-row"><span class="char-row-k">{{ L('我的強項', 'My strength') }}</span><span class="char-row-v">{{ profile.strength or L('尚未填寫。', 'Not written yet.') }}</span></div>
         </div>
       </section>
     </div>
@@ -150,6 +151,10 @@
   <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }}</span>
     <textarea name="share" required maxlength="1000" rows="4"
               placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile.share }}</textarea>
+  </label>
+  <label class="field"><span>{{ L('我的強項', 'My strength') }}</span>
+    <input type="text" name="strength" required maxlength="120" value="{{ profile.strength }}"
+           placeholder="{{ L('例如：繩結、急救、唱歌、畫畫', 'e.g. Knots, first aid, singing, drawing') }}">
   </label>
   <p class="muted small">{{ L('請不要填寫電話號碼、住址或學校名稱。', 'Please do not write a phone number, home address or school name.') }}</p>
   <p class="chip brass">🌐 {{ L('個人檔案會公開給其他童軍看', 'Your profile will be shown to other scouts') }}</p>

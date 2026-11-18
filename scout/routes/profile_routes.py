@@ -57,6 +57,7 @@ def load_profile(st, user_id: str) -> dict:
         "interests": str(row.get("interests") or ""),
         "experience": str(row.get("experience") or ""),
         "share": str(row.get("share") or ""),
+        "strength": str(row.get("strength") or ""),
         "visible": to_bool(row.get("visible")),
         "updated_at": row.get("updated_at") or "",
         "card_image_url": str(row.get("card_image_url") or ""),
@@ -72,6 +73,7 @@ def profile_complete(profile: dict) -> bool:
         and str(profile.get("interests") or "").strip()
         and str(profile.get("experience") or "").strip()
         and str(profile.get("share") or "").strip()
+        and str(profile.get("strength") or "").strip()
         and to_bool(profile.get("visible"))
     )
 
@@ -146,6 +148,7 @@ def save():
         "interests": str(body.get("interests") or "").strip(),
         "experience": str(body.get("experience") or "").strip(),
         "share": str(body.get("share") or "").strip(),
+        "strength": str(body.get("strength") or "").strip(),
         # Profiles are public by rule, not by choice: completing the form is
         # also the scout's agreement to let the rest of the troop read it.
         "visible": True,
@@ -153,10 +156,12 @@ def save():
     if not values["position"]:
         return fail(400, "profile_position", "請填寫你的職位。",
                     "Please write your position.")
-    if not values["interests"] or not values["experience"] or not values["share"]:
+    if not values["interests"] or not values["experience"] or not values["share"] \
+            or not values["strength"]:
         return fail(400, "profile_empty", "請填寫全部資料，才可以繼續。",
                     "Please fill in everything before you continue.")
     if len(values["position"]) > POSITION_MAX or len(values["interests"]) > INTERESTS_MAX \
+            or len(values["strength"]) > INTERESTS_MAX \
             or len(values["experience"]) > TEXT_MAX or len(values["share"]) > TEXT_MAX:
         return fail(400, "profile_long", "內容太長，請寫短一點。",
                     "That is too long — please keep it shorter.")

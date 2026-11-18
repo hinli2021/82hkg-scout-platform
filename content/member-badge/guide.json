@@ -37,9 +37,9 @@
     "Know the patrol jobs",
     "Know your patrol's phone numbers (leader / contact)"
    ],
-   "method": "leader",
-   "method_note_zh": "領袖考核",
-   "method_note_en": "Checked by a leader",
+   "method": "self",
+   "method_note_zh": "由小隊名冊卡遊戲自行考核：翻卡學成員，再玩配對遊戲，答中八成即完成。",
+   "method_note_en": "Self-checked by the patrol card game: learn the members from the cards, then score 80% in the matching game.",
    "links": [],
    "stage_zh": "小隊集結",
    "stage_en": "Join your patrol",
@@ -452,13 +452,13 @@
     ],
     "game": {
      "n": 5,
-     "kind": "",
-     "ready": false,
-     "name_zh": "即將推出",
-     "name_en": "Coming soon",
-     "blurb_zh": "這一區的遊戲正在製作，等待領袖加入。",
-     "blurb_en": "This area’s game is being built. Your leader will add it later.",
-     "task_code": ""
+     "kind": "patrol",
+     "ready": true,
+     "task_code": "M02",
+     "name_zh": "小隊名冊卡",
+     "name_en": "Patrol cards",
+     "blurb_zh": "山崗上全隊集合。先翻開小隊成員卡，記下每位成員的姓名、職位、興趣和強項，也要知道誰是小隊的聯絡和怎樣聯絡他。之後玩配對遊戲，答中八成即完成第 2 項。",
+     "blurb_en": "The patrol gathers on the bluff. Flip through the member cards and learn everyone's name, position, interests and strengths — and who the patrol contact is and how to reach them. Then play the matching game; scoring 80% completes item 2."
     }
    }
   ],

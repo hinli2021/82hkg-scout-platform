@@ -125,7 +125,7 @@ COLLECTIONS: dict[str, dict] = {
     # `visible` is set when all three fields are complete: profiles are public.
     "profiles": {
         "label": "Profiles",
-        "fields": ["user_id", "position", "interests", "experience", "share", "visible", "updated_at",
+        "fields": ["user_id", "position", "interests", "experience", "share", "strength", "visible", "updated_at",
                    "card_image_url", "card_image_id", "card_generated_at"],
     },
     # One row per scout. A new tab only — existing Sheet columns are untouched.
@@ -284,11 +284,11 @@ SEED_BADGES = [
             },
             {
                 "code": "M02",
-                "title_zh": "第 2 項：加入小隊，認識隊中成員",
-                "title_en": "Item 2 — join a patrol and know its members",
-                "instruction_zh": "加入一小隊，並從小隊活動中認識隊中其他成員。考核時說出：小隊成員、小隊職位、小隊成員電話號碼（隊長／聯絡）。",
-                "instruction_en": "Join a patrol and get to know the other members through patrol activities. Show your leader that you know: the members, the patrol jobs, and the patrol phone numbers (leader / contact).",
-                "type": "signoff", "points": 10, "config_json": {},
+                "title_zh": "第 2 項：小隊名冊卡（遊戲 5）",
+                "title_en": "Item 2 — patrol card game (Game 5)",
+                "instruction_zh": "加入一小隊，並從小隊活動中認識隊中其他成員。第五個區域的遊戲：先翻開小隊成員卡，記下每位成員的姓名、職位、興趣和強項，也要知道誰是小隊的聯絡和怎樣用電郵聯絡他。之後玩配對遊戲，答中八成即完成第 2 項。成員資料來自大家的個人檔案，小隊有新成員加入時，遊戲會自動更新。",
+                "instruction_en": "Join a patrol and get to know the other members through patrol activities. The fifth area's game: flip through your patrol's member cards and learn everyone's name, position, interests and strengths — and who the patrol contact is and how to reach them by email. Then play the matching game; scoring 80% completes item 2. The cards come from everyone's profiles, so the game updates itself when a new member joins the patrol.",
+                "type": "quiz", "points": 10, "pass_score": 80, "config_json": {"kind": "patrol"},
             },
             {
                 "code": "M03",

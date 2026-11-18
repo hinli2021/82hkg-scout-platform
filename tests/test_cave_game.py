@@ -28,7 +28,7 @@ def member_badge(store) -> dict:
 def paper_task(store) -> dict:
     badge = member_badge(store)
     return next(t for t in store.list("tasks")
-                if t["badge_id"] == badge["id"] and t["type"] == "quiz")
+                if t["badge_id"] == badge["id"] and t.get("code") == "M04")
 
 
 def bank() -> dict:

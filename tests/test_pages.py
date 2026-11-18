@@ -658,7 +658,8 @@ def test_switching_one_extra_on_brings_its_page_and_link_back(app, store):
 def test_cave_record_is_game_progress_not_a_second_paper(app, store):
     """A seed completion is shown on the island map; old paper URLs redirect."""
     record = next(r for r in store.list('progress_records')
-                  if r['status'] == 'completed' and r['answers_json'])
+                  if r['status'] == 'completed' and r['answers_json']
+                  and (store.get('tasks', r['task_id']) or {}).get('code') == 'M04')
     scout = next(u for u in store.list('users') if u['id'] == record['user_id'])
     client = app.test_client()
     client.post(f"/login/scout/{scout['patrol']}/{scout['id']}", data={'password': 'scout1234'})
@@ -668,7 +669,8 @@ def test_cave_record_is_game_progress_not_a_second_paper(app, store):
     page = client.get(redirect.headers['Location']).get_data(as_text=True)
     assert 'data-cave' in page and 'data-task-submit' not in page
     badge = next(b for b in engine.progress_for(store, scout['id'])['badges'] if b['code'] == 'SC-01')
-    assert (badge['progress_done'], badge['progress_total']) == (1, 5)
+    # the cave counts once; the seed scout's item 2 counts as the fifth game
+    assert (badge['progress_done'], badge['progress_total']) == (2, 5)
 
 
 def test_task_page_replays_a_leader_verified_items_note(app, store):

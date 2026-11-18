@@ -311,4 +311,6 @@ def test_the_map_offers_the_flagpole(scout_client, store):
     badge = next(b for b in store.list("badges") if b.get("code") == "SC-01")
     page = scout_client.get(f"/badges/{badge['id']}").get_data(as_text=True)
     assert "溪谷旗桿" in page
-    assert page.count("即將推出") == 1
+    # every area has its game now — none is left "coming soon"
+    assert page.count("即將推出") == 0
+    assert "小隊名冊卡" in page

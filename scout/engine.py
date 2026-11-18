@@ -668,7 +668,7 @@ def leaderboard_sections(store, *, scope: str = "unit", patrol: str = "",
         when = record.get("decided_at") or record.get("submitted_at") or ""
         if period != "all" and not in_range(when):
             continue
-        metric = "percent" if column_by_task[task_id].get("kind") == "cave" else "time"
+        metric = "percent" if column_by_task[task_id].get("kind") in ("cave", "patrol") else "time"
         holder = best[task_id].setdefault(
             record["user_id"], {"percent": None, "ms": None, "done": False})
         if record.get("status") == "completed":
@@ -685,7 +685,7 @@ def leaderboard_sections(store, *, scope: str = "unit", patrol: str = "",
     bases: dict[str, dict] = {}
     game_boards: list[dict] = []
     for column in columns:
-        metric = "percent" if column.get("kind") == "cave" else "time"
+        metric = "percent" if column.get("kind") in ("cave", "patrol") else "time"
         rows: list[dict] = []
         for user in users:
             holder = best[column["task_id"]].get(user["id"])

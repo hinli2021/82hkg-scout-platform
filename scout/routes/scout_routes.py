@@ -128,7 +128,7 @@ def _game_kind_for(task: dict, badge: dict | None) -> str:
         if game.get("task_code") != task.get("code") or not game.get("ready"):
             continue
         area_kind = (game.get("kind") or "").strip()
-        if area_kind in ("cave", "bridge", "drill", "flag") and (not kind or kind == area_kind):
+        if area_kind in ("cave", "bridge", "drill", "flag", "patrol") and (not kind or kind == area_kind):
             return area_kind
     return ""
 
@@ -159,6 +159,15 @@ def _is_badge_flag_task(task: dict, badge: dict | None) -> bool:
     if not ceremony().get("stations"):
         return False
     return _game_kind_for(task, badge) == "flag"
+
+
+def _is_badge_patrol_task(task: dict, badge: dict | None) -> bool:
+    """The patrol cards on the bluff are the only way to complete item 2.
+
+    Unlike the other games there is no content file to check: the cards are
+    the patrol itself, read live from accounts and profiles.
+    """
+    return _game_kind_for(task, badge) == "patrol"
 
 
 @scout_routes.get("/badges")
@@ -311,6 +320,8 @@ def _game_url(task: dict, kind: str) -> str:
         return url_for("scout_routes.task_drill", task_id=task["id"])
     if kind == "flag":
         return url_for("scout_routes.task_flag", task_id=task["id"])
+    if kind == "patrol":
+        return url_for("scout_routes.task_patrol", task_id=task["id"])
     return url_for("scout_routes.task_player", task_id=task["id"])
 
 
@@ -396,6 +407,7 @@ def _task_context(user: dict, task_id: str) -> dict | None:
         "bridge_ready": _is_badge_bridge_task(task, badge),
         "drill_ready": _is_badge_drill_task(task, badge),
         "flag_ready": _is_badge_flag_task(task, badge),
+        "patrol_ready": _is_badge_patrol_task(task, badge),
         "badge": badge,
         "progress": progress,
         "stats": progress["stats"],
@@ -420,6 +432,8 @@ def task_player(task_id: str):
         return redirect(url_for("scout_routes.task_drill", task_id=task_id))
     if context["flag_ready"]:
         return redirect(url_for("scout_routes.task_flag", task_id=task_id))
+    if context["patrol_ready"]:
+        return redirect(url_for("scout_routes.task_patrol", task_id=task_id))
     return render_template("scout/task.html", **context)
 
 
@@ -1054,6 +1068,138 @@ def flag_submit(task_id: str):
               message_en="The flag is at the top. Items 7 to 10 are done.")
 
 
+def _patrol_signer() -> URLSafeTimedSerializer:
+    """Sign one patrol game's answer key so the roster can change freely."""
+    return URLSafeTimedSerializer(current_app.secret_key, salt="patrol-run-v1")
+
+
+@scout_routes.get("/tasks/<task_id>/patrol")
+@scout_required
+def task_patrol(task_id: str):
+    """第 2 項的小隊名冊卡 — the badge's fifth game, on the seaward bluff.
+
+    The cards are the scout's own patrol, read live from accounts and
+    profiles: a member who joins appears at once, and the member whose
+    profile is unfinished still shows — only their name and job are tested.
+    The scout first flips through every card, then plays the matching game;
+    80% completes item 2. The answer key is signed into the run token, so
+    the browser only ever sees the questions.
+    """
+    from ..patrol_game import build_questions, patrol_members
+
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["patrol_ready"] or task.get("status") != "published":
+        abort(404)
+    if context["badge"].get("locked"):
+        abort(403)
+
+    members = patrol_members(st, g.user)
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    cleared_now = any(r.get("status") == "completed" for r in mine)
+    onward = _journey_next(g.user, task)
+
+    playable = len(members) >= 2
+    questions: list = []
+    run_key = ""
+    if playable:
+        import time as _time
+
+        questions, key = build_questions(members, g.user["id"], seed=int(_time.time()) % 100000)
+        run_key = _patrol_signer().dumps({"task": task_id, "scout": g.user["id"], "key": key})
+
+    scenes = {
+        "task_id": task_id,
+        "patrol_zh": patrol_label(g.user.get("patrol") or ""),
+        "patrol_en": patrol_label(g.user.get("patrol") or ""),
+        "members": members,
+        "questions": questions,
+        "run_key": run_key,
+        "playable": playable,
+        "pass_score": as_int(task.get("pass_score")) or 80,
+        "submit_url": url_for("scout_routes.patrol_submit", task_id=task_id),
+        "badge_url": url_for("scout_routes.badge_detail", badge_id=task["badge_id"]),
+        "cleared_now": cleared_now,
+        "next_game": ({"name_zh": onward["name_zh"], "name_en": onward["name_en"],
+                       "url": _game_url(onward["task"], onward["kind"])}
+                      if onward else None),
+    }
+    return render_template(
+        "scout/patrol.html",
+        task=context["task"], badge=context["badge"],
+        scene_json=json.dumps(scenes, ensure_ascii=False),
+        badge_url=scenes["badge_url"],
+        cleared_now=cleared_now,
+    )
+
+
+@scout_routes.post("/tasks/<task_id>/patrol-submit")
+@scout_required
+def patrol_submit(task_id: str):
+    """Grade the matching game again on the server, then file item 2.
+
+    The browser's score is never trusted: the signed run token carries the
+    key, and 80% of the questions must be right. A miss is not a lock-out —
+    the scout reads the cards again and replays with fresh questions.
+    """
+    from ..patrol_game import grade
+
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["patrol_ready"] or task.get("status") != "published":
+        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
+    if context["badge"].get("locked"):
+        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
+
+    try:
+        run = _patrol_signer().loads(request.form.get("run_key") or "", max_age=7200)
+    except BadSignature:
+        return fail(400, "patrol_expired", "這一局已過期。請重新開始遊戲。",
+                    "This game has expired. Please start the game again.")
+    if run.get("task") != task_id or run.get("scout") != g.user["id"]:
+        return fail(400, "patrol_expired", "這一局已過期。請重新開始遊戲。",
+                    "This game has expired. Please start the game again.")
+    key = run.get("key") or {}
+    given = {qid: request.form.get(qid) or "" for qid in key}
+    correct, total = grade(key, given)
+    pass_score = as_int(task.get("pass_score")) or 80
+    percent = (correct * 100 // total) if total else 0
+    passed = total > 0 and percent >= pass_score
+
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    already = any(r.get("status") == "completed" for r in mine)
+
+    if not passed and not already:
+        return fail(400, "patrol_short",
+                    f"你答中了 {correct}／{total} 題，要答中八成（{pass_score}%）才完成。再看一次成員卡，然後重玩。",
+                    f"You scored {correct} of {total}. You need {pass_score}% to finish. Read the member cards again, then play again.",
+                    detail={"score": correct, "of": total, "percent": percent})
+    if not already:
+        record = st.insert("progress_records", {
+            "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
+            "attempt_no": len(mine) + 1, "status": "completed", "score": percent,
+            "leader_comment": "",
+            "answers_json": json.dumps(
+                {**given, "_ms": _elapsed_ms(request.form.get("elapsed_ms"))},
+                ensure_ascii=False),
+            "checklist_json": None, "evidence_url": "", "reflection_text": "",
+            "points_awarded": 0, "submitted_at": now_iso(),
+            "decided_at": "", "decided_by": "",
+        })
+        award_task_completion(st, user=g.user, task=task, badge=context["badge"],
+                              record=record, awarded_by="auto")
+        audit(g.user, "patrol_submit", "tasks", task_id,
+              {"score": correct, "of": total, "percent": percent})
+    return ok(passed=True, status="completed", already_done=already,
+              detail={"score": correct, "of": total, "percent": percent},
+              message_zh="全隊到齊。第 2 項完成。",
+              message_en="The whole patrol is here. Item 2 is done.")
+
+
 @scout_routes.post("/tasks/<task_id>/submit")
 @scout_required
 def submit(task_id: str):
@@ -1094,6 +1240,10 @@ def submit(task_id: str):
         return fail(403, "play_the_flag",
                     "第 7 至 10 項請在溪谷旗桿完成：先讀筆記，再自己做升旗禮，做完即完成。",
                     "Finish items 7 to 10 at the valley flagpole: read the notebook, then perform the ceremony. Finishing it clears them.")
+    if _is_badge_patrol_task(task, badge):
+        return fail(403, "play_the_patrol",
+                    "第 2 項請在第五個區域完成小隊名冊卡：先翻開成員卡，再玩配對遊戲，答中八成即完成。",
+                    "Finish item 2 with the patrol cards in area five: flip through the member cards, then score 80% in the matching game.")
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == user["id"] and r.get("task_id") == task_id]
