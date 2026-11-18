@@ -578,9 +578,7 @@
   /* ── start, ending, submit ─────────────────────────────────────────── */
 
   function start() {
-    /* the walk has begun: the words come off the painting and the card
-       below the picture takes over from here; the pole is bare again */
-    root.classList.remove("is-start-screen");
+    /* the walk has begun; the pole is bare again */
     root.classList.remove("is-ending");
     swapSceneArt(startArtUrl);
     startedAt = Date.now();

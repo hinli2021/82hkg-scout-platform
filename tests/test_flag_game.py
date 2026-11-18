@@ -54,17 +54,17 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     assert page.count("data-flag") >= 1
     assert "flag.js" in page
     assert "morning ceremony" in page
-    # before the walk starts, the words are merged into the valley painting
-    # itself — there is no description card below the picture until the
-    # walk begins and flag.js drops the start-screen class
-    assert "is-start-screen" in page and "flag-start-overlay" in page
+    # the page wears the same format as the other games: the painting on
+    # top, the dark glass card of words below it from the very start —
+    # no start overlay merged into the picture
+    assert 'class="cave flag"' in page and "is-start-screen" not in page
+    assert "flag-start-overlay" not in page and "cave-card" in page
+    assert "data-flag-more" in page
     js_text = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
                / "flag.js").read_text(encoding="utf-8")
-    assert 'root.classList.remove("is-start-screen")' in js_text
     css_text = (pathlib.Path(__file__).resolve().parent.parent / "static"
                 / "styles.css").read_text(encoding="utf-8")
-    assert "#flag-root.is-start-screen .flag-start-overlay" in css_text
-    assert "#flag-root.is-start-screen .cave-card-wrap" in css_text
+    assert "is-start-screen" not in css_text and "flag-start-overlay" not in css_text
     # the flag is not raised yet on that first painting: the pole stands
     # bare, with no red flag at its top (scaled to the painting's size)
     from PIL import Image
@@ -185,10 +185,8 @@ def test_pipes_are_dragged_not_clicked_lyrics_stay_in_order_and_no_all_of_these(
     assert 'root.classList.add("is-howto-open")' in js
     assert 'root.classList.remove("is-howto-open")' in js
     assert "#flag-root.is-howto-open .cave-card-wrap" in css
-    # phones get room to work: the start painting is tall enough for the
-    # words merged into it, and the fitting and how-to pop-ups cover the
+    # phones get room to work: the fitting and how-to pop-ups cover the
     # screen, with the socket pinned on screen while the tray scrolls
-    assert "#flag-root.is-start-screen .cave-picture" in css
     assert "position: fixed; inset: 4.4rem .55rem .55rem" in css
     assert ".pipe-fit { min-height: 5.4rem; position: sticky; top: 0" in css
     # phone holes are enlarged instead of shrunk onto the small screen:

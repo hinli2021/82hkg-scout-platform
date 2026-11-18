@@ -105,6 +105,15 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert 'class="is-game"' in page and 'class="cave patrol"' in page
     assert "img/quest/patrol/bluff.jpg" in page and "cave-hud" in page
     assert "cave-card" in page and "patrol.css" not in page
+    assert "data-pat-more" in page          # the same shell pieces as games 1–4
+    # phones and tablets: the flip card, board and raft shrink to fit,
+    # with finger-sized tap targets
+    import pathlib
+    css = (pathlib.Path(__file__).resolve().parent.parent / "static"
+           / "styles.css").read_text(encoding="utf-8")
+    assert "@media (max-width: 700px)" in css and ".pat-card" in css
+    assert "@media (min-width: 701px) and (max-width: 1100px)" in css
+    assert "min-height: 44px" in css
     members = {m["id"]: m for m in scene["members"]}
     # every Otter scout is on a card: the seeded pair, the new members, and
     # the member with no profile at all
