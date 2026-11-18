@@ -579,6 +579,7 @@
 
   function start() {
     /* the walk has begun; the pole is bare again */
+    var replay = !!(config.cleared_now || filed);
     root.classList.remove("is-ending");
     swapSceneArt(startArtUrl);
     startedAt = Date.now();
@@ -589,6 +590,10 @@
     howtoShown = false;
     filed = false;
     setProgress(t("溪谷旗桿", "The valley flagpole"));
+    /* a replay goes straight to the first pipe run: the scout has walked
+       down to the stream before, so the first-arrival description would
+       only describe a journey they are not making again */
+    if (replay) { showStageNotes(); return; }
     showStory(intro, 0, t("遊戲 4", "Game 4"), function () { showStageNotes(); });
   }
 
@@ -794,8 +799,8 @@
       }).catch(function () { filed = false; });
   }
 
-  /* the start button exists twice before the walk — on the painting and
-     in the (hidden) card below — so bind them all */
+  /* the start button sits in the card below the painting (and again on
+     the cleared card), so bind them all */
   root.querySelectorAll("[data-flag-go]").forEach(function (go) {
     go.addEventListener("click", start);
   });

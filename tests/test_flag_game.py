@@ -54,6 +54,12 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     assert page.count("data-flag") >= 1
     assert "flag.js" in page
     assert "morning ceremony" in page
+    # a replay goes straight to the first pipe run: the first-arrival
+    # description is for the first walk down, not for walking it again
+    js_text_full = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
+                    / "flag.js").read_text(encoding="utf-8")
+    assert "config.cleared_now" in js_text_full
+    assert "if (replay) { showStageNotes(); return; }" in js_text_full
     # the page wears the same format as the other games: the painting on
     # top, the dark glass card of words below it from the very start —
     # no start overlay merged into the picture
