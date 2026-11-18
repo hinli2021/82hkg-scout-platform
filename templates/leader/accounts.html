@@ -200,6 +200,21 @@
       <p class="small muted">{{ L('卡包會即時出現在童軍的抽卡頁，派發紀錄會寫入審計紀錄。', 'The pack appears on the scout’s cards page at once, and the grant is written to the audit log.') }}</p>
       <div class="form-actions"><button class="btn" type="submit">{{ L('派發', 'Give') }}</button><span data-inline-note></span></div>
     </form>
+
+    <div class="section-title"><h2>🎖️ {{ L('小隊職位', 'Patrol positions') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('leader_routes.set_positions') }}">
+      <p class="small muted">
+        {{ L('職位會顯示在童軍的個人檔案，也會用在遊戲 5「小隊名冊卡」。每隊只須一位成員的職位寫有「聯絡」，遊戲便會問誰是小隊的聯絡。在這裡填好後按一次儲存即可；童軍之後仍可在自己的個人檔案更改職位。',
+             'Positions show on each scout’s profile and are used by Game 5, “Patrol cards”. One member per patrol should carry the patrol-contact position; the game will ask who they are. Fill in the jobs and save once — scouts can still edit their own position later on their profile page.') }}
+      </p>
+      {% for scout in scouts %}
+        <label class="field"><span>{{ name_of(scout) }} · {{ patrol_name(scout.patrol) }}</span>
+          <input type="text" name="position_{{ scout.id }}" maxlength="40" value="{{ scout.position_text }}"
+                 placeholder="{{ L('例如：小隊長、聯絡、康樂', 'e.g. Patrol Leader, Contact, Activities') }}">
+        </label>
+      {% endfor %}
+      <div class="form-actions"><button class="btn primary" type="submit">{{ L('儲存職位', 'Save positions') }}</button></div>
+    </form>
   </div>
 </div>
 {% endblock %}

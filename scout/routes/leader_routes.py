@@ -1075,6 +1075,8 @@ def review_action(record_id: str):
 @leader_routes.get("/leader/accounts")
 @leader_required
 def accounts():
+    from .profile_routes import load_profile
+
     st = store()
     settings = st.settings_cached()
     patrol_filter = request.args.get("patrol", "")
@@ -1088,7 +1090,8 @@ def accounts():
         if search and search not in f"{user.get('display_name_zh','')} {user.get('display_name_en','')} {user.get('username','')}".lower():
             continue
         stats = st.stats_for(user["id"])
-        rows.append({**public_user(user), "stats": stats})
+        rows.append({**public_user(user), "stats": stats,
+                     "position_text": load_profile(st, user["id"])["position_edit"]})
     rows.sort(key=lambda r: (str(r.get("patrol") or ""), str(r.get("display_name_zh") or "")))
     resets = [r for r in st.list("password_reset_requests") if r.get("status") == "pending"]
     return render_template("leader/accounts.html", scouts=rows, patrols=settings.get("patrols") or [],
@@ -1428,6 +1431,46 @@ PACK_KIND_NAMES = {
     "gold": ("金卡包", "gold pack"),
     "legendary": ("傳說卡包", "legendary pack"),
 }
+
+
+@leader_routes.post("/leader/accounts/positions")
+@leader_required
+def set_positions():
+    """Leaders record the job each scout holds in their patrol.
+
+    The position lives on the scout's profile: it shows on their card and
+    drives Game 5 （小隊名冊卡）, where the member whose position names them
+    the patrol contact is asked about by name. Scouts can still rewrite
+    their own position on their profile page afterwards; this form is for
+    recording the patrol's decisions in one go. Only the position changes —
+    the rest of any profile is left exactly as it was.
+    """
+    st = store()
+    form = request.form if request.form else {}
+    changed = []
+    for user in st.list("users"):
+        if user.get("role") != "scout":
+            continue
+        field = f"position_{user['id']}"
+        if field not in form:
+            continue
+        value = (form.get(field) or "").strip()[:40]
+        row = st.get("profiles", user["id"])
+        if row:
+            if str(row.get("position") or "") == value:
+                continue
+            st.update("profiles", user["id"],
+                      {"position": value, "updated_at": now_iso()})
+        elif value:
+            st.insert("profiles", {"user_id": user["id"], "position": value,
+                                   "updated_at": now_iso()})
+        else:
+            continue
+        changed.append({"user_id": user["id"], "position": value})
+    if changed:
+        audit(g.user, "set_positions", "profiles", "", {"changed": changed})
+    return _done(f"已儲存 {len(changed)} 個職位", f"Saved {len(changed)} positions",
+                 "leader_routes.accounts")
 
 
 @leader_routes.post("/leader/accounts/grant-pack")

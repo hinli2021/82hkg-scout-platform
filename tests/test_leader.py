@@ -294,6 +294,63 @@ def test_giving_a_pack_validates_the_scout_and_the_kind(leader_client, store):
     assert missing.status_code == 404
 
 
+def test_a_leader_records_patrol_positions_in_one_save(leader_client, store):
+    """The patrol's jobs go on the profiles in one save — game 5 reads them.
+
+    Only the position is written: a profile the scout already filled in
+    keeps every other word, and a scout with no profile yet simply gains
+    the first line of one.
+    """
+    from scout.patrol_game import patrol_members
+
+    seagull = {u["username"]: u for u in store.list("users")
+               if u.get("patrol") == "Seagull" and u.get("role") == "scout"}
+    s05, s06, s07 = seagull["scout05"], seagull["scout06"], seagull["scout07"]
+    store.insert("profiles", {
+        "user_id": s06["id"], "position": "隊員", "interests": "音樂",
+        "experience": "參加了童軍一年。", "share": "喜歡唱歌。", "strength": "唱歌",
+        "visible": True, "updated_at": "2026-01-01",
+    })
+    page = leader_client.get("/leader/accounts").get_data(as_text=True)
+    assert "小隊職位" in page and f'name="position_{s05["id"]}"' in page
+
+    answer = leader_client.post("/leader/accounts/positions", data={
+        f"position_{s05['id']}": "小隊聯絡",
+        f"position_{s06['id']}": "康樂",
+        f"position_{s07['id']}": "",
+    })
+    assert answer.status_code in (200, 302)
+    contact = store.get("profiles", s05["id"])
+    assert contact["position"] == "小隊聯絡"          # a profile row is created
+    fun = store.get("profiles", s06["id"])
+    assert fun["position"] == "康樂"                  # the job is replaced…
+    assert fun["interests"] == "音樂" and fun["strength"] == "唱歌"  # …nothing else moves
+    assert store.get("profiles", s07["id"]) is None   # blank stays unwritten
+
+    import json
+    rows = [r for r in store.list("audit_log") if r.get("action") == "set_positions"]
+    assert len(rows) == 1 and len(json.loads(rows[0]["detail_json"])["changed"]) == 2
+
+    # and game 5 now finds the patrol's contact
+    members = patrol_members(store, s07)
+    contact_member = next(m for m in members if m["is_contact"])
+    assert contact_member["id"] == s05["id"]
+
+    # saving the same words again changes nothing and writes no audit row
+    leader_client.post("/leader/accounts/positions", data={
+        f"position_{s05['id']}": "小隊聯絡", f"position_{s06['id']}": "康樂"})
+    rows = [r for r in store.list("audit_log") if r.get("action") == "set_positions"]
+    assert len(rows) == 1
+
+
+def test_a_scout_cannot_set_positions(scout_client, store):
+    scout = next(u for u in store.list("users") if u["username"] == "scout06")
+    answer = scout_client.post("/leader/accounts/positions",
+                               data={f"position_{scout['id']}": "小隊長"})
+    assert answer.status_code in (302, 403)
+    assert store.get("profiles", scout["id"]) is None
+
+
 def test_a_scout_cannot_give_packs(scout_client, store):
     scout = next(u for u in store.list("users") if u["username"] == "scout06")
     answer = scout_client.post("/leader/accounts/grant-pack",
