@@ -120,6 +120,47 @@ def test_the_roster_is_the_live_patrol(store, app):
         assert "answer" not in question
 
 
+def test_the_test_account_is_ignored_but_can_play(store, app):
+    """The leaders' test account is not a patrol member: it never appears
+    on a card or in a question — yet the account itself can still play."""
+    from scout.util import hash_password
+
+    viewer, contact, singer, rookie = seed_patrol(store)
+    hashed, salt = hash_password("scout1234")
+    tester = store.insert("users", {
+        "role": "scout", "username": "test", "password_hash": hashed,
+        "password_salt": salt, "display_name_zh": "測試帳戶",
+        "display_name_en": "Test Account", "email": "test@82hkg.example",
+        "scout_no": "", "section": "scout", "patrol": "Otter",
+        "unit": "Sample Scout Group", "avatar": "🧪", "status": "active",
+        "must_change_password": False, "show_on_leaderboard": True,
+        "created_at": "2026-01-01", "created_by": "",
+    })
+    store.insert("profiles", {"user_id": tester["id"], "visible": True,
+                              "updated_at": "2026-01-01",
+                              **full_profile("隊員", "測試", "測試")})
+    task = task_of(store)
+
+    # a real scout never meets the test account in the game
+    client = login(app, viewer)
+    _, scene = scene_of(client, task["id"])
+    assert tester["id"] not in {m["id"] for m in scene["members"]}
+    assert tester["id"] not in key_of(scene).values()
+    for question in scene["questions"]:
+        assert tester["id"] not in [o["value"] for o in question["options"]]
+
+    # …but the test account itself signs in and plays the real patrol
+    client = login(app, tester)
+    _, scene = scene_of(client, task["id"])
+    ids = {m["id"] for m in scene["members"]}
+    assert tester["id"] not in ids
+    assert {viewer["id"], contact["id"], singer["id"], rookie["id"]} <= ids
+    reply = client.post(f"/tasks/{task['id']}/patrol-submit",
+                        data={**key_of(scene), "run_key": scene["run_key"],
+                              "elapsed_ms": "60000"}, headers=HEADERS)
+    assert reply.get_json()["passed"] is True
+
+
 def test_scoring_eighty_percent_completes_item_two(store, app):
     viewer, contact, singer, rookie = seed_patrol(store)
     task = task_of(store)

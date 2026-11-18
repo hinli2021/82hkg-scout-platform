@@ -5,7 +5,10 @@ separate list that can go stale:
 
   • members      — scout accounts in the same patrol (leaders create the
                    account when a scout joins, so a new member appears in
-                   the game automatically, and a member who leaves is gone)
+                   the game automatically, and a member who leaves is gone).
+                   The leaders' test account (username `test`) is not a
+                   member: it is left out of every roster and question,
+                   though the account itself can still play the game.
   • 職位／興趣／強項 — each member's own profile (`profiles`), which the
                    member keeps up to date on 我的個人檔案
   • 聯絡          — the member whose 職位 contains 「聯絡」 (one per patrol);
@@ -29,6 +32,18 @@ def _name(user: dict, lang: str) -> str:
     return str(user.get("display_name_zh") or user.get("display_name_en") or user.get("username") or "")
 
 
+TEST_USERNAME = "test"
+
+
+def is_test_account(row: dict) -> bool:
+    """The leaders' test account (username `test`) is not a patrol member.
+
+    It never appears on member cards and is never asked about — but the
+    account itself can still sign in and play, seeing the real patrol.
+    """
+    return str(row.get("username") or "").strip().lower() == TEST_USERNAME
+
+
 def patrol_members(st, user: dict) -> list[dict]:
     """Every active scout in `user`'s patrol, with their profile folded in."""
     from .routes.profile_routes import load_profile, profile_complete
@@ -37,6 +52,8 @@ def patrol_members(st, user: dict) -> list[dict]:
     members: list[dict] = []
     for row in st.list("users"):
         if row.get("role") != "scout" or row.get("status") != "active":
+            continue
+        if is_test_account(row):
             continue
         if str(row.get("patrol") or "").strip().lower() != patrol:
             continue
