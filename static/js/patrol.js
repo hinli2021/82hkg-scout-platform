@@ -19,37 +19,54 @@
   var state = { scene: 0, flipped: new Set(), flippedAll: false };
 
   function progress(step) {
-    return '<span class="pat-dots">' + (step === "cards"
-        ? '<i class="on"></i><i></i>' : '<i></i><i class="on"></i>') + "</span>";
+    var at = step === "cards" ? 0 : step === "stage1" ? 1 : 2;
+    var dots = "";
+    for (var i = 0; i < 3; i++) dots += '<i' + (i === at ? ' class="on"' : "") + "></i>";
+    return '<span class="pat-dots">' + dots + "</span>";
   }
 
   function renderProgress(step) {
     $("[data-pat-progress]").innerHTML = (step === "cards"
-      ? (lang === "en" ? "Step 1 of 2: member cards" : "第 1 步，共 2 步：翻開成員卡")
-      : (lang === "en" ? "Step 2 of 2: seat the raft" : "第 2 步，共 2 步：安排木筏崗位"))
+      ? (lang === "en" ? "Know your patrol" : "認識小隊成員")
+      : step === "stage1"
+        ? (lang === "en" ? "Stage 1: find your patrol" : "第一階段：找出小隊成員")
+        : (lang === "en" ? "Stage 2: seat the raft" : "第二階段：安排木筏崗位"))
       + progress(step);
   }
 
+  function factRow(label, text, fallback) {
+    return "<li><b>" + esc(label) + "</b><span>"
+      + esc(text || fallback) + "</span></li>";
+  }
+
   function cardBack(member) {
-    if (!member.complete) {
-      return '<div class="pat-front-back">'
-        + '<p class="pat-muted">'
-        + esc(lang === "en" ? "This member has not finished their profile yet."
-                            : "這位成員尚未填寫個人檔案。")
-        + "</p></div>";
-    }
-    return '<ul class="pat-facts">'
-      + "<li><b>" + esc(lang === "en" ? "Interests" : "興趣") + "</b><span>" + esc(member.interests) + "</span></li>"
-      + "<li><b>" + esc(lang === "en" ? "Strength" : "強項") + "</b><span>" + esc(member.strength) + "</span></li>"
-      + "<li><b>" + esc(lang === "en" ? "Scout experience" : "童軍經驗") + "</b><span>" + esc(member.experience) + "</span></li>"
-      + "<li><b>" + esc(lang === "en" ? "Something to share" : "想和大家分享的事") + "</b><span>" + esc(member.share) + "</span></li>"
+    var rows = '<ul class="pat-facts">'
+      + factRow(lang === "en" ? "Interests" : "興趣", member.interests,
+                lang === "en" ? "Not written yet" : "尚未填寫")
+      + factRow(lang === "en" ? "Strength" : "強項", member.strength,
+                lang === "en" ? "Not written yet" : "尚未填寫")
+      + factRow(lang === "en" ? "Scout experience" : "童軍經驗", member.experience,
+                lang === "en" ? "Not written yet" : "尚未填寫")
+      + factRow(lang === "en" ? "Something to share" : "想和大家分享的事", member.share,
+                lang === "en" ? "Not written yet" : "尚未填寫")
+      + factRow(lang === "en" ? "Scout number" : "童軍編號", member.scout_no,
+                lang === "en" ? "Not set yet" : "尚未編配")
       + "</ul>";
+    if (!member.complete) {
+      rows += '<p class="pat-muted">'
+        + esc(lang === "en"
+            ? "This member has not finished their profile yet — know them by their name, avatar, scout number and position."
+            : "這位成員尚未填寫全部資料——可以靠姓名、頭像、童軍編號和職位辨認他。")
+        + "</p>";
+    }
+    return rows;
   }
 
   function memberCard(member) {
     var name = lang === "en" ? member.name_en : member.name_zh;
     var position = (lang === "en" ? member.position_en : member.position_zh)
       || (lang === "en" ? "No position yet" : "暫時沒有職位");
+    var patrol = lang === "en" ? data.patrol_en : data.patrol_zh;
     var contact = member.is_contact
       ? '<span class="pat-badge">📨 ' + esc(lang === "en" ? "Patrol contact" : "小隊聯絡") + "</span>" : "";
     var contactHow = "";
@@ -60,12 +77,23 @@
             : "聯絡方法：在集會時親自找他，或請領袖幫忙聯絡。")
         + "</p>";
     }
+    /* the same profile card the member sees on their own page: portrait,
+       the NO. / patrol / position strip, and their own words below. It is
+       drawn from the live profile, so an edit updates it at once. */
+    var portrait = member.card_image_url
+      ? '<img class="pat-pimg" src="' + esc(member.card_image_url) + '" alt="">'
+      : '<span class="pat-portrait"><span class="pat-avatar">'
+        + esc(member.avatar || "🦊") + "</span></span>";
     return '<button type="button" class="pat-card" data-member="' + esc(member.id) + '">'
       + '<span class="pat-card-inner">'
       + '<span class="pat-face pat-front">'
-        + '<span class="pat-avatar">' + esc(member.avatar || "🦊") + "</span>"
-        + '<strong>' + esc(name) + "</strong>"
-        + '<span class="pat-pos">' + esc(position) + "</span>"
+        + '<span class="pat-phead"><strong>' + esc(name) + '</strong>'
+        + '<span class="pat-ppos">' + esc(position) + "</span></span>"
+        + portrait
+        + '<span class="pat-pinfo"><span>NO. ' + esc(member.scout_no || "—") + "</span>"
+        + "<span>" + esc(patrol || "") + "</span><span>" + esc(position) + "</span></span>"
+        + '<span class="pat-pmove"><b>' + esc(lang === "en" ? "Interests" : "興趣") + "</b>"
+        + esc(member.interests || (lang === "en" ? "Not written yet" : "尚未填寫")) + "</span>"
         + contact
         + '<span class="pat-fliphint">' + esc(lang === "en" ? "Tap to flip" : "按一下翻卡") + "</span>"
       + "</span>"
@@ -100,28 +128,92 @@
     $("[data-pat-next]").disabled = state.scene >= members.length - 1;
     var start = $("[data-pat-start]");
     var hint = $("[data-pat-hint]");
-    if (data.playable && state.flipped.size >= members.length) {
-      start.hidden = false;
-      hint.textContent = lang === "en"
-        ? "You have flipped every card. Time to seat the raft."
-        : "所有成員卡都已翻開。可以去安排木筏崗位。";
-    } else if (data.playable) {
-      start.hidden = true;
-      hint.textContent = (lang === "en" ? "Flipped: " : "已翻開：")
-        + state.flipped.size + " / " + members.length;
-    }
     if (!data.playable) {
+      start.disabled = true;
       hint.textContent = lang === "en"
-        ? "Your patrol has very few members, so the raft cannot be seated yet. Ask your leader to add your patrol mates first."
-        : "小隊的成員太少，暫時未能安排木筏崗位。請先向領袖查詢，請領袖把隊員加入平台。";
+        ? "Your patrol has very few members, so the game cannot start yet. Ask your leader to add your patrol mates first."
+        : "小隊的成員太少，暫時未能開始遊戲。請先向領袖查詢，請領袖把隊員加入平台。";
+      return;
+    }
+    if (state.flipped.size >= members.length && members.length) {
+      hint.textContent = lang === "en"
+        ? "You have flipped every card. Stage 1 will be much easier now."
+        : "所有成員卡都已翻開。第一階段會容易得多。";
+    } else {
+      hint.textContent = (lang === "en" ? "Flipped: " : "已翻開：")
+        + state.flipped.size + " / " + members.length
+        + (lang === "en" ? ". Flip every card first and stage 1 will be much easier."
+                          : "。先翻開每一張卡，第一階段會容易得多。");
     }
   }
 
-  function startQuiz() {
+  var picked = {};   // stage 1: scout id -> true
+
+  function renderBoard() {
+    var board = $("[data-pat-board]");
+    board.innerHTML = (data.roster_board || []).map(function (s) {
+      return '<button type="button" class="pat-name' + (picked[s.id] ? " is-picked" : "")
+        + '" data-name="' + esc(s.id) + '">'
+        + (picked[s.id] ? "✓ " : "") + esc(lang === "en" ? s.name_en : s.name_zh) + "</button>";
+    }).join("");
+    board.querySelectorAll("[data-name]").forEach(function (node) {
+      node.addEventListener("click", function () {
+        var id = node.getAttribute("data-name");
+        if (picked[id]) { delete picked[id]; } else { picked[id] = true; }
+        renderBoard();
+      });
+    });
+    var count = Object.keys(picked).length;
+    $("[data-pat-boardhint]").textContent = (lang === "en" ? "Picked: " : "已選：")
+      + count + (lang === "en" ? ". Your patrol has " : " 人。你的小隊共有 ")
+      + (data.roster_size || 0) + (lang === "en" ? " members, including you." : " 位成員（包括你自己）。");
+  }
+
+  function startStage1() {
     $("[data-pat-cards]").hidden = true;
     $("[data-pat-intro]").hidden = true;
+    $("[data-pat-stage1]").hidden = false;
+    renderProgress("stage1");
+    var wrap = $(".cave-card-wrap");
+    if (wrap) wrap.scrollTop = 0;
+    renderBoard();
+  }
+
+  function checkStage1() {
+    var result = $("[data-pat-stage1result]");
+    result.textContent = lang === "en" ? "Checking…" : "正在核實……";
+    var fd = new FormData();
+    fd.set("run_key", data.run_key || "");
+    Object.keys(picked).forEach(function (id) { fd.append("members", id); });
+    fetch(data.stage1_url, {
+      method: "POST",
+      headers: { "X-Requested-With": "fetch" },
+      body: fd
+    }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+      .then(function (out) {
+        var j = out.j;
+        if (j.ok && j.passed) {
+          result.className = "pat-result pat-ok";
+          result.textContent = "🎉 " + (lang === "en" ? j.message_en : j.message_zh);
+          startStage2();
+        } else {
+          result.className = "pat-result pat-bad";
+          result.textContent = "❌ " + (lang === "en" ? j.message_en : j.message_zh);
+        }
+      }).catch(function () {
+        result.className = "pat-result pat-bad";
+        result.textContent = lang === "en"
+          ? "The connection failed. Please try again."
+          : "連線失敗。請再試一次。";
+      });
+  }
+
+  function startStage2() {
+    $("[data-pat-cards]").hidden = true;
+    $("[data-pat-intro]").hidden = true;
+    $("[data-pat-stage1]").hidden = true;
     $("[data-pat-quiz]").hidden = false;
-    renderProgress("quiz");
+    renderProgress("stage2");
     $("[data-pat-start]").hidden = true;
     /* the words panel scrolls inside the stage, like the other games */
     var wrap = $(".cave-card-wrap");
@@ -246,11 +338,13 @@
           result.textContent = "❌ " + (lang === "en" ? j.message_en : j.message_zh);
           $("[data-pat-quiz]").hidden = true;
           $("[data-pat-cards]").hidden = false;
+          assign = {}; picked = {};
+          $("[data-pat-start]").hidden = false;
           renderProgress("cards");
           state.reloadToRetry = true;
           $("[data-pat-start]").textContent = lang === "en"
-            ? "🚣 Look at the cards again, then seat the raft once more"
-            : "🚣 再看一次成員卡，重新安排木筏";
+            ? "🪵 Look at the cards again, then start over"
+            : "🪵 再看一次成員卡，重新出發";
         }
       }).catch(function () {
         result.className = "pat-result pat-bad";
@@ -275,7 +369,15 @@
     showCard(0);
     $("[data-pat-prev]").addEventListener("click", function () { showCard(state.scene - 1); });
     $("[data-pat-next]").addEventListener("click", function () { showCard(state.scene + 1); });
-    $("[data-pat-start]").addEventListener("click", startQuiz);
+    $("[data-pat-start]").addEventListener("click", startStage1);
+    $("[data-pat-stage1-check]").addEventListener("click", checkStage1);
+    $("[data-pat-back-cards]").addEventListener("click", function () {
+      $("[data-pat-stage1]").hidden = true;
+      $("[data-pat-cards]").hidden = false;
+      renderProgress("cards");
+      var wrap = $(".cave-card-wrap");
+      if (wrap) wrap.scrollTop = 0;
+    });
     $("[data-pat-form]").addEventListener("submit", submit);
   })();
 })();

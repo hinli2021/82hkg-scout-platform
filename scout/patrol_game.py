@@ -3,9 +3,17 @@
 The story: after the four challenges the scout reaches the seaside, where
 the rest of the patrol is waiting by a raft. The raft carries the whole
 patrol off the island, but every station on it — lookout, steering, the
-signal station — needs the member who suits it best. So the scout first
-gets to know the patrol from their member cards, then works out, station
-by station, who belongs where. Eighty percent of the stations right and
+signal station — needs the member who suits it best.
+
+Two stages sit between the scout and the raft. Before them, the scout
+may browse a profile card for every patrol member — the same card the
+member sees on their own profile page, drawn live from what they have
+written, so an edit shows at once; a member who has written nothing yet
+is still identified by their name, avatar, scout number, patrol and
+job. Stage 1 is the wooden board at the shore, carrying the name of
+every scout in the unit: the scout must pick out every member of their
+own patrol, and only then does stage 2 open — seating the patrol on
+the raft, station by station. Eighty percent of the stations right and
 the raft leaves the island.
 
 The roster is read live from the platform's own records, never copied into
@@ -77,6 +85,8 @@ def patrol_members(st, user: dict) -> list[dict]:
             "name_zh": _name(row, "zh"),
             "name_en": _name(row, "en"),
             "avatar": str(row.get("avatar") or "🦊"),
+            "scout_no": str(row.get("scout_no") or "").strip(),
+            "card_image_url": str(profile.get("card_image_url") or "").strip(),
             "position_zh": str(profile.get("position_zh") or position),
             "position_en": str(profile.get("position_en") or position),
             "position": position,
@@ -100,6 +110,24 @@ def patrol_members(st, user: dict) -> list[dict]:
 
 def contact_of(members: list[dict]) -> dict | None:
     return next((m for m in members if m["is_contact"]), None)
+
+
+def unit_roster(st, seed: int) -> list[dict]:
+    """Every active scout in the unit, for the stage 1 board.
+
+    Names only — the board never says which patrol anyone belongs to,
+    and the leaders' test account is not a scout on it either.
+    """
+    rng = random.Random(seed)
+    board = [{
+        "id": row["id"],
+        "name_zh": _name(row, "zh"),
+        "name_en": _name(row, "en"),
+    } for row in st.list("users")
+        if row.get("role") == "scout" and row.get("status") == "active"
+        and not is_test_account(row)]
+    rng.shuffle(board)
+    return board
 
 
 # ── the raft ─────────────────────────────────────────────────────────────
@@ -140,11 +168,12 @@ MAX_SEATS = 8
 # A station's requirement is worded from the member's own facts, in this
 # order of preference: a strength or an interest usually names one member
 # on its own; a shared job (two 隊員, say) is pinned down with a second fact.
-_FACT_ORDER = ["strength", "interests", "position", "experience", "share"]
+_FACT_ORDER = ["strength", "interests", "position", "scout_no", "experience", "share"]
 _FACT_LABEL = {
     "strength": ("強項是「{t}」", "strength is “{t}”"),
     "interests": ("興趣是「{t}」", "interests are “{t}”"),
     "position": ("職位是「{t}」", "patrol job is “{t}”"),
+    "scout_no": ("童軍編號是「{t}」", "scout number is “{t}”"),
     "experience": ("童軍經驗是「{t}」", "Scout experience is “{t}”"),
     "share": ("想和大家分享「{t}」", "thing to share is “{t}”"),
     "avatar": ("頭像是 {t}", "avatar is {t}"),

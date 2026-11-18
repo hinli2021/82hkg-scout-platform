@@ -1086,7 +1086,7 @@ def task_patrol(task_id: str):
     stations right completes item 2. The seating plan is signed into the
     run token, so the browser only ever sees the requirements.
     """
-    from ..patrol_game import build_raft, patrol_members
+    from ..patrol_game import build_raft, patrol_members, unit_roster
 
     st = store()
     task = st.get("tasks", task_id)
@@ -1106,12 +1106,17 @@ def task_patrol(task_id: str):
     playable = len(members) >= 3
     raft: list = []
     crew: list = []
+    board: list = []
     run_key = ""
     if playable:
         import time as _time
 
-        raft, key, crew = build_raft(members, g.user["id"], seed=int(_time.time()) % 100000)
-        run_key = _patrol_signer().dumps({"task": task_id, "scout": g.user["id"], "key": key})
+        seed = int(_time.time()) % 100000
+        raft, key, crew = build_raft(members, g.user["id"], seed=seed)
+        board = unit_roster(st, seed=seed + 1)
+        run_key = _patrol_signer().dumps({
+            "task": task_id, "scout": g.user["id"], "key": key,
+            "roster": [m["id"] for m in members]})
 
     scenes = {
         "task_id": task_id,
@@ -1120,6 +1125,9 @@ def task_patrol(task_id: str):
         "members": members,
         "raft": raft,
         "crew": crew,
+        "roster_board": board,
+        "roster_size": len(members),
+        "stage1_url": url_for("scout_routes.patrol_stage1", task_id=task_id),
         "run_key": run_key,
         "playable": playable,
         "pass_score": as_int(task.get("pass_score")) or 80,
@@ -1137,6 +1145,49 @@ def task_patrol(task_id: str):
         badge_url=scenes["badge_url"],
         cleared_now=cleared_now,
     )
+
+
+@scout_routes.post("/tasks/<task_id>/patrol-stage1")
+@scout_required
+def patrol_stage1(task_id: str):
+    """Stage 1: pick the whole patrol off the wooden board.
+
+    The board carries every scout in the unit by name only. The signed
+    run token holds the patrol's ids, so the check is the server's: the
+    exact patrol — nobody missing, nobody extra — opens stage 2. A wrong
+    pick is answered with counts only, never with names.
+    """
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["patrol_ready"] or task.get("status") != "published":
+        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
+    if context["badge"].get("locked"):
+        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
+
+    try:
+        run = _patrol_signer().loads(request.form.get("run_key") or "", max_age=7200)
+    except BadSignature:
+        return fail(400, "patrol_expired", "這一局已過期。請重新開始遊戲。",
+                    "This game has expired. Please start the game again.")
+    if run.get("task") != task_id or run.get("scout") != g.user["id"]:
+        return fail(400, "patrol_expired", "這一局已過期。請重新開始遊戲。",
+                    "This game has expired. Please start the game again.")
+    roster = {str(v) for v in (run.get("roster") or [])}
+    chosen = {str(v) for v in request.form.getlist("members") if v}
+    right = len(chosen & roster)
+    extra = len(chosen - roster)
+    missing = len(roster) - right
+    if chosen and chosen == roster:
+        return ok(passed=True,
+                  detail={"right": right, "extra": 0, "missing": 0},
+                  message_zh="全隊都找齊了。可以進入第二階段，安排木筏崗位。",
+                  message_en="The whole patrol is found. Stage 2 is open: seat the raft.")
+    return fail(400, "patrol_roster",
+                f"選對了 {right} 人；有 {extra} 人不是你的小隊成員；還欠 {missing} 人。再看一次成員卡，重新選擇。",
+                f"{right} right; {extra} not in your patrol; {missing} still missing. "
+                "Look at the member cards again, then choose once more.",
+                detail={"right": right, "extra": extra, "missing": missing})
 
 
 @scout_routes.post("/tasks/<task_id>/patrol-submit")

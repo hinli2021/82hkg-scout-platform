@@ -134,6 +134,23 @@ def test_the_roster_is_the_live_patrol(store, app):
         assert "member" not in seat and "member_id" not in seat
     assert set(key_of(scene).values()) == set(scene["crew"])
 
+    # stage 1: the board names every scout in the unit, patrols unmarked,
+    # and every member has a profile card drawn from their live profile
+    board = scene["roster_board"]
+    assert {m["id"] for m in members.values()} <= {b["id"] for b in board}
+    assert len(board) > len(members)            # other patrols are on it too
+    assert all(set(b) == {"id", "name_zh", "name_en"} for b in board)
+    assert scene["roster_size"] == len(members)
+    by_id = {m["id"]: m for m in scene["members"]}
+    assert by_id[singer["id"]]["strength"] == "唱歌"
+    assert "card_image_url" in by_id[singer["id"]]
+
+    # editing the profile redraws the card at once
+    store.update("profiles", singer["id"], {"strength": "彈結他"})
+    _, scene = scene_of(client, task["id"])
+    by_id = {m["id"]: m for m in scene["members"]}
+    assert by_id[singer["id"]]["strength"] == "彈結他"
+
 
 def test_the_test_account_is_ignored_but_can_play(store, app):
     """The leaders' test account is not a patrol member: it never appears
@@ -162,6 +179,7 @@ def test_the_test_account_is_ignored_but_can_play(store, app):
     assert tester["id"] not in {m["id"] for m in scene["members"]}
     assert tester["id"] not in key_of(scene).values()
     assert tester["id"] not in scene["crew"]
+    assert tester["id"] not in {b["id"] for b in scene["roster_board"]}
 
     # …but the test account itself signs in and plays the real patrol
     client = login(app, tester)
@@ -173,6 +191,41 @@ def test_the_test_account_is_ignored_but_can_play(store, app):
                         data={**key_of(scene), "run_key": scene["run_key"],
                               "elapsed_ms": "60000"}, headers=HEADERS)
     assert reply.get_json()["passed"] is True
+
+
+def test_stage_one_needs_the_exact_patrol(store, app):
+    """The board names the whole unit; only the exact patrol — nobody
+    missing, nobody extra — opens stage 2, and a miss is answered with
+    counts only."""
+    viewer, contact, singer, rookie = seed_patrol(store)
+    task = task_of(store)
+    client = login(app, viewer)
+    _, scene = scene_of(client, task["id"])
+    url = f"/tasks/{task['id']}/patrol-stage1"
+    patrol_ids = [m["id"] for m in scene["members"]]
+    outsider = next(b["id"] for b in scene["roster_board"]
+                    if b["id"] not in patrol_ids)
+
+    # one missing, one extra: refused, with counts and no names
+    reply = client.post(url, data={"run_key": scene["run_key"],
+                                   "members": patrol_ids[1:] + [outsider]},
+                        headers=HEADERS)
+    body = reply.get_json()
+    assert reply.status_code == 400 and body["error"] == "patrol_roster"
+    assert body["detail"] == {"right": len(patrol_ids) - 1, "extra": 1, "missing": 1}
+    assert contact["display_name_zh"] not in body["message_zh"]
+
+    # the exact patrol opens stage 2
+    reply = client.post(url, data={"run_key": scene["run_key"],
+                                   "members": patrol_ids}, headers=HEADERS)
+    body = reply.get_json()
+    assert reply.status_code == 200 and body["passed"] is True
+
+    # a forged run is refused
+    reply = client.post(url, data={"run_key": "not-a-token",
+                                   "members": patrol_ids}, headers=HEADERS)
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "patrol_expired"
 
 
 def test_scoring_eighty_percent_completes_item_two(store, app):
