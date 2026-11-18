@@ -3,8 +3,12 @@
    questions and sends the choices back, and the server re-grades them. */
 (function () {
   "use strict";
-  var data = JSON.parse(document.getElementById("pat-scene").textContent);
-  var lang = document.body.dataset.lang === "en" ? "en" : "zh";
+  /* the scene rides on the root element, the same way the cave, the drill
+     ground and the flagpole carry theirs */
+  var root = document.querySelector("[data-patrol-root]");
+  var data = {};
+  try { data = JSON.parse(root.getAttribute("data-patrol-config") || "{}"); } catch (e) { data = {}; }
+  var lang = document.documentElement.lang === "en" ? "en" : "zh";
   var $ = function (sel) { return document.querySelector(sel); };
   var esc = function (s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -118,10 +122,13 @@
 
   function startQuiz() {
     $("[data-pat-cards]").hidden = true;
+    $("[data-pat-intro]").hidden = true;
     $("[data-pat-quiz]").hidden = false;
     renderProgress("quiz");
     $("[data-pat-start]").hidden = true;
-    window.scrollTo(0, 0);
+    /* the words panel scrolls inside the stage, like the other games */
+    var wrap = $(".cave-card-wrap");
+    if (wrap) wrap.scrollTop = 0;
     buildQuestions();
   }
 

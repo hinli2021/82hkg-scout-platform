@@ -1,76 +1,109 @@
-{% extends 'base.html' %}
-{% block title %}{{ L('遊戲 5：小隊名冊卡', 'Game 5: Patrol cards') }}{% endblock %}
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='patrol.css') }}?v={{ asset_v('patrol.css') }}">
-{% endblock %}
+{% extends "base.html" %}
+{# 小隊名冊卡 takes the window, like the cave, the crossing, the drill ground and the flagpole. #}
+{% block body_attrs %}class="is-game"{% endblock %}
 
+{% block title %}{{ L('小隊名冊卡', 'Patrol cards') }}{% endblock %}
+
+{# ── 小隊名冊卡 — the fifth game of 會員章 (第 2 項). On the seaward bluff the
+      patrol gathers: flip through every member card (name, position,
+      interests, strengths — and who the patrol contact is, and how to reach
+      them), then play the matching game. The roster is read live from the
+      patrol's accounts and profiles, so a new member appears at once. The
+      browser never holds an answer key; the server re-grades the choices.
+      Everything runs in static/js/patrol.js. ── #}
 {% block content %}
-{# 小隊名冊：先逐張翻開小隊成員卡，再玩配對遊戲。答案由伺服器重新核實。 #}
-<div class="pat-wrap" data-patrol-root
-     data-lang="{{ 'en' if lang == 'en' else 'zh' }}"
-     data-badge-url="{{ badge_url }}">
-
-  <div class="pat-head">
-    <div class="crumbs">
-      <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a>
-      <span aria-hidden="true">›</span>
-      <a href="{{ badge_url }}">{{ L('童軍獎章', 'Member badge') }}</a>
-      <span aria-hidden="true">›</span>
-      {{ L('遊戲 5：小隊名冊卡', 'Game 5: Patrol cards') }}
-    </div>
-    <h1>🃏 {{ L('遊戲 5：小隊名冊卡', 'Game 5: Patrol cards') }}</h1>
-    <p class="pat-intro">
-      {{ L('山崗上全隊集合。先逐張翻開小隊成員卡，記下每位成員的姓名、職位、興趣和強項，也要知道誰是小隊的聯絡和怎樣聯絡他。之後玩配對遊戲，答中八成即可完成第 2 項。',
-           'The patrol gathers on the bluff. Flip through the member cards one by one and learn everyone\'s name, position, interests and strengths — and who the patrol contact is and how to reach them. Then play the matching game; scoring 80% completes item 2.') }}
-    </p>
-    <p class="pat-intro small">
-      {{ L('成員卡來自大家的個人檔案。小隊有新成員加入時，名冊會自動更新。',
-           'The cards come from everyone\'s profile. The roster updates itself when a new member joins the patrol.') }}
-    </p>
-  </div>
-
-  <p class="pat-done" data-pat-done {% if not cleared_now %}hidden{% endif %}>
-    ✅ {{ L('你已完成第 2 項。名冊有新面孔時，隨時回來再翻卡。',
-            'You have already completed item 2. Come back and flip the cards whenever the roster gains a new face.') }}
-  </p>
-
-  <div class="pat-stage">
-    <div class="pat-progress" role="img"
-         aria-label="{{ L('進度', 'Progress') }}" data-pat-progress></div>
-
-    {# 第 1 步：翻卡認識成員 #}
-    <section data-pat-cards>
-      <h2>{{ L('第一步：翻開成員卡', 'Step 1: flip through the member cards') }}</h2>
-      <div class="pat-deck" data-pat-deck></div>
-      <div class="pat-flipnav">
-        <button class="btn ghost" type="button" data-pat-prev>← {{ L('上一張', 'Previous card') }}</button>
-        <button class="btn ghost" type="button" data-pat-next>{{ L('下一張', 'Next card') }} →</button>
-      </div>
-      <p class="pat-hint" data-pat-hint></p>
-      <button class="btn primary big" type="button" data-pat-start hidden>
-        🎲 {{ L('開始配對遊戲', 'Start the matching game') }}
-      </button>
-    </section>
-
-    {# 第 2 步：配對遊戲 #}
-    <section data-pat-quiz hidden>
-      <h2>{{ L('第二步：配對遊戲', 'Step 2: the matching game') }}</h2>
-      <p class="pat-hint">
-        {{ L('選出正確答案。全部答完後按「提交」。答中八成（80%）即完成第 2 項。',
-             'Choose the right answer for each question. Press “Submit” when you finish. Scoring 80% completes item 2.') }}
-      </p>
-      <form data-pat-form method="post" action="">
-        <div class="pat-questions" data-pat-questions></div>
-        <p class="pat-result" data-pat-result role="status" aria-live="polite"></p>
-        <button class="btn primary big" type="submit" data-pat-submit>
-          ✅ {{ L('提交', 'Submit') }}
-        </button>
-      </form>
-    </section>
-  </div>
+<div class="crumbs">
+  <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L(badge.title_zh, badge.title_en) }}</a><span class="breadcrumb-arrow">›</span>
+  {{ L('遊戲 5：小隊名冊卡', 'Game 5 — patrol cards') }}
 </div>
 
-<script id="pat-scene" type="application/json">{{ scene_json | safe }}</script>
-<script src="{{ url_for('static', filename='js/game_music.js') }}?v={{ asset_v('js/game_music.js') }}"></script>
+<section class="cave patrol" id="patrol-root" data-patrol-root
+         data-patrol-config="{{ scene_json | forceescape }}">
+  <div class="cave-stage">
+    <div class="cave-picture">
+      <img class="cave-art-backdrop" alt="" aria-hidden="true"
+           src="{{ url_for('static', filename='img/quest/patrol/bluff.jpg') }}">
+      <img class="cave-art" data-pat-art
+           src="{{ url_for('static', filename='img/quest/patrol/bluff.jpg') }}"
+           alt="{{ L('小隊在臨海山崗上集合', 'The patrol gathered on the seaward bluff') }}">
+      <div class="cave-shade" aria-hidden="true"></div>
+      <header class="cave-hud">
+        <a class="cave-hud-link" href="{{ url_for('scout_routes.home') }}">🏠 {{ L('主頁', 'Home') }}</a>
+        <span class="cave-hud-mid" data-pat-progress>{{ L('小隊名冊卡', 'Patrol cards') }}</span>
+        <a class="cave-hud-link" href="{{ badge_url }}">🎖 {{ L('會員章', 'Badge') }}</a>
+      </header>
+    </div>
+    <div class="cave-card-wrap">
+      <div class="cave-card" data-pat-card aria-live="polite">
+        <div data-pat-intro>
+          {% if cleared_now %}
+            <span class="cave-kicker cave-kicker-good">{{ L('第 2 項', 'Item 2') }}</span>
+            <h1 class="cave-title">{{ L('名冊已翻好', 'You know this patrol') }}</h1>
+            <p class="cave-line">{{ L('你已完成第 2 項。名冊有新面孔時，隨時回來再翻卡。',
+                                      'You have already completed item 2. Come back and flip the cards whenever the roster gains a new face.') }}</p>
+          {% else %}
+            <span class="cave-kicker">{{ L('遊戲 5', 'Game 5') }}</span>
+            <h1 class="cave-title">{{ L('山崗上全隊集合', 'The patrol gathers on the bluff') }}</h1>
+            <p class="cave-line">{{ L('先逐張翻開小隊成員卡，記下每位成員的姓名、職位、興趣和強項，也要知道誰是小隊的聯絡和怎樣聯絡他。之後玩配對遊戲，答中八成即可完成第 2 項。',
+                                      'Flip through the member cards one by one and learn everyone\'s name, position, interests and strengths — and who the patrol contact is and how to reach them. Then play the matching game; scoring 80% completes item 2.') }}</p>
+            <p class="cave-line small">{{ L('成員卡來自大家的個人檔案。小隊有新成員加入時，名冊會自動更新。',
+                                            'The cards come from everyone\'s profile. The roster updates itself when a new member joins the patrol.') }}</p>
+          {% endif %}
+        </div>
+
+        <p class="pat-done" data-pat-done {% if not cleared_now %}hidden{% endif %}>
+          ✅ {{ L('你已完成第 2 項。', 'You have completed item 2.') }}
+        </p>
+
+        {# 第 1 步：翻卡認識成員 #}
+        <section data-pat-cards>
+          <h2 class="cave-subtitle">{{ L('第一步：翻開成員卡', 'Step 1: flip through the member cards') }}</h2>
+          <div class="pat-deck" data-pat-deck></div>
+          <div class="cave-actions cave-actions-split pat-flipnav">
+            <button class="btn ghost" type="button" data-pat-prev>← {{ L('上一張', 'Previous card') }}</button>
+            <button class="btn ghost" type="button" data-pat-next>{{ L('下一張', 'Next card') }} →</button>
+          </div>
+          <p class="cave-line small" data-pat-hint></p>
+          <div class="cave-actions">
+            <button class="btn primary big" type="button" data-pat-start data-cheer="🃏,✨" hidden>
+              🎲 {{ L('開始配對遊戲', 'Start the matching game') }}
+            </button>
+          </div>
+        </section>
+
+        {# 第 2 步：配對遊戲 #}
+        <section data-pat-quiz hidden>
+          <h2 class="cave-subtitle">{{ L('第二步：配對遊戲', 'Step 2: the matching game') }}</h2>
+          <p class="cave-line small">
+            {{ L('選出正確答案。全部答完後按「提交」。答中八成（80%）即完成第 2 項。',
+                 'Choose the right answer for each question. Press “Submit” when you finish. Scoring 80% completes item 2.') }}
+          </p>
+          <form data-pat-form method="post" action="">
+            <div class="pat-questions" data-pat-questions></div>
+            <p class="pat-result" data-pat-result role="status" aria-live="polite"></p>
+            <div class="cave-actions">
+              <button class="btn primary big" type="submit" data-pat-submit>
+                ✅ {{ L('提交', 'Submit') }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div hidden aria-hidden="true">
+    <a data-pat-link="badge" href="{{ badge_url }}">🎖 {{ L('回到會員章', 'Back to the badge') }}</a>
+  </div>
+
+  <noscript>
+    <p class="small muted">{{ L('名冊卡遊戲需要開啟 JavaScript。請開啟後再試，或請領袖協助。',
+                                'The patrol cards need JavaScript. Enable it and try again, or ask your leader for help.') }}</p>
+  </noscript>
+</section>
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/patrol.js') }}?v={{ asset_v('js/patrol.js') }}"></script>
 {% endblock %}

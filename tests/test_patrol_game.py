@@ -72,10 +72,10 @@ def login(app, user):
 
 def scene_of(client, task_id):
     page = client.get(f"/tasks/{task_id}/patrol").get_data(as_text=True)
-    match = re.search(r'<script id="pat-scene" type="application/json">(.*?)</script>',
-                      page, re.S)
+    match = re.search(r'data-patrol-config="([^"]*)"', page, re.S)
     assert match, "the game page carries its scene"
-    return page, json.loads(match.group(1))
+    import html as _html
+    return page, json.loads(_html.unescape(match.group(1)))
 
 
 def key_of(scene):
@@ -97,6 +97,11 @@ def test_the_roster_is_the_live_patrol(store, app):
 
     assert "data-patrol-root" in page and "patrol.js" in page
     assert "小隊名冊卡" in page and "第 2 項" in page
+    # the game wears the same shell as the other games: the whole window,
+    # the bluff painting with its HUD, and the dark glass card of words
+    assert 'class="is-game"' in page and 'class="cave patrol"' in page
+    assert "img/quest/patrol/bluff.jpg" in page and "cave-hud" in page
+    assert "cave-card" in page and "patrol.css" not in page
     members = {m["id"]: m for m in scene["members"]}
     # every Otter scout is on a card: the seeded pair, the new members, and
     # the member with no profile at all
