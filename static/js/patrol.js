@@ -273,11 +273,15 @@
       return;
     }
     /* the story is told — now, know your patrol */
+    enterCards();
+    var wrap2 = $(".cave-card-wrap");
+    if (wrap2) wrap2.scrollTop = 0;
+  }
+
+  function enterCards() {
     $("[data-pat-story]").hidden = true;
     $("[data-pat-cards]").hidden = false;
     renderProgress("cards");
-    var wrap2 = $(".cave-card-wrap");
-    if (wrap2) wrap2.scrollTop = 0;
   }
 
   function startStage1() {
@@ -447,6 +451,7 @@
           if (done) done.hidden = false;
           var submitBtn = $("[data-pat-submit]");
           if (submitBtn) submitBtn.hidden = true;
+          runPassed = true;
         } else {
           result.className = "pat-result pat-bad";
           result.textContent = "❌ " + (lang === "en" ? j.message_en : j.message_zh);
@@ -469,6 +474,112 @@
       });
   }
 
+  /* ── the warning before leaving ──────────────────────────────────────
+     Leaving before the raft sets off discards this visit's flipped
+     cards and placements. An in-page dialog, not window.confirm: the
+     offline viewer runs in a sandboxed iframe where native confirm
+     dialogs are blocked. The same dialog every other game shows. While
+     the story is still being told nothing is lost yet, so the warning
+     starts once the member cards are on the table. */
+  var runPassed = false;
+  var exitOverlay = document.createElement("div");
+  exitOverlay.className = "cave-exit-overlay";
+  exitOverlay.hidden = true;
+  exitOverlay.innerHTML =
+    '<div class="cave-exit-dialog" role="alertdialog" aria-modal="true" ' +
+      'aria-labelledby="patrol-exit-title" aria-describedby="patrol-exit-message">' +
+      '<span class="cave-kicker">' + esc(lang === "en" ? "Leaving the game" : "離開遊戲") + "</span>" +
+      '<h2 id="patrol-exit-title">' + esc(lang === "en" ? "Leave the seaside?" : "要離開海邊嗎？") + "</h2>" +
+      '<p id="patrol-exit-message">' +
+        esc(lang === "en"
+          ? "If you leave, you will have to start the game again when you return. Unsubmitted answers will not be saved."
+          : "離開後，再次進入遊戲需要從頭開始。尚未提交的作答不會保留。") +
+      "</p>" +
+      '<div class="cave-exit-actions">' +
+        '<button type="button" class="btn primary" data-pat-stay>' +
+          esc(lang === "en" ? "Keep playing" : "繼續遊戲") + "</button>" +
+        '<button type="button" class="btn ghost" data-pat-leave>' +
+          esc(lang === "en" ? "Leave game" : "離開遊戲") + "</button>" +
+      "</div>" +
+    "</div>";
+  document.body.appendChild(exitOverlay);
+  var pendingExit = null;
+  var lastFocus = null;
+  var approvedExit = false;
+  function patInProgress() {
+    if (runPassed) return false;
+    var story = $("[data-pat-story]");
+    return !!story && story.hidden;
+  }
+  function finishExit(leave) {
+    if (exitOverlay.hidden) return;
+    var callback = pendingExit;
+    pendingExit = null;
+    if (exitOverlay.contains(document.activeElement)) document.activeElement.blur();
+    exitOverlay.hidden = true;
+    document.body.classList.remove("cave-exit-open");
+    if (leave) {
+      approvedExit = true;
+      if (callback) callback();
+    } else if (lastFocus && lastFocus.isConnected && lastFocus !== document.body) {
+      lastFocus.focus();
+    }
+    lastFocus = null;
+  }
+  exitOverlay.addEventListener("click", function (event) {
+    if (event.target.closest("[data-pat-stay]") || event.target === exitOverlay) finishExit(false);
+    else if (event.target.closest("[data-pat-leave]")) finishExit(true);
+  });
+  exitOverlay.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); finishExit(false); return; }
+    if (event.key !== "Tab") return;
+    var stay = exitOverlay.querySelector("[data-pat-stay]");
+    var leave = exitOverlay.querySelector("[data-pat-leave]");
+    if (event.shiftKey && document.activeElement === stay) {
+      event.preventDefault(); leave.focus();
+    } else if (!event.shiftKey && document.activeElement === leave) {
+      event.preventDefault(); stay.focus();
+    }
+  });
+  function requestExit(callback) {
+    if (!patInProgress()) { if (callback) callback(); return; }
+    if (!exitOverlay.hidden) return;
+    pendingExit = callback;
+    lastFocus = document.activeElement;
+    exitOverlay.hidden = false;
+    document.body.classList.add("cave-exit-open");
+    exitOverlay.querySelector("[data-pat-stay]").focus();
+  }
+  if (!window.OFFLINE_DEMO) {
+    document.addEventListener("click", function (event) {
+      if (!patInProgress() || event.defaultPrevented || event.button !== 0 ||
+          event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      var anchor = event.target.closest("a[href]");
+      if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      var href = anchor.getAttribute("href");
+      if (!href || href.charAt(0) === "#") return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      requestExit(function () { window.location.assign(anchor.href); });
+    }, true);
+    document.addEventListener("submit", function (event) {
+      if (!patInProgress()) return;
+      if (event.target.closest("[data-pat-form]")) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      var form = event.target;
+      requestExit(function () { form.submit(); });
+    }, true);
+    window.addEventListener("beforeunload", function (event) {
+      if (approvedExit || !patInProgress()) return;
+      event.preventDefault();
+      event.returnValue = "";
+    });
+    window.addEventListener("pageshow", function (event) {
+      if (event.persisted) approvedExit = false;
+    });
+  }
+
   (function () {
     if (!data.playable || !(data.members || []).length) {
       $("[data-pat-deck]").innerHTML = '<p class="pat-muted">'
@@ -477,13 +588,19 @@
             : "這個小隊暫時未有足夠成員。")
         + "</p>";
       sync();
-      renderProgress("story");
-      showStoryPage();
+      /* a replay starts directly at the beginning: knowing the patrol,
+         with the story already told on an earlier visit */
+      if (data.cleared_now) { enterCards(); } else {
+        renderProgress("story");
+        showStoryPage();
+      }
       $("[data-pat-story-next]").addEventListener("click", storyNext);
       return;
     }
-    renderProgress("story");
-    showStoryPage();
+    if (data.cleared_now) { enterCards(); } else {
+      renderProgress("story");
+      showStoryPage();
+    }
     showCard(0);
     $("[data-pat-prev]").addEventListener("click", function () { showCard(state.scene - 1); });
     $("[data-pat-next]").addEventListener("click", function () { showCard(state.scene + 1); });

@@ -323,3 +323,11 @@ def test_an_impossible_clock_keeps_the_scout_off_the_time_board(store, new_scout
     rows = next(board for board in boards['games']['columns'] if board['code'] == 'M05')['rows']
     row = next(r for r in rows if r['user_id'] == new_scout.id)
     assert row['value'] is None and row['rank'] is None and row['done'] is False
+
+
+def test_a_replay_starts_directly_at_the_first_stage():
+    """Playing the crossing again skips the intro: stage one at once."""
+    import pathlib
+    js = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
+          / "bridge.js").read_text(encoding="utf-8")
+    assert "if (where === 'restart') { stopWaiting(); reset(); startStage(0); return; }" in js

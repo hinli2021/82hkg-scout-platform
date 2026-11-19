@@ -106,6 +106,7 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert "img/quest/patrol/bluff.jpg" in page and "cave-hud" in page
     assert "cave-card" in page and "patrol.css" not in page
     assert "data-pat-more" in page          # the same shell pieces as games 1–4
+
     # the story is told first, page by page; only then do the members show
     assert "data-pat-story" in page and "海邊的木筏" in page
     assert page.count("data-pat-page") == 3
@@ -130,6 +131,12 @@ def test_the_roster_is_the_live_patrol(store, app):
           / "patrol.js").read_text(encoding="utf-8")
     assert 'root.classList.add("is-playing")' in js
     assert 'root.classList.remove("is-playing")' in js
+    # a replay starts directly at the beginning — knowing the patrol —
+    # and leaving before the raft sets off asks first, like other games
+    assert "if (data.cleared_now) { enterCards(); }" in js
+    assert "patrol-exit-title" in js and "要離開海邊嗎？" in js
+    assert "[data-pat-stay]" in js and "[data-pat-leave]" in js
+    assert 'window.addEventListener("beforeunload"' in js
     # while playing, the panel rests on a soft seaside background
     assert "img/quest/patrol/seaside.jpg" in css
     assert (_p.Path(__file__).resolve().parent.parent / "static" / "img"

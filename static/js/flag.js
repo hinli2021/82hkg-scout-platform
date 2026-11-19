@@ -799,6 +799,104 @@
       }).catch(function () { filed = false; });
   }
 
+
+  /* ── the warning before leaving ──────────────────────────────────────
+     Leaving mid-run discards this browser's placements. An in-page
+     dialog, not window.confirm: the offline viewer runs in a sandboxed
+     iframe where native confirm dialogs are blocked. The same dialog
+     the cave, the crossing and the drill ground show. */
+  var exitOverlay = document.createElement("div");
+  exitOverlay.className = "cave-exit-overlay";
+  exitOverlay.hidden = true;
+  exitOverlay.innerHTML =
+    '<div class="cave-exit-dialog" role="alertdialog" aria-modal="true" ' +
+      'aria-labelledby="flag-exit-title" aria-describedby="flag-exit-message">' +
+      '<span class="cave-kicker">' + escapeHtml(t("離開遊戲", "Leaving the game")) + "</span>" +
+      '<h2 id="flag-exit-title">' + escapeHtml(t("要離開溪谷嗎？", "Leave the valley?")) + "</h2>" +
+      '<p id="flag-exit-message">' +
+        escapeHtml(t("離開後，再次進入遊戲需要從頭開始。尚未提交的作答不會保留。",
+                     "If you leave, you will have to start the game again when you return. Unsubmitted answers will not be saved.")) +
+      "</p>" +
+      '<div class="cave-exit-actions">' +
+        '<button type="button" class="btn primary" data-flag-stay>' +
+          escapeHtml(t("繼續遊戲", "Keep playing")) + "</button>" +
+        '<button type="button" class="btn ghost" data-flag-leave>' +
+          escapeHtml(t("離開遊戲", "Leave game")) + "</button>" +
+      "</div>" +
+    "</div>";
+  document.body.appendChild(exitOverlay);
+  var pendingExit = null;
+  var lastFocus = null;
+  var approvedExit = false;
+  function flagInProgress() { return !!startedAt && !filed; }
+  function finishExit(leave) {
+    if (exitOverlay.hidden) return;
+    var callback = pendingExit;
+    pendingExit = null;
+    if (exitOverlay.contains(document.activeElement)) document.activeElement.blur();
+    exitOverlay.hidden = true;
+    document.body.classList.remove("cave-exit-open");
+    if (leave) {
+      approvedExit = true;
+      if (callback) callback();
+    } else if (lastFocus && lastFocus.isConnected && lastFocus !== document.body) {
+      lastFocus.focus();
+    }
+    lastFocus = null;
+  }
+  exitOverlay.addEventListener("click", function (event) {
+    if (event.target.closest("[data-flag-stay]") || event.target === exitOverlay) finishExit(false);
+    else if (event.target.closest("[data-flag-leave]")) finishExit(true);
+  });
+  exitOverlay.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); finishExit(false); return; }
+    if (event.key !== "Tab") return;
+    var stay = exitOverlay.querySelector("[data-flag-stay]");
+    var leave = exitOverlay.querySelector("[data-flag-leave]");
+    if (event.shiftKey && document.activeElement === stay) {
+      event.preventDefault(); leave.focus();
+    } else if (!event.shiftKey && document.activeElement === leave) {
+      event.preventDefault(); stay.focus();
+    }
+  });
+  function requestExit(callback) {
+    if (!flagInProgress()) { if (callback) callback(); return; }
+    if (!exitOverlay.hidden) return;
+    pendingExit = callback;
+    lastFocus = document.activeElement;
+    exitOverlay.hidden = false;
+    document.body.classList.add("cave-exit-open");
+    exitOverlay.querySelector("[data-flag-stay]").focus();
+  }
+  if (!window.OFFLINE_DEMO) {
+    document.addEventListener("click", function (event) {
+      if (!flagInProgress() || event.defaultPrevented || event.button !== 0 ||
+          event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      var anchor = event.target.closest("a[href]");
+      if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      var href = anchor.getAttribute("href");
+      if (!href || href.charAt(0) === "#") return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      requestExit(function () { window.location.assign(anchor.href); });
+    }, true);
+    document.addEventListener("submit", function (event) {
+      if (!flagInProgress()) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      var form = event.target;
+      requestExit(function () { form.submit(); });
+    }, true);
+    window.addEventListener("beforeunload", function (event) {
+      if (approvedExit || !flagInProgress()) return;
+      event.preventDefault();
+      event.returnValue = "";
+    });
+    window.addEventListener("pageshow", function (event) {
+      if (event.persisted) approvedExit = false;
+    });
+  }
+
   /* the start button sits in the card below the painting (and again on
      the cleared card), so bind them all */
   root.querySelectorAll("[data-flag-go]").forEach(function (go) {
