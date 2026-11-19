@@ -531,8 +531,8 @@ def test_strength_is_part_of_a_finished_profile(store, new_scout):
 
 
 def test_a_replay_still_tells_the_story(store, app):
-    """A scout who finished item 2 hears the seaside story again on a
-    replay: the short recap, then the same three story pages."""
+    """A replay looks like starting the game again: the same opening a
+    first-time scout sees, with no "already done" recap in front of it."""
     viewer, *_ = seed_patrol(store)
     task = task_of(store)
     store.insert("progress_records", {
@@ -541,5 +541,6 @@ def test_a_replay_still_tells_the_story(store, app):
     client = login(app, viewer)
     page, scene = scene_of(client, task["id"])
     assert scene["cleared_now"] is True
-    assert page.count("data-pat-page") == 4
-    assert "木筏已經離岸" in page and "沙灘上，你的小隊正在等你" in page
+    assert page.count("data-pat-page") == 3
+    assert "海邊的木筏" in page and "沙灘上，你的小隊正在等你" in page
+    assert "木筏已經離岸" not in page
