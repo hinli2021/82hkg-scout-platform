@@ -68,11 +68,12 @@ POSITIONS = {
 #: still found by the word 聯絡 wherever the profile is read.)
 OTHER_VALUE = "__other__"
 
+#: The old patrol ranks are no longer picked here — the list is patrol
+#: duties only. They still translate on cards (the POSITIONS codes above)
+#: for profiles saved while they were picked.
+REMOVED_POSITION_ROLES = {"隊員", "副小隊長", "小隊長", "高級小隊長"}
+
 POSITION_OPTIONS = [
-    ("隊員", "Patrol member"),
-    ("副小隊長", "Assistant Patrol Leader"),
-    ("小隊長", "Patrol Leader"),
-    ("高級小隊長", "Senior Patrol Leader"),
     ("聯絡", "Patrol contact"),
     ("康樂", "Activities"),
     ("文書", "Secretary"),
@@ -101,6 +102,44 @@ INTEREST_OPTIONS = [
     ("電子遊戲", "Video games"), ("烹飪", "Cooking"), ("舞蹈", "Dance"),
     ("攝影", "Photography"), ("手工藝", "Crafts"),
 ]
+
+
+def _position_options(st=None) -> list:
+    """The 職位 list: patrol duties, plus every position a scout has
+    added through Other (kept in the custom_positions setting, so the
+    next scout can pick it straight from the list)."""
+    options = list(POSITION_OPTIONS)
+    seen = {item[0] for item in options} | REMOVED_POSITION_ROLES
+    customs = []
+    if st is not None:
+        try:
+            customs = st.settings_cached().get("custom_positions") or []
+        except Exception:
+            customs = []
+    for item in customs:
+        text = str(item or "").strip()
+        if _other_text(text) is not None:
+            text = _other_text(text)
+        if text and text not in seen:
+            seen.add(text)
+            options.append((text, text))
+    return options
+
+
+def _remember_custom_position(st, position: str) -> None:
+    """Add a position picked through Other to the shared selection list."""
+    text = str(position or "").strip()
+    if not text or text in {item[0] for item in POSITION_OPTIONS} \
+            or text in REMOVED_POSITION_ROLES:
+        return
+    try:
+        current = [str(item or "").strip()
+                   for item in (st.settings_cached().get("custom_positions") or [])]
+        current = [item for item in current if item]
+        if text not in current:
+            st.save_setting("custom_positions", current + [text])
+    except Exception:
+        pass  # the directory is a convenience; never lose the profile save
 
 
 def _other_text(value: str) -> str | None:
@@ -161,7 +200,8 @@ def load_profile(st, user_id: str) -> dict:
     # (Rows saved in the brief while Other carried a 「其他：」 prefix read
     # as the words alone — the prefix is never shown.)
     position_value = labels.get("zh", position)
-    position_labels = dict(POSITION_OPTIONS)
+    all_options = _position_options(st)
+    position_labels = dict(all_options)
     if _other_text(position_value) is not None:
         position_value = _other_text(position_value)
     if labels:
@@ -170,7 +210,7 @@ def load_profile(st, user_id: str) -> dict:
         position_zh, position_en = position_value, position_labels[position_value]
     else:
         position_zh = position_en = position_value
-    position_choice, position_other = _single_choice(position_value, POSITION_OPTIONS)
+    position_choice, position_other = _single_choice(position_value, all_options)
     strength = str(row.get("strength") or "")
     if _other_text(strength) is not None:
         strength = _other_text(strength)
@@ -188,7 +228,7 @@ def load_profile(st, user_id: str) -> dict:
         "position_zh": position_zh,
         "position_en": position_en,
         "position_edit": position_value,
-        "position_options": POSITION_OPTIONS,
+        "position_options": all_options,
         "position_choice": position_choice,
         "position_other": position_other,
         "interests": interests,
@@ -200,6 +240,10 @@ def load_profile(st, user_id: str) -> dict:
         "camping_days": _count_value(row.get("camping_days")),
         "hiking_times": _count_value(row.get("hiking_times")),
         "share": str(row.get("share") or ""),
+        # 想和大家分享的事 only shows when its tick box is on; profiles
+        # saved before the box existed keep showing theirs.
+        "share_visible": (to_bool(row.get("share_visible"))
+                          if row.get("share_visible") not in (None, "") else True),
         "strength": strength,
         "strength_options": STRENGTH_OPTIONS,
         "strength_choice": strength_choice,
@@ -231,7 +275,6 @@ def profile_complete(profile: dict) -> bool:
         str(profile.get("position") or "").strip()
         and str(profile.get("interests") or "").strip()
         and _experience_complete(profile)
-        and str(profile.get("share") or "").strip()
         and str(profile.get("strength") or "").strip()
         and to_bool(profile.get("visible"))
     )
@@ -347,7 +390,13 @@ def save():
     st = store()
     body = request.form
     values = {
+        # 想和大家分享的事 is optional, and only shows where its tick box
+        # (share_visible) is on. The form carries a marker so an unticked
+        # box reads as off, while an older caller without the box keeps
+        # the old always-shown behaviour.
         "share": str(body.get("share") or "").strip(),
+        "share_visible": (to_bool(body.get("share_visible"))
+                          if "share_visible_present" in body else True),
         # Profiles are public by rule, not by choice: completing the form is
         # also the scout's agreement to let the rest of the troop read it.
         "visible": True,
@@ -357,7 +406,8 @@ def save():
     # in a tab — is kept on them, so nobody's save is lost mid-change.
     if any(name in body for name in ("position_choice", "strength_choice",
                                      "interest_picks", "interests_other")):
-        position = _picked_single(body, "position_choice", "position_other", POSITION_OPTIONS)
+        position = _picked_single(body, "position_choice", "position_other",
+                                  _position_options(st))
         if position is None:
             return fail(400, "profile_position", "請選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
                         "Please pick your position — and if you pick Other, write what it is.")
@@ -397,7 +447,7 @@ def save():
         if not values["experience"]:
             return fail(400, "profile_empty", "請填寫全部資料，才可以繼續。",
                         "Please fill in everything before you continue.")
-    if not values["interests"] or not values["share"] or not values["strength"]:
+    if not values["interests"] or not values["strength"]:
         return fail(400, "profile_empty", "請填寫全部資料，才可以繼續。",
                     "Please fill in everything before you continue.")
     if len(values["position"]) > POSITION_MAX or len(values["interests"]) > INTERESTS_MAX \
@@ -406,6 +456,9 @@ def save():
         return fail(400, "profile_long", "內容太長，請寫短一點。",
                     "That is too long — please keep it shorter.")
     save_profile(st, g.user["id"], values)
+    # a position written under Other joins the list for the next scout
+    if str(body.get("position_choice") or "") == OTHER_VALUE:
+        _remember_custom_position(st, values["position"])
     audit(g.user, "profile_update", "profiles", g.user["id"], {"visible": True})
     if wants_json():
         return ok(visible=True)

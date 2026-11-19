@@ -126,7 +126,7 @@ COLLECTIONS: dict[str, dict] = {
     "profiles": {
         "label": "Profiles",
         "fields": ["user_id", "position", "interests", "experience", "camping_days", "hiking_times",
-                   "share", "strength", "visible", "updated_at",
+                   "share", "share_visible", "strength", "visible", "updated_at",
                    "card_image_url", "card_image_id", "card_generated_at"],
     },
     # One row per scout. A new tab only — existing Sheet columns are untouched.

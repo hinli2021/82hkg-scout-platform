@@ -110,9 +110,11 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     assert page.count('type="checkbox" name="interest_picks"') >= 18
     assert "可多選" in page
     assert 'name="position"' not in page and 'name="strength"' not in page
-    for word in ("隊員", "副小隊長", "小隊長", "高級小隊長", "聯絡", "康樂", "文書",
-                 "物資管理", "氣象員", "報時員", "情緒輔助"):
+    for word in ("聯絡", "康樂", "文書", "物資管理", "氣象員", "報時員", "情緒輔助"):
         assert f'value="{word}"' in page
+    # the four patrol ranks are not picked here any more
+    for word in ("隊員", "副小隊長", "小隊長", "高級小隊長"):
+        assert f'<option value="{word}"' not in page
     assert 'value="__other__"' in page and ">其他<" in page
     for word in ("露營", "行山", "電子遊戲", "攝影", "繩結", "急救", "照顧他人"):
         assert f'value="{word}"' in page
@@ -183,6 +185,57 @@ def test_an_other_prefix_from_the_first_list_version_is_not_shown(store, new_sco
     assert "其他：" not in card
     own = new_scout.get("/profile").get_data(as_text=True)
     assert 'value="營火主持人"' in own and 'value="守夜"' in own
+
+
+def test_share_is_optional_and_only_shows_when_ticked(store, new_scout, scout_client):
+    # no share at all: the profile still completes
+    reply = new_scout.post("/profile", data={
+        "position": "隊員", "interests": "露營", "camping_days": "1", "hiking_times": "2",
+        "strength": "繩結",
+    })
+    assert reply.status_code == 200
+    assert "請先完成個人檔案" not in new_scout.get("/home").get_data(as_text=True)
+
+    # written but not ticked to show: it is kept, and nobody sees it
+    new_scout.post("/profile", data={
+        "position": "隊員", "interests": "露營", "camping_days": "1", "hiking_times": "2",
+        "strength": "繩結", "share": "只想自己留着的分享",
+        "share_visible_present": "1",
+    })
+    row = store.get("profiles", new_scout.id)
+    assert row["share"] == "只想自己留着的分享" and row["share_visible"] in (False, "false", 0)
+    visited = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
+    assert "只想自己留着的分享" not in visited
+    own = new_scout.get("/profile").get_data(as_text=True)
+    card = own[own.index("data-char-card"):own.index("編輯個人檔案")]
+    assert "只想自己留着的分享" not in card  # not on the card, only in the form
+
+    # ticked: it shows on the card for everyone
+    new_scout.post("/profile", data={
+        "position": "隊員", "interests": "露營", "camping_days": "1", "hiking_times": "2",
+        "strength": "繩結", "share": "想和大家分享露營相",
+        "share_visible_present": "1", "share_visible": "1",
+    })
+    visited = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
+    assert "想和大家分享露營相" in visited
+
+
+def test_an_other_position_joins_the_selection_list(store, new_scout, scout_client):
+    reply = new_scout.post("/profile", data={
+        "position_choice": "__other__", "position_other": "營火主持人",
+        "interest_picks": ["露營"], "camping_days": "1", "hiking_times": "2",
+        "strength_choice": "繩結",
+    })
+    assert reply.status_code == 200
+    assert store.get("profiles", new_scout.id)["position"] == "營火主持人"
+    assert "營火主持人" in (store.settings_cached().get("custom_positions") or [])
+
+    # from now on it is picked straight from the list — by its owner…
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert 'value="營火主持人" selected' in page
+    # …and by every other scout
+    other_page = scout_client.get("/profile").get_data(as_text=True)
+    assert 'value="營火主持人"' in other_page
 
 
 def test_a_position_written_before_the_lists_is_offered_back_as_other(store, new_scout):
@@ -467,6 +520,6 @@ def test_the_profiles_tab_exists_in_the_schema():
     from scout.schema import COLLECTIONS, key_field
     assert COLLECTIONS["profiles"]["fields"] == [
         "user_id", "position", "interests", "experience", "camping_days", "hiking_times",
-        "share", "strength", "visible", "updated_at",
+        "share", "share_visible", "strength", "visible", "updated_at",
         "card_image_url", "card_image_id", "card_generated_at"]
     assert key_field("profiles") == "user_id"

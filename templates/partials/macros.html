@@ -179,6 +179,15 @@
   </label>
 {% endmacro %}
 
+{% macro share_fields(profile) %}
+  <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }} <span class="hint">{{ L('（可選填）', '(optional)') }}</span></span>
+    <textarea name="share" maxlength="1000" rows="4"
+              placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile.share }}</textarea>
+  </label>
+  <label class="switch"><input type="checkbox" name="share_visible" value="1" {{ 'checked' if profile.share_visible else '' }}> {{ L('在我的個人檔案上顯示這件事', 'Show this on my profile') }}</label>
+  <input type="hidden" name="share_visible_present" value="1">
+{% endmacro %}
+
 {% macro streak_chip(streak) %}
   {% if streak %}
     <span class="chip streak-hot"><span class="flame">🔥</span> {{ streak }} {{ L('天', 'days') }}</span>
