@@ -129,8 +129,10 @@ def test_the_roster_is_the_live_patrol(store, app):
     import pathlib as _p
     js = (_p.Path(__file__).resolve().parent.parent / "static" / "js"
           / "patrol.js").read_text(encoding="utf-8")
+    # from the member cards onward the painting folds away and the
+    # seaside is the background; nothing brings the painting back
     assert 'root.classList.add("is-playing")' in js
-    assert 'root.classList.remove("is-playing")' in js
+    assert 'root.classList.remove("is-playing")' not in js
     # a replay starts from the beginning too, story first; leaving
     # before the raft sets off asks first, like every other game
     assert "if (data.cleared_now)" not in js

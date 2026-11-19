@@ -4733,10 +4733,11 @@ body.is-game main { padding-top: 6px; }
    cards flip inside the same dark glass panel as the other games, and the
    matching game's choices read like the cave's options. ═══════════════════ */
 .patrol .cave-picture { background: #e9c883; }
-/* The painting belongs to the story at the opening. Once the game is
-   under way (stage 1 and the raft) the picture folds to a slim HUD
-   strip — home, progress and badge still ride on it — and the words
-   panel takes the rest of the window. */
+/* The painting belongs to the story at the opening. From the member
+   cards onward — knowing the patrol, stage 1 and the raft — the picture
+   folds to a slim HUD strip (home, progress and badge still ride on
+   it), the seaside rests behind the panel, and the words take the rest
+   of the window. */
 .patrol.is-playing .cave-picture {
   flex: 0 0 2.5rem; min-height: 0; padding-top: 0; background: #081611;
 }
