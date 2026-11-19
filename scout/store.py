@@ -586,6 +586,14 @@ class Store:
     # 說明文字原本跟隨第一次建立的種子寫入資料庫，所以舊部署仍會說「輸入代碼」。
     # 只有「仍是原封不動的舊版」那一句才會被換掉；領袖改過的文字一個字都不碰。
     GAME_COPY_REFRESH = {
+        "M02": {
+            "instruction_zh": (
+                "加入一小隊，並從小隊活動中認識隊中其他成員。第五個區域的遊戲：先翻開小隊成員卡，記下每位成員的姓名、職位、興趣和強項，也要知道誰是小隊的聯絡和怎樣用電郵聯絡他。之後玩配對遊戲，答中八成即完成第 2 項。成員資料來自大家的個人檔案，小隊有新成員加入時，遊戲會自動更新。",
+            ),
+            "instruction_en": (
+                "Join a patrol and get to know the other members through patrol activities. The fifth area's game: flip through your patrol's member cards and learn everyone's name, position, interests and strengths — and who the patrol contact is and how to reach them by email. Then play the matching game; scoring 80% completes item 2. The cards come from everyone's profiles, so the game updates itself when a new member joins the patrol.",
+            ),
+        },
         "M05": {
             "instruction_zh": (
                 "明瞭及接納童軍誓詞、規律和銘言。第二個區域只有這一個遊戲：先讀教學牌，"
@@ -685,13 +693,23 @@ class Store:
 
         changed = False
         task = next((row for row in self.list("tasks") if row.get("code") == "M02"), None)
+        if task is not None:
+            config = as_json(task.get("config_json"), {}) or {}
+            try:
+                mark = int(task.get("pass_score") or 0)
+            except (TypeError, ValueError):
+                mark = 0
+            if (str(task.get("type") or "") == "quiz"
+                    and str(config.get("kind") or "") == "patrol" and mark == 80):
+                self.update("tasks", task["id"], {"pass_score": 100})
+                changed = True
         seed = next((spec for badge in SEED_BADGES for spec in badge["tasks"]
                      if spec.get("code") == "M02"), None)
         if task is not None and seed is not None:
             config = as_json(task.get("config_json"), {}) or {}
             if str(task.get("type") or "") != "quiz" or str(config.get("kind") or "") != "patrol":
                 self.update("tasks", task["id"], {
-                    "type": "quiz", "pass_score": seed.get("pass_score", 80),
+                    "type": "quiz", "pass_score": seed.get("pass_score", 100),
                     "title_zh": seed["title_zh"], "title_en": seed["title_en"],
                     "instruction_zh": seed["instruction_zh"], "instruction_en": seed["instruction_en"],
                     "config_json": seed.get("config_json") or {"kind": "patrol"},

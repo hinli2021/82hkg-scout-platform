@@ -1082,8 +1082,8 @@ def task_patrol(task_id: str):
     profiles: a member who joins appears at once, and the member whose
     profile is unfinished still shows on a card. The scout first flips
     through every card, then seats the patrol on the raft: each station's
-    requirement is worded from a member's own facts, and 80% of the
-    stations right completes item 2. The seating plan is signed into the
+    requirement is worded from a member's own facts, and every station
+    right completes item 2. The seating plan is signed into the
     run token, so the browser only ever sees the requirements.
     """
     from ..patrol_game import build_raft, patrol_members, unit_roster
@@ -1135,7 +1135,7 @@ def task_patrol(task_id: str):
         "stage1_url": url_for("scout_routes.patrol_stage1", task_id=task_id),
         "run_key": run_key,
         "playable": playable,
-        "pass_score": as_int(task.get("pass_score")) or 80,
+        "pass_score": 100,
         "submit_url": url_for("scout_routes.patrol_submit", task_id=task_id),
         "badge_url": url_for("scout_routes.badge_detail", badge_id=task["badge_id"]),
         "cleared_now": cleared_now,
@@ -1201,9 +1201,9 @@ def patrol_submit(task_id: str):
     """Grade the raft seating again on the server, then file item 2.
 
     The browser's seating is never trusted: the signed run token carries
-    the plan, and 80% of the stations must hold the right member. A miss
-    is not a lock-out — the scout reads the cards again and re-seats the
-    raft with a fresh plan.
+    the plan, and every station must hold the right member. A miss is
+    not a lock-out and earns no hint — not even a count: the scout
+    checks the member cards and re-seats the raft.
     """
     from ..patrol_game import grade
 
@@ -1226,19 +1226,19 @@ def patrol_submit(task_id: str):
     key = run.get("key") or {}
     given = {qid: request.form.get(qid) or "" for qid in key}
     correct, total = grade(key, given)
-    pass_score = as_int(task.get("pass_score")) or 80
     percent = (correct * 100 // total) if total else 0
-    passed = total > 0 and percent >= pass_score
+    passed = total > 0 and correct == total
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
     already = any(r.get("status") == "completed" for r in mine)
 
-    if not passed and not already:
+    if not passed:
+        # no hints: the reply does not say which stations are wrong, or
+        # how many — the scout re-reads the cards and seats everyone again
         return fail(400, "patrol_short",
-                    f"木筏還未坐穩：你安排對了 {correct}／{total} 個崗位，要有八成（{pass_score}%）崗位正確，木筏才可以出發。再看一次成員卡，重新安排。",
-                    f"The raft is not seated yet: {correct} of {total} stations hold the right member, and {pass_score}% must be right before the raft can leave. Read the member cards again, then seat the raft once more.",
-                    detail={"score": correct, "of": total, "percent": percent})
+                    "木筏還未坐穩：有崗位安排不正確。請查看成員卡，重新安排每一位成員，再試一次。",
+                    "The raft is not seated yet: a station is holding the wrong member. Check the member cards, seat everyone again, and try once more.")
     if not already:
         record = st.insert("progress_records", {
             "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
@@ -1303,8 +1303,8 @@ def submit(task_id: str):
                     "Finish items 7 to 10 at the valley flagpole: read the notebook, then perform the ceremony. Finishing it clears them.")
     if _is_badge_patrol_task(task, badge):
         return fail(403, "play_the_patrol",
-                    "第 2 項請在第五個區域完成小隊名冊卡：先翻開成員卡，再玩配對遊戲，答中八成即完成。",
-                    "Finish item 2 with the patrol cards in area five: flip through the member cards, then score 80% in the matching game.")
+                    "第 2 項請在第五個區域完成小隊名冊卡：先翻開成員卡，再玩配對遊戲，每個崗位都安排正確即完成。",
+                    "Finish item 2 with the patrol cards in area five: flip through the member cards, then seat every station correctly in the matching game.")
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == user["id"] and r.get("task_id") == task_id]

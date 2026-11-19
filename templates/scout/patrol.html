@@ -110,8 +110,8 @@
         <section data-pat-quiz hidden>
           <h2 class="cave-subtitle">{{ L('第二階段：安排木筏崗位', 'Stage 2: seat the raft') }}</h2>
           <p class="cave-line small">
-            {{ L('木筏泊在岸邊，每個崗位都寫明要求。先點一位成員，再點木筏上的崗位，把他安排到那裡；點已安排的崗位，可以把成員送回岸邊。全部安排好後按「登上木筏」。八成崗位正確，木筏就會出發。',
-                 'The raft waits at the shore, and every station states its requirement. Tap a member, then tap a station on the raft to seat them there; tap a filled station to send its member back to the shore. When everyone is seated, press “Board the raft”. With 80% of the stations right, the raft sets off.') }}
+            {{ L('木筏泊在岸邊，每個崗位都寫明要求。先點一位成員，再點木筏上的崗位，把他安排到那裡；點已安排的崗位，可以把成員送回岸邊。全部安排好後按「登上木筏」。每個崗位都要安排正確，木筏才會出發；如果有崗位不正確，遊戲不會提示是哪一個，你要重新安排成員再試。你可以隨時按「查看成員卡」翻看成員資料，再回來繼續安排。',
+                 'The raft waits at the shore, and every station states its requirement. Tap a member, then tap a station on the raft to seat them there; tap a filled station to send its member back to the shore. When everyone is seated, press “Board the raft”. Every station must hold the right member before the raft sets off; if one is wrong, the game will not say which — seat the members again and try once more. You can check the member cards at any time with “Look at the member cards”, then come back and carry on.') }}
           </p>
           <form data-pat-form method="post" action="">
             <div class="pat-raft" data-pat-raft></div>
@@ -121,6 +121,9 @@
             <div class="cave-actions">
               <button class="btn primary big" type="submit" data-pat-submit data-cheer="🚣,🌊">
                 🚣 {{ L('登上木筏', 'Board the raft') }}
+              </button>
+              <button class="btn ghost" type="button" data-pat-view-cards>
+                👥 {{ L('查看成員卡', 'Look at the member cards') }}
               </button>
             </div>
           </form>

@@ -133,6 +133,7 @@ def test_the_roster_is_the_live_patrol(store, app):
     # seaside is the background; nothing brings the painting back
     assert 'root.classList.add("is-playing")' in js
     assert 'root.classList.remove("is-playing")' not in js
+    assert "data-pat-view-cards" in page and "返回木筏" in js
     # a replay starts from the beginning too, story first; leaving
     # before the raft sets off asks first, like every other game
     assert "if (data.cleared_now)" not in js
@@ -374,7 +375,7 @@ def test_the_raft_sizes_itself_to_any_patrol():
         assert key[signal["id"]] == "m0"
 
 
-def test_scoring_eighty_percent_completes_item_two(store, app):
+def test_only_a_fully_correct_raft_completes_item_two(store, app):
     viewer, contact, singer, rookie = seed_patrol(store)
     task = task_of(store)
     client = login(app, viewer)
@@ -389,12 +390,25 @@ def test_scoring_eighty_percent_completes_item_two(store, app):
     assert reply.get_json()["error"] == "patrol_short"
     assert completed_records(store, viewer["id"], task["id"]) == []
 
+    # one wrong member is still a miss, and the reply gives no hint:
+    # no count, no score, nothing about which station is wrong
+    seats = list(key)
+    almost = dict(key)
+    almost[seats[0]], almost[seats[1]] = key[seats[1]], key[seats[0]]
+    reply = client.post(url, data={**almost, "run_key": scene["run_key"],
+                                   "elapsed_ms": "60000"}, headers=HEADERS)
+    body = reply.get_json()
+    assert reply.status_code == 400 and body["error"] == "patrol_short"
+    assert "安排對了" not in body["message_zh"] and "of" not in body["message_en"].split(":")[0]
+    assert not body.get("detail")
+    assert completed_records(store, viewer["id"], task["id"]) == []
+
     reply = client.post(url, data={**key, "run_key": scene["run_key"],
                                    "elapsed_ms": "60000"}, headers=HEADERS)
     body = reply.get_json()
     assert reply.status_code == 200 and body["passed"] is True
     records = completed_records(store, viewer["id"], task["id"])
-    assert len(records) == 1 and records[0]["score"] >= 80
+    assert len(records) == 1 and records[0]["score"] == 100
     ledger = [row for row in store.list("points_ledger")
               if row.get("user_id") == viewer["id"] and row.get("ref_id") == task["id"]]
     assert len(ledger) == 1 and ledger[0]["points_delta"] == task["points"]
@@ -447,7 +461,7 @@ def test_the_old_signoff_item_upgrades_itself(store):
 
     assert store.upgrade_patrol_game() is True
     task = store.get("tasks", task["id"])
-    assert task["type"] == "quiz" and task["pass_score"] == 80
+    assert task["type"] == "quiz" and task["pass_score"] == 100
     assert as_json(task.get("config_json"), {}).get("kind") == "patrol"
     game = as_json(store.get("badges", badge["id"]).get("guide_json"), {})[
         "quest"]["areas"][4]["game"]
@@ -554,3 +568,13 @@ def test_the_patrol_story_closes_the_linked_journey(store):
     from scout.content import member_badge_guide
     area5 = member_badge_guide()["quest"]["areas"][4]
     assert "木筏" in area5["hint_zh"] and "小隊" in area5["hint_zh"]
+
+
+def test_an_upgraded_patrol_task_moves_from_80_to_100(store):
+    """A patrol task already in game shape but still marked 80 follows
+    the every-station rule, shown as 100, on the next start."""
+    task = task_of(store)
+    store.update("tasks", task["id"], {"pass_score": 80})
+    assert store.upgrade_patrol_game() is True
+    assert store.get("tasks", task["id"])["pass_score"] == 100
+    assert store.upgrade_patrol_game() is False

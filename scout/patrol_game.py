@@ -13,8 +13,8 @@ is still identified by their name, avatar, scout number, patrol and
 job. Stage 1 is the wooden board at the shore, carrying the name of
 every scout in the unit: the scout must pick out every member of their
 own patrol, and only then does stage 2 open — seating the patrol on
-the raft, station by station. Eighty percent of the stations right and
-the raft leaves the island.
+the raft, station by station. Every station holding the right member
+and the raft leaves the island.
 
 The roster is read live from the platform's own records, never copied into
 a separate list that can go stale:

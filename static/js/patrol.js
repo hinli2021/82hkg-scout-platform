@@ -330,12 +330,16 @@
   }
 
   function startStage2() {
+    raftReady = true;
     $("[data-pat-cards]").hidden = true;
     $("[data-pat-story]").hidden = true;
     $("[data-pat-stage1]").hidden = true;
     $("[data-pat-quiz]").hidden = false;
     renderProgress("stage2");
-    $("[data-pat-start]").hidden = true;
+    /* the cards stay one tap away while seating the raft */
+    var startBtn = $("[data-pat-start]");
+    startBtn.hidden = false;
+    startBtn.textContent = lang === "en" ? "🚣 Back to the raft" : "🚣 返回木筏";
     /* the words panel scrolls inside the stage, like the other games */
     var wrap = $(".cave-card-wrap");
     if (wrap) wrap.scrollTop = 0;
@@ -348,6 +352,7 @@
      back and the server re-grades them. */
   var assign = {};       // seat id -> member id
   var selected = null;   // member id waiting on the shore
+  var raftReady = false; // stage 2 has begun: the cards lead back to the raft
 
   function memberName(m) { return lang === "en" ? m.name_en : m.name_zh; }
 
@@ -456,17 +461,14 @@
           if (submitBtn) submitBtn.hidden = true;
           runPassed = true;
         } else {
+          /* no hints: nobody is told which station was wrong, or how
+             many. Everyone goes back to the shore and is seated again,
+             right here at the raft. */
           result.className = "pat-result pat-bad";
           result.textContent = "❌ " + (lang === "en" ? j.message_en : j.message_zh);
-          $("[data-pat-quiz]").hidden = true;
-          $("[data-pat-cards]").hidden = false;
-          assign = {}; picked = {};
-          $("[data-pat-start]").hidden = false;
-          renderProgress("cards");
-          state.reloadToRetry = true;
-          $("[data-pat-start]").textContent = lang === "en"
-            ? "🪵 Look at the cards again, then start over"
-            : "🪵 再看一次成員卡，重新出發";
+          assign = {};
+          selected = null;
+          renderRaft();
         }
       }).catch(function () {
         result.className = "pat-result pat-bad";
@@ -603,7 +605,25 @@
     $("[data-pat-prev]").addEventListener("click", function () { showCard(state.scene - 1); });
     $("[data-pat-next]").addEventListener("click", function () { showCard(state.scene + 1); });
     $("[data-pat-story-next]").addEventListener("click", storyNext);
-    $("[data-pat-start]").addEventListener("click", startStage1);
+    $("[data-pat-view-cards]").addEventListener("click", function () {
+      $("[data-pat-quiz]").hidden = true;
+      $("[data-pat-cards]").hidden = false;
+      renderProgress("cards");
+      var wrap = $(".cave-card-wrap");
+      if (wrap) wrap.scrollTop = 0;
+    });
+    $("[data-pat-start]").addEventListener("click", function () {
+      if (raftReady) {
+        $("[data-pat-cards]").hidden = true;
+        $("[data-pat-quiz]").hidden = false;
+        renderProgress("stage2");
+        var wrap = $(".cave-card-wrap");
+        if (wrap) wrap.scrollTop = 0;
+        renderRaft();
+        return;
+      }
+      startStage1();
+    });
     $("[data-pat-stage1-check]").addEventListener("click", checkStage1);
     $("[data-pat-back-cards]").addEventListener("click", function () {
       $("[data-pat-stage1]").hidden = true;

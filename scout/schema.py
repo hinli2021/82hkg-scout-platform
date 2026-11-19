@@ -286,9 +286,9 @@ SEED_BADGES = [
                 "code": "M02",
                 "title_zh": "第 2 項：小隊名冊卡（遊戲 5）",
                 "title_en": "Item 2 — patrol card game (Game 5)",
-                "instruction_zh": "加入一小隊，並從小隊活動中認識隊中其他成員。第五個區域的遊戲：先翻開小隊成員卡，記下每位成員的姓名、職位、興趣和強項，也要知道誰是小隊的聯絡和怎樣用電郵聯絡他。之後玩配對遊戲，答中八成即完成第 2 項。成員資料來自大家的個人檔案，小隊有新成員加入時，遊戲會自動更新。",
-                "instruction_en": "Join a patrol and get to know the other members through patrol activities. The fifth area's game: flip through your patrol's member cards and learn everyone's name, position, interests and strengths — and who the patrol contact is and how to reach them by email. Then play the matching game; scoring 80% completes item 2. The cards come from everyone's profiles, so the game updates itself when a new member joins the patrol.",
-                "type": "quiz", "points": 10, "pass_score": 80, "config_json": {"kind": "patrol"},
+                "instruction_zh": "加入一小隊，並從小隊活動中認識隊中其他成員。第五個區域的遊戲：先翻開小隊成員卡，記下每位成員的姓名、職位、興趣和強項，也要知道誰是小隊的聯絡和怎樣聯絡他。之後玩配對遊戲，每個崗位都安排正確即完成第 2 項。成員資料來自大家的個人檔案，小隊有新成員加入時，遊戲會自動更新。",
+                "instruction_en": "Join a patrol and get to know the other members through patrol activities. The fifth area's game: flip through your patrol's member cards and learn everyone's name, position, interests and strengths — and who the patrol contact is and how to reach them. Then play the matching game; seating every station correctly completes item 2. The cards come from everyone's profiles, so the game updates itself when a new member joins the patrol.",
+                "type": "quiz", "points": 10, "pass_score": 100, "config_json": {"kind": "patrol"},
             },
             {
                 "code": "M03",
