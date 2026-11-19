@@ -164,6 +164,14 @@ textarea { min-height: 96px; resize: vertical; }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--green-400); outline-offset: 1px; border-color: var(--green-400); }
 .switch { display: flex; align-items: center; gap: .55rem; padding: .45rem 0; cursor: pointer; }
 .switch input { width: 20px; height: 20px; accent-color: var(--green-600); }
+/* 想和大家分享的事: the show/hide tick sits right beside its heading */
+.share-head {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start;
+  gap: .35rem .55rem; margin-bottom: .3rem;
+  font-size: .85rem; font-weight: 600; color: var(--ink-soft);
+}
+.share-tick { display: inline-flex; align-items: center; gap: .35rem; cursor: pointer; }
+.share-tick input { width: 19px; height: 19px; accent-color: var(--green-600); flex: none; }
 .radio-row { display: flex; align-items: flex-start; gap: .6rem; padding: .6rem .7rem; border: 1px solid var(--line); border-radius: var(--radius-sm); margin-bottom: .45rem; cursor: pointer; background: var(--white); }
 .radio-row:hover { border-color: var(--green-400); }
 .radio-row.correct { border-color: var(--ok); background: var(--ok-bg); }

@@ -204,6 +204,10 @@ def test_share_is_optional_and_only_shows_when_ticked(store, new_scout, scout_cl
     })
     row = store.get("profiles", new_scout.id)
     assert row["share"] == "只想自己留着的分享" and row["share_visible"] in (False, "false", 0)
+    # the tick sits beside the 想和大家分享的事 heading, above the text box
+    own_page = new_scout.get("/profile").get_data(as_text=True)
+    head = own_page[own_page.index("share-head"):own_page.index('name="share"', own_page.index("share-head"))]
+    assert "想和大家分享的事" in head and 'name="share_visible"' in head
     visited = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
     assert "只想自己留着的分享" not in visited
     own = new_scout.get("/profile").get_data(as_text=True)
