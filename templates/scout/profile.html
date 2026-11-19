@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from 'partials/macros.html' import empty_state, name_of, patrol_name, streak_chip with context %}
+{% from 'partials/macros.html' import empty_state, experience_fields, name_of, patrol_name, streak_chip with context %}
 {% block title %}{{ L('我的個人檔案', 'My profile') if own else L('個人檔案', 'Profile') }}{% endblock %}
 {% block hud_chips %}{% if stats %}<span class="chip brass">🎖 {{ stats.badges_done }}</span>{{ streak_chip(stats.streak_current) }}{% endif %}{% endblock %}
 
@@ -60,7 +60,16 @@
               <span class="poke-cost">{{ m.emoji }}</span>
               <span class="poke-move-name">{{ L('童軍經驗', 'Scout experience') }}</span>
             </div>
-            <p class="poke-move-text">{{ profile.experience or L('尚未填寫童軍經驗。', 'No Scout experience written yet.') }}</p>
+            <p class="poke-move-text">
+              {%- if profile.camping_days or profile.hiking_times %}
+              <span style="display:block">⛺ {{ L('露營天數', 'Camping days') }}: {{ profile.camping_days or L('尚未填寫', 'Not yet') }}</span>
+              <span style="display:block">🥾 {{ L('行山次數', 'Hikes') }}: {{ profile.hiking_times or L('尚未填寫', 'Not yet') }}</span>
+              {%- elif profile.experience %}
+              {{ profile.experience }}
+              {%- else %}
+              {{ L('尚未填寫童軍經驗。', 'No Scout experience written yet.') }}
+              {%- endif %}
+            </p>
           </div>
           <div class="poke-move">
             <div class="poke-move-head">
@@ -100,7 +109,12 @@
           <div class="char-row"><span class="char-row-k">{{ L('職位', 'Position') }}</span><span class="char-row-v">{{ L(profile.position_zh, profile.position_en) or L('尚未填寫', 'Not written yet') }}</span></div>
           <div class="char-row"><span class="char-row-k">{{ L('小隊', 'Patrol') }}</span><span class="char-row-v">{{ patrol_name(person.get('patrol', '')) }}</span></div>
           <div class="char-row"><span class="char-row-k">{{ L('興趣', 'Interests') }}</span><span class="char-row-v">{{ profile.interests or L('尚未填寫。', 'Not written yet.') }}</span></div>
+          {% if profile.camping_days or profile.hiking_times %}
+          <div class="char-row"><span class="char-row-k">⛺ {{ L('露營天數', 'Camping days') }}</span><span class="char-row-v">{{ profile.camping_days or L('尚未填寫。', 'Not written yet.') }}</span></div>
+          <div class="char-row"><span class="char-row-k">🥾 {{ L('行山次數', 'Hikes') }}</span><span class="char-row-v">{{ profile.hiking_times or L('尚未填寫。', 'Not written yet.') }}</span></div>
+          {% else %}
           <div class="char-row"><span class="char-row-k">{{ L('童軍經驗', 'Scout experience') }}</span><span class="char-row-v">{{ profile.experience or L('尚未填寫。', 'Not written yet.') }}</span></div>
+          {% endif %}
           <div class="char-row"><span class="char-row-k">{{ L('想和大家分享的事', 'Something to share') }}</span><span class="char-row-v">{{ profile.share or L('尚未填寫。', 'Not written yet.') }}</span></div>
           <div class="char-row"><span class="char-row-k">{{ L('我的強項', 'My strength') }}</span><span class="char-row-v">{{ profile.strength or L('尚未填寫。', 'Not written yet.') }}</span></div>
         </div>
@@ -135,10 +149,7 @@
     <input type="text" name="interests" required maxlength="120" value="{{ profile.interests }}"
            placeholder="{{ L('例如：露營、繩結、音樂、足球', 'e.g. Camping, knots, music, football') }}">
   </label>
-  <label class="field"><span>{{ L('童軍經驗', 'My Scout experience') }}</span>
-    <textarea name="experience" required maxlength="1000" rows="4"
-              placeholder="{{ L('例如：我參加了童軍兩年，去過一次大露營。', 'e.g. I have been a Scout for two years and went to a jamboree once.') }}">{{ profile.experience }}</textarea>
-  </label>
+  {{ experience_fields(profile) }}
   <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }}</span>
     <textarea name="share" required maxlength="1000" rows="4"
               placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile.share }}</textarea>

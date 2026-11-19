@@ -30,6 +30,23 @@ INTERESTS_MAX = 120
 TEXT_MAX = 1000
 POSITION_MAX = 40
 
+#: 童軍經驗 is picked, not written: how many days under canvas and how many
+#: hikes, each from a list that runs 0–20 and then opens out at 20+. The
+#: values are stored as text ("0"…"20", "20+") so a Sheet cell keeps them
+#: exactly as picked; 0 is a real answer, only an unpicked list is blank.
+COUNT_VALUES = {str(n) for n in range(21)} | {"20+"}
+
+
+def _count_value(raw) -> str:
+    """One picked count, cleaned: a stored value outside the list is blank."""
+    text = str(raw if raw is not None else "").strip()
+    if text.endswith(".0"):
+        text = text[:-2]
+    if text in ("20 or more", "20以上"):
+        text = "20+"
+    return text if text in COUNT_VALUES else ""
+
+
 #: 職位 is written by the scout in their own words and shown on the front of
 #: the card. Profiles saved before it became free text hold one of these
 #: codes; they still read as the matching title in either language, and the
@@ -56,6 +73,8 @@ def load_profile(st, user_id: str) -> dict:
         "position_edit": labels.get("zh", position),
         "interests": str(row.get("interests") or ""),
         "experience": str(row.get("experience") or ""),
+        "camping_days": _count_value(row.get("camping_days")),
+        "hiking_times": _count_value(row.get("hiking_times")),
         "share": str(row.get("share") or ""),
         "strength": str(row.get("strength") or ""),
         "visible": to_bool(row.get("visible")),
@@ -66,12 +85,25 @@ def load_profile(st, user_id: str) -> dict:
     }
 
 
+def _experience_complete(profile: dict) -> bool:
+    """童軍經驗 counts as filled once both counts are picked.
+
+    A profile saved while the experience was a written paragraph keeps
+    counting on that paragraph until its owner picks the two counts —
+    nobody is locked out, or loses their words, for a field that did
+    not exist when they wrote them.
+    """
+    if _count_value(profile.get("camping_days")) and _count_value(profile.get("hiking_times")):
+        return True
+    return bool(str(profile.get("experience") or "").strip())
+
+
 def profile_complete(profile: dict) -> bool:
     """All personal information is filled in and the profile is public."""
     return bool(
         str(profile.get("position") or "").strip()
         and str(profile.get("interests") or "").strip()
-        and str(profile.get("experience") or "").strip()
+        and _experience_complete(profile)
         and str(profile.get("share") or "").strip()
         and str(profile.get("strength") or "").strip()
         and to_bool(profile.get("visible"))
@@ -146,7 +178,6 @@ def save():
     values = {
         "position": str(body.get("position") or "").strip(),
         "interests": str(body.get("interests") or "").strip(),
-        "experience": str(body.get("experience") or "").strip(),
         "share": str(body.get("share") or "").strip(),
         "strength": str(body.get("strength") or "").strip(),
         # Profiles are public by rule, not by choice: completing the form is
@@ -156,13 +187,27 @@ def save():
     if not values["position"]:
         return fail(400, "profile_position", "請填寫你的職位。",
                     "Please write your position.")
-    if not values["interests"] or not values["experience"] or not values["share"] \
-            or not values["strength"]:
+    # 童軍經驗 arrives as the two picked counts; the counts take the written
+    # paragraph's place. A caller still sending the paragraph (an old page
+    # in an open tab) is kept on it, so nobody's save is lost mid-change.
+    if "camping_days" in body or "hiking_times" in body:
+        camping = _count_value(body.get("camping_days"))
+        hiking = _count_value(body.get("hiking_times"))
+        if not camping or not hiking:
+            return fail(400, "profile_empty", "請選擇露營天數和行山次數，才可以繼續。",
+                        "Please choose your camping days and hikes before you continue.")
+        values.update({"experience": "", "camping_days": camping, "hiking_times": hiking})
+    else:
+        values["experience"] = str(body.get("experience") or "").strip()
+        if not values["experience"]:
+            return fail(400, "profile_empty", "請填寫全部資料，才可以繼續。",
+                        "Please fill in everything before you continue.")
+    if not values["interests"] or not values["share"] or not values["strength"]:
         return fail(400, "profile_empty", "請填寫全部資料，才可以繼續。",
                     "Please fill in everything before you continue.")
     if len(values["position"]) > POSITION_MAX or len(values["interests"]) > INTERESTS_MAX \
             or len(values["strength"]) > INTERESTS_MAX \
-            or len(values["experience"]) > TEXT_MAX or len(values["share"]) > TEXT_MAX:
+            or len(values.get("experience") or "") > TEXT_MAX or len(values["share"]) > TEXT_MAX:
         return fail(400, "profile_long", "內容太長，請寫短一點。",
                     "That is too long — please keep it shorter.")
     save_profile(st, g.user["id"], values)

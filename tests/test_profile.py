@@ -21,6 +21,51 @@ def test_my_profile_shows_a_progress_overview(store, new_scout):
     assert "看背面" in page and "職位" in page
 
 
+def test_experience_is_two_dropdowns_of_camping_days_and_hikes(store, new_scout):
+    page = new_scout.get("/profile").get_data(as_text=True)
+    # the written paragraph is gone from both forms: two lists take its place
+    assert 'name="experience"' not in page
+    assert '<select name="camping_days"' in page and '<select name="hiking_times"' in page
+    assert "露營天數" in page and "行山次數" in page and "20以上" in page
+    for name in ("camping_days", "hiking_times"):
+        start = page.index(f'name="{name}"')
+        options = page[start:page.index("</select>", start)]
+        for n in range(21):
+            assert f'value="{n}"' in options
+        assert 'value="20+"' in options
+
+    # picking only one of the two is not a finished experience
+    reply = new_scout.post("/profile", data={
+        "position": "隊員", "interests": "露營", "camping_days": "6",
+        "share": "喜歡幫忙。", "strength": "繩結",
+    })
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_empty"
+    assert store.get("profiles", new_scout.id) is None
+
+    # 0 is a real pick, and 20+ is the top of the list
+    reply = new_scout.post("/profile", data={
+        "position": "隊員", "interests": "露營", "camping_days": "0",
+        "hiking_times": "20+", "share": "喜歡幫忙。", "strength": "繩結",
+    })
+    assert reply.status_code == 200
+    row = store.get("profiles", new_scout.id)
+    assert row["camping_days"] == "0" and row["hiking_times"] == "20+"
+    assert row["experience"] == ""  # the counts replace the paragraph
+
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "露營天數" in page and "行山次數" in page and "20+" in page
+    assert 'value="0" selected' in page and 'value="20+" selected' in page
+    assert "請先完成個人檔案" not in page  # both zeros-and-all still complete
+
+
+def test_the_experience_dropdowns_are_english_on_english_pages(store, new_scout):
+    new_scout.get("/set-language/en")
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "Camping days" in page and "Hikes" in page and "20 or more" in page
+    assert '<select name="camping_days"' in page
+
+
 def test_the_old_history_address_lands_on_my_profile(store, new_scout):
     response = new_scout.get("/history")
     assert response.status_code == 302
@@ -343,6 +388,7 @@ def test_the_embedded_generator_uses_the_proxy_not_a_pasted_key(new_scout):
 def test_the_profiles_tab_exists_in_the_schema():
     from scout.schema import COLLECTIONS, key_field
     assert COLLECTIONS["profiles"]["fields"] == [
-        "user_id", "position", "interests", "experience", "share", "strength", "visible", "updated_at",
+        "user_id", "position", "interests", "experience", "camping_days", "hiking_times",
+        "share", "strength", "visible", "updated_at",
         "card_image_url", "card_image_id", "card_generated_at"]
     assert key_field("profiles") == "user_id"

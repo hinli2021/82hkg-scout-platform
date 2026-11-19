@@ -101,6 +101,32 @@
   <div class="empty"><span class="empty-emoji">{{ emoji }}</span>{{ L(zh, en) }}</div>
 {% endmacro %}
 
+{# ── 童軍經驗：露營天數 + 行山次數，各自一個下拉選單 ──────────────────
+   0 is a real answer, 20+ is the open-ended top of the list. #}
+{% macro experience_select(name, selected) %}
+  <select name="{{ name }}" required>
+    <option value="" disabled {{ 'selected' if not selected else '' }}>{{ L('請選擇', 'Please choose') }}</option>
+    {% for n in range(21) %}
+      <option value="{{ n }}" {{ 'selected' if selected == n|string else '' }}>{{ n }}</option>
+    {% endfor %}
+    <option value="20+" {{ 'selected' if selected == '20+' else '' }}>{{ L('20以上', '20 or more') }}</option>
+  </select>
+{% endmacro %}
+
+{% macro experience_fields(profile) %}
+  <div class="field">
+    <span>{{ L('童軍經驗', 'My Scout experience') }}</span>
+    <div class="form-grid">
+      <label class="field"><span>⛺ {{ L('露營天數', 'Camping days') }}</span>
+        {{ experience_select('camping_days', profile.camping_days) }}
+      </label>
+      <label class="field"><span>🥾 {{ L('行山次數', 'Hikes') }}</span>
+        {{ experience_select('hiking_times', profile.hiking_times) }}
+      </label>
+    </div>
+  </div>
+{% endmacro %}
+
 {% macro streak_chip(streak) %}
   {% if streak %}
     <span class="chip streak-hot"><span class="flame">🔥</span> {{ streak }} {{ L('天', 'days') }}</span>
