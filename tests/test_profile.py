@@ -155,6 +155,12 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     assert 'value="守夜"' in page and 'value="觀鳥"' in page
     assert 'data-other-box="position_choice" hidden' in page  # 聯絡 is listed
 
+    # interests stop at three picks, Other counting as one of them
+    reply = save(interest_picks=["露營", "行山", "足球", "籃球"])
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_interests"
+    assert store.get("profiles", new_scout.id)["interests"] == "露營、觀鳥"
+
     # an Other position that runs too long is refused, like the other fields
     reply = save(position_choice="__other__", position_other="職" * 41)
     assert reply.status_code == 400

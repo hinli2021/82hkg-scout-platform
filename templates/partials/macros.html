@@ -164,7 +164,7 @@
 {% endmacro %}
 
 {% macro interests_fields(profile) %}
-  <div class="field"><span>{{ L('興趣', 'Interests') }} <span class="hint">{{ L('（可多選，撳幾多個都得）', '(pick as many as you like)') }}</span></span>
+  <div class="field"><span>{{ L('興趣', 'Interests') }} <span class="hint">{{ L('（可多選，最多 3 個）', '(pick up to 3)') }}</span></span>
     <div class="pick-list">
       {% for value_zh, label_en in profile.interest_options %}
         <label class="pick-chip"><input type="checkbox" name="interest_picks" value="{{ value_zh }}" {{ 'checked' if value_zh in profile.interest_choices else '' }}> {{ L(value_zh, label_en) }}</label>

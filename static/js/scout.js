@@ -354,15 +354,20 @@
       function sync() {
         var picked;
         if (isChecks) {
-          // 興趣 is a row of checkboxes: Other is open while its box is ticked,
-          // and the group as a whole must have at least one tick to submit.
-          var any = false, other = false;
+          // 興趣 is a row of checkboxes: one to three ticks (Other counts as
+          // one), Other's text box open while its box is ticked. At three,
+          // the unticked chips lock until one is unticked again.
+          var count = 0, other = false;
           fields.forEach(function (f) {
-            if (f.checked) { any = true; if (f.value === '__other__') other = true; }
+            if (f.checked) { count += 1; if (f.value === '__other__') other = true; }
           });
+          fields.forEach(function (f) { f.disabled = !f.checked && count >= 3; });
           picked = other;
-          fields[0].setCustomValidity(any ? '' :
-            (FX && FX.lang && FX.lang() === 'en' ? 'Please pick at least one interest.' : '請最少揀一個興趣。'));
+          var en = FX && FX.lang && FX.lang() === 'en';
+          fields[0].setCustomValidity(
+            count === 0 ? (en ? 'Please pick at least one interest.' : '請最少揀一個興趣。')
+            : count > 3 ? (en ? 'Pick at most 3 interests.' : '興趣最多揀 3 個。')
+            : '');
         } else {
           picked = fields[0].value === '__other__';
         }

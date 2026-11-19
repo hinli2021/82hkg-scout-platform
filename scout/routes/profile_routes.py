@@ -27,6 +27,7 @@ from .helpers import audit, fail, ok, store, wants_json
 profile_routes = Blueprint("profile_routes", __name__)
 
 INTERESTS_MAX = 120
+INTERESTS_PICK_MAX = 3  # 興趣: at most three picks, Other counting as one
 TEXT_MAX = 1000
 POSITION_MAX = 40
 
@@ -251,8 +252,12 @@ def _picked_single(body, choice_name: str, other_name: str, options: list) -> st
     return None
 
 
-def _picked_interests(body) -> str | None:
-    """The stored 興趣 string for the multi-pick list, or None if empty."""
+def _picked_interests(body) -> tuple[str | None, str]:
+    """The stored 興趣 string, with why not: (text, problem).
+
+    At most INTERESTS_PICK_MAX picks, Other counting as one of them;
+    problem is "" when the picks are good, else "empty" or "too_many".
+    """
     known = {item[0] for item in INTEREST_OPTIONS}
     picked: list[str] = []
     other = False
@@ -263,13 +268,17 @@ def _picked_interests(body) -> str | None:
         elif value in known and value not in picked:
             picked.append(value)
         elif value:
-            return None  # a value that is not on the list at all
+            return None, "empty"  # a value that is not on the list at all
     if other:
         words = str(body.get("interests_other") or "").strip()
         if not words:
-            return None
+            return None, "empty"
         picked.append(words)
-    return "、".join(picked) if picked else None
+    if not picked:
+        return None, "empty"
+    if len(picked) > INTERESTS_PICK_MAX:
+        return None, "too_many"
+    return "、".join(picked), ""
 
 
 def save_profile(st, user_id: str, values: dict) -> dict:
@@ -352,7 +361,10 @@ def save():
         if position is None:
             return fail(400, "profile_position", "請選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
                         "Please pick your position — and if you pick Other, write what it is.")
-        interests = _picked_interests(body)
+        interests, problem = _picked_interests(body)
+        if problem == "too_many":
+            return fail(400, "profile_interests", "興趣最多揀 3 個，請取消其中一個再試。",
+                        "Pick at most 3 interests — untick one and try again.")
         if interests is None:
             return fail(400, "profile_empty", "請選擇你的興趣；揀「其他」的話，請寫明是甚麼興趣。",
                         "Please pick your interests — and if you pick Other, write what they are.")

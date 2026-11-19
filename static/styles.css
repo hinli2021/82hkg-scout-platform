@@ -177,6 +177,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--green-400);
 }
 .pick-chip input { width: 19px; height: 19px; accent-color: var(--green-600); flex: none; }
 .pick-chip:has(input:checked) { background: var(--green-100); border-color: var(--green-600); font-weight: 700; }
+.pick-chip:has(input:disabled) { opacity: .45; cursor: not-allowed; }
 .inline-form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: flex-end; }
 .inline-form .field { margin-bottom: 0; }
 
