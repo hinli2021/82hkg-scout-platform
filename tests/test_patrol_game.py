@@ -106,6 +106,13 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert "img/quest/patrol/bluff.jpg" in page and "cave-hud" in page
     assert "cave-card" in page and "patrol.css" not in page
     assert "data-pat-more" in page          # the same shell pieces as games 1–4
+    # the story is told first, page by page; only then do the members show
+    assert "data-pat-story" in page and "海邊的木筏" in page
+    assert page.count("data-pat-page") == 3
+    assert 'data-pat-cards hidden' in page and "data-pat-story-next" in page
+    # the card's patrol strip carries the label words, never a raw object
+    assert isinstance(scene["patrol_zh"], str) and scene["patrol_zh"]
+    assert "[object Object]" not in page
     # phones and tablets: the flip card, board and raft shrink to fit,
     # with finger-sized tap targets
     import pathlib

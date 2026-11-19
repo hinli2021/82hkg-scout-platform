@@ -19,18 +19,20 @@
   var state = { scene: 0, flipped: new Set(), flippedAll: false };
 
   function progress(step) {
-    var at = step === "cards" ? 0 : step === "stage1" ? 1 : 2;
+    var at = step === "story" ? 0 : step === "cards" ? 1 : step === "stage1" ? 2 : 3;
     var dots = "";
-    for (var i = 0; i < 3; i++) dots += '<i' + (i === at ? ' class="on"' : "") + "></i>";
+    for (var i = 0; i < 4; i++) dots += '<i' + (i === at ? ' class="on"' : "") + "></i>";
     return '<span class="pat-dots">' + dots + "</span>";
   }
 
   function renderProgress(step) {
-    $("[data-pat-progress]").innerHTML = (step === "cards"
-      ? (lang === "en" ? "Know your patrol" : "認識小隊成員")
-      : step === "stage1"
-        ? (lang === "en" ? "Stage 1: find your patrol" : "第一階段：找出小隊成員")
-        : (lang === "en" ? "Stage 2: seat the raft" : "第二階段：安排木筏崗位"))
+    $("[data-pat-progress]").innerHTML = (step === "story"
+      ? (lang === "en" ? "The story" : "故事")
+      : step === "cards"
+        ? (lang === "en" ? "Know your patrol" : "認識小隊成員")
+        : step === "stage1"
+          ? (lang === "en" ? "Stage 1: find your patrol" : "第一階段：找出小隊成員")
+          : (lang === "en" ? "Stage 2: seat the raft" : "第二階段：安排木筏崗位"))
       + progress(step);
   }
 
@@ -169,12 +171,49 @@
       + (data.roster_size || 0) + (lang === "en" ? " members, including you." : " 位成員（包括你自己）。");
   }
 
+  /* ── the opening story, told page by page ─────────────────────────── */
+  var storyAt = 0;
+
+  function storyPages() {
+    return Array.prototype.slice.call(document.querySelectorAll("[data-pat-page]"));
+  }
+
+  function showStoryPage() {
+    var pages = storyPages();
+    pages.forEach(function (page, i) { page.hidden = i !== storyAt; });
+    var count = $("[data-pat-story-count]");
+    if (count) count.textContent = pages.length > 1 ? (storyAt + 1) + " / " + pages.length : "";
+    var next = $("[data-pat-story-next]");
+    var last = storyAt >= pages.length - 1;
+    if (next) next.textContent = last
+      ? (lang === "en" ? "👥 Meet your patrol" : "👥 去認識你的小隊")
+      : (lang === "en" ? "Continue →" : "繼續 →");
+    renderProgress("story");
+  }
+
+  function storyNext() {
+    var pages = storyPages();
+    if (storyAt < pages.length - 1) {
+      storyAt += 1;
+      showStoryPage();
+      var wrap = $(".cave-card-wrap");
+      if (wrap) wrap.scrollTop = 0;
+      return;
+    }
+    /* the story is told — now, know your patrol */
+    $("[data-pat-story]").hidden = true;
+    $("[data-pat-cards]").hidden = false;
+    renderProgress("cards");
+    var wrap2 = $(".cave-card-wrap");
+    if (wrap2) wrap2.scrollTop = 0;
+  }
+
   function startStage1() {
     /* the story picture belongs to the opening only: once the game is
        under way the words panel takes the whole window */
     root.classList.add("is-playing");
     $("[data-pat-cards]").hidden = true;
-    $("[data-pat-intro]").hidden = true;
+    $("[data-pat-story]").hidden = true;
     $("[data-pat-stage1]").hidden = false;
     renderProgress("stage1");
     var wrap = $(".cave-card-wrap");
@@ -213,7 +252,7 @@
 
   function startStage2() {
     $("[data-pat-cards]").hidden = true;
-    $("[data-pat-intro]").hidden = true;
+    $("[data-pat-story]").hidden = true;
     $("[data-pat-stage1]").hidden = true;
     $("[data-pat-quiz]").hidden = false;
     renderProgress("stage2");
@@ -366,13 +405,17 @@
             : "這個小隊暫時未有足夠成員。")
         + "</p>";
       sync();
-      renderProgress("cards");
+      renderProgress("story");
+      showStoryPage();
+      $("[data-pat-story-next]").addEventListener("click", storyNext);
       return;
     }
-    renderProgress("cards");
+    renderProgress("story");
+    showStoryPage();
     showCard(0);
     $("[data-pat-prev]").addEventListener("click", function () { showCard(state.scene - 1); });
     $("[data-pat-next]").addEventListener("click", function () { showCard(state.scene + 1); });
+    $("[data-pat-story-next]").addEventListener("click", storyNext);
     $("[data-pat-start]").addEventListener("click", startStage1);
     $("[data-pat-stage1-check]").addEventListener("click", checkStage1);
     $("[data-pat-back-cards]").addEventListener("click", function () {

@@ -1125,8 +1125,8 @@ def task_patrol(task_id: str):
 
     scenes = {
         "task_id": task_id,
-        "patrol_zh": patrol_label(g.user.get("patrol") or ""),
-        "patrol_en": patrol_label(g.user.get("patrol") or ""),
+        "patrol_zh": patrol_label(g.user.get("patrol") or "")["zh"],
+        "patrol_en": patrol_label(g.user.get("patrol") or "")["en"],
         "members": members,
         "raft": raft,
         "crew": crew,

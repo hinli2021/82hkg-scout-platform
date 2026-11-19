@@ -38,30 +38,47 @@
     </div>
     <div class="cave-card-wrap">
       <div class="cave-card" data-pat-card aria-live="polite">
-        <div data-pat-intro>
+        {# 開場故事：先把故事講完，才去認識小隊成員 #}
+        <section data-pat-story>
           {% if cleared_now %}
             <span class="cave-kicker cave-kicker-good">{{ L('第 2 項', 'Item 2') }}</span>
             <h1 class="cave-title">{{ L('木筏已經離岸', 'The raft has left the island') }}</h1>
-            <p class="cave-line">{{ L('你已完成第 2 項。名冊有新面孔時，隨時回來再翻卡，重新安排一次木筏崗位。',
-                                      'You have already completed item 2. Come back and flip the cards whenever the roster gains a new face, and seat the raft once more.') }}</p>
+            <div data-pat-page>
+              <p class="cave-line">{{ L('你上次已帶領全隊乘木筏離開小島，第 2 項已經完成。這次回來，先看看成員卡——名冊有新面孔的話，認識他們之後，可以重新走一次兩個階段。',
+                                        'Last time you led the whole patrol off the island on the raft, and item 2 is complete. Now you are back: look through the member cards first — and if the roster has new faces, once you know them you can walk the two stages again.') }}</p>
+            </div>
           {% else %}
             <span class="cave-kicker">{{ L('遊戲 5', 'Game 5') }}</span>
-            <h1 class="cave-title">{{ L('終於到了海邊', 'The seaside at last') }}</h1>
-            <p class="cave-line">{{ L('你走出山洞，過了橫木橋，在訓練場整好隊形，又在溪谷升起旗幟，四個考驗都完成了。走下山崗，前面就是海邊——小隊的其他成員正在岸邊等你，他們紮好了一隻木筏，可以載全隊離開小島。',
-                                      'You came out of the cave, crossed the log bridge, drilled on the parade ground and raised the flag in the valley: all four challenges are behind you. Down the bluff is the seaside — and the rest of your patrol is waiting on the shore. They have built a raft that can carry the whole patrol off the island.') }}</p>
-            <p class="cave-line">{{ L('不過，木筏上每個崗位都有要求：瞭望、掌舵、通訊，都要由最合適的成員負責，人人合作，木筏才行得穩。要安排得好，先要認識每一位成員。逐張翻開成員卡，記下各人的姓名、職位、興趣和強項，也要知道誰是小隊聯絡和怎樣聯絡他。然後有兩個階段：第一，在岸邊的木板上，在全團童軍的姓名之中找出你的每一位小隊成員；第二，按每個崗位的要求安排成員登上木筏。八成崗位安排正確，全隊即可離開小島，完成第 2 項。',
-                                      'But every station on the raft has its own requirement: the lookout, the steering, the signal station — each needs the member who suits it best, and only a patrol working together keeps the raft steady. To seat everyone well, you first have to know them. Flip through the member cards one by one and learn everyone\'s name, position, interests and strengths — and who the patrol contact is and how to reach them. Then come two stages: first, find every member of your patrol among all the unit\'s names on the wooden board at the shore; second, seat each member at the raft station whose requirement they match. With 80% of the stations right, the whole patrol leaves the island, and item 2 is complete.') }}</p>
-            <p class="cave-line small">{{ L('成員卡來自大家的個人檔案。小隊有新成員加入時，名冊會自動更新。',
-                                            'The cards come from everyone\'s profile. The roster updates itself when a new member joins the patrol.') }}</p>
+            <h1 class="cave-title">{{ L('海邊的木筏', 'The raft by the sea') }}</h1>
+            <div data-pat-page>
+              <p class="cave-line">{{ L('四個考驗，一一完成了。你走出童軍歷史山洞，記下童軍運動的故事；踏過迷霧渡口，一字一句唸好誓詞和規律；在步操訓練場上整好隊形；最後在溪谷裡，把旗升上旗桿。現在，你沿著小徑走下山崗，海風迎面而來——前面就是海邊。',
+                                        'The four challenges are behind you, one by one. You walked out of the cave of Scout history with its stories in mind; you crossed the misty crossing, saying the Promise and the Law word by word; you drilled in good order on the parade ground; and in the valley you raised the flag to the top of the pole. Now the path leads down the bluff, the sea wind meets you — and ahead is the seaside.') }}</p>
+            </div>
+            <div data-pat-page hidden>
+              <p class="cave-line">{{ L('沙灘上，你的小隊正在等你。他們用木頭和繩索紮好了一隻木筏，船帆也準備好了。只要全隊登上木筏，順著海流出發，就可以離開這座小島，回到對岸的營地。大家向你招手：就等你來帶領全隊出發。',
+                                        'On the beach, your patrol is waiting. They have lashed a raft together out of logs and rope, and the sail is ready. Once the whole patrol is aboard and riding the current, you can leave this island and return to the camp across the water. They wave you over: everyone is waiting for you to lead the way.') }}</p>
+            </div>
+            <div data-pat-page hidden>
+              <p class="cave-line">{{ L('不過，木筏不大，崗位卻不少：有人要瞭望、有人要掌舵、有人要揚帆，還要有人負責通訊。每個崗位都要由最合適的成員負責，人人合作，木筏才行得穩。所以出發之前，你要先真正認識每一位隊員——他的姓名、職位、興趣和強項，也要知道誰是小隊聯絡、怎樣可以找到他。準備好了，就由成員檔案卡開始。',
+                                        'But the raft is not large, and its stations are many: someone must keep lookout, someone steer, someone tend the sail, and someone run the signals. Every station needs the member who suits it best — only a patrol working together keeps the raft steady. So before you set off, you must truly know every member of your patrol: their name, position, interests and strengths, and who the patrol contact is and how to reach them. When you are ready, the member profile cards are where to begin.') }}</p>
+              <p class="cave-line small">{{ L('成員卡來自大家的個人檔案。小隊有新成員加入時，名冊會自動更新。',
+                                              'The cards come from everyone\'s profile. The roster updates itself when a new member joins the patrol.') }}</p>
+            </div>
           {% endif %}
-        </div>
+          <div class="cave-actions">
+            <button class="btn primary big" type="button" data-pat-story-next data-cheer="🌊,✨">
+              {{ L('繼續', 'Continue') }}
+            </button>
+            <span class="cave-line small" data-pat-story-count></span>
+          </div>
+        </section>
 
         <p class="pat-done" data-pat-done {% if not cleared_now %}hidden{% endif %}>
           ✅ {{ L('你已完成第 2 項。', 'You have completed item 2.') }}
         </p>
 
-        {# 瀏覽：成員檔案卡 #}
-        <section data-pat-cards>
+        {# 故事之後：認識小隊成員 #}
+        <section data-pat-cards hidden>
           <h2 class="cave-subtitle">{{ L('先認識你的小隊：成員檔案卡', 'First, know your patrol: member profile cards') }}</h2>
           <p class="cave-line small">
             {{ L('每位成員都有一張檔案卡，樣式和他在自己個人檔案頁看到的一樣，內容來自他填寫的資料；他日後修改資料，這張卡也會更新。尚未填寫資料的成員，可以靠姓名、頭像、童軍編號、小隊和職位辨認。慢慢看，看完就可以開始第一階段。',
