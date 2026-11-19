@@ -347,17 +347,29 @@
   function initProfileLists() {
     document.querySelectorAll('[data-other-box]').forEach(function (box) {
       var form = box.closest('form');
-      var field = form ? form.querySelector('[name="' + box.dataset.otherBox + '"]') : null;
+      var fields = form ? form.querySelectorAll('[name="' + box.dataset.otherBox + '"]') : [];
       var input = box.querySelector('input[type="text"]');
-      if (!field) return;
+      if (!fields.length) return;
+      var isChecks = fields[0].type === 'checkbox';
       function sync() {
-        var picked = field.multiple
-          ? Array.prototype.some.call(field.selectedOptions, function (o) { return o.value === '__other__'; })
-          : field.value === '__other__';
+        var picked;
+        if (isChecks) {
+          // 興趣 is a row of checkboxes: Other is open while its box is ticked,
+          // and the group as a whole must have at least one tick to submit.
+          var any = false, other = false;
+          fields.forEach(function (f) {
+            if (f.checked) { any = true; if (f.value === '__other__') other = true; }
+          });
+          picked = other;
+          fields[0].setCustomValidity(any ? '' :
+            (FX && FX.lang && FX.lang() === 'en' ? 'Please pick at least one interest.' : '請最少揀一個興趣。'));
+        } else {
+          picked = fields[0].value === '__other__';
+        }
         box.hidden = !picked;
         if (input) input.required = picked;
       }
-      field.addEventListener('change', sync);
+      fields.forEach(function (f) { f.addEventListener('change', sync); });
       sync();
     });
   }

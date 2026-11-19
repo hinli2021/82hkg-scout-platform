@@ -105,7 +105,10 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     # all three are lists now, each with an Other that opens a text box
     assert '<select name="position_choice"' in page
     assert '<select name="strength_choice"' in page
-    assert '<select name="interest_picks"' in page and "multiple" in page
+    # 興趣 is a row of tap-to-pick checkboxes, so any number can be picked
+    assert '<select name="interest_picks"' not in page
+    assert page.count('type="checkbox" name="interest_picks"') >= 18
+    assert "可多選" in page
     assert 'name="position"' not in page and 'name="strength"' not in page
     for word in ("隊員", "副小隊長", "小隊長", "高級小隊長", "聯絡", "康樂", "文書",
                  "物資管理", "氣象員", "報時員", "情緒輔助"):

@@ -164,14 +164,14 @@
 {% endmacro %}
 
 {% macro interests_fields(profile) %}
-  <label class="field"><span>{{ L('興趣', 'Interests') }} <span class="hint">{{ L('（可多選）', '(you can pick more than one)') }}</span></span>
-    <select name="interest_picks" multiple size="6" required>
+  <div class="field"><span>{{ L('興趣', 'Interests') }} <span class="hint">{{ L('（可多選，撳幾多個都得）', '(pick as many as you like)') }}</span></span>
+    <div class="pick-list">
       {% for value_zh, label_en in profile.interest_options %}
-        <option value="{{ value_zh }}" {{ 'selected' if value_zh in profile.interest_choices else '' }}>{{ L(value_zh, label_en) }}</option>
+        <label class="pick-chip"><input type="checkbox" name="interest_picks" value="{{ value_zh }}" {{ 'checked' if value_zh in profile.interest_choices else '' }}> {{ L(value_zh, label_en) }}</label>
       {% endfor %}
-      <option value="__other__" {{ 'selected' if profile.interests_other_on else '' }}>{{ L('其他', 'Other') }}</option>
-    </select>
-  </label>
+      <label class="pick-chip"><input type="checkbox" name="interest_picks" value="__other__" {{ 'checked' if profile.interests_other_on else '' }}> {{ L('其他', 'Other') }}</label>
+    </div>
+  </div>
   <label class="field" data-other-box="interest_picks" {{ '' if profile.interests_other_on else 'hidden' }}>
     <span>{{ L('其他興趣', 'My interests (other)') }}</span>
     <input type="text" name="interests_other" maxlength="120" value="{{ profile.interests_other }}"

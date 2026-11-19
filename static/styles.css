@@ -168,6 +168,15 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--green-400);
 .radio-row:hover { border-color: var(--green-400); }
 .radio-row.correct { border-color: var(--ok); background: var(--ok-bg); }
 .choices { display: grid; gap: .4rem; }
+/* 興趣 pick-as-many chips: one tap each, no modifier keys or native pickers */
+.pick-list { display: flex; flex-wrap: wrap; gap: .45rem; }
+.pick-chip {
+  display: inline-flex; align-items: center; gap: .4rem; cursor: pointer;
+  padding: .5rem .75rem; border: 1.5px solid var(--line); border-radius: 999px;
+  background: var(--white); font-size: .92rem; min-height: 44px;
+}
+.pick-chip input { width: 19px; height: 19px; accent-color: var(--green-600); flex: none; }
+.pick-chip:has(input:checked) { background: var(--green-100); border-color: var(--green-600); font-weight: 700; }
 .inline-form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: flex-end; }
 .inline-form .field { margin-bottom: 0; }
 
