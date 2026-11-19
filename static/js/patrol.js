@@ -19,9 +19,10 @@
   var state = { scene: 0, flipped: new Set(), flippedAll: false };
 
   function progress(step) {
-    var at = step === "story" ? 0 : step === "cards" ? 1 : step === "stage1" ? 2 : 3;
+    var at = step === "story" ? 0 : step === "cards" ? 1
+      : step === "stage1" ? 2 : step === "stage2" ? 3 : 4;
     var dots = "";
-    for (var i = 0; i < 4; i++) dots += '<i' + (i === at ? ' class="on"' : "") + "></i>";
+    for (var i = 0; i < 5; i++) dots += '<i' + (i === at ? ' class="on"' : "") + "></i>";
     return '<span class="pat-dots">' + dots + "</span>";
   }
 
@@ -30,9 +31,11 @@
       ? (lang === "en" ? "The story" : "故事")
       : step === "cards"
         ? (lang === "en" ? "Know your patrol" : "認識小隊成員")
-        : step === "stage1"
-          ? (lang === "en" ? "Stage 1: find your patrol" : "第一階段：找出小隊成員")
-          : (lang === "en" ? "Stage 2: seat the raft" : "第二階段：安排木筏崗位"))
+        : step === "position"
+          ? (lang === "en" ? "Last step: decide your position" : "最後一步：決定你的職位")
+          : step === "stage1"
+            ? (lang === "en" ? "Stage 1: find your patrol" : "第一階段：找出小隊成員")
+            : (lang === "en" ? "Stage 2: seat the raft" : "第二階段：安排木筏崗位"))
       + progress(step);
   }
 
@@ -272,12 +275,89 @@
     renderProgress("cards");
   }
 
+  function fillPosition() {
+    var sel = $("[data-pat-position-choice]");
+    if (!sel) return;
+    var current = data.my_position_choice || "";
+    var html = '<option value="" disabled' + (current ? "" : " selected") + ">"
+      + esc(lang === "en" ? "Please choose" : "請選擇") + "</option>";
+    (data.position_options || []).forEach(function (pair) {
+      html += '<option value="' + esc(pair[0]) + '"' + (current === pair[0] ? " selected" : "")
+        + ">" + esc(lang === "en" ? pair[1] : pair[0]) + "</option>";
+    });
+    html += '<option value="__other__"' + (current === "__other__" ? " selected" : "")
+      + ">" + esc(lang === "en" ? "Other" : "其他") + "</option>";
+    sel.innerHTML = html;
+    var other = $("[data-pat-position-other]");
+    if (other) other.value = data.my_position_other || "";
+    syncPositionOther();
+  }
+
+  function syncPositionOther() {
+    var sel = $("[data-pat-position-choice]");
+    var box = $("[data-pat-position-otherbox]");
+    var other = $("[data-pat-position-other]");
+    if (!sel || !box) return;
+    var picked = sel.value === "__other__";
+    box.hidden = !picked;
+    if (other) other.required = picked;
+  }
+
+  function enterPosition() {
+    root.classList.add("is-playing");
+    $("[data-pat-story]").hidden = true;
+    $("[data-pat-cards]").hidden = true;
+    $("[data-pat-stage1]").hidden = true;
+    $("[data-pat-quiz]").hidden = true;
+    $("[data-pat-position]").hidden = false;
+    renderProgress("position");
+    var wrap = $(".cave-card-wrap");
+    if (wrap) wrap.scrollTop = 0;
+  }
+
+  function savePosition(e) {
+    e.preventDefault();
+    var form = $("[data-pat-position-form]");
+    var result = $("[data-pat-position-result]");
+    result.textContent = lang === "en" ? "Saving…" : "正在儲存……";
+    fetch(data.position_url, {
+      method: "POST",
+      headers: { "X-Requested-With": "fetch" },
+      body: new FormData(form)
+    }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+      .then(function (out) {
+        var j = out.j;
+        if (j.ok) {
+          data.position_options = j.position_options;
+          data.my_position_choice = j.my_position_choice;
+          data.my_position_other = j.my_position_other;
+          fillPosition();
+          /* back to the raft with the seating untouched: the same
+             choices go to the server once more, and this time the
+             last step is done, so the raft can set off */
+          $("[data-pat-position]").hidden = true;
+          $("[data-pat-quiz]").hidden = false;
+          renderProgress("stage2");
+          submit({ preventDefault: function () {} });
+        } else {
+          result.className = "pat-result pat-bad";
+          result.textContent = "❌ " + (lang === "en" ? j.message_en : j.message_zh);
+        }
+      }).catch(function () {
+        result.className = "pat-result pat-bad";
+        result.textContent = lang === "en"
+          ? "The connection failed. Please try again."
+          : "連線失敗。請再試一次。";
+      });
+  }
+
   function startStage1() {
     /* the story picture belongs to the opening only: once the game is
        under way the words panel takes the whole window */
     root.classList.add("is-playing");
     $("[data-pat-cards]").hidden = true;
     $("[data-pat-story]").hidden = true;
+    $("[data-pat-position]").hidden = true;
     $("[data-pat-stage1]").hidden = false;
     renderProgress("stage1");
     var wrap = $(".cave-card-wrap");
@@ -318,6 +398,7 @@
     raftReady = true;
     $("[data-pat-cards]").hidden = true;
     $("[data-pat-story]").hidden = true;
+    $("[data-pat-position]").hidden = true;
     $("[data-pat-stage1]").hidden = true;
     $("[data-pat-quiz]").hidden = false;
     renderProgress("stage2");
@@ -445,6 +526,13 @@
           var submitBtn = $("[data-pat-submit]");
           if (submitBtn) submitBtn.hidden = true;
           runPassed = true;
+        } else if (j.need_position) {
+          /* the raft is right, but the last step is still missing:
+             nothing has been filed, and the seating stays as it is */
+          enterPosition();
+          var presult = $("[data-pat-position-result]");
+          presult.className = "pat-result pat-ok";
+          presult.textContent = "🚣 " + (lang === "en" ? j.message_en : j.message_zh);
         } else {
           /* no hints: nobody is told which station was wrong, or how
              many. Everyone goes back to the shore and is seated again,
@@ -553,7 +641,7 @@
     }, true);
     document.addEventListener("submit", function (event) {
       if (!patInProgress()) return;
-      if (event.target.closest("[data-pat-form]")) return;
+      if (event.target.closest("[data-pat-form], [data-pat-position-form]")) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       var form = event.target;
@@ -590,6 +678,17 @@
     $("[data-pat-prev]").addEventListener("click", function () { showCard(state.scene - 1); });
     $("[data-pat-next]").addEventListener("click", function () { showCard(state.scene + 1); });
     $("[data-pat-story-next]").addEventListener("click", storyNext);
+    fillPosition();
+    $("[data-pat-position-choice]").addEventListener("change", syncPositionOther);
+    $("[data-pat-position-form]").addEventListener("submit", savePosition);
+    $("[data-pat-position-back]").addEventListener("click", function () {
+      $("[data-pat-position]").hidden = true;
+      $("[data-pat-quiz]").hidden = false;
+      renderProgress("stage2");
+      var wrap = $(".cave-card-wrap");
+      if (wrap) wrap.scrollTop = 0;
+      renderRaft();
+    });
     $("[data-pat-view-cards]").addEventListener("click", function () {
       $("[data-pat-quiz]").hidden = true;
       $("[data-pat-cards]").hidden = false;

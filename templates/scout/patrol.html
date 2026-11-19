@@ -110,8 +110,8 @@
         <section data-pat-quiz hidden>
           <h2 class="cave-subtitle">{{ L('第二階段：安排木筏崗位', 'Stage 2: seat the raft') }}</h2>
           <p class="cave-line small">
-            {{ L('木筏泊在岸邊，每個崗位都寫明要求。先點一位成員，再點木筏上的崗位，把他安排到那裡；點已安排的崗位，可以把成員送回岸邊。全部安排好後按「登上木筏」。每個崗位都要安排正確，木筏才會出發；如果有崗位不正確，遊戲不會提示是哪一個，你要重新安排成員再試。你可以隨時按「查看成員卡」翻看成員資料，再回來繼續安排。',
-                 'The raft waits at the shore, and every station states its requirement. Tap a member, then tap a station on the raft to seat them there; tap a filled station to send its member back to the shore. When everyone is seated, press “Board the raft”. Every station must hold the right member before the raft sets off; if one is wrong, the game will not say which — seat the members again and try once more. You can check the member cards at any time with “Look at the member cards”, then come back and carry on.') }}
+            {{ L('木筏泊在岸邊，每個崗位都寫明要求。先點一位成員，再點木筏上的崗位，把他安排到那裡；點已安排的崗位，可以把成員送回岸邊。全部安排好後按「登上木筏」。每個崗位都要安排正確，再做埋最後一步——和隊員商量，決定你的職位——木筏才會出發；如果有崗位不正確，遊戲不會提示是哪一個，你要重新安排成員再試。你可以隨時按「查看成員卡」翻看成員資料，再回來繼續安排。',
+                 'The raft waits at the shore, and every station states its requirement. Tap a member, then tap a station on the raft to seat them there; tap a filled station to send its member back to the shore. When everyone is seated, press “Board the raft”. Every station must hold the right member, and then comes the last step — deciding your position with your patrol — before the raft sets off; if one is wrong, the game will not say which — seat the members again and try once more. You can check the member cards at any time with “Look at the member cards”, then come back and carry on.') }}
           </p>
           <form data-pat-form method="post" action="">
             <div class="pat-raft" data-pat-raft></div>
@@ -127,6 +127,32 @@
               </button>
             </div>
           </form>
+        </section>
+
+        {# 最後一步：木筏坐穩之後，和隊員商量，決定自己的職位 #}
+        <section data-pat-position hidden>
+          <h2 class="cave-subtitle">{{ L('最後一步：決定你的職位', 'Last step: decide your position') }}</h2>
+          <p class="cave-line small">
+            {{ L('木筏已經坐穩，全隊準備出發——還差最後一步。這一局你認識了每一位隊員，現在請和你的隊員商量：小隊需要甚麼職位？你最適合負責哪一個？商量好之後，在下面選出你的職位（清單沒有的話，揀「其他」再寫出來）。未決定職位，木筏不可以出發，遊戲 5 也不能完成；選好之後，職位會儲存到你的個人檔案，木筏隨即出發。',
+                 'The raft is seated and the patrol is ready to set off — one last step remains. You have got to know every member in this game; now talk it over with your patrol: which positions does the patrol need, and which one suits you best? When you have decided, pick your position below (if it is not on the list, choose Other and write it). Until your position is decided, the raft cannot leave and game 5 cannot be finished; once it is saved to your profile, the raft sets off.') }}
+          </p>
+          <form data-pat-position-form method="post" action="">
+            <label class="field"><span>{{ L('我的職位', 'My position') }}</span>
+              <select name="position_choice" data-pat-position-choice required></select>
+            </label>
+            <label class="field" data-pat-position-otherbox hidden><span>{{ L('其他職位', 'My position (other)') }}</span>
+              <input type="text" name="position_other" data-pat-position-other maxlength="37"
+                     placeholder="{{ L('請寫明你的職位', 'Write your position') }}">
+            </label>
+            <p class="pat-result" data-pat-position-result role="status" aria-live="polite"></p>
+            <div class="cave-actions">
+              <button class="btn primary big" type="submit" data-pat-position-save data-cheer="🎖,✨">
+                🎖 {{ L('決定職位，木筏出發！', 'Decide my position — launch the raft!') }}
+              </button>
+              <button class="btn ghost" type="button" data-pat-position-back>← {{ L('返回木筏', 'Back to the raft') }}</button>
+            </div>
+          </form>
+        </section>
         </section>
       </div>
     </div>

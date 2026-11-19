@@ -134,6 +134,16 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert 'root.classList.add("is-playing")' in js
     assert 'root.classList.remove("is-playing")' not in js
     assert "data-pat-view-cards" in page and "返回木筏" in js
+    # after the cards, the scout decides their own position in the game:
+    # the step is on the page, its save address and list are in the scene,
+    # and a raft submitted without one is sent back to that step
+    assert "data-pat-position" in page and "決定你的職位" in page
+    assert scene["position_url"].endswith("/patrol-position")
+    # the seeded 隊員 is one of the removed ranks: it comes back as Other
+    assert scene["my_position_choice"] == "__other__"
+    assert scene["my_position_other"] == "隊員"
+    assert any(pair[0] == "聯絡" for pair in scene["position_options"])
+    assert "j.need_position" in js and "enterPosition" in js
     # a replay starts from the beginning too, story first; leaving
     # before the raft sets off asks first, like every other game
     assert "if (data.cleared_now)" not in js
@@ -343,6 +353,9 @@ def test_a_two_member_patrol_can_play_the_whole_game(store, app):
     """Patrols are not always six: with just two members the cards, the
     board and the raft all size themselves down and the game completes."""
     viewer = find(store, "scout04")          # the seeded Otter pair
+    store.insert("profiles", {"user_id": viewer["id"], "visible": True,
+                              "updated_at": "2026-01-01",
+                              **full_profile("聯絡", "足球", "跑步")})
     task = task_of(store)
     client = login(app, viewer)
     _, scene = scene_of(client, task["id"])
@@ -377,6 +390,49 @@ def test_the_raft_sizes_itself_to_any_patrol():
         assert len({s["role_zh"] for s in seats}) == size
         signal = next(s for s in seats if s["role_zh"] == "通訊站")
         assert key[signal["id"]] == "m0"
+
+
+def test_game_5_cannot_finish_until_the_scout_decides_a_position(store, app):
+    """The position is the last step: a perfect raft is graded and held,
+    but item 2 is not filed until the scout decides a position inside
+    the game. A wrong raft earns no shortcut to that step."""
+    viewer, *_ = seed_patrol(store)
+    store.update("profiles", viewer["id"], {"position": ""})
+    task = task_of(store)
+    client = login(app, viewer)
+    _, scene = scene_of(client, task["id"])
+    url = f"/tasks/{task['id']}/patrol-submit"
+
+    # a wrong raft is just wrong — the position step is not offered
+    wrong = {seat_id: "" for seat_id, _ in key_of(scene).items()}
+    reply = client.post(url, data={**wrong, "run_key": scene["run_key"],
+                                   "elapsed_ms": "60000"}, headers=HEADERS)
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "patrol_short"
+    assert completed_records(store, viewer["id"], task["id"]) == []
+
+    # the perfect raft is held at the last step, not filed
+    reply = client.post(url, data={**key_of(scene), "run_key": scene["run_key"],
+                                   "elapsed_ms": "60000"}, headers=HEADERS)
+    body = reply.get_json()
+    assert reply.status_code == 200
+    assert body["passed"] is False and body["need_position"] is True
+    assert completed_records(store, viewer["id"], task["id"]) == []
+
+    reply = client.post(f"/tasks/{task['id']}/patrol-position",
+                        data={"position_choice": "康樂"}, headers=HEADERS)
+    body = reply.get_json()
+    assert reply.status_code == 200 and body["position"] == "康樂"
+    assert store.get("profiles", viewer["id"])["position"] == "康樂"
+    fresh = body["scene"]
+    mine = next(m for m in fresh["members"] if m["id"] == viewer["id"])
+    assert mine["position"] == "康樂"  # the rebuilt cards carry it at once
+
+    # the same seating sent once more now finishes the game
+    reply = client.post(url, data={**key_of(scene), "run_key": scene["run_key"],
+                                   "elapsed_ms": "60000"}, headers=HEADERS)
+    assert reply.get_json()["passed"] is True
+    assert len(completed_records(store, viewer["id"], task["id"])) == 1
 
 
 def test_only_a_fully_correct_raft_completes_item_two(store, app):

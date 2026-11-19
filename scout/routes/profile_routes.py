@@ -270,10 +270,14 @@ def _experience_complete(profile: dict) -> bool:
 
 
 def profile_complete(profile: dict) -> bool:
-    """All personal information is filled in and the profile is public."""
+    """All personal information is filled in and the profile is public.
+
+    職位 is not part of this: a scout who has not finished game 5 has
+    not decided theirs yet — they choose it with their patrol inside
+    that game — so the profile completes without it.
+    """
     return bool(
-        str(profile.get("position") or "").strip()
-        and str(profile.get("interests") or "").strip()
+        str(profile.get("interests") or "").strip()
         and _experience_complete(profile)
         and str(profile.get("strength") or "").strip()
         and to_bool(profile.get("visible"))
@@ -406,11 +410,15 @@ def save():
     # in a tab — is kept on them, so nobody's save is lost mid-change.
     if any(name in body for name in ("position_choice", "strength_choice",
                                      "interest_picks", "interests_other")):
-        position = _picked_single(body, "position_choice", "position_other",
-                                  _position_options(st))
-        if position is None:
-            return fail(400, "profile_position", "請選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
-                        "Please pick your position — and if you pick Other, write what it is.")
+        if str(body.get("position_choice") or "").strip():
+            position = _picked_single(body, "position_choice", "position_other",
+                                      _position_options(st))
+            if position is None:
+                return fail(400, "profile_position", "請選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
+                            "Please pick your position — and if you pick Other, write what it is.")
+        else:
+            # no position yet is fine: it is decided inside game 5
+            position = ""
         interests, problem = _picked_interests(body)
         if problem == "too_many":
             return fail(400, "profile_interests", "興趣最多揀 3 個，請取消其中一個再試。",
@@ -429,9 +437,7 @@ def save():
             "interests": str(body.get("interests") or "").strip(),
             "strength": str(body.get("strength") or "").strip(),
         })
-        if not values["position"]:
-            return fail(400, "profile_position", "請填寫你的職位。",
-                        "Please write your position.")
+
     # 童軍經驗 arrives as the two picked counts; the counts take the written
     # paragraph's place. A caller still sending the paragraph (an old page
     # in an open tab) is kept on it, so nobody's save is lost mid-change.

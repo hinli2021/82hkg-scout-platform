@@ -1123,8 +1123,15 @@ def task_patrol(task_id: str):
             "task": task_id, "scout": g.user["id"], "key": key,
             "roster": [m["id"] for m in members]})
 
+    from .profile_routes import load_profile as _load_profile
+    my_profile = _load_profile(st, g.user["id"])
     scenes = {
         "task_id": task_id,
+        "position_url": url_for("scout_routes.patrol_position", task_id=task_id),
+        "position_options": my_profile.get("position_options") or [],
+        "my_position_choice": my_profile.get("position_choice") or "",
+        "my_position_other": my_profile.get("position_other") or "",
+        "my_position_zh": my_profile.get("position_zh") or "",
         "patrol_zh": patrol_label(g.user.get("patrol") or "")["zh"],
         "patrol_en": patrol_label(g.user.get("patrol") or "")["en"],
         "members": members,
@@ -1195,6 +1202,71 @@ def patrol_stage1(task_id: str):
                 detail={"right": right, "extra": extra, "missing": missing})
 
 
+@scout_routes.post("/tasks/<task_id>/patrol-position")
+@scout_required
+def patrol_position(task_id: str):
+    """Game 5's last step, deciding your 職位: with the raft seated, the
+    scout talks it over with the patrol (in real life), then picks their
+    position here. It is saved to their profile, and the game cannot be
+    finished without one. The reply carries a fresh scene for the next
+    load — the browser keeps the seating it has just had graded and
+    sends it once more to finish.
+    """
+    from ..patrol_game import build_raft, patrol_members, unit_roster
+    from .profile_routes import (OTHER_VALUE, _picked_single,
+                                 _position_options, _remember_custom_position)
+
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["patrol_ready"] or task.get("status") != "published":
+        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
+    if context["badge"].get("locked"):
+        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
+
+    position = _picked_single(request.form, "position_choice", "position_other",
+                              _position_options(st))
+    if position is None:
+        return fail(400, "profile_position",
+                    "請先和隊員商量，選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
+                    "Talk it over with your patrol and pick your position — "
+                    "and if you pick Other, write what it is.")
+    patch = {"position": position, "updated_at": now_iso()}
+    if st.get("profiles", g.user["id"]):
+        st.update("profiles", g.user["id"], patch)
+    else:
+        st.insert("profiles", {"user_id": g.user["id"], **patch})
+    if str(request.form.get("position_choice") or "") == OTHER_VALUE:
+        _remember_custom_position(st, position)
+    audit(g.user, "profile_update", "profiles", g.user["id"], {"visible": True})
+
+    st.refresh("users", "profiles")
+    members = patrol_members(st, g.user)
+    import time as _time
+
+    seed = int(_time.time()) % 100000
+    raft, key, crew = build_raft(members, g.user["id"], seed=seed)
+    scene = {
+        "members": members,
+        "raft": raft,
+        "crew": crew,
+        "roster_board": unit_roster(st, seed=seed + 1),
+        "roster_size": len(members),
+        "run_key": _patrol_signer().dumps({
+            "task": task_id, "scout": g.user["id"], "key": key,
+            "roster": [m["id"] for m in members]}),
+    }
+    from .profile_routes import load_profile as _load_profile
+    mine = _load_profile(st, g.user["id"])
+    return ok(position=position,
+              position_options=mine.get("position_options") or [],
+              my_position_choice=mine.get("position_choice") or "",
+              my_position_other=mine.get("position_other") or "",
+              scene=scene,
+              message_zh="職位決定了，木筏出發！",
+              message_en="Position decided — the raft sets off!")
+
+
 @scout_routes.post("/tasks/<task_id>/patrol-submit")
 @scout_required
 def patrol_submit(task_id: str):
@@ -1233,6 +1305,19 @@ def patrol_submit(task_id: str):
             if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
     already = any(r.get("status") == "completed" for r in mine)
 
+    if passed:
+        # the last step of the game: the raft is seated, but it cannot
+        # set off — and item 2 is not filed — until the scout has
+        # decided their own 職位 with the patrol. Nothing is recorded
+        # yet; the browser keeps the seating and sends it again once
+        # the position is saved.
+        from .profile_routes import load_profile as _load_profile
+        if not str(_load_profile(st, g.user["id"]).get("position") or "").strip():
+            return ok(passed=False, need_position=True,
+                      detail={"score": correct, "of": total, "percent": percent},
+                      message_zh="木筏已經坐穩！最後一步：和隊員商量，決定你的職位，木筏便可出發。",
+                      message_en="The raft is seated! Last step: talk it over with your "
+                                 "patrol and decide your position, and the raft can set off.")
     if not passed:
         # no hints: the reply does not say which stations are wrong, or
         # how many — the scout re-reads the cards and seats everyone again

@@ -224,6 +224,20 @@ def test_share_is_optional_and_only_shows_when_ticked(store, new_scout, scout_cl
     assert "想和大家分享露營相" in visited
 
 
+def test_a_profile_completes_without_a_position_until_game_5(store, new_scout):
+    # position waits for the game: everything else filled is a complete
+    # profile, and the pop-up lets the scout through
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "暫時留空" in page and "未完成遊戲 5 前可留空" in page
+    reply = new_scout.post("/profile", data={
+        "position_choice": "", "interest_picks": ["露營"],
+        "camping_days": "1", "hiking_times": "2", "strength_choice": "繩結",
+    })
+    assert reply.status_code == 200
+    assert store.get("profiles", new_scout.id)["position"] == ""
+    assert "data-profile-setup" not in new_scout.get("/home").get_data(as_text=True)
+
+
 def test_an_other_position_joins_the_selection_list(store, new_scout, scout_client):
     reply = new_scout.post("/profile", data={
         "position_choice": "__other__", "position_other": "營火主持人",
@@ -310,10 +324,11 @@ def test_the_pop_up_blocks_a_scout_until_the_profile_is_complete(store, new_scou
     # leaders never see the scout pop-up
     assert "data-profile-setup" not in leader_client.get("/leader").get_data(as_text=True)
 
-    # every field is required — no position, or a half-filled profile, is refused
+    # the other fields are still required — a half-filled profile is refused
+    # (position alone may wait: it is decided inside game 5)
     reply = new_scout.post("/profile", data={"interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。"})
     assert reply.status_code == 400
-    assert reply.get_json()["error"] == "profile_position"
+    assert reply.get_json()["error"] == "profile_empty"
     reply = new_scout.post("/profile", data={"position": "隊員", "interests": "露營", "experience": "", "share": ""})
     assert reply.status_code == 400
     assert reply.get_json()["error"] == "profile_empty"

@@ -142,8 +142,14 @@
 {% endmacro %}
 
 {% macro position_fields(profile) %}
-  <label class="field"><span>{{ L('職位', 'Position') }}</span>
-    {{ list_select('position_choice', profile.position_options, profile.position_choice) }}
+  <label class="field"><span>{{ L('職位', 'Position') }} <span class="hint">{{ L('（未完成遊戲 5 前可留空，在遊戲中與隊員商量後決定）', '(you can leave this blank until game 5, where you decide it with your patrol)') }}</span></span>
+    <select name="position_choice">
+      <option value="" {{ 'selected' if not profile.position_choice else '' }}>{{ L('暫時留空', 'Leave blank for now') }}</option>
+      {% for value_zh, label_en in profile.position_options %}
+        <option value="{{ value_zh }}" {{ 'selected' if profile.position_choice == value_zh else '' }}>{{ L(value_zh, label_en) }}</option>
+      {% endfor %}
+      <option value="__other__" {{ 'selected' if profile.position_choice == '__other__' else '' }}>{{ L('其他', 'Other') }}</option>
+    </select>
   </label>
   <label class="field" data-other-box="position_choice" {{ '' if profile.position_choice == '__other__' else 'hidden' }}>
     <span>{{ L('其他職位', 'My position (other)') }}</span>
