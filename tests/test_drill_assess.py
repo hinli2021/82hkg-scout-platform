@@ -148,12 +148,12 @@ def test_the_drill_files_the_finish_time(store, new_scout):
     assert row['value'] == 485000 and row['rank'] == 1 and row['done'] is False
 
 
-def test_a_replay_starts_directly_at_the_first_study_cards():
-    """Playing the drill again skips the gate story: section 1 cards."""
+def test_a_replay_starts_from_the_beginning_story_first():
+    """Playing the drill again starts at the gate, story first."""
     import pathlib
     js = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
           / "drill.js").read_text(encoding="utf-8")
-    assert "function replay()" in js and "showFlip(1, firstOpenStage())" in js
-    assert "if (where === 'restart') { stopWaiting(); replay(); return; }" in js
+    assert "function restart()" in js and "show('intro');" in js
+    assert "if (where === 'restart') { stopWaiting(); restart(); return; }" in js
     # leaving mid-drill asks first, like every other game
     assert "drill-exit-title" in js and ("beforeunload" in js)

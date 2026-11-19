@@ -588,19 +588,15 @@
             : "這個小隊暫時未有足夠成員。")
         + "</p>";
       sync();
-      /* a replay starts directly at the beginning: knowing the patrol,
-         with the story already told on an earlier visit */
-      if (data.cleared_now) { enterCards(); } else {
-        renderProgress("story");
-        showStoryPage();
-      }
+      renderProgress("story");
+      showStoryPage();
       $("[data-pat-story-next]").addEventListener("click", storyNext);
       return;
     }
-    if (data.cleared_now) { enterCards(); } else {
-      renderProgress("story");
-      showStoryPage();
-    }
+    /* every visit starts from the beginning, story first — a replay
+       hears the seaside story again before knowing the patrol */
+    renderProgress("story");
+    showStoryPage();
     showCard(0);
     $("[data-pat-prev]").addEventListener("click", function () { showCard(state.scene - 1); });
     $("[data-pat-next]").addEventListener("click", function () { showCard(state.scene + 1); });

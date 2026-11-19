@@ -748,10 +748,8 @@
       var where = go.getAttribute('data-cave-go');
       if (where === 'next') { tap(); advance(); return; }
       if (where === 'restart') {
-        /* a replay starts directly at the beginning: the first wall,
-           not the story again */
         reset();
-        show('wall');
+        show('intro');
         return;
       }
       if (where === 'stage-start') { tap(); restartStage(); return; }
@@ -761,9 +759,9 @@
       show(where);
     });
 
-    /* a scout who has cleared the cave before replays it straight from
-       the beginning — the first wall, with no story to walk through again */
-    show(cfg.cleared_now ? 'wall' : 'intro');
+    /* every visit starts from the beginning, story first — a replay
+       hears the story again before the first wall */
+    show('intro');
   }
 
   function mountAll(scope) {

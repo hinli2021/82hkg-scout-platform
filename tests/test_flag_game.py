@@ -54,17 +54,15 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     assert page.count("data-flag") >= 1
     assert "flag.js" in page
     assert "morning ceremony" in page
-    # a replay goes straight to the first pipe run: the first-arrival
-    # description is for the first walk down, not for walking it again
+    # a replay starts from the beginning too, walk-down story and all
     js_text_full = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
                     / "flag.js").read_text(encoding="utf-8")
-    assert "config.cleared_now" in js_text_full
     # leaving mid-run asks first, with the same dialog as the other games
     assert "flag-exit-title" in js_text_full and "要離開溪谷嗎？" in js_text_full
     assert "[data-flag-stay]" in js_text_full and "[data-flag-leave]" in js_text_full
     assert 'window.addEventListener("beforeunload"' in js_text_full
     assert "再次進入遊戲需要從頭開始" in js_text_full
-    assert "if (replay) { showStageNotes(); return; }" in js_text_full
+    assert "if (replay)" not in js_text_full
     # the page wears the same format as the other games: the painting on
     # top, the dark glass card of words below it from the very start —
     # no start overlay merged into the picture

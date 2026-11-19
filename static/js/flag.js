@@ -579,7 +579,6 @@
 
   function start() {
     /* the walk has begun; the pole is bare again */
-    var replay = !!(config.cleared_now || filed);
     root.classList.remove("is-ending");
     swapSceneArt(startArtUrl);
     startedAt = Date.now();
@@ -590,10 +589,8 @@
     howtoShown = false;
     filed = false;
     setProgress(t("溪谷旗桿", "The valley flagpole"));
-    /* a replay goes straight to the first pipe run: the scout has walked
-       down to the stream before, so the first-arrival description would
-       only describe a journey they are not making again */
-    if (replay) { showStageNotes(); return; }
+    /* every walk tells the story first — a replay starts from the
+       beginning too, story and all, before the notebook opens */
     showStory(intro, 0, t("遊戲 4", "Game 4"), function () { showStageNotes(); });
   }
 

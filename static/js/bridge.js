@@ -747,7 +747,13 @@
       if (where === 'retry') { tap(); retry(); return; }
       if (where === 'next') { tap(); startStage(state.stage + 1); return; }
       if (where === 'finish') { finish(); return; }
-      if (where === 'restart') { stopWaiting(); reset(); startStage(0); return; }
+      if (where === 'restart') {
+        /* a replay starts from the beginning, story first */
+        stopWaiting(); reset();
+        state.pool = shuffled((cfg.stages[0].planks) || []);
+        show('intro');
+        return;
+      }
       if (where === 'check') { tap(); checkStatus(true); return; }
       if (where === 'demo-approve') { chime(); stopWaiting(); result(); return; }
     });

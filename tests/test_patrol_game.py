@@ -131,9 +131,9 @@ def test_the_roster_is_the_live_patrol(store, app):
           / "patrol.js").read_text(encoding="utf-8")
     assert 'root.classList.add("is-playing")' in js
     assert 'root.classList.remove("is-playing")' in js
-    # a replay starts directly at the beginning — knowing the patrol —
-    # and leaving before the raft sets off asks first, like other games
-    assert "if (data.cleared_now) { enterCards(); }" in js
+    # a replay starts from the beginning too, story first; leaving
+    # before the raft sets off asks first, like every other game
+    assert "if (data.cleared_now)" not in js
     assert "patrol-exit-title" in js and "要離開海邊嗎？" in js
     assert "[data-pat-stay]" in js and "[data-pat-leave]" in js
     assert 'window.addEventListener("beforeunload"' in js
@@ -528,3 +528,18 @@ def test_strength_is_part_of_a_finished_profile(store, new_scout):
     assert store.get("profiles", new_scout.id)["strength"] == "繩結"
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "我的強項" in page and "繩結" in page
+
+
+def test_a_replay_still_tells_the_story(store, app):
+    """A scout who finished item 2 hears the seaside story again on a
+    replay: the short recap, then the same three story pages."""
+    viewer, *_ = seed_patrol(store)
+    task = task_of(store)
+    store.insert("progress_records", {
+        "user_id": viewer["id"], "task_id": task["id"], "status": "completed",
+        "attempt_no": 1, "submitted_at": "2026-01-02"})
+    client = login(app, viewer)
+    page, scene = scene_of(client, task["id"])
+    assert scene["cleared_now"] is True
+    assert page.count("data-pat-page") == 4
+    assert "木筏已經離岸" in page and "沙灘上，你的小隊正在等你" in page

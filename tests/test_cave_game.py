@@ -368,10 +368,8 @@ def test_every_cave_exit_warns_that_reentry_starts_over(cave_page):
     assert "document.addEventListener('submit'" in script
     assert "window.addEventListener('beforeunload'" in script, 'Back/Reload have a fallback'
     assert "reset();\n        show('intro');" in script, 'confirmed exit resets the next run'
-    # a replay starts directly at the beginning: the first wall, not the
-    # story; the page knows whether this scout has cleared the cave before
-    assert "show(cfg.cleared_now ? 'wall' : 'intro')" in script
-    assert "show('wall');" in script and "cleared_now" in cave_page
+    # a replay starts from the beginning too, story first
+    assert "show('intro');" in script
 
 
 def test_offline_router_guards_pane_exits_and_keeps_badge_progress():

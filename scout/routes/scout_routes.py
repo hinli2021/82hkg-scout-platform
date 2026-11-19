@@ -504,11 +504,8 @@ def task_cave(task_id: str):
     if not groups:
         abort(404)  # do not redirect to the form: this item has no paper
 
-    mine = [r for r in st.list("progress_records")
-            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
-    cleared_now = any(r.get("status") == "completed" for r in mine)
     onward = _journey_next(g.user, task)
-    scenes = {**adventure, "groups": groups, "cleared_now": cleared_now,
+    scenes = {**adventure, "groups": groups,
               "labels": adventure.get("labels") or {},
               "score": {"per_question": config.get("per_question", 2),
                         "max": 100, "completion": "all_questions"},

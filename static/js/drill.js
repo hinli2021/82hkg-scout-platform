@@ -1656,14 +1656,6 @@
       answers = {};
       show('intro');
     }
-    /* a replay starts directly at the beginning: the first section's
-       study cards, not the story at the gate again */
-    function replay() {
-      reset();
-      try { window.localStorage.removeItem(storeKey); } catch (e) {}
-      answers = {};
-      showFlip(1, firstOpenStage());
-    }
 
     /* ── the warning before leaving ────────────────────────────────────────── */
 
@@ -1834,7 +1826,7 @@
       if (where === 'section2') { tap(); showFlip(2, firstOpenMovementStage()); return; }
       if (where === 'resume') { tap(); nextInStage(); return; }
       if (where === 'finish') { finish(); return; }
-      if (where === 'restart') { stopWaiting(); replay(); return; }
+      if (where === 'restart') { stopWaiting(); restart(); return; }
       if (where === 'check') { tap(); checkStatus(true); return; }
       if (where === 'demo-approve') { chime(); stopWaiting(); result(); return; }
     });
