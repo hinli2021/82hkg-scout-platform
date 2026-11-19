@@ -139,11 +139,14 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     assert reply.status_code == 200
     row = store.get("profiles", new_scout.id)
     assert row["position"] == "聯絡"
-    assert row["interests"] == "露營、其他：觀鳥"  # Other shows as 其他：…
-    assert row["strength"] == "其他：守夜"
+    # Other is stored and shown as the words themselves, no 其他： in front
+    assert row["interests"] == "露營、觀鳥"
+    assert row["strength"] == "守夜"
 
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert "其他：觀鳥" in page and "其他：守夜" in page
+    assert "其他：觀鳥" not in page and "其他：守夜" not in page
+    front = page[page.index("data-char-front"):page.index("data-char-back")]
+    assert "觀鳥" in front and "露營" in front
     # the edit form offers every pick back, Other words in their boxes
     assert 'value="聯絡" selected' in page
     assert 'value="守夜"' in page and 'value="觀鳥"' in page
@@ -154,6 +157,23 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     assert reply.status_code == 400
     assert reply.get_json()["error"] == "profile_long"
     assert store.get("profiles", new_scout.id)["position"] == "聯絡"
+
+
+def test_an_other_prefix_from_the_first_list_version_is_not_shown(store, new_scout, scout_client):
+    # for a few hours Other was stored as 「其他：…」; those rows read as
+    # the words alone now, on the card and back in the edit form
+    store.insert("profiles", {
+        "user_id": new_scout.id, "position": "其他：營火主持人",
+        "interests": "露營、其他：觀鳥", "experience": "參加了童軍兩年。",
+        "share": "喜歡幫忙。", "strength": "其他：守夜",
+        "visible": True, "updated_at": "2026-01-01",
+    })
+    page = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
+    card = page[page.index("data-char-card"):]
+    assert "營火主持人" in card and "觀鳥" in card and "守夜" in card
+    assert "其他：" not in card
+    own = new_scout.get("/profile").get_data(as_text=True)
+    assert 'value="營火主持人"' in own and 'value="守夜"' in own
 
 
 def test_a_position_written_before_the_lists_is_offered_back_as_other(store, new_scout):

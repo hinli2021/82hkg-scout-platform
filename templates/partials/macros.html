@@ -128,7 +128,7 @@
 {% endmacro %}
 
 {# ── 職位 / 我的強項 / 興趣：清單揀選，「其他」另開文字框 ────────────────
-   The picked words are stored as-is; Other is stored as 「其他：…」.
+   The picked words are stored as-is; Other stores the words themselves.
    The text box rides along hidden (data-other-box) until Other is picked —
    scout.js shows it and makes it required; the server checks it too. #}
 {% macro list_select(name, options, selected) %}

@@ -61,7 +61,8 @@ POSITIONS = {
 #: 職位、我的強項 and 興趣 are picked from lists now, with an Other at the
 #: end of each that opens a text box. The stored value stays a plain string
 #: in the scout's own language-neutral words: the picked option itself, or
-#: 「其他：…」 with what they wrote — which is also how the card shows it.
+#: exactly what they wrote under Other — the card shows the words as they
+#: are, with no 「其他：」 in front of them.
 #: (Values are the Chinese words in either language, so a patrol 聯絡 is
 #: still found by the word 聯絡 wherever the profile is read.)
 OTHER_VALUE = "__other__"
@@ -156,22 +157,28 @@ def load_profile(st, user_id: str) -> dict:
     labels = POSITIONS.get(position, {})
     # The form works on the picked words, not the stored string: a listed
     # 職位 is offered back as that option, anything else as Other + words.
+    # (Rows saved in the brief while Other carried a 「其他：」 prefix read
+    # as the words alone — the prefix is never shown.)
     position_value = labels.get("zh", position)
     position_labels = dict(POSITION_OPTIONS)
-    other_words = _other_text(position_value)
+    if _other_text(position_value) is not None:
+        position_value = _other_text(position_value)
     if labels:
         position_zh, position_en = labels["zh"], labels["en"]
     elif position_value in position_labels:
         position_zh, position_en = position_value, position_labels[position_value]
-    elif other_words is not None and position_value.startswith("其他"):
-        position_zh, position_en = position_value, f"Other: {other_words}"
     else:
         position_zh = position_en = position_value
     position_choice, position_other = _single_choice(position_value, POSITION_OPTIONS)
     strength = str(row.get("strength") or "")
+    if _other_text(strength) is not None:
+        strength = _other_text(strength)
     strength_choice, strength_other = _single_choice(strength, STRENGTH_OPTIONS)
     interests = str(row.get("interests") or "")
     interest_choices, interests_other_on, interests_other = _interest_choices(interests)
+    interests = "、".join(
+        _other_text(token.strip()) if _other_text(token.strip()) is not None else token.strip()
+        for token in re.split(r"[、,，;；\n]+", interests) if token.strip())
     return {
         "user_id": user_id,
         "position": position,
@@ -232,13 +239,13 @@ def profile_complete(profile: dict) -> bool:
 def _picked_single(body, choice_name: str, other_name: str, options: list) -> str | None:
     """The stored string for one dropdown, or None when it is not filled.
 
-    A listed option is stored as itself; Other is stored as 「其他：…」,
-    the words included, so the card can show exactly that.
+    A listed option is stored as itself; Other is stored as the words
+    themselves, so the card shows exactly what the scout wrote.
     """
     choice = str(body.get(choice_name) or "").strip()
     if choice == OTHER_VALUE:
         other = str(body.get(other_name) or "").strip()
-        return f"其他：{other}" if other else None
+        return other if other else None
     if choice in {item[0] for item in options}:
         return choice
     return None
@@ -261,7 +268,7 @@ def _picked_interests(body) -> str | None:
         words = str(body.get("interests_other") or "").strip()
         if not words:
             return None
-        picked.append(f"其他：{words}")
+        picked.append(words)
     return "、".join(picked) if picked else None
 
 
