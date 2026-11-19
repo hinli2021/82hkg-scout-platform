@@ -4772,7 +4772,12 @@ body.is-game main { padding-top: 6px; }
 .pat-scene-wrap { text-align: center; width: min(360px, 88vw); }
 .pat-card.char-card {
   font: inherit; text-align: left; appearance: none; -webkit-appearance: none;
+  /* the game's card stands narrower than the profile page's, and the
+     words keep their reading size — so the card grows taller than the
+     trading-card ratio to leave the picture window its space */
+  aspect-ratio: 5 / 8;
 }
+.pat-card .char-portrait { flex: 1 1 auto; min-height: 9rem; }
 .pat-card .pat-badge { align-self: flex-start; }
 .pat-card .pat-muted { color: #7a5a30; font-size: .88rem; }
 .pat-badge {

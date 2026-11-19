@@ -149,6 +149,8 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert "pat-card char-card" in js and "poke-head" in js
     assert "char-back" in js and "char-stats" in js and "poke-bottom" in js
     assert ".pat-card.char-card" in css and ".pat-phead" not in css
+    # the picture window keeps its space on the narrower game card
+    assert ".pat-card .char-portrait" in css and "min-height: 9rem" in css
     from scout.engine import progress_for
     members = {m["id"]: m for m in scene["members"]}
     mine = progress_for(store, viewer["id"])
