@@ -343,7 +343,27 @@
     });
   }
 
+  /* ── 個人檔案清單：「其他」先開文字框 ────────────────────────────────── */
+  function initProfileLists() {
+    document.querySelectorAll('[data-other-box]').forEach(function (box) {
+      var form = box.closest('form');
+      var field = form ? form.querySelector('[name="' + box.dataset.otherBox + '"]') : null;
+      var input = box.querySelector('input[type="text"]');
+      if (!field) return;
+      function sync() {
+        var picked = field.multiple
+          ? Array.prototype.some.call(field.selectedOptions, function (o) { return o.value === '__other__'; })
+          : field.value === '__other__';
+        box.hidden = !picked;
+        if (input) input.required = picked;
+      }
+      field.addEventListener('change', sync);
+      sync();
+    });
+  }
+
   function boot() {
+    initProfileLists();
     initSuggestions();
     initTask();
     initQuestStart();

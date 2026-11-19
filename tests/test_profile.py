@@ -64,6 +64,9 @@ def test_the_experience_dropdowns_are_english_on_english_pages(store, new_scout)
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "Camping days" in page and "Hikes" in page and "20 or more" in page
     assert '<select name="camping_days"' in page
+    # the picked lists read in English too, values unchanged
+    assert '<select name="position_choice"' in page and "Patrol contact" in page
+    assert "My strength (other)" in page and "Other" in page
 
 
 def test_the_old_history_address_lands_on_my_profile(store, new_scout):
@@ -97,28 +100,74 @@ def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_sc
     assert "poke-rarity" not in front and "poke-bottom" not in front
 
 
-def test_a_scout_can_write_any_position_in_their_own_words(store, new_scout):
-    # the position is a text field, not a list to pick from
+def test_position_strength_and_interests_are_picked_from_lists(store, new_scout):
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert 'name="position"' in page and '<select name="position"' not in page
-    assert "例如：小隊長、副小隊長、隊員" in page
+    # all three are lists now, each with an Other that opens a text box
+    assert '<select name="position_choice"' in page
+    assert '<select name="strength_choice"' in page
+    assert '<select name="interest_picks"' in page and "multiple" in page
+    assert 'name="position"' not in page and 'name="strength"' not in page
+    for word in ("隊員", "副小隊長", "小隊長", "高級小隊長", "聯絡", "康樂", "文書",
+                 "物資管理", "氣象員", "報時員", "情緒輔助"):
+        assert f'value="{word}"' in page
+    assert 'value="__other__"' in page and ">其他<" in page
+    for word in ("露營", "行山", "電子遊戲", "攝影", "繩結", "急救", "照顧他人"):
+        assert f'value="{word}"' in page
+    assert 'data-other-box="position_choice" hidden' in page
+    assert 'data-other-box="strength_choice" hidden' in page
+    assert 'data-other-box="interest_picks" hidden' in page
 
+    def save(**overrides):
+        data = {
+            "position_choice": "聯絡",
+            "interest_picks": ["露營", "__other__"],
+            "interests_other": "觀鳥",
+            "camping_days": "3", "hiking_times": "2",
+            "share": "喜歡幫忙。",
+            "strength_choice": "__other__", "strength_other": "守夜",
+        }
+        data.update(overrides)
+        return new_scout.post("/profile", data=data)
+
+    # Other picked but left blank is not a finished answer
+    reply = save(position_choice="__other__")
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_position"
+    assert store.get("profiles", new_scout.id) is None
+
+    reply = save()
+    assert reply.status_code == 200
+    row = store.get("profiles", new_scout.id)
+    assert row["position"] == "聯絡"
+    assert row["interests"] == "露營、其他：觀鳥"  # Other shows as 其他：…
+    assert row["strength"] == "其他：守夜"
+
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "其他：觀鳥" in page and "其他：守夜" in page
+    # the edit form offers every pick back, Other words in their boxes
+    assert 'value="聯絡" selected' in page
+    assert 'value="守夜"' in page and 'value="觀鳥"' in page
+    assert 'data-other-box="position_choice" hidden' in page  # 聯絡 is listed
+
+    # an Other position that runs too long is refused, like the other fields
+    reply = save(position_choice="__other__", position_other="職" * 41)
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_long"
+    assert store.get("profiles", new_scout.id)["position"] == "聯絡"
+
+
+def test_a_position_written_before_the_lists_is_offered_back_as_other(store, new_scout):
+    # a page left open from before the lists still saves its plain fields
     reply = new_scout.post("/profile", data={
         "position": "營火主持人",
         "interests": "唱歌", "experience": "參加了童軍兩年。", "share": "喜歡帶大家唱營火歌。", "strength": "唱歌",
     })
     assert reply.status_code == 200
     assert store.get("profiles", new_scout.id)["position"] == "營火主持人"
-    assert "營火主持人" in new_scout.get("/profile").get_data(as_text=True)
-
-    # a position that is far too long is refused, like the other fields
-    reply = new_scout.post("/profile", data={
-        "position": "職" * 41,
-        "interests": "唱歌", "experience": "參加了童軍兩年。", "share": "喜歡帶大家唱營火歌。", "strength": "唱歌",
-    })
-    assert reply.status_code == 400
-    assert reply.get_json()["error"] == "profile_long"
-    assert store.get("profiles", new_scout.id)["position"] == "營火主持人"
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "營火主持人" in page
+    # …and the list form offers those words back under Other, not lost
+    assert 'value="營火主持人"' in page
 
 
 def test_a_position_saved_as_an_old_code_still_reads_as_a_title(store, new_scout, scout_client):
@@ -137,12 +186,12 @@ def test_a_position_saved_as_an_old_code_still_reads_as_a_title(store, new_scout
 def test_an_unfinished_profile_cannot_be_visited(store, new_scout, scout_client):
     # a row left over from before profiles had to be completed and public
     store.insert("profiles", {
-        "user_id": new_scout.id, "interests": "天文", "experience": "",
+        "user_id": new_scout.id, "interests": "觀星", "experience": "",
         "share": "", "visible": False, "updated_at": "2026-01-01",
     })
     locked = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
     assert "尚未完成並公開個人檔案" in locked
-    assert "天文" not in locked
+    assert "觀星" not in locked
 
     new_scout.post("/profile", data={
         "position": "隊員", "interests": "天文", "experience": "參加了童軍三年。", "share": "想分享星星的故事。", "strength": "觀星",

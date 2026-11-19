@@ -151,6 +151,9 @@ details.demo-hint[open] summary { margin-bottom: .2rem; }
 
 /* ── forms ──────────────────────────────────────────────────────────── */
 .field { display: block; margin-bottom: .8rem; }
+/* a hidden field (the profile lists' Other box, until Other is picked)
+   stays hidden — .field's display would otherwise win over [hidden] */
+.field[hidden] { display: none; }
 .field > span { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .3rem; color: var(--ink-soft); }
 .field .hint { font-weight: 400; color: var(--muted); font-size: .78rem; }
 input[type="text"], input[type="password"], input[type="number"], input[type="date"], input[type="url"], select, textarea {

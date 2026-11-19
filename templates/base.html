@@ -1,4 +1,4 @@
-{% from 'partials/macros.html' import experience_fields, name_of, patrol_name with context %}
+{% from 'partials/macros.html' import experience_fields, interests_fields, name_of, patrol_name, position_fields, strength_fields with context %}
 {# 積分銅牌：正常頁放在 HUD 裏、緊貼連續天數那粒火；遊戲頁收起 HUD，
    就由 topbar 的同一個銅牌補上，所以每一頁都見得到。 #}
 {% macro points_chip(extra_class='hud-points') -%}
@@ -145,23 +145,14 @@
       </div>
       <div class="modal-body">
         <input type="hidden" name="return_to" value="{{ request.path }}">
-        <label class="field"><span>{{ L('職位', 'Position') }}</span>
-          <input type="text" name="position" required maxlength="40" value="{{ profile_setup.position_edit }}"
-                 placeholder="{{ L('例如：小隊長、副小隊長、隊員', 'e.g. Patrol Leader, Assistant Patrol Leader, Patrol member') }}">
-        </label>
-        <label class="field"><span>{{ L('興趣', 'Interests') }}</span>
-          <input type="text" name="interests" required maxlength="120" value="{{ profile_setup.interests }}"
-                 placeholder="{{ L('例如：露營、繩結、音樂、足球', 'e.g. Camping, knots, music, football') }}">
-        </label>
+        {{ position_fields(profile_setup) }}
+        {{ interests_fields(profile_setup) }}
         {{ experience_fields(profile_setup) }}
         <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }}</span>
           <textarea name="share" required maxlength="1000" rows="4"
                     placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile_setup.share }}</textarea>
         </label>
-        <label class="field"><span>{{ L('我的強項', 'My strength') }}</span>
-          <input type="text" name="strength" required maxlength="120" value="{{ profile_setup.strength }}"
-                 placeholder="{{ L('例如：繩結、急救、唱歌、畫畫', 'e.g. Knots, first aid, singing, drawing') }}">
-        </label>
+        {{ strength_fields(profile_setup) }}
         <p class="muted small">{{ L('請不要填寫電話號碼、住址或學校名稱。', 'Please do not write a phone number, home address or school name.') }}</p>
       </div>
       <div class="modal-foot">

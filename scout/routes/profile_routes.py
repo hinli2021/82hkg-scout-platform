@@ -58,25 +58,144 @@ POSITIONS = {
     "spl": {"zh": "高級小隊長", "en": "Senior Patrol Leader"},
 }
 
+#: 職位、我的強項 and 興趣 are picked from lists now, with an Other at the
+#: end of each that opens a text box. The stored value stays a plain string
+#: in the scout's own language-neutral words: the picked option itself, or
+#: 「其他：…」 with what they wrote — which is also how the card shows it.
+#: (Values are the Chinese words in either language, so a patrol 聯絡 is
+#: still found by the word 聯絡 wherever the profile is read.)
+OTHER_VALUE = "__other__"
+
+POSITION_OPTIONS = [
+    ("隊員", "Patrol member"),
+    ("副小隊長", "Assistant Patrol Leader"),
+    ("小隊長", "Patrol Leader"),
+    ("高級小隊長", "Senior Patrol Leader"),
+    ("聯絡", "Patrol contact"),
+    ("康樂", "Activities"),
+    ("文書", "Secretary"),
+    ("物資管理", "Quartermaster"),
+    ("氣象員", "Weather reporter"),
+    ("報時員", "Timekeeper"),
+    ("情緒輔助", "Emotional support"),
+    ("情緒價值專員", "Morale officer"),
+    ("心理委員", "Wellbeing officer"),
+    ("法官", "Judge"),
+]
+
+STRENGTH_OPTIONS = [
+    ("繩結", "Knots"), ("急救", "First aid"), ("生火", "Fire lighting"),
+    ("煮食", "Cooking"), ("唱歌", "Singing"), ("畫畫", "Drawing"),
+    ("跑步", "Running"), ("游泳", "Swimming"), ("領導", "Leadership"),
+    ("解難", "Problem solving"), ("觀察", "Observation"), ("手工藝", "Crafts"),
+    ("音樂", "Music"), ("運動", "Sports"), ("照顧他人", "Caring for others"),
+]
+
+INTEREST_OPTIONS = [
+    ("露營", "Camping"), ("行山", "Hiking"), ("繩結", "Knots"),
+    ("足球", "Football"), ("籃球", "Basketball"), ("游泳", "Swimming"),
+    ("音樂", "Music"), ("唱歌", "Singing"), ("畫畫", "Drawing"),
+    ("閱讀", "Reading"), ("天文", "Astronomy"), ("科學", "Science"),
+    ("電子遊戲", "Video games"), ("烹飪", "Cooking"), ("舞蹈", "Dance"),
+    ("攝影", "Photography"), ("手工藝", "Crafts"),
+]
+
+
+def _other_text(value: str) -> str | None:
+    """What follows an 「其他：」 prefix, or None when there is no prefix."""
+    text = str(value or "").strip()
+    for prefix in ("其他：", "其他:", "Other:"):
+        if text.startswith(prefix):
+            return text[len(prefix):].strip()
+    return None
+
+
+def _single_choice(value: str, options: list) -> tuple[str, str]:
+    """(picked option or Other, the Other words) for one stored string."""
+    text = str(value or "").strip()
+    if not text:
+        return "", ""
+    if text in {item[0] for item in options}:
+        return text, ""
+    other = _other_text(text)
+    return OTHER_VALUE, (other if other is not None else text)
+
+
+def _interest_choices(value: str) -> tuple[list, bool, str]:
+    """(picked options, Other picked?, the Other words) for 興趣.
+
+    The stored string joins interests with 、; anything on it that is not
+    a listed option — words written while 興趣 was free text — comes back
+    as the Other words, so an edit offers them back instead of losing them.
+    """
+    known = {item[0] for item in INTEREST_OPTIONS}
+    picked: list[str] = []
+    other_words: list[str] = []
+    other = False
+    for token in re.split(r"[、,，;；\n]+", str(value or "")):
+        token = token.strip()
+        if not token:
+            continue
+        rest = _other_text(token)
+        if token in known:
+            if token not in picked:
+                picked.append(token)
+        elif rest is not None:
+            other = True
+            if rest:
+                other_words.append(rest)
+        else:
+            other = True
+            other_words.append(token)
+    return picked, other, "、".join(other_words)
+
 
 def load_profile(st, user_id: str) -> dict:
     row = st.get("profiles", user_id) or {}
     position = str(row.get("position") or "").strip()
     labels = POSITIONS.get(position, {})
+    # The form works on the picked words, not the stored string: a listed
+    # 職位 is offered back as that option, anything else as Other + words.
+    position_value = labels.get("zh", position)
+    position_labels = dict(POSITION_OPTIONS)
+    other_words = _other_text(position_value)
+    if labels:
+        position_zh, position_en = labels["zh"], labels["en"]
+    elif position_value in position_labels:
+        position_zh, position_en = position_value, position_labels[position_value]
+    elif other_words is not None and position_value.startswith("其他"):
+        position_zh, position_en = position_value, f"Other: {other_words}"
+    else:
+        position_zh = position_en = position_value
+    position_choice, position_other = _single_choice(position_value, POSITION_OPTIONS)
+    strength = str(row.get("strength") or "")
+    strength_choice, strength_other = _single_choice(strength, STRENGTH_OPTIONS)
+    interests = str(row.get("interests") or "")
+    interest_choices, interests_other_on, interests_other = _interest_choices(interests)
     return {
         "user_id": user_id,
         "position": position,
         # Free text reads the same in both languages; only the old codes
         # translate. `position_edit` is what the form offers back.
-        "position_zh": labels.get("zh", position),
-        "position_en": labels.get("en", position),
-        "position_edit": labels.get("zh", position),
-        "interests": str(row.get("interests") or ""),
+        "position_zh": position_zh,
+        "position_en": position_en,
+        "position_edit": position_value,
+        "position_options": POSITION_OPTIONS,
+        "position_choice": position_choice,
+        "position_other": position_other,
+        "interests": interests,
+        "interest_options": INTEREST_OPTIONS,
+        "interest_choices": interest_choices,
+        "interests_other": interests_other if interests_other_on else "",
+        "interests_other_on": interests_other_on,
         "experience": str(row.get("experience") or ""),
         "camping_days": _count_value(row.get("camping_days")),
         "hiking_times": _count_value(row.get("hiking_times")),
         "share": str(row.get("share") or ""),
-        "strength": str(row.get("strength") or ""),
+        "strength": strength,
+        "strength_options": STRENGTH_OPTIONS,
+        "strength_choice": strength_choice,
+        "strength_other": strength_other,
         "visible": to_bool(row.get("visible")),
         "updated_at": row.get("updated_at") or "",
         "card_image_url": str(row.get("card_image_url") or ""),
@@ -108,6 +227,42 @@ def profile_complete(profile: dict) -> bool:
         and str(profile.get("strength") or "").strip()
         and to_bool(profile.get("visible"))
     )
+
+
+def _picked_single(body, choice_name: str, other_name: str, options: list) -> str | None:
+    """The stored string for one dropdown, or None when it is not filled.
+
+    A listed option is stored as itself; Other is stored as 「其他：…」,
+    the words included, so the card can show exactly that.
+    """
+    choice = str(body.get(choice_name) or "").strip()
+    if choice == OTHER_VALUE:
+        other = str(body.get(other_name) or "").strip()
+        return f"其他：{other}" if other else None
+    if choice in {item[0] for item in options}:
+        return choice
+    return None
+
+
+def _picked_interests(body) -> str | None:
+    """The stored 興趣 string for the multi-pick list, or None if empty."""
+    known = {item[0] for item in INTEREST_OPTIONS}
+    picked: list[str] = []
+    other = False
+    for value in body.getlist("interest_picks"):
+        value = str(value or "").strip()
+        if value == OTHER_VALUE:
+            other = True
+        elif value in known and value not in picked:
+            picked.append(value)
+        elif value:
+            return None  # a value that is not on the list at all
+    if other:
+        words = str(body.get("interests_other") or "").strip()
+        if not words:
+            return None
+        picked.append(f"其他：{words}")
+    return "、".join(picked) if picked else None
 
 
 def save_profile(st, user_id: str, values: dict) -> dict:
@@ -176,17 +331,38 @@ def save():
     st = store()
     body = request.form
     values = {
-        "position": str(body.get("position") or "").strip(),
-        "interests": str(body.get("interests") or "").strip(),
         "share": str(body.get("share") or "").strip(),
-        "strength": str(body.get("strength") or "").strip(),
         # Profiles are public by rule, not by choice: completing the form is
         # also the scout's agreement to let the rest of the troop read it.
         "visible": True,
     }
-    if not values["position"]:
-        return fail(400, "profile_position", "請填寫你的職位。",
-                    "Please write your position.")
+    # 職位、我的強項 and 興趣 arrive picked from lists (an Other opens a text
+    # box). A caller still sending the old plain fields — a page left open
+    # in a tab — is kept on them, so nobody's save is lost mid-change.
+    if any(name in body for name in ("position_choice", "strength_choice",
+                                     "interest_picks", "interests_other")):
+        position = _picked_single(body, "position_choice", "position_other", POSITION_OPTIONS)
+        if position is None:
+            return fail(400, "profile_position", "請選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
+                        "Please pick your position — and if you pick Other, write what it is.")
+        interests = _picked_interests(body)
+        if interests is None:
+            return fail(400, "profile_empty", "請選擇你的興趣；揀「其他」的話，請寫明是甚麼興趣。",
+                        "Please pick your interests — and if you pick Other, write what they are.")
+        strength = _picked_single(body, "strength_choice", "strength_other", STRENGTH_OPTIONS)
+        if strength is None:
+            return fail(400, "profile_empty", "請選擇你的強項；揀「其他」的話，請寫明是甚麼強項。",
+                        "Please pick your strength — and if you pick Other, write what it is.")
+        values.update({"position": position, "interests": interests, "strength": strength})
+    else:
+        values.update({
+            "position": str(body.get("position") or "").strip(),
+            "interests": str(body.get("interests") or "").strip(),
+            "strength": str(body.get("strength") or "").strip(),
+        })
+        if not values["position"]:
+            return fail(400, "profile_position", "請填寫你的職位。",
+                        "Please write your position.")
     # 童軍經驗 arrives as the two picked counts; the counts take the written
     # paragraph's place. A caller still sending the paragraph (an old page
     # in an open tab) is kept on it, so nobody's save is lost mid-change.

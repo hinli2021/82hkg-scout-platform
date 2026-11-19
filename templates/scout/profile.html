@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from 'partials/macros.html' import empty_state, experience_fields, name_of, patrol_name, streak_chip with context %}
+{% from 'partials/macros.html' import empty_state, experience_fields, interests_fields, name_of, patrol_name, position_fields, streak_chip, strength_fields with context %}
 {% block title %}{{ L('我的個人檔案', 'My profile') if own else L('個人檔案', 'Profile') }}{% endblock %}
 {% block hud_chips %}{% if stats %}<span class="chip brass">🎖 {{ stats.badges_done }}</span>{{ streak_chip(stats.streak_current) }}{% endif %}{% endblock %}
 
@@ -141,23 +141,14 @@
 {# ── 編輯個人檔案 ─────────────────────────────────────────────────────── #}
 <div class="section-title"><h2>✏️ {{ L('編輯個人檔案', 'Edit my profile') }}</h2></div>
 <form class="card" method="post" action="{{ url_for('profile_routes.save') }}">
-  <label class="field"><span>{{ L('職位', 'Position') }}</span>
-    <input type="text" name="position" required maxlength="40" value="{{ profile.position_edit }}"
-           placeholder="{{ L('例如：小隊長、副小隊長、隊員', 'e.g. Patrol Leader, Assistant Patrol Leader, Patrol member') }}">
-  </label>
-  <label class="field"><span>{{ L('興趣', 'Interests') }}</span>
-    <input type="text" name="interests" required maxlength="120" value="{{ profile.interests }}"
-           placeholder="{{ L('例如：露營、繩結、音樂、足球', 'e.g. Camping, knots, music, football') }}">
-  </label>
+  {{ position_fields(profile) }}
+  {{ interests_fields(profile) }}
   {{ experience_fields(profile) }}
   <label class="field"><span>{{ L('想和大家分享的事', 'Something I want to share') }}</span>
     <textarea name="share" required maxlength="1000" rows="4"
               placeholder="{{ L('寫一些你想和隊員分享的事。', 'Write something you would like to share with the troop.') }}">{{ profile.share }}</textarea>
   </label>
-  <label class="field"><span>{{ L('我的強項', 'My strength') }}</span>
-    <input type="text" name="strength" required maxlength="120" value="{{ profile.strength }}"
-           placeholder="{{ L('例如：繩結、急救、唱歌、畫畫', 'e.g. Knots, first aid, singing, drawing') }}">
-  </label>
+  {{ strength_fields(profile) }}
   <p class="muted small">{{ L('請不要填寫電話號碼、住址或學校名稱。', 'Please do not write a phone number, home address or school name.') }}</p>
   <p class="chip brass">🌐 {{ L('個人檔案會公開給其他童軍看', 'Your profile will be shown to other scouts') }}</p>
   <input type="hidden" name="visible" value="1">
