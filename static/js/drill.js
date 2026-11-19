@@ -263,6 +263,7 @@
       armPrompt: false,          /* 題目正在等石像播完，才放出口令按鈕 */
       scene: 'intro',            /* intro · flip · drill · review · stage-done ·
                                     section-done · studied · result · save-error */
+      ipage: 0,                  /* the story page being told */
       section: 1,                /* 1 = hand signs on the cliff; 2 = movements below */
       stage: 0,
       pool: [],                  /* every learned move in the current cumulative stage */
@@ -1442,12 +1443,24 @@
         setArt(ridgeArt());
         var paras = (isEn() ? ((cfg.intro || {}).paras_en || (cfg.intro || {}).paras_zh)
                             : ((cfg.intro || {}).paras_zh || (cfg.intro || {}).paras_en)) || [];
+        /* the story is told page by page, the same opening format as
+           the other games: one beat a page, then the study cards */
+        var introPage = Math.min(state.ipage || 0, Math.max(0, paras.length - 1));
+        var introLast = introPage >= paras.length - 1;
         say(kicker(pick((cfg.intro || {}).kicker_zh, (cfg.intro || {}).kicker_en)) +
             '<h1 class="cave-title">' + esc(pick((cfg.intro || {}).title_zh, (cfg.intro || {}).title_en)) + '</h1>' +
-            (paras.length ? '<p class="cave-line">' + paras.map(esc).join('</p><p class="cave-line">') + '</p>' : '') +
-            '<p class="cave-line small">' + esc(pick((cfg.intro || {}).hint_zh, (cfg.intro || {}).hint_en)) + '</p>' +
-            '<div class="cave-actions"><button class="btn primary big" type="button" data-drill-go="start">' +
-            esc(pick((cfg.intro || {}).action_zh, (cfg.intro || {}).action_en)) + '</button></div>');
+            (paras.length ? '<p class="cave-line">' + esc(paras[introPage]) + '</p>' : '') +
+            (introLast
+              ? '<p class="cave-line small">' + esc(pick((cfg.intro || {}).hint_zh, (cfg.intro || {}).hint_en)) + '</p>' : '') +
+            '<div class="cave-actions">' +
+            (introLast
+              ? '<button class="btn primary big" type="button" data-drill-go="start">' +
+                esc(pick((cfg.intro || {}).action_zh, (cfg.intro || {}).action_en)) + '</button>'
+              : '<button class="btn primary big" type="button" data-drill-go="intro-next">' +
+                esc(pick('繼續 →', 'Continue →')) + '</button>') +
+            (paras.length > 1
+              ? '<span class="cave-line small">' + (introPage + 1) + ' / ' + paras.length + '</span>' : '') +
+            '</div>');
         paintProgress();
       } else if (scene === 'studied') {
         var studied = cfg.studied_card || {};
@@ -1643,6 +1656,7 @@
 
     function reset() {
       stopWaiting();
+      state.ipage = 0;
       state.section = 1;
       state.stage = 0;
       state.queue = [];
@@ -1799,6 +1813,7 @@
       if (!go) return;
       event.preventDefault();
       var where = go.getAttribute('data-drill-go');
+      if (where === 'intro-next') { tap(); state.ipage = (state.ipage || 0) + 1; show('intro'); return; }
       if (where === 'start') {
         tap();
         if (allGamePassed()) { finish(); return; }

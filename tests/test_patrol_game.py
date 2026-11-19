@@ -544,3 +544,11 @@ def test_a_replay_still_tells_the_story(store, app):
     assert page.count("data-pat-page") == 3
     assert "海邊的木筏" in page and "沙灘上，你的小隊正在等你" in page
     assert "木筏已經離岸" not in page
+
+
+def test_the_patrol_story_closes_the_linked_journey(store):
+    """Game 5 gathers the four earlier places and escapes the island;
+    the badge map's last area tells the same ending."""
+    from scout.content import member_badge_guide
+    area5 = member_badge_guide()["quest"]["areas"][4]
+    assert "木筏" in area5["hint_zh"] and "小隊" in area5["hint_zh"]

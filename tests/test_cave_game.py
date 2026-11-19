@@ -428,3 +428,15 @@ def test_a_nonsense_wrong_count_cannot_break_the_result(app, store, new_scout):
                                  data={**answers, "wrong": wrong}).get_json()
         assert payload["ok"] and 50 <= payload["detail"]["tries"] <= 1000
         assert 0 <= payload["detail"]["accuracy"] <= 100
+
+
+def test_the_cave_story_opens_the_island_journey_and_points_to_the_river():
+    """Game 1 starts the linked exploration and hands over to game 2."""
+    import json, pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    cave = json.loads((root / "content/member-badge/cave.json").read_text(encoding="utf-8"))
+    assert "荒島" in cave["intro"]["paras_zh"][0]
+    assert "河" in cave["exit"]["paras_zh"][-1]
+    js = (root / "static/js/cave.js").read_text(encoding="utf-8")
+    # the story is told page by page, like every other game
+    assert 'data-cave-go="intro-next"' in js and "state.ipage" in js

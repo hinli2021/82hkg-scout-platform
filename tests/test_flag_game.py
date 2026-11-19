@@ -321,3 +321,12 @@ def test_the_map_offers_the_flagpole(scout_client, store):
     # every area has its game now — none is left "coming soon"
     assert page.count("即將推出") == 0
     assert "小隊名冊卡" in page
+
+
+def test_the_flag_story_links_drill_ground_to_the_bluff():
+    """Game 4 walks down from the parade ground towards the seaside."""
+    import json, pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    bank = json.loads((root / "content/member-badge/ceremony-bank.json").read_text(encoding="utf-8"))
+    assert "步操場" in bank["intro"][0]["body_zh"]
+    assert "山崗" in bank["ending"][-1]["body_zh"] or "木筏" in bank["ending"][-1]["body_zh"]

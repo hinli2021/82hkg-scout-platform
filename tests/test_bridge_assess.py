@@ -331,3 +331,14 @@ def test_a_replay_starts_from_the_beginning_story_first():
     js = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js"
           / "bridge.js").read_text(encoding="utf-8")
     assert "if (where === 'restart') {" in js and "show('intro');" in js
+
+
+def test_the_crossing_story_links_cave_to_ridge_and_is_paged():
+    """Game 2 arrives from the cave, points to the ridge, page by page."""
+    import json, pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    river = json.loads((root / "content/member-badge/river.json").read_text(encoding="utf-8"))
+    assert "山洞" in river["intro"]["paras_zh"][0]
+    assert "石壁山嶺" in river["crossed"]["paras_zh"][-1]
+    js = (root / "static/js/bridge.js").read_text(encoding="utf-8")
+    assert 'data-bridge-go="intro-next"' in js and "state.ipage" in js

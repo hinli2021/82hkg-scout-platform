@@ -70,6 +70,7 @@
 
     var state = {
       scene: 'intro',          /* intro · teach · build · built · crossed · result */
+      ipage: 0,                // the story page being told
       ticked: false,           /* the code has been accepted in this session */
       stage: 0,
       laid: [],                // planks already on the bridge, this stage
@@ -299,12 +300,25 @@
       var st = stage();
       if (scene === 'intro') {
         setArt((cfg.intro || {}).image || 'bank');
+        /* the story is told page by page, the same opening format as
+           the other games: one beat a page, then the first teaching card */
+        var introParas = isEn() ? ((cfg.intro || {}).paras_en || []) : ((cfg.intro || {}).paras_zh || []);
+        var introPage = Math.min(state.ipage || 0, Math.max(0, introParas.length - 1));
+        var introLast = introPage >= introParas.length - 1;
         say(kicker(pick((cfg.intro || {}).kicker_zh, (cfg.intro || {}).kicker_en)) +
             '<h1 class="cave-title">' + esc(pick((cfg.intro || {}).title_zh, (cfg.intro || {}).title_en)) + '</h1>' +
-            lines(isEn() ? (cfg.intro || {}).paras_en : (cfg.intro || {}).paras_zh, '') +
-            '<p class="cave-line small">' + esc(pick((cfg.intro || {}).hint_zh, (cfg.intro || {}).hint_en)) + '</p>' +
-            '<div class="cave-actions"><button class="btn primary big" type="button" data-bridge-go="teach">' +
-            esc(pick((cfg.intro || {}).action_zh, (cfg.intro || {}).action_en)) + '</button></div>');
+            '<p class="cave-line">' + esc(introParas[introPage] || '') + '</p>' +
+            (introLast
+              ? '<p class="cave-line small">' + esc(pick((cfg.intro || {}).hint_zh, (cfg.intro || {}).hint_en)) + '</p>' : '') +
+            '<div class="cave-actions">' +
+            (introLast
+              ? '<button class="btn primary big" type="button" data-bridge-go="teach">' +
+                esc(pick((cfg.intro || {}).action_zh, (cfg.intro || {}).action_en)) + '</button>'
+              : '<button class="btn primary big" type="button" data-bridge-go="intro-next">' +
+                esc(pick('繼續 →', 'Continue →')) + '</button>') +
+            (introParas.length > 1
+              ? '<span class="cave-line small">' + (introPage + 1) + ' / ' + introParas.length + '</span>' : '') +
+            '</div>');
       } else if (scene === 'teach') {
         setArt(stageArt());
         say(teachHtml(false));
@@ -627,6 +641,7 @@
     }
 
     function reset() {
+      state.ipage = 0;
       state.stage = 0;
       state.laid = [];
       state.pool = [];
@@ -742,6 +757,7 @@
       if (!go) return;
       event.preventDefault();
       var where = go.getAttribute('data-bridge-go');
+      if (where === 'intro-next') { tap(); state.ipage = (state.ipage || 0) + 1; show('intro'); return; }
       if (where === 'build') { tap(); show('build'); return; }
       if (where === 'teach') { tap(); show('teach'); return; }
       if (where === 'retry') { tap(); retry(); return; }

@@ -9,13 +9,13 @@
     "title_zh": "山洞深處，藏着童軍的故事",
     "title_en": "Deep in the cave, the story of Scouting waits",
     "paras_zh": [
-      "叢林深處有一道石壁，壁上刻着童軍的百合花。你舉起火炬，火光把洞口的黑暗推開一點。",
+      "船撞上礁石後，你獨自被沖上荒島。口袋裏濕透的地圖上，第一個記號就在叢林深處——一道刻着童軍百合花的石壁。你舉起火炬，火光把洞口的黑暗推開一點。",
       "山洞分為四段，每一段都有一面壁畫：世界童軍運動、香港童軍運動、八十二旅、還有誓詞與規律。",
       "看完一面壁畫，就要在石室裡回答那一組題目 —— 四組加起來共 50 題。答錯了會走入死路，死路會把剛才壁畫上的資料再講一次，回頭再選便是。",
       "這是第一個區域唯一的遊戲：50 題，每題 2 分，滿分 100 分。完成全部題目、走到洞口即自動通關，分數只供回顧；完成山洞便完成第 4 項，無須另做試卷。"
     ],
     "paras_en": [
-      "Deep in the jungle, a stone wall carries the Scout fleur-de-lis. You lift your torch and the dark of the cave mouth steps back a little.",
+      "After the boat struck the reef, you were washed ashore alone. On the soaked map in your pocket, the first mark stands deep in the jungle — a stone wall carved with the Scout fleur-de-lis. You lift your torch and the dark of the cave mouth steps back a little.",
       "The cave has four stretches, and each one holds a wall painting: Scouting around the world, Scouting in Hong Kong, the 82nd, and the Promise and Law.",
       "Read a wall, then answer that group's questions in the chamber — fifty questions in all. A wrong path leads to a dead end, where the wall's facts are told again, and you come back and choose once more.",
       "This is the first area’s only game: 50 questions, 2 marks each, 100 in total. Finish them all and reach the exit to clear it automatically, whatever your score. Clearing the cave completes item 4 — no separate paper."
@@ -549,11 +549,11 @@
     "title_en": "Out of the cave",
     "paras_zh": [
       "你朝着洞口的亮光走出去，晨霧還在樹上。回頭看那塊刻着百合花的石壁 —— 四段壁畫記載的童軍故事，便是你在第 4 項的收穫。",
-      "沙灘就在前面，木筏等着下水。"
+      "地圖上的小徑離開山洞，鑽進霧裡，前面傳來河水聲。出口還在海邊——但要先過了這條河。"
     ],
     "paras_en": [
       "You walk out towards the light at the cave mouth, the morning mist still in the trees. Looking back at the fleur-de-lis wall, you remember the Scouting stories you explored for item 4.",
-      "The beach is ahead, and the raft is waiting for the tide."
+      "The map's trail leaves the cave and slips into the mist, with river water sounding ahead. The way out still lies by the sea — but the river comes first."
     ]
   },
   "setbacks": {

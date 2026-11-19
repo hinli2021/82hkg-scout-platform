@@ -157,3 +157,14 @@ def test_a_replay_starts_from_the_beginning_story_first():
     assert "if (where === 'restart') { stopWaiting(); restart(); return; }" in js
     # leaving mid-drill asks first, like every other game
     assert "drill-exit-title" in js and ("beforeunload" in js)
+
+
+def test_the_drill_story_arrives_from_the_crossing_and_is_paged():
+    """Game 3 opens where game 2 ended, and tells its story page by page."""
+    import json, pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    drill = json.loads((root / "content/member-badge/drill.json").read_text(encoding="utf-8"))
+    assert "迷霧渡口" in drill["intro"]["paras_zh"][0]
+    assert "沙灘" in drill["studied"]["pass_note_zh"]
+    js = (root / "static/js/drill.js").read_text(encoding="utf-8")
+    assert 'data-drill-go="intro-next"' in js and "state.ipage" in js

@@ -92,7 +92,7 @@
       (cfg.chambers || ['fork']).forEach(function (name) { spread.push(name); });
       if (!spread.length) spread = ['fork'];
       state = {
-        scene: 'intro', group: 0, qi: 0, first: {}, passed: 0,
+        scene: 'intro', ipage: 0, group: 0, qi: 0, first: {}, passed: 0,
         chambers: shuffled(spread), deadends: shuffled(cfg.deadends || ['deadend']),
         deadsSeen: 0, pending: null, result: null, finishing: false,
         // this stretch only: wrong turns taken, and questions of it answered
@@ -121,15 +121,23 @@
     }
 
 
+    /* the story is told page by page, the same opening format as the
+       other games: one beat a page, then the way in */
     function welcomeHtml() {
+      var paras = isEn() ? cfg.intro.paras_en : cfg.intro.paras_zh;
+      var page = Math.min(state.ipage || 0, paras.length - 1);
+      var last = page >= paras.length - 1;
       return '<span class="cave-kicker">' + esc(pick(cfg.intro.kicker_zh, cfg.intro.kicker_en)) + '</span>' +
         '<h1 class="cave-title">' + esc(pick(cfg.intro.title_zh, cfg.intro.title_en)) + '</h1>' +
-        (isEn() ? cfg.intro.paras_en : cfg.intro.paras_zh).map(function (line) {
-          return '<p class="cave-line">' + esc(line) + '</p>';
-        }).join('') +
+        '<p class="cave-line">' + esc(paras[page]) + '</p>' +
         '<div class="cave-actions">' +
-          '<button class="btn primary big" type="button" data-cave-go="wall" data-cheer="🔥,✨">' +
-            esc(pick(cfg.intro.action_zh, cfg.intro.action_en)) + '</button>' +
+          (last
+            ? '<button class="btn primary big" type="button" data-cave-go="wall" data-cheer="🔥,✨">' +
+                esc(pick(cfg.intro.action_zh, cfg.intro.action_en)) + '</button>'
+            : '<button class="btn primary big" type="button" data-cave-go="intro-next">' +
+                esc(pick('繼續 →', 'Continue →')) + '</button>') +
+          (paras.length > 1
+            ? '<span class="cave-line small">' + (page + 1) + ' / ' + paras.length + '</span>' : '') +
         '</div>';
     }
 
@@ -746,6 +754,7 @@
       if (!go) return;
       event.preventDefault();
       var where = go.getAttribute('data-cave-go');
+      if (where === 'intro-next') { tap(); state.ipage = (state.ipage || 0) + 1; show('intro'); return; }
       if (where === 'next') { tap(); advance(); return; }
       if (where === 'restart') {
         reset();
