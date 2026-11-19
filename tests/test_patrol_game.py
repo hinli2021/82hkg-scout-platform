@@ -147,7 +147,9 @@ def test_the_roster_is_the_live_patrol(store, app):
     # the member card IS the profile page's card: the same char-card
     # markup and classes, fed with the same mascot colours and numbers
     assert "pat-card char-card" in js and "poke-head" in js
-    assert "char-back" in js and "char-stats" in js and "poke-bottom" in js
+    assert "char-back" in js and "char-stats" in js
+    # the card carries no badge count, task count or streak numbers
+    assert "poke-bottom" not in js and "Day streak" not in js
     assert ".pat-card.char-card" in css and ".pat-phead" not in css
     # the picture window keeps its space on the narrower game card
     assert ".pat-card .char-portrait" in css and "min-height: 9rem" in css

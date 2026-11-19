@@ -70,14 +70,8 @@
             <p class="poke-move-text poke-clamp-2">{{ profile.share or L('尚未填寫。', 'Not written yet.') }}</p>
           </div>
         </div>
-        <div class="poke-bottom">
-          <span><small>{{ L('獎章', 'Badges') }}</small>{{ stats.badges_done }}/{{ overall.badges_total }}</span>
-          <span><small>{{ L('任務', 'Tasks') }}</small>{{ overall.tasks_done }}/{{ overall.tasks_total }}</span>
-          <span><small>{{ L('連續天數', 'Day streak') }}</small>{{ stats.streak_current }}</span>
-        </div>
         <div class="poke-foot">
           <span>{{ L('港島第八十二旅童軍團', '82nd Hong Kong Island Scout Group') }}</span>
-          <span class="poke-rarity" title="{{ L('已考獲獎章', 'Badges earned') }}">{{ '★' * stats.badges_done }}{{ '☆' * (overall.badges_total - stats.badges_done) }}</span>
         </div>
         {% endif %}
       </section>
@@ -87,11 +81,8 @@
           <span class="char-back-name">{{ name_of(person) }}</span>
           <span class="char-back-sub">{{ L('狀態總覽', 'Status overview') }}</span>
         </div>
-        <div class="char-stats">
-          <div class="char-stat"><span class="char-stat-k">{{ L('獎章', 'Badges') }}</span><span class="char-stat-v">{{ stats.badges_done }}/{{ overall.badges_total }}</span></div>
-          <div class="char-stat"><span class="char-stat-k">{{ L('任務', 'Tasks') }}</span><span class="char-stat-v">{{ overall.tasks_done }}/{{ overall.tasks_total }}</span></div>
+        <div class="char-stats" style="grid-template-columns: 1fr">
           <div class="char-stat"><span class="char-stat-k">{{ L('積分', 'Points') }}</span><span class="char-stat-v">{{ stats.points_balance }}</span></div>
-          <div class="char-stat"><span class="char-stat-k">{{ L('連續天數', 'Day streak') }}</span><span class="char-stat-v">{{ stats.streak_current }}</span></div>
         </div>
         <div class="char-badges">
           <span class="char-row-k">{{ L('已考獲的獎章', 'Badges earned') }}</span>

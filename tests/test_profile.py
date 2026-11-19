@@ -9,7 +9,10 @@ def find(store, username):
 def test_my_profile_shows_a_progress_overview(store, new_scout):
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "我的個人檔案" in page and "狀態總覽" in page
-    assert "獎章" in page and "任務" in page and "積分" in page
+    # the card shows points only: no badge count, task count or streak
+    assert "積分" in page and "poke-bottom" not in page
+    assert 'char-stat-k">獎章' not in page and 'char-stat-k">任務' not in page
+    assert 'char-stat-k">連續天數' not in page
     assert "興趣" in page and "童軍經驗" in page and "想和大家分享的事" in page
     assert "個人檔案會公開給其他童軍看" in page
     assert "請先完成個人檔案" in page  # the blocking pop-up is already up
@@ -45,7 +48,8 @@ def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_sc
     # info strip (number, patrol, position), then the moves
     front = page[page.index("data-char-front"):page.index("data-char-back")]
     assert "poke-head" in front and "HP" in front and "poke-info" in front
-    assert "poke-moves" in front and "童軍經驗" in front and "poke-rarity" in front
+    assert "poke-moves" in front and "童軍經驗" in front
+    assert "poke-rarity" not in front and "poke-bottom" not in front
 
 
 def test_a_scout_can_write_any_position_in_their_own_words(store, new_scout):

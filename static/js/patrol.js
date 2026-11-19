@@ -69,15 +69,9 @@
     var rows = '<div class="char-back-head"><span class="char-back-name">'
       + esc(displayName(member)) + "</span>"
       + '<span class="char-back-sub">' + esc(lang === "en" ? "Status overview" : "狀態總覽") + "</span></div>"
-      + '<div class="char-stats">'
-      + '<div class="char-stat"><span class="char-stat-k">' + esc(lang === "en" ? "Badges" : "獎章")
-      + '</span><span class="char-stat-v">' + esc(member.badges_done || 0) + "/" + esc(member.badges_total || 0) + "</span></div>"
-      + '<div class="char-stat"><span class="char-stat-k">' + esc(lang === "en" ? "Tasks" : "任務")
-      + '</span><span class="char-stat-v">' + esc(member.tasks_done || 0) + "/" + esc(member.tasks_total || 0) + "</span></div>"
+      + '<div class="char-stats" style="grid-template-columns: 1fr">'
       + '<div class="char-stat"><span class="char-stat-k">' + esc(lang === "en" ? "Points" : "積分")
       + '</span><span class="char-stat-v">' + esc(member.points_balance || 0) + "</span></div>"
-      + '<div class="char-stat"><span class="char-stat-k">' + esc(lang === "en" ? "Day streak" : "連續天數")
-      + '</span><span class="char-stat-v">' + esc(member.streak_current || 0) + "</span></div>"
       + "</div>"
       + '<div class="char-badges"><span class="char-row-k">'
       + esc(lang === "en" ? "Badges earned" : "已考獲的獎章") + "</span>"
@@ -129,10 +123,6 @@
       front = '<img class="char-generated-img" src="' + esc(member.card_image_url)
         + '" alt="' + esc(lang === "en" ? "AI card picture" : "AI 生成的個人卡圖") + '">';
     } else {
-      var stars = "";
-      var done = member.badges_done || 0, total = member.badges_total || 0;
-      for (var i = 0; i < done; i++) stars += "★";
-      for (var j = done; j < total; j++) stars += "☆";
       front = '<span class="poke-head"><span class="poke-name">' + esc(name) + "</span>"
         + '<span class="poke-hp"><small>HP</small> ' + esc(member.points_balance || 0)
         + '<span class="poke-type">' + esc(mascot.emoji || "🐣") + "</span></span></span>"
@@ -157,13 +147,8 @@
         + '<span class="poke-move-name">' + esc(lang === "en" ? "Something to share" : "想和大家分享的事")
         + '</span></span><span class="poke-move-text poke-clamp-2">' + esc(member.share || notYet + (lang === "en" ? "" : "。")) + "</span></span>"
         + "</span>"
-        + '<span class="poke-bottom">'
-        + "<span><small>" + esc(lang === "en" ? "Badges" : "獎章") + "</small>" + esc(done) + "/" + esc(total) + "</span>"
-        + "<span><small>" + esc(lang === "en" ? "Tasks" : "任務") + "</small>" + esc(member.tasks_done || 0) + "/" + esc(member.tasks_total || 0) + "</span>"
-        + "<span><small>" + esc(lang === "en" ? "Day streak" : "連續天數") + "</small>" + esc(member.streak_current || 0) + "</span>"
-        + "</span>"
         + '<span class="poke-foot"><span>' + esc(lang === "en" ? "82nd Hong Kong Island Scout Group" : "港島第八十二旅童軍團")
-        + '</span><span class="poke-rarity">' + stars + "</span></span>";
+        + "</span></span>";
     }
     return '<button type="button" class="pat-card char-card" data-member="' + esc(member.id) + '"'
       + ' style="--char-tint: ' + esc(mascot.tint || "#2f8f5b")
