@@ -67,6 +67,8 @@ def is_test_account(row: dict) -> bool:
 
 def patrol_members(st, user: dict) -> list[dict]:
     """Every active scout in `user`'s patrol, with their profile folded in."""
+    from .engine import progress_for
+    from .mascots import mascot_for
     from .routes.profile_routes import load_profile, profile_complete
 
     patrol = str(user.get("patrol") or "").strip().lower()
@@ -80,6 +82,18 @@ def patrol_members(st, user: dict) -> list[dict]:
             continue
         profile = load_profile(st, row["id"])
         position = str(profile.get("position") or "").strip()
+        # the card in the game is the member's own profile card, so it
+        # carries the same numbers and patrol colours that page shows
+        mascot = mascot_for(row.get("patrol") or "")
+        try:
+            progress = progress_for(st, row["id"])
+            card_stats, card_overall = progress["stats"], progress["overall"]
+            earned = [{"emoji": b.get("emoji") or "🎖",
+                       "title_zh": b.get("title_zh") or "",
+                       "title_en": b.get("title_en") or ""}
+                      for b in progress["badges"] if b["earned"]]
+        except Exception:
+            card_stats, card_overall, earned = {}, {}, []
         members.append({
             "id": row["id"],
             "name_zh": _name(row, "zh"),
@@ -95,6 +109,15 @@ def patrol_members(st, user: dict) -> list[dict]:
             "share": str(profile.get("share") or "").strip(),
             "strength": str(profile.get("strength") or "").strip(),
             "complete": profile_complete(profile),
+            "mascot": {key: mascot.get(key, "") for key in
+                       ("emoji", "img", "tint", "tint_dark", "soft")},
+            "points_balance": card_stats.get("points_balance", 0),
+            "badges_done": card_stats.get("badges_done", 0),
+            "badges_total": card_overall.get("badges_total", 0),
+            "tasks_done": card_overall.get("tasks_done", 0),
+            "tasks_total": card_overall.get("tasks_total", 0),
+            "streak_current": card_stats.get("streak_current", 0),
+            "earned_badges": earned,
             "is_self": row["id"] == user["id"],
             "is_contact": CONTACT_WORD in position,
             # No email here: addresses are private and never enter the game.

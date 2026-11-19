@@ -134,7 +134,25 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert "img/quest/patrol/seaside.jpg" in css
     assert (_p.Path(__file__).resolve().parent.parent / "static" / "img"
             / "quest" / "patrol" / "seaside.jpg").is_file()
+    # the member card IS the profile page's card: the same char-card
+    # markup and classes, fed with the same mascot colours and numbers
+    assert "pat-card char-card" in js and "poke-head" in js
+    assert "char-back" in js and "char-stats" in js and "poke-bottom" in js
+    assert ".pat-card.char-card" in css and ".pat-phead" not in css
+    from scout.engine import progress_for
     members = {m["id"]: m for m in scene["members"]}
+    mine = progress_for(store, viewer["id"])
+    card = members[viewer["id"]]
+    assert card["points_balance"] == mine["stats"]["points_balance"]
+    assert card["badges_done"] == mine["stats"]["badges_done"]
+    assert card["badges_total"] == mine["overall"]["badges_total"]
+    assert card["tasks_done"] == mine["overall"]["tasks_done"]
+    assert card["streak_current"] == mine["stats"]["streak_current"]
+    assert card["mascot"]["emoji"] == "🦦" and card["mascot"]["tint"]
+    assert card["earned_badges"] == [
+        {"emoji": b.get("emoji") or "🎖", "title_zh": b.get("title_zh") or "",
+         "title_en": b.get("title_en") or ""}
+        for b in mine["badges"] if b["earned"]]
     # every Otter scout is on a card: the seeded pair, the new members, and
     # the member with no profile at all
     assert {viewer["id"], contact["id"], singer["id"], rookie["id"]} <= set(members)

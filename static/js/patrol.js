@@ -37,70 +37,141 @@
   }
 
   function factRow(label, text, fallback) {
-    return "<li><b>" + esc(label) + "</b><span>"
-      + esc(text || fallback) + "</span></li>";
+    return '<div class="char-row"><span class="char-row-k">' + esc(label)
+      + '</span><span class="char-row-v">' + esc(text || fallback) + "</span></div>";
+  }
+
+  /* the profile card prints a member's name this way: English first with
+     the Chinese after it — and the patrol's name the same */
+  function displayName(member) {
+    if (lang === "en") return member.name_en || member.name_zh || "";
+    if (member.name_en && member.name_zh && member.name_en !== member.name_zh) {
+      return member.name_en + " " + member.name_zh;
+    }
+    return member.name_zh || member.name_en || "";
+  }
+
+  function displayPatrol() {
+    if (lang === "en") return data.patrol_en || data.patrol_zh || "";
+    if (data.patrol_en && data.patrol_zh && data.patrol_en !== data.patrol_zh) {
+      return data.patrol_en + " " + data.patrol_zh;
+    }
+    return data.patrol_zh || data.patrol_en || "";
   }
 
   function cardBack(member) {
-    var rows = '<ul class="pat-facts">'
+    /* the profile card's back: the status numbers, the badges earned,
+       then the member's details in their own words */
+    var earned = (member.earned_badges || []).map(function (badge) {
+      return '<span class="chip brass">' + esc(badge.emoji || "🎖") + " "
+        + esc(lang === "en" ? badge.title_en : badge.title_zh) + "</span>";
+    }).join("");
+    var rows = '<div class="char-back-head"><span class="char-back-name">'
+      + esc(displayName(member)) + "</span>"
+      + '<span class="char-back-sub">' + esc(lang === "en" ? "Status overview" : "狀態總覽") + "</span></div>"
+      + '<div class="char-stats">'
+      + '<div class="char-stat"><span class="char-stat-k">' + esc(lang === "en" ? "Badges" : "獎章")
+      + '</span><span class="char-stat-v">' + esc(member.badges_done || 0) + "/" + esc(member.badges_total || 0) + "</span></div>"
+      + '<div class="char-stat"><span class="char-stat-k">' + esc(lang === "en" ? "Tasks" : "任務")
+      + '</span><span class="char-stat-v">' + esc(member.tasks_done || 0) + "/" + esc(member.tasks_total || 0) + "</span></div>"
+      + '<div class="char-stat"><span class="char-stat-k">' + esc(lang === "en" ? "Points" : "積分")
+      + '</span><span class="char-stat-v">' + esc(member.points_balance || 0) + "</span></div>"
+      + '<div class="char-stat"><span class="char-stat-k">' + esc(lang === "en" ? "Day streak" : "連續天數")
+      + '</span><span class="char-stat-v">' + esc(member.streak_current || 0) + "</span></div>"
+      + "</div>"
+      + '<div class="char-badges"><span class="char-row-k">'
+      + esc(lang === "en" ? "Badges earned" : "已考獲的獎章") + "</span>"
+      + (earned ? '<span class="row wrap" style="gap:.35rem">' + earned + "</span>"
+                 : '<span class="char-row-v">' + esc(lang === "en" ? "No badges earned yet." : "尚未考獲獎章。") + "</span>")
+      + "</div>"
+      + '<div class="char-details">'
+      + factRow(lang === "en" ? "Position" : "職位",
+                lang === "en" ? member.position_en : member.position_zh,
+                lang === "en" ? "Not written yet" : "尚未填寫")
+      + factRow(lang === "en" ? "Patrol" : "小隊", displayPatrol(), "")
       + factRow(lang === "en" ? "Interests" : "興趣", member.interests,
-                lang === "en" ? "Not written yet" : "尚未填寫")
-      + factRow(lang === "en" ? "Strength" : "強項", member.strength,
-                lang === "en" ? "Not written yet" : "尚未填寫")
+                lang === "en" ? "Not written yet." : "尚未填寫。")
       + factRow(lang === "en" ? "Scout experience" : "童軍經驗", member.experience,
-                lang === "en" ? "Not written yet" : "尚未填寫")
+                lang === "en" ? "Not written yet." : "尚未填寫。")
       + factRow(lang === "en" ? "Something to share" : "想和大家分享的事", member.share,
-                lang === "en" ? "Not written yet" : "尚未填寫")
-      + factRow(lang === "en" ? "Scout number" : "童軍編號", member.scout_no,
-                lang === "en" ? "Not set yet" : "尚未編配")
-      + "</ul>";
+                lang === "en" ? "Not written yet." : "尚未填寫。")
+      + factRow(lang === "en" ? "My strength" : "我的強項", member.strength,
+                lang === "en" ? "Not written yet." : "尚未填寫。")
+      + "</div>";
     if (!member.complete) {
       rows += '<p class="pat-muted">'
         + esc(lang === "en"
             ? "This member has not finished their profile yet — know them by their name, avatar, scout number and position."
-            : "這位成員尚未填寫全部資料——可以靠姓名、頭像、童軍編號和職位辨認他。")
+            : "這位成員尚未完成個人檔案——可以靠姓名、頭像、童軍編號和職位辨認他。")
+        + "</p>";
+    }
+    if (member.is_contact) {
+      rows += '<p class="pat-contact">'
+        + esc(lang === "en"
+            ? "📨 Patrol contact — how to reach them: find them in person at a meeting, or ask your leader to pass a message on."
+            : "📨 小隊聯絡——聯絡方法：在集會時親自找他，或請領袖幫忙聯絡。")
         + "</p>";
     }
     return rows;
   }
 
   function memberCard(member) {
-    var name = lang === "en" ? member.name_en : member.name_zh;
+    var name = displayName(member);
     var position = (lang === "en" ? member.position_en : member.position_zh)
-      || (lang === "en" ? "No position yet" : "暫時沒有職位");
-    var patrol = lang === "en" ? data.patrol_en : data.patrol_zh;
-    var contact = member.is_contact
-      ? '<span class="pat-badge">📨 ' + esc(lang === "en" ? "Patrol contact" : "小隊聯絡") + "</span>" : "";
-    var contactHow = "";
-    if (member.is_contact) {
-      contactHow = '<p class="pat-contact">'
-        + esc(lang === "en"
-            ? "How to reach them: find them in person at a meeting, or ask your leader to pass a message on."
-            : "聯絡方法：在集會時親自找他，或請領袖幫忙聯絡。")
-        + "</p>";
-    }
-    /* the same profile card the member sees on their own page: portrait,
-       the NO. / patrol / position strip, and their own words below. It is
-       drawn from the live profile, so an edit updates it at once. */
-    var portrait = member.card_image_url
-      ? '<img class="pat-pimg" src="' + esc(member.card_image_url) + '" alt="">'
-      : '<span class="pat-portrait"><span class="pat-avatar">'
-        + esc(member.avatar || "🦊") + "</span></span>";
-    return '<button type="button" class="pat-card" data-member="' + esc(member.id) + '">'
-      + '<span class="pat-card-inner">'
-      + '<span class="pat-face pat-front">'
-        + '<span class="pat-phead"><strong>' + esc(name) + '</strong>'
-        + '<span class="pat-ppos">' + esc(position) + "</span></span>"
-        + portrait
-        + '<span class="pat-pinfo"><span>NO. ' + esc(member.scout_no || "—") + "</span>"
+      || (lang === "en" ? "No position yet" : "尚未填寫職位");
+    var patrol = displayPatrol();
+    var mascot = member.mascot || {};
+    var notYet = lang === "en" ? "Not written yet" : "尚未填寫";
+    /* the very card the member sees on their own profile page — the same
+       classes, the same layout, drawn from the same live profile */
+    var front;
+    if (member.card_image_url) {
+      front = '<img class="char-generated-img" src="' + esc(member.card_image_url)
+        + '" alt="' + esc(lang === "en" ? "AI card picture" : "AI 生成的個人卡圖") + '">';
+    } else {
+      var stars = "";
+      var done = member.badges_done || 0, total = member.badges_total || 0;
+      for (var i = 0; i < done; i++) stars += "★";
+      for (var j = done; j < total; j++) stars += "☆";
+      front = '<span class="poke-head"><span class="poke-name">' + esc(name) + "</span>"
+        + '<span class="poke-hp"><small>HP</small> ' + esc(member.points_balance || 0)
+        + '<span class="poke-type">' + esc(mascot.emoji || "🐣") + "</span></span></span>"
+        + '<span class="char-portrait poke-art">'
+        + (mascot.img ? '<img src="' + esc(mascot.img) + '" alt="">'
+                      : '<span class="char-portrait-emoji" aria-hidden="true">' + esc(mascot.emoji || "🐣") + "</span>")
+        + '<span class="char-avatar" aria-hidden="true">' + esc(member.avatar || "🦊") + "</span></span>"
+        + '<span class="poke-info"><span>NO. ' + esc(member.scout_no || "—") + "</span>"
         + "<span>" + esc(patrol || "") + "</span><span>" + esc(position) + "</span></span>"
-        + '<span class="pat-pmove"><b>' + esc(lang === "en" ? "Interests" : "興趣") + "</b>"
-        + esc(member.interests || (lang === "en" ? "Not written yet" : "尚未填寫")) + "</span>"
-        + contact
-        + '<span class="pat-fliphint">' + esc(lang === "en" ? "Tap to flip" : "按一下翻卡") + "</span>"
-      + "</span>"
-      + '<span class="pat-face pat-back">' + cardBack(member) + contactHow + "</span>"
-      + "</span></button>";
+        + (member.is_contact
+            ? '<span class="pat-badge">📨 ' + esc(lang === "en" ? "Patrol contact" : "小隊聯絡") + "</span>" : "")
+        + '<span class="poke-moves">'
+        + '<span class="poke-ability"><span class="poke-ability-label">'
+        + esc(lang === "en" ? "Interests" : "興趣") + '</span><span class="poke-ability-text">'
+        + esc(member.interests || notYet) + "</span></span>"
+        + '<span class="poke-move"><span class="poke-move-head"><span class="poke-cost">'
+        + esc(mascot.emoji || "🐣") + '</span><span class="poke-move-name">'
+        + esc(lang === "en" ? "Scout experience" : "童軍經驗") + '</span></span>'
+        + '<span class="poke-move-text">' + esc(member.experience
+            || (lang === "en" ? "No Scout experience written yet." : "尚未填寫童軍經驗。")) + "</span></span>"
+        + '<span class="poke-move"><span class="poke-move-head"><span class="poke-cost">⭐</span>'
+        + '<span class="poke-move-name">' + esc(lang === "en" ? "Something to share" : "想和大家分享的事")
+        + '</span></span><span class="poke-move-text poke-clamp-2">' + esc(member.share || notYet + (lang === "en" ? "" : "。")) + "</span></span>"
+        + "</span>"
+        + '<span class="poke-bottom">'
+        + "<span><small>" + esc(lang === "en" ? "Badges" : "獎章") + "</small>" + esc(done) + "/" + esc(total) + "</span>"
+        + "<span><small>" + esc(lang === "en" ? "Tasks" : "任務") + "</small>" + esc(member.tasks_done || 0) + "/" + esc(member.tasks_total || 0) + "</span>"
+        + "<span><small>" + esc(lang === "en" ? "Day streak" : "連續天數") + "</small>" + esc(member.streak_current || 0) + "</span>"
+        + "</span>"
+        + '<span class="poke-foot"><span>' + esc(lang === "en" ? "82nd Hong Kong Island Scout Group" : "港島第八十二旅童軍團")
+        + '</span><span class="poke-rarity">' + stars + "</span></span>";
+    }
+    return '<button type="button" class="pat-card char-card" data-member="' + esc(member.id) + '"'
+      + ' style="--char-tint: ' + esc(mascot.tint || "#2f8f5b")
+      + "; --char-tint-dark: " + esc(mascot.tint_dark || "#1f6b43")
+      + "; --char-soft: " + esc(mascot.soft || "rgba(47, 143, 91, .14)") + '">'
+      + '<span class="char-face char-front">' + front + "</span>"
+      + '<span class="char-face char-back">' + cardBack(member) + "</span>"
+      + "</button>";
   }
 
   function showCard(index) {
@@ -110,7 +181,8 @@
     state.scene = index;
     deck.innerHTML = '<div class="pat-scene-wrap">'
       + memberCard(member)
-      + '<p class="pat-count">' + (index + 1) + " / " + (data.members || []).length + "</p>"
+      + '<p class="pat-count">' + (index + 1) + " / " + (data.members || []).length
+      + '<span class="pat-fliphint">' + esc(lang === "en" ? "Tap the card to flip it" : "按一下卡片翻面") + "</span></p>"
       + "</div>";
     var card = deck.querySelector(".pat-card");
     card.addEventListener("click", function () {

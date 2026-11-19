@@ -4764,78 +4764,26 @@ body.is-game main { padding-top: 6px; }
   border-radius: 10px; padding: .6rem .8rem; color: #d9f7d4; margin: .6rem 0;
 }
 
-/* the member card itself: a real card a scout flips, face then back */
+/* the member card itself: the member's own profile card — the same
+   .char-card the profile page shows, tint, portrait window, moves and
+   status back — flipped here to learn the patrol */
 .pat-deck { display: flex; justify-content: center; margin-top: .4rem; }
-.pat-scene-wrap { text-align: center; }
-.pat-card {
-  width: min(320px, 84vw); height: 400px; perspective: 900px;
-  background: none; border: none; cursor: pointer; padding: 0;
+.pat-scene-wrap { text-align: center; width: min(360px, 88vw); }
+.pat-card.char-card {
+  font: inherit; text-align: left; appearance: none; -webkit-appearance: none;
 }
-.pat-card-inner {
-  position: relative; display: block; width: 100%; height: 100%;
-  transform-style: preserve-3d; transition: transform .45s ease;
-}
-.pat-card.is-flipped .pat-card-inner { transform: rotateY(180deg); }
-.pat-face {
-  position: absolute; inset: 0; backface-visibility: hidden;
-  border-radius: 16px; padding: 1.1rem; box-sizing: border-box;
-  display: flex; flex-direction: column; align-items: center; gap: .45rem;
-  overflow: auto; text-align: left;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
-}
-/* the front wears the profile card's own dress: paper, a name band, the
-   portrait window, and the NO. / patrol / position strip */
-.pat-front {
-  background: linear-gradient(170deg, #fffdf4, #f7ecd2);
-  color: var(--ink, #1b2320); text-align: left; align-items: stretch;
-}
-.pat-phead {
-  display: flex; align-items: baseline; justify-content: space-between; gap: .5rem;
-  border-bottom: 2px solid #e5d9bd; padding-bottom: .4rem;
-}
-.pat-phead strong { font-size: 1.35rem; color: #17452c; }
-.pat-ppos {
-  background: #17452c; color: #fff; border-radius: 999px; flex: none;
-  padding: .12rem .55rem; font-size: .78rem; font-weight: 700;
-}
-.pat-portrait {
-  display: flex; align-items: center; justify-content: center; min-height: 7.5rem;
-  border-radius: 10px; margin-top: .3rem;
-  background: linear-gradient(160deg, #2c7d4f, #17452c);
-  border: 2px solid #d9c691;
-}
-.pat-pimg {
-  width: 100%; height: 9.5rem; object-fit: cover; border-radius: 10px; margin-top: .3rem;
-  border: 2px solid #d9c691;
-}
-.pat-avatar { font-size: 3.4rem; }
-.pat-pinfo {
-  display: flex; justify-content: space-between; gap: .4rem; margin-top: .45rem;
-  background: rgba(217, 164, 65, .18); border: 1px solid rgba(182, 130, 42, .4);
-  border-radius: 6px; padding: .28rem .5rem; font-size: .76rem; font-weight: 700; color: #6b5316;
-}
-.pat-pmove { margin-top: .55rem; font-size: .9rem; line-height: 1.5; }
-.pat-pmove b { display: block; font-size: .76rem; color: var(--brass-dark, #b6822a); }
-.pat-front .pat-badge { align-self: flex-start; }
-.pat-front .pat-fliphint { text-align: center; color: #7b8a84; }
+.pat-card .pat-badge { align-self: flex-start; }
+.pat-card .pat-muted { color: #7a5a30; font-size: .88rem; }
 .pat-badge {
   background: var(--brass, #d9a441); color: #231a05; border-radius: 999px;
   padding: .18rem .6rem; font-size: .82rem; font-weight: 600;
 }
-.pat-fliphint { margin-top: .8rem; font-size: .82rem; opacity: .8; }
-.pat-back {
-  background: #fffdf6; color: var(--ink, #1b2320);
-  transform: rotateY(180deg);
-}
-.pat-facts { list-style: none; margin: 0; padding: 0; width: 100%; }
-.pat-facts li { margin-bottom: .55rem; }
-.pat-facts b { display: block; font-size: .78rem; color: var(--brass-dark, #b6822a); }
 .pat-contact {
   margin-top: auto; background: #e6f2ea; border-radius: 8px;
   padding: .5rem .6rem; font-size: .88rem; width: 100%; box-sizing: border-box;
 }
-.pat-muted { color: #cfdbcf; }
 .pat-count { color: #cfdbcf; font-size: .85rem; margin: .45rem 0 0; }
+.pat-count .pat-fliphint { display: block; margin-top: .15rem; font-size: .82rem; opacity: .8; }
 .pat-flipnav { margin: .7rem 0 .3rem; }
 
 /* the raft: wooden planks, one station card per seat, and the shore where
@@ -4914,12 +4862,7 @@ body.is-game main { padding-top: 6px; }
   .patrol .cave-hud-mid {
     min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .pat-card { width: min(300px, 86vw); height: 332px; }
-  .pat-portrait { min-height: 5.4rem; }
-  .pat-pimg { height: 6.8rem; }
-  .pat-avatar { font-size: 2.6rem; }
-  .pat-phead strong { font-size: 1.12rem; }
-  .pat-pinfo { font-size: .7rem; flex-wrap: wrap; }
+  .pat-scene-wrap { width: min(320px, 88vw); }
   .pat-name, .pat-chip { min-height: 44px; }
   .pat-chip { padding: .55rem .85rem; }
   .pat-seat { padding: .55rem .6rem; }
@@ -4928,7 +4871,7 @@ body.is-game main { padding-top: 6px; }
 @media (min-width: 701px) and (max-width: 1100px) {
   /* iPads and small tablets: the board and the raft keep their columns,
      and every tap target stays finger-sized */
-  .pat-card { width: 320px; height: 384px; }
+  .pat-scene-wrap { width: 340px; }
   .pat-name, .pat-chip { min-height: 44px; }
   .pat-chip { padding: .55rem .85rem; }
 }
