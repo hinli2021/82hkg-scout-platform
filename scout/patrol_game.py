@@ -106,6 +106,8 @@ def patrol_members(st, user: dict) -> list[dict]:
             "position": position,
             "interests": str(profile.get("interests") or "").strip(),
             "experience": str(profile.get("experience") or "").strip(),
+            "camping_days": str(profile.get("camping_days") or "").strip(),
+            "hiking_times": str(profile.get("hiking_times") or "").strip(),
             # a share its owner has not ticked to show stays private here too
             "share": (str(profile.get("share") or "").strip()
                       if profile.get("share_visible", True) else ""),

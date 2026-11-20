@@ -475,6 +475,24 @@ def test_leaders_lead_the_deck_and_the_contact_is_ordinary(store, app):
     assert senior_row["rank_bar"] == 3 and senior_row["leader_tier"] == 2
 
 
+def test_member_cards_carry_the_profile_cards_own_facts(store, app):
+    """The card in the game is the member's profile card: the scene
+    carries the camping and hiking counts the profile card shows in
+    place of the old written experience, so both faces can say exactly
+    what the profile page says."""
+    viewer, *_ = seed_patrol(store)
+    camper = add_member(store, "patrolcamper", "陳營友", "Chan Camper", "",
+                        {"position": "康樂", "interests": "露營",
+                         "strength": "生火", "experience": "",
+                         "camping_days": "6", "hiking_times": "20+",
+                         "share": "喜歡在營地幫忙。"})
+    task = task_of(store)
+    client = login(app, viewer)
+    _, scene = scene_of(client, task["id"])
+    row = next(m for m in scene["members"] if m["id"] == camper["id"])
+    assert row["camping_days"] == "6" and row["hiking_times"] == "20+"
+
+
 def test_game_5_cannot_hand_out_a_leader_rank(store, app):
     """The last step decides a duty, never a rank: 隊長 and friends
     are the leader's appointment, in the game as much as on the form."""

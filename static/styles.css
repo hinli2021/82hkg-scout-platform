@@ -4857,16 +4857,7 @@ body.is-game main { padding-top: 6px; }
   text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
 }
 .pat-card .char-portrait { flex: 1 1 auto; min-height: 9rem; }
-.pat-card .pat-badge { align-self: flex-start; }
 .pat-card .pat-muted { color: #7a5a30; font-size: .88rem; }
-.pat-badge {
-  background: var(--brass, #d9a441); color: #231a05; border-radius: 999px;
-  padding: .18rem .6rem; font-size: .82rem; font-weight: 600;
-}
-.pat-contact {
-  margin-top: auto; background: #e6f2ea; border-radius: 8px;
-  padding: .5rem .6rem; font-size: .88rem; width: 100%; box-sizing: border-box;
-}
 
 /* the raft: wooden planks, one station card per seat, and the shore where
    the members wait to be seated */

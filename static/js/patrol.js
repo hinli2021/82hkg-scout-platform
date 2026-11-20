@@ -63,6 +63,35 @@
     return data.patrol_zh || data.patrol_en || "";
   }
 
+  /* the experience rows the profile card's back shows: the two
+     counts, or the older written paragraph where that is all a
+     profile holds — and the same words for the front, as two lines */
+  function experienceRows(member) {
+    var notYet = lang === "en" ? "Not written yet." : "尚未填寫。";
+    if (member.camping_days || member.hiking_times) {
+      return factRow("⛺ " + (lang === "en" ? "Camping days" : "露營天數"),
+                     member.camping_days, notYet)
+        + factRow("🥾 " + (lang === "en" ? "Hikes" : "行山次數"),
+                  member.hiking_times, notYet);
+    }
+    return factRow(lang === "en" ? "Scout experience" : "童軍經驗",
+                   member.experience, notYet);
+  }
+
+  function experienceText(member) {
+    var notYet = lang === "en" ? "Not yet" : "尚未填寫";
+    if (member.camping_days || member.hiking_times) {
+      return '<span style="display:block">⛺ '
+        + esc(lang === "en" ? "Camping days" : "露營天數") + ": "
+        + esc(member.camping_days || notYet) + "</span>"
+        + '<span style="display:block">🥾 '
+        + esc(lang === "en" ? "Hikes" : "行山次數") + ": "
+        + esc(member.hiking_times || notYet) + "</span>";
+    }
+    return esc(member.experience
+      || (lang === "en" ? "No Scout experience written yet." : "尚未填寫童軍經驗。"));
+  }
+
   function cardBack(member) {
     /* the profile card's back: the status numbers, the badges earned,
        then the member's details in their own words */
@@ -89,27 +118,14 @@
       + factRow(lang === "en" ? "Patrol" : "小隊", displayPatrol(), "")
       + factRow(lang === "en" ? "Interests" : "興趣", member.interests,
                 lang === "en" ? "Not written yet." : "尚未填寫。")
-      + factRow(lang === "en" ? "Scout experience" : "童軍經驗", member.experience,
-                lang === "en" ? "Not written yet." : "尚未填寫。")
-      + factRow(lang === "en" ? "Something to share" : "想和大家分享的事", member.share,
-                lang === "en" ? "Not written yet." : "尚未填寫。")
+      + experienceRows(member)
       + factRow(lang === "en" ? "My strength" : "我的強項", member.strength,
                 lang === "en" ? "Not written yet." : "尚未填寫。")
+      + (member.share
+          ? factRow(lang === "en" ? "Something to share" : "想和大家分享的事",
+                    member.share, "")
+          : "")
       + "</div>";
-    if (!member.complete) {
-      rows += '<p class="pat-muted">'
-        + esc(lang === "en"
-            ? "This member has not finished their profile yet — know them by their name, avatar, scout number and position."
-            : "這位成員尚未完成個人檔案——可以靠姓名、頭像、童軍編號和職位辨認他。")
-        + "</p>";
-    }
-    if (member.is_contact) {
-      rows += '<p class="pat-contact">'
-        + esc(lang === "en"
-            ? "📨 Patrol contact — how to reach them: find them in person at a meeting, or ask your leader to pass a message on."
-            : "📨 小隊聯絡——聯絡方法：在集會時親自找他，或請領袖幫忙聯絡。")
-        + "</p>";
-    }
     return rows;
   }
 
@@ -150,8 +166,6 @@
         + "<span>" + esc(patrol || "") + '</span><span class="poke-position">🎖 '
         + esc(position) + "</span></span>"
         + rankBar(member)
-        + (member.is_contact
-            ? '<span class="pat-badge">📨 ' + esc(lang === "en" ? "Patrol contact" : "小隊聯絡") + "</span>" : "")
         + '<span class="poke-moves">'
         + '<span class="poke-ability"><span class="poke-ability-label">'
         + esc(lang === "en" ? "Interests" : "興趣") + '</span><span class="poke-ability-text">'
@@ -159,11 +173,12 @@
         + '<span class="poke-move"><span class="poke-move-head"><span class="poke-cost">'
         + esc(mascot.emoji || "🐣") + '</span><span class="poke-move-name">'
         + esc(lang === "en" ? "Scout experience" : "童軍經驗") + '</span></span>'
-        + '<span class="poke-move-text">' + esc(member.experience
-            || (lang === "en" ? "No Scout experience written yet." : "尚未填寫童軍經驗。")) + "</span></span>"
-        + '<span class="poke-move"><span class="poke-move-head"><span class="poke-cost">⭐</span>'
-        + '<span class="poke-move-name">' + esc(lang === "en" ? "Something to share" : "想和大家分享的事")
-        + '</span></span><span class="poke-move-text poke-clamp-2">' + esc(member.share || notYet + (lang === "en" ? "" : "。")) + "</span></span>"
+        + '<span class="poke-move-text">' + experienceText(member) + "</span></span>"
+        + (member.share
+            ? '<span class="poke-move"><span class="poke-move-head"><span class="poke-cost">⭐</span>'
+              + '<span class="poke-move-name">' + esc(lang === "en" ? "Something to share" : "想和大家分享的事")
+              + '</span></span><span class="poke-move-text poke-clamp-2">' + esc(member.share) + "</span></span>"
+            : "")
         + "</span>"
         + '<span class="poke-foot"><span>' + esc(lang === "en" ? "82nd Hong Kong Island Scout Group" : "港島第八十二旅童軍團")
         + "</span></span>";
