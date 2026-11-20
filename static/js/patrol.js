@@ -117,10 +117,13 @@
      fleur-de-lis at the centre, as the troop's own chart draws it */
   function rankBar(member) {
     if (!member.rank_bar) return "";
-    var html = '<span class="rank-bar" aria-hidden="true"><i class="rank-stripe"></i>';
-    if (member.rank_bar > 1) html += '<i class="rank-stripe"></i>';
-    if (member.rank_bar === 3) html += '<i class="rank-thin"></i>';
-    return html + '<span class="rank-emblem">⚜</span></span>';
+    var stripes = '<i class="rank-stripe"></i>';
+    if (member.rank_bar > 1) stripes += '<i class="rank-stripe"></i>';
+    if (member.rank_bar === 3) stripes += '<i class="rank-thin"></i>';
+    var side = '<span class="rank-side">' + stripes + "</span>";
+    return '<span class="rank-bar rank-count-' + member.rank_bar
+      + '" aria-hidden="true">' + side
+      + '<span class="rank-emblem">⚜</span>' + side + "</span>";
   }
 
   function memberCard(member) {

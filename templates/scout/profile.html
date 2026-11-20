@@ -52,7 +52,7 @@
         </div>
         {% set rankv = 1 if '副小隊長' in (profile.position_zh or '') else 3 if '高級小隊長' in (profile.position_zh or '') else 2 if '小隊長' in (profile.position_zh or '') else 0 %}
         {% if rankv %}
-        <span class="rank-bar" aria-hidden="true"><i class="rank-stripe"></i>{% if rankv > 1 %}<i class="rank-stripe"></i>{% endif %}{% if rankv == 3 %}<i class="rank-thin"></i>{% endif %}<span class="rank-emblem">⚜</span></span>
+        <span class="rank-bar rank-count-{{ rankv }}" aria-hidden="true"><span class="rank-side"><i class="rank-stripe"></i>{% if rankv > 1 %}<i class="rank-stripe"></i>{% endif %}{% if rankv == 3 %}<i class="rank-thin"></i>{% endif %}</span><span class="rank-emblem">⚜</span><span class="rank-side"><i class="rank-stripe"></i>{% if rankv > 1 %}<i class="rank-stripe"></i>{% endif %}{% if rankv == 3 %}<i class="rank-thin"></i>{% endif %}</span></span>
         {% endif %}
         <div class="poke-moves">
           <div class="poke-ability">
