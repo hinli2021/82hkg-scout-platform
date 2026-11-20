@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import re
 
+import pytest
 from itsdangerous import URLSafeTimedSerializer
 
 HEADERS = {"Accept": "application/json", "X-Requested-With": "fetch"}
@@ -400,6 +401,53 @@ def test_the_raft_sizes_itself_to_any_patrol():
         assert len({s["role_zh"] for s in seats}) == size
         signal = next(s for s in seats if s["role_zh"] == "通訊站")
         assert key[signal["id"]] == "m0"
+
+
+@pytest.mark.parametrize("size", range(3, 9))
+def test_patrols_of_three_to_eight_play_the_whole_game(store, app, size):
+    """Patrols run from three to eight scouts: at every size the cards
+    step lays out one profile card per member, the board asks for
+    exactly that patrol, the raft seats everyone, and the game files."""
+    viewer = find(store, "scout04")
+    store.update("users", viewer["id"], {"patrol": "Falcon"})
+    viewer = find(store, "scout04")
+    store.insert("profiles", {"user_id": viewer["id"], "visible": True,
+                              "updated_at": "2026-01-01",
+                              **full_profile("聯絡", "足球", "跑步")})
+    duties = ["康樂", "文書", "物資管理", "氣象員", "報時員", "情緒輔助", "法官"]
+    for i in range(size - 1):
+        member = add_member(store, f"falcon{i}", f"隼隊員{i}", f"Falcon {i}", "",
+                            full_profile(duties[i], f"興趣{i}", f"強項{i}"))
+        store.update("users", member["id"], {"patrol": "Falcon"})
+    task = task_of(store)
+    client = login(app, viewer)
+    _, scene = scene_of(client, task["id"])
+
+    # the introduction: one card per member, every card carrying the
+    # facts its profile card is drawn from
+    assert scene["playable"] is True
+    assert len(scene["members"]) == size and scene["roster_size"] == size
+    assert len({m["id"] for m in scene["members"]}) == size
+    for member in scene["members"]:
+        assert member["name_zh"] and "position_zh" in member
+        assert "camping_days" in member and "earned_badges" in member
+    assert {m["id"] for m in scene["members"]} <= {
+        b["id"] for b in scene["roster_board"]}
+
+    # the raft seats the whole patrol, each station telling one member
+    assert len(scene["raft"]) == len(scene["crew"]) == size
+    assert len({seat["criterion_zh"] for seat in scene["raft"]}) == size
+
+    reply = client.post(f"/tasks/{task['id']}/patrol-stage1",
+                        data={"run_key": scene["run_key"],
+                              "members": [m["id"] for m in scene["members"]]},
+                        headers=HEADERS)
+    assert reply.get_json()["passed"] is True
+    reply = client.post(f"/tasks/{task['id']}/patrol-submit",
+                        data={**key_of(scene), "run_key": scene["run_key"],
+                              "elapsed_ms": "60000"}, headers=HEADERS)
+    assert reply.get_json()["passed"] is True
+    assert len(completed_records(store, viewer["id"], task["id"])) == 1
 
 
 def test_game_5_cannot_finish_until_the_scout_decides_a_position(store, app):
