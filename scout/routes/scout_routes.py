@@ -1129,6 +1129,8 @@ def task_patrol(task_id: str):
         "task_id": task_id,
         "position_url": url_for("scout_routes.patrol_position", task_id=task_id),
         "position_options": my_profile.get("position_options") or [],
+        "position_descriptions": {name: list(pair) for name, pair in
+                                   (my_profile.get("position_descriptions") or {}).items()},
         "my_position_choice": my_profile.get("position_choice") or "",
         "my_position_other": my_profile.get("position_other") or "",
         "my_position_zh": my_profile.get("position_zh") or "",
@@ -1213,7 +1215,8 @@ def patrol_position(task_id: str):
     sends it once more to finish.
     """
     from ..patrol_game import build_raft, patrol_members, unit_roster
-    from .profile_routes import (OTHER_VALUE, _picked_single,
+    from .profile_routes import (OTHER_VALUE, POSITION_DESC_MAX,
+                                 _picked_single, _position_desc_missing,
                                  _position_options, _remember_custom_position)
 
     st = store()
@@ -1231,13 +1234,22 @@ def patrol_position(task_id: str):
                     "請先和隊員商量，選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
                     "Talk it over with your patrol and pick your position — "
                     "and if you pick Other, write what it is.")
+    position_desc = str(request.form.get("position_desc") or "").strip()
+    if len(position_desc) > POSITION_DESC_MAX:
+        return fail(400, "profile_position_desc", "職位描述太長，請寫短一點。",
+                    "That description is too long — please keep it shorter.")
+    if _position_desc_missing(st, str(request.form.get("position_choice") or ""),
+                              position, position_desc):
+        return fail(400, "profile_position_desc",
+                    "這是一個新職位——請寫低這個職位要負責甚麼。",
+                    "This is a new position — please write what this role has to do.")
     patch = {"position": position, "updated_at": now_iso()}
     if st.get("profiles", g.user["id"]):
         st.update("profiles", g.user["id"], patch)
     else:
         st.insert("profiles", {"user_id": g.user["id"], **patch})
     if str(request.form.get("position_choice") or "") == OTHER_VALUE:
-        _remember_custom_position(st, position)
+        _remember_custom_position(st, position, position_desc)
     audit(g.user, "profile_update", "profiles", g.user["id"], {"visible": True})
 
     st.refresh("users", "profiles")
@@ -1260,6 +1272,8 @@ def patrol_position(task_id: str):
     mine = _load_profile(st, g.user["id"])
     return ok(position=position,
               position_options=mine.get("position_options") or [],
+              position_descriptions={name: list(pair) for name, pair in
+                                     (mine.get("position_descriptions") or {}).items()},
               my_position_choice=mine.get("position_choice") or "",
               my_position_other=mine.get("position_other") or "",
               scene=scene,

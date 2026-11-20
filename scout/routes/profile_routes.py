@@ -104,6 +104,53 @@ INTEREST_OPTIONS = [
 ]
 
 
+# What each 職位 has to do, shown while a scout is choosing. The patrol
+# described most of these themselves; the ones nobody described are
+# filled in the same plain way. A position invented under Other keeps
+# the description its inventor wrote (the position_descriptions setting).
+POSITION_DESCRIPTIONS = {
+    "聯絡": ("負責出席記錄，聯絡和通知大家。", "Keeps the attendance record, and contacts and reminds everyone."),
+    "康樂": ("設計和帶領小隊活動。", "Designs and leads the patrol's activities."),
+    "文書": ("記錄小隊會議和活動內容。", "Takes notes at patrol meetings and activities."),
+    "物資管理": ("保管、清點和收拾小隊物資。", "Looks after, counts and packs away the patrol's equipment."),
+    "氣象員": ("留意天氣變化，提醒大家作好準備。", "Watches the weather and reminds everyone to be ready."),
+    "報時員": ("掌握活動時間，提醒大家跟上進度。", "Keeps an eye on the time and reminds everyone to stay on schedule."),
+    "情緒輔助": ("紓緩隊員情緒。", "Helps soothe teammates' feelings."),
+    "情緒價值專員": ("提供情緒價值。", "Provides emotional support and encouragement."),
+    "心理委員": ("提供情緒價值。", "Provides emotional support and encouragement."),
+    "法官": ("解決隊員之間的糾紛。", "Settles disagreements between members."),
+}
+POSITION_DESC_MAX = 120
+
+
+def _position_descriptions(st=None) -> dict:
+    """(Chinese, English) duties for every describable 職位: the written
+    defaults, plus the description kept for each scout-added position.
+    A scout's own words read the same in both languages."""
+    descriptions = dict(POSITION_DESCRIPTIONS)
+    if st is not None:
+        try:
+            saved = st.settings_cached().get("position_descriptions") or {}
+        except Exception:
+            saved = {}
+        if isinstance(saved, dict):
+            for name, text in saved.items():
+                name, text = str(name or "").strip(), str(text or "").strip()
+                if name and text and name not in descriptions:
+                    descriptions[name] = (text, text)
+    return descriptions
+
+
+def _position_desc_missing(st, choice: str, position: str, description: str) -> bool:
+    """A brand-new 職位 — written under Other, not on the list yet —
+    cannot join without saying what the role has to do."""
+    if choice != OTHER_VALUE or not position:
+        return False
+    if position in {item[0] for item in _position_options(st)}:
+        return False
+    return not str(description or "").strip()
+
+
 def _position_options(st=None) -> list:
     """The 職位 list: patrol duties, plus every position a scout has
     added through Other (kept in the custom_positions setting, so the
@@ -126,18 +173,25 @@ def _position_options(st=None) -> list:
     return options
 
 
-def _remember_custom_position(st, position: str) -> None:
-    """Add a position picked through Other to the shared selection list."""
+def _remember_custom_position(st, position: str, description: str = "") -> None:
+    """Add a position picked through Other to the shared selection list,
+    keeping the description its inventor wrote for the next scout."""
     text = str(position or "").strip()
-    if not text or text in {item[0] for item in POSITION_OPTIONS} \
-            or text in REMOVED_POSITION_ROLES:
+    if not text or text in REMOVED_POSITION_ROLES:
         return
     try:
-        current = [str(item or "").strip()
-                   for item in (st.settings_cached().get("custom_positions") or [])]
-        current = [item for item in current if item]
-        if text not in current:
-            st.save_setting("custom_positions", current + [text])
+        if text not in {item[0] for item in POSITION_OPTIONS}:
+            current = [str(item or "").strip()
+                       for item in (st.settings_cached().get("custom_positions") or [])]
+            current = [item for item in current if item]
+            if text not in current:
+                st.save_setting("custom_positions", current + [text])
+        desc = str(description or "").strip()
+        if desc and text not in _position_descriptions(st):
+            saved = st.settings_cached().get("position_descriptions") or {}
+            saved = dict(saved) if isinstance(saved, dict) else {}
+            saved[text] = desc
+            st.save_setting("position_descriptions", saved)
     except Exception:
         pass  # the directory is a convenience; never lose the profile save
 
@@ -211,6 +265,7 @@ def load_profile(st, user_id: str) -> dict:
     else:
         position_zh = position_en = position_value
     position_choice, position_other = _single_choice(position_value, all_options)
+    position_descriptions = _position_descriptions(st)
     strength = str(row.get("strength") or "")
     if _other_text(strength) is not None:
         strength = _other_text(strength)
@@ -231,6 +286,10 @@ def load_profile(st, user_id: str) -> dict:
         "position_options": all_options,
         "position_choice": position_choice,
         "position_other": position_other,
+        "position_descriptions": position_descriptions,
+        # an Other position edits its description alongside its name
+        "position_desc": (position_descriptions.get(position_value) or ("", ""))[0]
+                         if position_choice == OTHER_VALUE else "",
         "interests": interests,
         "interest_options": INTEREST_OPTIONS,
         "interest_choices": interest_choices,
@@ -410,12 +469,17 @@ def save():
     # in a tab — is kept on them, so nobody's save is lost mid-change.
     if any(name in body for name in ("position_choice", "strength_choice",
                                      "interest_picks", "interests_other")):
+        position_desc = str(body.get("position_desc") or "").strip()
         if str(body.get("position_choice") or "").strip():
             position = _picked_single(body, "position_choice", "position_other",
                                       _position_options(st))
             if position is None:
                 return fail(400, "profile_position", "請選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
                             "Please pick your position — and if you pick Other, write what it is.")
+            if _position_desc_missing(st, str(body.get("position_choice") or ""),
+                                      position, position_desc):
+                return fail(400, "profile_position_desc", "這是一個新職位——請寫低這個職位要負責甚麼。",
+                            "This is a new position — please write what this role has to do.")
         else:
             # no position yet is fine: it is decided inside game 5
             position = ""
@@ -456,7 +520,7 @@ def save():
     if not values["interests"] or not values["strength"]:
         return fail(400, "profile_empty", "請填寫全部資料，才可以繼續。",
                     "Please fill in everything before you continue.")
-    if len(values["position"]) > POSITION_MAX or len(values["interests"]) > INTERESTS_MAX \
+    if len(values["position"]) > POSITION_MAX or len(str(body.get("position_desc") or "")) > POSITION_DESC_MAX or len(values["interests"]) > INTERESTS_MAX \
             or len(values["strength"]) > INTERESTS_MAX \
             or len(values.get("experience") or "") > TEXT_MAX or len(values["share"]) > TEXT_MAX:
         return fail(400, "profile_long", "內容太長，請寫短一點。",
@@ -464,7 +528,8 @@ def save():
     save_profile(st, g.user["id"], values)
     # a position written under Other joins the list for the next scout
     if str(body.get("position_choice") or "") == OTHER_VALUE:
-        _remember_custom_position(st, values["position"])
+        _remember_custom_position(st, values["position"],
+                                  str(body.get("position_desc") or ""))
     audit(g.user, "profile_update", "profiles", g.user["id"], {"visible": True})
     if wants_json():
         return ok(visible=True)

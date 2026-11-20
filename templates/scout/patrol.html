@@ -140,9 +140,14 @@
             <label class="field"><span>{{ L('我的職位', 'My position') }}</span>
               <select name="position_choice" data-pat-position-choice required></select>
             </label>
+            <p class="position-desc" data-pat-position-desc hidden>💡 <span data-pat-position-desc-text></span></p>
             <label class="field" data-pat-position-otherbox hidden><span>{{ L('其他職位', 'My position (other)') }}</span>
               <input type="text" name="position_other" data-pat-position-other maxlength="37"
                      placeholder="{{ L('請寫明你的職位', 'Write your position') }}">
+            </label>
+            <label class="field" data-pat-position-descbox hidden><span>{{ L('職位描述', 'What this position does') }} <span class="hint">{{ L('（新職位要填：這個職位要負責甚麼？）', '(for a new position: what does this role have to do?)') }}</span></span>
+              <input type="text" name="position_desc" data-pat-position-desc-input maxlength="120"
+                     placeholder="{{ L('例如：負責帶熱身遊戲', 'For example: leads the warm-up games') }}">
             </label>
             <p class="pat-result" data-pat-position-result role="status" aria-live="polite"></p>
             <div class="cave-actions">
@@ -152,7 +157,6 @@
               <button class="btn ghost" type="button" data-pat-position-back>← {{ L('返回木筏', 'Back to the raft') }}</button>
             </div>
           </form>
-        </section>
         </section>
       </div>
     </div>

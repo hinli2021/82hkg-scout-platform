@@ -143,6 +143,9 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert scene["my_position_choice"] == "__other__"
     assert scene["my_position_other"] == "隊員"
     assert any(pair[0] == "聯絡" for pair in scene["position_options"])
+    # every listed position carries what the role has to do
+    assert scene["position_descriptions"]["聯絡"][0] == "負責出席記錄，聯絡和通知大家。"
+    assert "data-pat-position-desc" in page and 'name="position_desc"' in page
     assert "j.need_position" in js and "enterPosition" in js
     # a replay starts from the beginning too, story first; leaving
     # before the raft sets off asks first, like every other game
@@ -433,6 +436,34 @@ def test_game_5_cannot_finish_until_the_scout_decides_a_position(store, app):
                                    "elapsed_ms": "60000"}, headers=HEADERS)
     assert reply.get_json()["passed"] is True
     assert len(completed_records(store, viewer["id"], task["id"])) == 1
+
+
+def test_a_new_position_in_game_5_needs_its_description(store, app):
+    """Inventing a position at the last step means describing it: the
+    description is kept, and the next scout sees it on the list."""
+    viewer, *_ = seed_patrol(store)
+    task = task_of(store)
+    client = login(app, viewer)
+    url = f"/tasks/{task['id']}/patrol-position"
+
+    reply = client.post(url, data={"position_choice": "__other__",
+                                   "position_other": "天氣預報員"}, headers=HEADERS)
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_position_desc"
+    assert store.get("profiles", viewer["id"])["position"] == "隊員"
+
+    reply = client.post(url, data={"position_choice": "__other__",
+                                   "position_other": "天氣預報員",
+                                   "position_desc": "出發前報告天氣"}, headers=HEADERS)
+    body = reply.get_json()
+    assert reply.status_code == 200 and body["position"] == "天氣預報員"
+    assert store.get("profiles", viewer["id"])["position"] == "天氣預報員"
+    assert body["position_descriptions"]["天氣預報員"][0] == "出發前報告天氣"
+
+    _, scene = scene_of(client, task["id"])
+    assert any(pair[0] == "天氣預報員" for pair in scene["position_options"])
+    assert scene["position_descriptions"]["天氣預報員"][0] == "出發前報告天氣"
+    assert scene["my_position_choice"] == "天氣預報員"
 
 
 def test_only_a_fully_correct_raft_completes_item_two(store, app):

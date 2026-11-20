@@ -377,6 +377,30 @@
       fields.forEach(function (f) { f.addEventListener('change', sync); });
       sync();
     });
+    // 職位: pointing at the field (or picking on a phone) shows what the
+    // role has to do; a brand-new role written under Other also asks
+    // for that description, which the next scout will then see.
+    document.querySelectorAll('[data-position-select]').forEach(function (sel) {
+      var form = sel.closest('form');
+      if (!form) return;
+      var line = form.querySelector('[data-position-desc]');
+      var text = form.querySelector('[data-position-desc-text]');
+      var descBox = form.querySelector('[data-position-desc-box]');
+      var descInput = descBox ? descBox.querySelector('input') : null;
+      var en = document.documentElement.lang === 'en';
+      function syncPosition() {
+        var opt = sel.options[sel.selectedIndex];
+        var other = sel.value === '__other__';
+        var desc = opt ? (en ? opt.dataset.descEn : opt.dataset.descZh) || '' : '';
+        if (text) text.textContent = desc;
+        if (line) line.hidden = !desc;
+        sel.title = desc; // the hover tooltip over the 職位 field
+        if (descBox) descBox.hidden = !other;
+        if (descInput) descInput.required = other;
+      }
+      sel.addEventListener('change', syncPosition);
+      syncPosition();
+    });
   }
 
   function boot() {

@@ -165,6 +165,11 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--green-400);
 .switch { display: flex; align-items: center; gap: .55rem; padding: .45rem 0; cursor: pointer; }
 .switch input { width: 20px; height: 20px; accent-color: var(--green-600); }
 /* 想和大家分享的事: the show/hide tick sits right beside its heading */
+.position-desc{margin:.15rem 0 .35rem;padding:.45rem .7rem;border-radius:.6rem;
+  background:rgba(255,214,120,.13);border:1px solid rgba(255,214,120,.35);
+  font-size:.92rem;line-height:1.45}
+.position-desc[hidden]{display:none}
+
 .share-head {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start;
   gap: .35rem .55rem; margin-bottom: .3rem;

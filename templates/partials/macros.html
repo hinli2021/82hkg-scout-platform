@@ -142,19 +142,28 @@
 {% endmacro %}
 
 {% macro position_fields(profile) %}
+  {% set cur_key = profile.position_other if profile.position_choice == '__other__' else profile.position_choice %}
+  {% set cur_desc = profile.position_descriptions.get(cur_key) %}
   <label class="field"><span>{{ L('職位', 'Position') }} <span class="hint">{{ L('（未完成遊戲 5 前可留空，在遊戲中與隊員商量後決定）', '(you can leave this blank until game 5, where you decide it with your patrol)') }}</span></span>
-    <select name="position_choice">
+    <select name="position_choice" data-position-select>
       <option value="" {{ 'selected' if not profile.position_choice else '' }}>{{ L('暫時留空', 'Leave blank for now') }}</option>
       {% for value_zh, label_en in profile.position_options %}
-        <option value="{{ value_zh }}" {{ 'selected' if profile.position_choice == value_zh else '' }}>{{ L(value_zh, label_en) }}</option>
+        {% set desc = profile.position_descriptions.get(value_zh) %}
+        <option value="{{ value_zh }}" data-desc-zh="{{ desc[0] if desc else '' }}" data-desc-en="{{ desc[1] if desc else '' }}" {{ 'selected' if profile.position_choice == value_zh else '' }}>{{ L(value_zh, label_en) }}</option>
       {% endfor %}
       <option value="__other__" {{ 'selected' if profile.position_choice == '__other__' else '' }}>{{ L('其他', 'Other') }}</option>
     </select>
   </label>
+  <p class="position-desc" data-position-desc {{ '' if cur_desc else 'hidden' }}>💡 <span data-position-desc-text>{{ L(cur_desc[0], cur_desc[1]) if cur_desc else '' }}</span></p>
   <label class="field" data-other-box="position_choice" {{ '' if profile.position_choice == '__other__' else 'hidden' }}>
     <span>{{ L('其他職位', 'My position (other)') }}</span>
     <input type="text" name="position_other" maxlength="37" value="{{ profile.position_other }}"
            placeholder="{{ L('請寫明你的職位', 'Write your position') }}">
+  </label>
+  <label class="field" data-position-desc-box {{ '' if profile.position_choice == '__other__' else 'hidden' }}>
+    <span>{{ L('職位描述', 'What this position does') }} <span class="hint">{{ L('（新職位要填：這個職位要負責甚麼？）', '(for a new position: what does this role have to do?)') }}</span></span>
+    <input type="text" name="position_desc" maxlength="120" value="{{ profile.position_desc }}"
+           placeholder="{{ L('例如：負責帶熱身遊戲', 'For example: leads the warm-up games') }}">
   </label>
 {% endmacro %}
 

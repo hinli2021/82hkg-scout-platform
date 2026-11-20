@@ -282,8 +282,10 @@
     var html = '<option value="" disabled' + (current ? "" : " selected") + ">"
       + esc(lang === "en" ? "Please choose" : "請選擇") + "</option>";
     (data.position_options || []).forEach(function (pair) {
+      var desc = (data.position_descriptions || {})[pair[0]] || ["", ""];
       html += '<option value="' + esc(pair[0]) + '"' + (current === pair[0] ? " selected" : "")
-        + ">" + esc(lang === "en" ? pair[1] : pair[0]) + "</option>";
+        + ' data-desc-zh="' + esc(desc[0] || "") + '" data-desc-en="' + esc(desc[1] || "") + '">'
+        + esc(lang === "en" ? pair[1] : pair[0]) + "</option>";
     });
     html += '<option value="__other__"' + (current === "__other__" ? " selected" : "")
       + ">" + esc(lang === "en" ? "Other" : "其他") + "</option>";
@@ -301,6 +303,20 @@
     var picked = sel.value === "__other__";
     box.hidden = !picked;
     if (other) other.required = picked;
+    // what this role has to do: under the field, and as the hover
+    // tooltip on the 職位 field itself. A new role asks for its own.
+    var opt = sel.options[sel.selectedIndex];
+    var desc = opt ? (lang === "en" ? opt.getAttribute("data-desc-en")
+                                   : opt.getAttribute("data-desc-zh")) || "" : "";
+    var line = $("[data-pat-position-desc]");
+    var text = $("[data-pat-position-desc-text]");
+    if (text) text.textContent = desc;
+    if (line) line.hidden = !desc;
+    sel.title = desc;
+    var descBox = $("[data-pat-position-descbox]");
+    var descInput = $("[data-pat-position-desc-input]");
+    if (descBox) descBox.hidden = !picked;
+    if (descInput) descInput.required = picked;
   }
 
   function enterPosition() {
@@ -329,6 +345,7 @@
         var j = out.j;
         if (j.ok) {
           data.position_options = j.position_options;
+          data.position_descriptions = j.position_descriptions;
           data.my_position_choice = j.my_position_choice;
           data.my_position_other = j.my_position_other;
           fillPosition();

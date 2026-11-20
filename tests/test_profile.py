@@ -153,7 +153,7 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     front = page[page.index("data-char-front"):page.index("data-char-back")]
     assert "觀鳥" in front and "露營" in front
     # the edit form offers every pick back, Other words in their boxes
-    assert 'value="聯絡" selected' in page
+    assert 'value="聯絡" data-desc-zh="負責出席記錄，聯絡和通知大家。" data-desc-en="Keeps the attendance record, and contacts and reminds everyone." selected' in page
     assert 'value="守夜"' in page and 'value="觀鳥"' in page
     assert 'data-other-box="position_choice" hidden' in page  # 聯絡 is listed
 
@@ -164,7 +164,8 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     assert store.get("profiles", new_scout.id)["interests"] == "露營、觀鳥"
 
     # an Other position that runs too long is refused, like the other fields
-    reply = save(position_choice="__other__", position_other="職" * 41)
+    reply = save(position_choice="__other__", position_other="職" * 41,
+                 position_desc="負責帶隊")
     assert reply.status_code == 400
     assert reply.get_json()["error"] == "profile_long"
     assert store.get("profiles", new_scout.id)["position"] == "聯絡"
@@ -239,21 +240,31 @@ def test_a_profile_completes_without_a_position_until_game_5(store, new_scout):
 
 
 def test_an_other_position_joins_the_selection_list(store, new_scout, scout_client):
-    reply = new_scout.post("/profile", data={
+    data = {
         "position_choice": "__other__", "position_other": "營火主持人",
         "interest_picks": ["露營"], "camping_days": "1", "hiking_times": "2",
         "strength_choice": "繩結",
-    })
+    }
+    # a brand-new role must say what it has to do before it can join
+    reply = new_scout.post("/profile", data=data)
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_position_desc"
+    assert store.get("profiles", new_scout.id) is None
+
+    reply = new_scout.post("/profile", data={**data, "position_desc": "帶大家唱營火歌"})
     assert reply.status_code == 200
     assert store.get("profiles", new_scout.id)["position"] == "營火主持人"
     assert "營火主持人" in (store.settings_cached().get("custom_positions") or [])
 
     # from now on it is picked straight from the list — by its owner…
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert 'value="營火主持人" selected' in page
-    # …and by every other scout
+    assert 'value="營火主持人" data-desc-zh="帶大家唱營火歌" data-desc-en="帶大家唱營火歌" selected' in page
+    # …and by every other scout, with the inventor's description attached
     other_page = scout_client.get("/profile").get_data(as_text=True)
     assert 'value="營火主持人"' in other_page
+    assert 'data-desc-zh="帶大家唱營火歌"' in other_page
+    # the written duties ride on the listed positions too
+    assert 'data-desc-zh="負責出席記錄，聯絡和通知大家。"' in other_page
 
 
 def test_a_position_written_before_the_lists_is_offered_back_as_other(store, new_scout):
