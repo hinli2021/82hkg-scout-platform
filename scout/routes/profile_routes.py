@@ -116,8 +116,8 @@ POSITION_DESCRIPTIONS = {
     "氣象員": ("留意天氣變化，提醒大家作好準備。", "Watches the weather and reminds everyone to be ready."),
     "報時員": ("掌握活動時間，提醒大家跟上進度。", "Keeps an eye on the time and reminds everyone to stay on schedule."),
     "情緒輔助": ("紓緩隊員情緒。", "Helps soothe teammates' feelings."),
-    "情緒價值專員": ("提供情緒價值。", "Provides emotional support and encouragement."),
-    "心理委員": ("提供情緒價值。", "Provides emotional support and encouragement."),
+    "情緒價值專員": ("鼓勵和支持隊員，為小隊打氣。", "Encourages and supports the patrol, cheering everyone on."),
+    "心理委員": ("關心隊員的心理狀態，留意隊員的情緒和壓力。", "Looks out for how members are feeling, noticing low moods and stress."),
     "法官": ("解決隊員之間的糾紛。", "Settles disagreements between members."),
 }
 POSITION_DESC_MAX = 120
