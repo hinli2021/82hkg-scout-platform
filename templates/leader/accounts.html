@@ -211,7 +211,7 @@
     </form>
     <form class="card" method="post" action="{{ url_for('leader_routes.set_positions') }}">
       <p class="small muted">
-        {{ L('職位會顯示在童軍的個人檔案，也會用在遊戲 5「小隊名冊卡」。小隊長、副小隊長、高級小隊長由領袖在這裡委任，童軍不可以自己揀或更改；其他職位童軍仍可在個人檔案或遊戲 5 自行決定。每隊只須一位成員的職位寫有「聯絡」，遊戲便會問誰是小隊的聯絡。',
+        {{ L('職位會顯示在童軍的個人檔案，也會用在遊戲 5「小隊名冊卡」。隊長、副隊長、團隊長由領袖在這裡委任，童軍不可以自己揀或更改；其他職位童軍仍可在個人檔案或遊戲 5 自行決定。每隊只須一位成員的職位寫有「聯絡」，遊戲便會問誰是小隊的聯絡。',
              'Positions show on each scout’s profile and are used by Game 5, “Patrol cards”. Patrol leader, deputy and senior leader are appointed by leaders here — a scout cannot pick or change one; other positions scouts can still decide on their profile or in game 5. One member per patrol should carry the patrol-contact position; the game will ask who they are.') }}
       </p>
       <datalist id="position-ideas">
@@ -220,7 +220,7 @@
       {% for scout in scouts %}
         <label class="field"><span>{{ name_of(scout) }} · {{ patrol_name(scout.patrol) }}</span>
           <input type="text" name="position_{{ scout.id }}" maxlength="40" value="{{ scout.position_text }}" list="position-ideas"
-                 placeholder="{{ L('例如：小隊長、聯絡、康樂', 'e.g. Patrol Leader, Contact, Activities') }}">
+                 placeholder="{{ L('例如：隊長、聯絡、康樂', 'e.g. Patrol Leader, Contact, Activities') }}">
         </label>
       {% endfor %}
       <div class="form-actions"><button class="btn primary" type="submit">{{ L('儲存職位', 'Save positions') }}</button></div>

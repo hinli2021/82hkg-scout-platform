@@ -50,7 +50,7 @@
           <span>{{ patrol_name(person.get('patrol', '')) }}</span>
           <span class="poke-position">🎖 {{ L(profile.position_zh, profile.position_en) or L('尚未填寫職位', 'No position yet') }}</span>
         </div>
-        {% set rankv = 1 if '副小隊長' in (profile.position_zh or '') else 3 if '高級小隊長' in (profile.position_zh or '') else 2 if '小隊長' in (profile.position_zh or '') else 0 %}
+        {% set rankv = 1 if ('副隊長' in (profile.position_zh or '') or '副小隊長' in (profile.position_zh or '')) else 3 if ('團隊長' in (profile.position_zh or '') or '高級小隊長' in (profile.position_zh or '')) else 2 if ('隊長' in (profile.position_zh or '') or '小隊長' in (profile.position_zh or '')) else 0 %}
         {% if rankv %}
         <span class="rank-bar rank-count-{{ rankv }}" aria-hidden="true"><span class="rank-side"><i class="rank-stripe"></i>{% if rankv > 1 %}<i class="rank-stripe"></i>{% endif %}{% if rankv == 3 %}<i class="rank-thin"></i>{% endif %}</span><span class="rank-emblem">⚜</span><span class="rank-side"><i class="rank-stripe"></i>{% if rankv > 1 %}<i class="rank-stripe"></i>{% endif %}{% if rankv == 3 %}<i class="rank-thin"></i>{% endif %}</span></span>
         {% endif %}

@@ -1216,8 +1216,9 @@ def patrol_position(task_id: str):
     """
     from ..patrol_game import build_raft, patrol_members, unit_roster
     from .profile_routes import (OTHER_VALUE, POSITION_DESC_MAX,
-                                 _picked_single, _position_desc_missing,
-                                 _position_options, _rank_change_blocked,
+                                 _canonical_position, _picked_single,
+                                 _position_desc_missing, _position_options,
+                                 _rank_change_blocked,
                                  _remember_custom_position)
 
     st = store()
@@ -1237,7 +1238,7 @@ def patrol_position(task_id: str):
                     "and if you pick Other, write what it is.")
     if _rank_change_blocked(st, g.user["id"], position):
         return fail(400, "profile_position_rank",
-                    "小隊長、副小隊長等職位由領袖委任，不可以自己揀；如需委任或更改，請找領袖。",
+                    "隊長、副隊長、團隊長等職位由領袖委任，不可以自己揀；如需委任或更改，請找領袖。",
                     "Patrol leader and deputy roles are appointed by the leader — "
                     "you cannot pick one yourself. Please ask your leader.")
     position_desc = str(request.form.get("position_desc") or "").strip()
@@ -1249,7 +1250,7 @@ def patrol_position(task_id: str):
         return fail(400, "profile_position_desc",
                     "這是一個新職位——請寫低這個職位要負責甚麼。",
                     "This is a new position — please write what this role has to do.")
-    patch = {"position": position, "updated_at": now_iso()}
+    patch = {"position": _canonical_position(position), "updated_at": now_iso()}
     if st.get("profiles", g.user["id"]):
         st.update("profiles", g.user["id"], patch)
     else:
@@ -1276,7 +1277,7 @@ def patrol_position(task_id: str):
     }
     from .profile_routes import load_profile as _load_profile
     mine = _load_profile(st, g.user["id"])
-    return ok(position=position,
+    return ok(position=patch["position"],
               position_options=mine.get("position_options") or [],
               position_descriptions={name: list(pair) for name, pair in
                                      (mine.get("position_descriptions") or {}).items()},

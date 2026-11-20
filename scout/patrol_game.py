@@ -126,7 +126,7 @@ def patrol_members(st, user: dict) -> list[dict]:
             "rank_bar": _rank_bar(str(profile.get("position_zh") or position)),
             # No email here: addresses are private and never enter the game.
         })
-    # The patrol's leaders first — 小隊長， then 副小隊長 — then the
+    # The patrol's leaders first — 隊長， then 副隊長 — then the
     # contact, then everyone with a position, then by name: the order
     # a scout would be introduced to the patrol.
     def order(member: dict):
@@ -137,30 +137,33 @@ def patrol_members(st, user: dict) -> list[dict]:
     return sorted(members, key=order)
 
 
-def _rank_bar(position_zh: str) -> int:
-    """The insignia bar on a leader's card, from the troop's own chart:
-    副小隊長 one gold stripe, 小隊長 two, 高級小隊長 two and a thin line.
-    0 for everyone else."""
+def _rank_level(position_zh: str) -> int:
+    """Which insignia a position wears: 1 for the 副隊長, 2 for the
+    隊長, 3 for the 團隊長, 0 for everyone else. Rows saved under the
+    old spellings （副小隊長、小隊長、高級小隊長） count the same. The
+    deputy and the senior are checked first — their titles contain
+    the leader's."""
     text = str(position_zh or "")
-    if "副小隊長" in text:
+    if "副隊長" in text or "副小隊長" in text:
         return 1
-    if "高級小隊長" in text:
+    if "團隊長" in text or "高級小隊長" in text:
         return 3
-    if "小隊長" in text:
+    if "隊長" in text or "小隊長" in text:
         return 2
     return 0
+
+
+def _rank_bar(position_zh: str) -> int:
+    """The insignia bar on a leader's card, from the troop's own chart:
+    副隊長 one gold band, 隊長 two, 團隊長 two and a thin line."""
+    return _rank_level(position_zh)
 
 
 def _leader_tier(position_zh: str) -> int:
-    """2 for the patrol leader （小隊長／高級小隊長）, 1 for their deputy
-    （副小隊長）, 0 for everyone else. The deputy is checked first: its
-    name contains the leader's."""
-    text = str(position_zh or "")
-    if "副小隊長" in text:
-        return 1
-    if "小隊長" in text:
-        return 2
-    return 0
+    """2 for the patrol leader （隊長／團隊長）, 1 for their deputy
+    （副隊長）, 0 for everyone else."""
+    level = _rank_level(position_zh)
+    return 1 if level == 1 else 2 if level else 0
 
 
 def contact_of(members: list[dict]) -> dict | None:

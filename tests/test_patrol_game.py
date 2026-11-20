@@ -446,13 +446,13 @@ def test_game_5_cannot_finish_until_the_scout_decides_a_position(store, app):
 
 
 def test_leaders_lead_the_deck_and_the_contact_is_ordinary(store, app):
-    """小隊長 and 副小隊長 stand at the front of the cards, marked as
+    """隊長 and 副隊長 stand at the front of the cards, marked as
     leaders; the patrol contact keeps an ordinary card."""
     viewer, contact, *_ = seed_patrol(store)
     leader = add_member(store, "patrolleader", "鄭隊長", "Cheng Leader",
-                        "", full_profile("小隊長", "露營", "領導"))
+                        "", full_profile("隊長", "露營", "領導"))
     deputy = add_member(store, "patroldeputy", "黃副隊", "Wong Deputy",
-                        "", full_profile("副小隊長", "行山", "繩結"))
+                        "", full_profile("副隊長", "行山", "繩結"))
     task = task_of(store)
     client = login(app, viewer)
     _, scene = scene_of(client, task["id"])
@@ -467,6 +467,7 @@ def test_leaders_lead_the_deck_and_the_contact_is_ordinary(store, app):
     bars = {m["id"]: m["rank_bar"] for m in scene["members"]}
     assert bars[leader["id"]] == 2 and bars[deputy["id"]] == 1
     assert bars[contact["id"]] == 0
+    # a senior stored under the old spelling 高級小隊長 is the 團隊長
     senior = add_member(store, "patrolsenior", "高隊長", "Senior",
                         "", full_profile("高級小隊長", "露營", "領導"))
     _, scene = scene_of(client, task["id"])
@@ -475,14 +476,14 @@ def test_leaders_lead_the_deck_and_the_contact_is_ordinary(store, app):
 
 
 def test_game_5_cannot_hand_out_a_leader_rank(store, app):
-    """The last step decides a duty, never a rank: 小隊長 and friends
+    """The last step decides a duty, never a rank: 隊長 and friends
     are the leader's appointment, in the game as much as on the form."""
     viewer, *_ = seed_patrol(store)
     task = task_of(store)
     client = login(app, viewer)
     reply = client.post(f"/tasks/{task['id']}/patrol-position",
                         data={"position_choice": "__other__",
-                              "position_other": "小隊長",
+                              "position_other": "隊長",
                               "position_desc": "帶領小隊"}, headers=HEADERS)
     assert reply.status_code == 400
     assert reply.get_json()["error"] == "profile_position_rank"

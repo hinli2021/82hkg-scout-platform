@@ -399,7 +399,7 @@
         // an appointed 隊長 rank riding along under Other needs no
         // description — it was not invented here
         var nameInput = form.querySelector('[name="position_other"]');
-        var appointed = !!(nameInput && nameInput.value.indexOf("小隊長") >= 0);
+        var appointed = !!(nameInput && nameInput.value.indexOf("隊長") >= 0);
         if (descInput) descInput.required = other && !appointed;
       }
       sel.addEventListener('change', syncPosition);

@@ -92,17 +92,18 @@ def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_sc
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "露營、繩結、音樂" in page and "聯絡" in page  # the card shows the position
     # once a leader appoints the scout patrol leader, the card wears it —
-    # leaders appoint ranks; the scout never picks one (see below)
+    # leaders appoint ranks; the scout never picks one (see below). A row
+    # still carrying the old spelling 小隊長 reads as 隊長.
     store.update("profiles", new_scout.id, {"position": "小隊長"})
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert "小隊長" in page
+    assert "隊長" in page and "小隊長" not in page
     assert "請先完成個人檔案" not in page  # complete: the pop-up is gone
     # the front follows a monster trading card: name, picture window,
     # info strip (number, patrol, position), then the moves — no HP
     front = page[page.index("data-char-front"):page.index("data-char-back")]
     assert "poke-head" in front and "HP" not in front and "poke-info" in front
     assert "poke-moves" in front and "童軍經驗" in front
-    # a 小隊長 wears the two-band insignia, bands either side of the emblem
+    # a 隊長 wears the two-band insignia, bands either side of the emblem
     assert "rank-bar rank-count-2" in front and front.count("rank-stripe") == 4
     assert "poke-rarity" not in front and "poke-bottom" not in front
 
@@ -119,8 +120,10 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     assert 'name="position"' not in page and 'name="strength"' not in page
     for word in ("聯絡", "康樂", "文書", "物資管理", "氣象員", "報時員", "情緒輔助"):
         assert f'value="{word}"' in page
-    # the four patrol ranks are not picked here any more
-    for word in ("隊員", "副小隊長", "小隊長", "高級小隊長"):
+    # the four patrol ranks are not picked here any more, under their
+    # proper titles or the old spellings
+    for word in ("隊員", "副隊長", "隊長", "團隊長",
+                 "副小隊長", "小隊長", "高級小隊長"):
         assert f'<option value="{word}"' not in page
     assert 'value="__other__"' in page and ">其他<" in page
     for word in ("露營", "行山", "電子遊戲", "攝影", "繩結", "急救", "照顧他人"):
@@ -250,7 +253,7 @@ def test_a_profile_completes_without_a_position_until_game_5(store, new_scout):
 def test_leader_ranks_are_appointed_never_picked(store, new_scout):
     # a scout cannot give themselves a rank — not from the list form…
     reply = new_scout.post("/profile", data={
-        "position_choice": "__other__", "position_other": "小隊長",
+        "position_choice": "__other__", "position_other": "隊長",
         "position_desc": "帶領小隊", "interest_picks": ["露營"],
         "camping_days": "1", "hiking_times": "2", "strength_choice": "繩結",
     })
@@ -259,7 +262,7 @@ def test_leader_ranks_are_appointed_never_picked(store, new_scout):
     assert store.get("profiles", new_scout.id) is None
     # …and not through the old plain fields either
     reply = new_scout.post("/profile", data={
-        "position": "副小隊長", "interests": "露營",
+        "position": "副隊長", "interests": "露營",
         "experience": "參加了童軍兩年。", "strength": "繩結",
     })
     assert reply.status_code == 400
@@ -267,24 +270,26 @@ def test_leader_ranks_are_appointed_never_picked(store, new_scout):
     assert store.get("profiles", new_scout.id) is None
 
     # appointed by a leader, the rank rides along on the scout's own
-    # edits — but swapping it or handing it back is refused
+    # edits — but swapping it or handing it back is refused. The stored
+    # row still uses the old spelling 小隊長； keeping it under the
+    # proper title 隊長 is the same appointment, stored back properly.
     store.insert("profiles", {
         "user_id": new_scout.id, "position": "小隊長", "interests": "露營",
         "camping_days": "1", "hiking_times": "2", "strength": "繩結",
         "visible": True, "updated_at": "2026-01-01",
     })
     keep = {
-        "position_choice": "__other__", "position_other": "小隊長",
+        "position_choice": "__other__", "position_other": "隊長",
         "interest_picks": ["露營", "行山"], "camping_days": "3",
         "hiking_times": "2", "strength_choice": "繩結",
     }
     assert new_scout.post("/profile", data=keep).status_code == 200
-    assert store.get("profiles", new_scout.id)["position"] == "小隊長"
-    for swap in ({"position_other": "副小隊長"}, {"position_choice": "康樂"}):
+    assert store.get("profiles", new_scout.id)["position"] == "隊長"
+    for swap in ({"position_other": "副隊長"}, {"position_choice": "康樂"}):
         reply = new_scout.post("/profile", data={**keep, **swap})
         assert reply.status_code == 400
         assert reply.get_json()["error"] == "profile_position_rank"
-    assert store.get("profiles", new_scout.id)["position"] == "小隊長"
+    assert store.get("profiles", new_scout.id)["position"] == "隊長"
 
 
 def test_an_other_position_joins_the_selection_list(store, new_scout, scout_client):
@@ -337,9 +342,9 @@ def test_a_position_saved_as_an_old_code_still_reads_as_a_title(store, new_scout
         "visible": True, "updated_at": "2026-01-01",
     })
     page = scout_client.get(f"/profile/{new_scout.id}").get_data(as_text=True)
-    assert "小隊長" in page
+    assert "隊長" in page
     # the owner's edit form offers the title back as ordinary text
-    assert 'value="小隊長"' in new_scout.get("/profile").get_data(as_text=True)
+    assert 'value="隊長"' in new_scout.get("/profile").get_data(as_text=True)
 
 
 def test_an_unfinished_profile_cannot_be_visited(store, new_scout, scout_client):

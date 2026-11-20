@@ -4823,7 +4823,7 @@ body.is-game main { padding-top: 6px; }
   border-radius: 6px; padding: .05rem .45rem; align-self: flex-start;
 }
 /* the patrol's leaders stand apart: a red frame and crown for the
-   小隊長， a blue frame and star for the 副小隊長 — everyone else,
+   隊長， a blue frame for the 副隊長 — everyone else,
    the patrol contact included, keeps the ordinary card */
 .pat-card.is-leader .char-face {
   border: 3px solid #d43d2a;

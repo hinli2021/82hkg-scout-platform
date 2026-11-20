@@ -1096,7 +1096,7 @@ def accounts():
     resets = [r for r in st.list("password_reset_requests") if r.get("status") == "pending"]
     # what a leader can record: the appointed ranks first, then the duties
     from .profile_routes import POSITION_OPTIONS as _POSITION_OPTIONS
-    position_ideas = (["高級小隊長", "小隊長", "副小隊長", "隊員"]
+    position_ideas = (["團隊長", "隊長", "副隊長", "隊員"]
                       + [item[0] for item in _POSITION_OPTIONS])
     return render_template("leader/accounts.html", scouts=rows, patrols=settings.get("patrols") or [],
                            position_ideas=position_ideas,
@@ -1445,6 +1445,8 @@ def _write_position(st, user_id: str, value: str) -> bool:
     of a profile the scout wrote stays exactly as it was. A blank value
     clears an existing position but never creates an empty profile row.
     """
+    from .profile_routes import _canonical_position
+    value = _canonical_position(value)
     row = st.get("profiles", user_id)
     if row:
         if str(row.get("position") or "") == value:
@@ -1465,8 +1467,8 @@ def set_positions():
 
     The position lives on the scout's profile: it shows on their card and
     drives Game 5 （小隊名冊卡）, where the member whose position names them
-    the patrol contact is asked about by name. The ranks （高級小隊長、
-    小隊長、副小隊長） are appointed here and only here — a scout cannot
+    the patrol contact is asked about by name. The ranks （團隊長、
+    隊長、副隊長） are appointed here and only here — a scout cannot
     pick one, change one, or hand one back; other positions scouts can
     still decide for themselves.
     """

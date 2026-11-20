@@ -314,7 +314,8 @@ def test_a_leader_records_patrol_positions_in_one_save(leader_client, store):
     page = leader_client.get("/leader/accounts").get_data(as_text=True)
     assert "小隊職位" in page and f'name="position_{s05["id"]}"' in page
     # the appointed ranks are offered to the leader, and only the leader
-    assert 'id="position-ideas"' in page and '<option value="小隊長">' in page
+    assert 'id="position-ideas"' in page and '<option value="隊長">' in page
+    assert '<option value="團隊長">' in page
 
     answer = leader_client.post("/leader/accounts/positions", data={
         f"position_{s05['id']}": "小隊聯絡",
@@ -378,7 +379,7 @@ def test_a_leader_can_paste_the_whole_patrol_list(leader_client, store):
 def test_a_scout_cannot_set_positions(scout_client, store):
     scout = next(u for u in store.list("users") if u["username"] == "scout06")
     answer = scout_client.post("/leader/accounts/positions",
-                               data={f"position_{scout['id']}": "小隊長"})
+                               data={f"position_{scout['id']}": "隊長"})
     assert answer.status_code in (302, 403)
     assert store.get("profiles", scout["id"]) is None
 

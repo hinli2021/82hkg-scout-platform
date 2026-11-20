@@ -54,10 +54,24 @@ def _count_value(raw) -> str:
 #: edit form offers that title back as ordinary text.
 POSITIONS = {
     "member": {"zh": "隊員", "en": "Patrol member"},
-    "apl": {"zh": "副小隊長", "en": "Assistant Patrol Leader"},
-    "pl": {"zh": "小隊長", "en": "Patrol Leader"},
-    "spl": {"zh": "高級小隊長", "en": "Senior Patrol Leader"},
+    "apl": {"zh": "副隊長", "en": "Assistant Patrol Leader"},
+    "pl": {"zh": "隊長", "en": "Patrol Leader"},
+    "spl": {"zh": "團隊長", "en": "Senior Patrol Leader"},
 }
+
+#: The troop's rank titles are 隊長、副隊長 and 團隊長. Profiles (and
+#: leader notes) saved while they were called 小隊長、副小隊長 and
+#: 高級小隊長 read — and are stored back — under the proper titles,
+#: so old rows need no tidying by hand.
+_POSITION_RENAMES = (("副小隊長", "副隊長"), ("高級小隊長", "團隊長"),
+                      ("小隊長", "隊長"))
+
+
+def _canonical_position(position: str) -> str:
+    text = str(position or "")
+    for old, new in _POSITION_RENAMES:
+        text = text.replace(old, new)
+    return text
 
 #: 職位、我的強項 and 興趣 are picked from lists now, with an Other at the
 #: end of each that opens a text box. The stored value stays a plain string
@@ -71,7 +85,8 @@ OTHER_VALUE = "__other__"
 #: The old patrol ranks are no longer picked here — the list is patrol
 #: duties only. They still translate on cards (the POSITIONS codes above)
 #: for profiles saved while they were picked.
-REMOVED_POSITION_ROLES = {"隊員", "副小隊長", "小隊長", "高級小隊長"}
+REMOVED_POSITION_ROLES = {"隊員", "副隊長", "隊長", "團隊長",
+                          "副小隊長", "小隊長", "高級小隊長"}
 
 POSITION_OPTIONS = [
     ("聯絡", "Patrol contact"),
@@ -142,8 +157,9 @@ def _position_descriptions(st=None) -> dict:
 
 
 def _leader_rank(position: str) -> bool:
-    """小隊長、副小隊長 and 高級小隊長 are ranks, not duties."""
-    return "小隊長" in str(position or "")
+    """隊長、副隊長 and 團隊長 are ranks, not duties (every one of the
+    titles, old spellings included, carries the word 隊長)."""
+    return "隊長" in _canonical_position(position)
 
 
 def _rank_change_blocked(st, user_id: str, position: str) -> bool:
@@ -154,7 +170,8 @@ def _rank_change_blocked(st, user_id: str, position: str) -> bool:
     current = load_profile(st, user_id)["position_zh"].strip()
     if not (_leader_rank(current) or _leader_rank(position)):
         return False
-    return current != str(position or "").strip()
+    return _canonical_position(current) != _canonical_position(
+        str(position or "").strip())
 
 
 def _position_desc_missing(st, choice: str, position: str, description: str) -> bool:
@@ -182,7 +199,7 @@ def _position_options(st=None) -> list:
         except Exception:
             customs = []
     for item in customs:
-        text = str(item or "").strip()
+        text = _canonical_position(str(item or "").strip())
         if _other_text(text) is not None:
             text = _other_text(text)
         if text and text not in seen:
@@ -194,7 +211,7 @@ def _position_options(st=None) -> list:
 def _remember_custom_position(st, position: str, description: str = "") -> None:
     """Add a position picked through Other to the shared selection list,
     keeping the description its inventor wrote for the next scout."""
-    text = str(position or "").strip()
+    text = _canonical_position(str(position or "").strip())
     if not text or text in REMOVED_POSITION_ROLES:
         return
     try:
@@ -271,7 +288,7 @@ def load_profile(st, user_id: str) -> dict:
     # 職位 is offered back as that option, anything else as Other + words.
     # (Rows saved in the brief while Other carried a 「其他：」 prefix read
     # as the words alone — the prefix is never shown.)
-    position_value = labels.get("zh", position)
+    position_value = _canonical_position(labels.get("zh", position))
     all_options = _position_options(st)
     position_labels = dict(all_options)
     if _other_text(position_value) is not None:
@@ -407,6 +424,8 @@ def _picked_interests(body) -> tuple[str | None, str]:
 
 def save_profile(st, user_id: str, values: dict) -> dict:
     row = {**values, "user_id": user_id, "updated_at": now_iso()}
+    if row.get("position"):
+        row["position"] = _canonical_position(row["position"])
     if st.get("profiles", user_id):
         st.update("profiles", user_id, row)
     else:
@@ -545,7 +564,7 @@ def save():
                     "That is too long — please keep it shorter.")
     if _rank_change_blocked(st, g.user["id"], values["position"]):
         return fail(400, "profile_position_rank",
-                    "小隊長、副小隊長等職位由領袖委任，不可以自己揀或更改；如需更改，請找領袖。",
+                    "隊長、副隊長、團隊長等職位由領袖委任，不可以自己揀或更改；如需更改，請找領袖。",
                     "Patrol leader and deputy roles are appointed by the leader — "
                     "you cannot pick or change one yourself. Please ask your leader.")
     save_profile(st, g.user["id"], values)

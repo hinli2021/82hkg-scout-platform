@@ -330,7 +330,7 @@
     var descInput = $("[data-pat-position-desc-input]");
     if (descBox) descBox.hidden = !picked;
     if (descInput) descInput.required = picked
-      && !(other && other.value.indexOf("小隊長") >= 0);
+      && !(other && other.value.indexOf("隊長") >= 0);
   }
 
   function enterPosition() {
