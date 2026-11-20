@@ -72,14 +72,10 @@
         <section data-pat-cards hidden>
           <h2 class="cave-subtitle">{{ L('先認識你的小隊：成員檔案卡', 'First, know your patrol: member profile cards') }}</h2>
           <p class="cave-line small">
-            {{ L('每位成員都有一張檔案卡，樣式和他在自己個人檔案頁看到的一樣，內容來自他填寫的資料；他日後修改資料，這張卡也會更新。尚未填寫資料的成員，可以靠姓名、頭像、童軍編號、小隊和職位辨認。慢慢看，看完就可以開始第一階段。',
-                 'Every member has a profile card — the same card they see on their own profile page, drawn from what they have written; when they edit their details, this card updates too. A member who has not written anything yet can still be known by their name, avatar, scout number, patrol and position. Take your time; when you are ready, stage 1 begins.') }}
+            {{ L('每位成員都有一張檔案卡，樣式和他在自己個人檔案頁看到的一樣，內容來自他填寫的資料；他日後修改資料，這張卡也會更新。所有成員卡會一次過攤開，按一下卡片可以翻面。尚未填寫資料的成員，可以靠姓名、頭像、童軍編號、小隊和職位辨認。慢慢看，看完就可以開始第一階段。',
+                 'Every member has a profile card — the same card they see on their own profile page, drawn from what they have written; when they edit their details, this card updates too. All the cards are laid out together — tap a card to flip it over. A member who has not written anything yet can still be known by their name, avatar, scout number, patrol and position. Take your time; when you are ready, stage 1 begins.') }}
           </p>
           <div class="pat-deck" data-pat-deck></div>
-          <div class="cave-actions cave-actions-split pat-flipnav">
-            <button class="btn ghost" type="button" data-pat-prev>← {{ L('上一張', 'Previous card') }}</button>
-            <button class="btn ghost" type="button" data-pat-next>{{ L('下一張', 'Next card') }} →</button>
-          </div>
           <p class="cave-line small" data-pat-hint></p>
           <div class="cave-actions">
             <button class="btn primary big" type="button" data-pat-start data-cheer="🪵,✨">

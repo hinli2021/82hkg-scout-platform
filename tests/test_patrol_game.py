@@ -134,6 +134,10 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert 'root.classList.add("is-playing")' in js
     assert 'root.classList.remove("is-playing")' not in js
     assert "data-pat-view-cards" in page and "返回木筏" in js
+    # every member card is on the table at once — no flipping through
+    # them one at a time with previous/next buttons
+    assert "data-pat-prev" not in page and "data-pat-next" not in page
+    assert ".map(memberCard)" in js and "renderCards" in js
     # after the cards, the scout decides their own position in the game:
     # the step is on the page, its save address and list are in the scene,
     # and a raft submitted without one is sent back to that step

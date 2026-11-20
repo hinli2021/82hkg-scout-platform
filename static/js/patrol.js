@@ -16,7 +16,7 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   };
-  var state = { scene: 0, flipped: new Set(), flippedAll: false };
+  var state = { flipped: new Set(), flippedAll: false };
 
   function progress(step) {
     var at = step === "story" ? 0 : step === "cards" ? 1
@@ -162,32 +162,28 @@
       + "</button>";
   }
 
-  function showCard(index) {
+  /* every member card is on the table at once: the patrol is learned
+     side by side, each card still flipping on its own tap */
+  function renderCards() {
     var deck = $("[data-pat-deck]");
-    var member = (data.members || [])[index];
-    if (!member) return;
-    state.scene = index;
-    deck.innerHTML = '<div class="pat-scene-wrap">'
-      + memberCard(member)
-      + '<p class="pat-count">' + (index + 1) + " / " + (data.members || []).length
-      + '<span class="pat-fliphint">' + esc(lang === "en" ? "Tap the card to flip it" : "按一下卡片翻面") + "</span></p>"
-      + "</div>";
-    var card = deck.querySelector(".pat-card");
-    card.addEventListener("click", function () {
-      card.classList.toggle("is-flipped");
-      if (!state.flipped.has(member.id)) {
-        state.flipped.add(member.id);
-        if (state.flipped.size === (data.members || []).length) state.flippedAll = true;
-        sync();
-      }
+    if (!deck) return;
+    deck.innerHTML = (data.members || []).map(memberCard).join("");
+    deck.querySelectorAll(".pat-card").forEach(function (card) {
+      card.addEventListener("click", function () {
+        card.classList.toggle("is-flipped");
+        var id = card.getAttribute("data-member");
+        if (!state.flipped.has(id)) {
+          state.flipped.add(id);
+          if (state.flipped.size === (data.members || []).length) state.flippedAll = true;
+          sync();
+        }
+      });
     });
     sync();
   }
 
   function sync() {
     var members = data.members || [];
-    $("[data-pat-prev]").disabled = state.scene <= 0;
-    $("[data-pat-next]").disabled = state.scene >= members.length - 1;
     var start = $("[data-pat-start]");
     var hint = $("[data-pat-hint]");
     if (!data.playable) {
@@ -691,9 +687,7 @@
        hears the seaside story again before knowing the patrol */
     renderProgress("story");
     showStoryPage();
-    showCard(0);
-    $("[data-pat-prev]").addEventListener("click", function () { showCard(state.scene - 1); });
-    $("[data-pat-next]").addEventListener("click", function () { showCard(state.scene + 1); });
+    renderCards();
     $("[data-pat-story-next]").addEventListener("click", storyNext);
     fillPosition();
     $("[data-pat-position-choice]").addEventListener("change", syncPositionOther);
