@@ -4809,6 +4809,34 @@ body.is-game main { padding-top: 6px; }
      trading-card ratio to leave the picture window its space */
   aspect-ratio: 5 / 8;
 }
+/* the 職位 wears a medal pill so it is the first thing read on a card */
+.poke-position {
+  background: #17452c; color: #ffe98a; border-radius: 999px;
+  padding: .1rem .55rem; font-weight: 900; letter-spacing: .02em;
+  box-shadow: 0 1px 4px rgba(23, 69, 44, .45); white-space: nowrap;
+  flex: none;
+}
+/* on narrow cards the patrol name gives way before the medal pill does */
+.poke-info > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.char-row-v.is-position {
+  font-weight: 900; color: #17452c; background: rgba(255, 233, 138, .55);
+  border-radius: 6px; padding: .05rem .45rem; align-self: flex-start;
+}
+/* the patrol's leaders stand apart: a red frame and crown for the
+   小隊長， a blue frame and star for the 副小隊長 — everyone else,
+   the patrol contact included, keeps the ordinary card */
+.pat-card.is-leader .char-face {
+  border: 3px solid #d43d2a;
+  box-shadow: inset 0 0 0 3px rgba(255, 235, 170, .9),
+    0 0 0 3px rgba(212, 61, 42, .5), 0 18px 38px rgba(120, 20, 8, .45);
+}
+.pat-card.is-deputy .char-face {
+  border: 3px solid #3f6fb4;
+  box-shadow: inset 0 0 0 3px rgba(255, 235, 170, .9),
+    0 0 0 3px rgba(63, 111, 180, .45), 0 18px 38px rgba(16, 42, 84, .45);
+}
+.pat-badge.pat-leader-badge { background: #d43d2a; color: #fff; }
+.pat-badge.pat-deputy-badge { background: #3f6fb4; color: #fff; }
 .pat-card .char-portrait { flex: 1 1 auto; min-height: 9rem; }
 .pat-card .pat-badge { align-self: flex-start; }
 .pat-card .pat-muted { color: #7a5a30; font-size: .88rem; }

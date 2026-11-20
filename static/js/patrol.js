@@ -39,9 +39,10 @@
       + progress(step);
   }
 
-  function factRow(label, text, fallback) {
+  function factRow(label, text, fallback, valueClass) {
     return '<div class="char-row"><span class="char-row-k">' + esc(label)
-      + '</span><span class="char-row-v">' + esc(text || fallback) + "</span></div>";
+      + '</span><span class="char-row-v' + (valueClass ? " " + valueClass : "")
+      + '">' + esc(text || fallback) + "</span></div>";
   }
 
   /* the profile card prints a member's name this way: English first with
@@ -84,7 +85,7 @@
       + '<div class="char-details">'
       + factRow(lang === "en" ? "Position" : "職位",
                 lang === "en" ? member.position_en : member.position_zh,
-                lang === "en" ? "Not written yet" : "尚未填寫")
+                lang === "en" ? "Not written yet" : "尚未填寫", "is-position")
       + factRow(lang === "en" ? "Patrol" : "小隊", displayPatrol(), "")
       + factRow(lang === "en" ? "Interests" : "興趣", member.interests,
                 lang === "en" ? "Not written yet." : "尚未填寫。")
@@ -127,14 +128,18 @@
         + '" alt="' + esc(lang === "en" ? "AI card picture" : "AI 生成的個人卡圖") + '">';
     } else {
       front = '<span class="poke-head"><span class="poke-name">' + esc(name) + "</span>"
-        + '<span class="poke-hp"><small>HP</small> ' + esc(member.points_balance || 0)
-        + '<span class="poke-type">' + esc(mascot.emoji || "🐣") + "</span></span></span>"
+        + '<span class="poke-hp"><span class="poke-type">' + esc(mascot.emoji || "🐣") + "</span></span></span>"
         + '<span class="char-portrait poke-art">'
         + (mascot.img ? '<img src="' + esc(mascot.img) + '" alt="">'
                       : '<span class="char-portrait-emoji" aria-hidden="true">' + esc(mascot.emoji || "🐣") + "</span>")
         + '<span class="char-avatar" aria-hidden="true">' + esc(member.avatar || "🦊") + "</span></span>"
         + '<span class="poke-info"><span>NO. ' + esc(member.scout_no || "—") + "</span>"
-        + "<span>" + esc(patrol || "") + "</span><span>" + esc(position) + "</span></span>"
+        + "<span>" + esc(patrol || "") + '</span><span class="poke-position">🎖 '
+        + esc(position) + "</span></span>"
+        + (member.leader_tier === 2
+            ? '<span class="pat-badge pat-leader-badge">👑 ' + esc(lang === "en" ? member.position_en : member.position_zh) + "</span>" : "")
+        + (member.leader_tier === 1
+            ? '<span class="pat-badge pat-deputy-badge">⭐ ' + esc(lang === "en" ? member.position_en : member.position_zh) + "</span>" : "")
         + (member.is_contact
             ? '<span class="pat-badge">📨 ' + esc(lang === "en" ? "Patrol contact" : "小隊聯絡") + "</span>" : "")
         + '<span class="poke-moves">'
@@ -153,7 +158,9 @@
         + '<span class="poke-foot"><span>' + esc(lang === "en" ? "82nd Hong Kong Island Scout Group" : "港島第八十二旅童軍團")
         + "</span></span>";
     }
-    return '<button type="button" class="pat-card char-card" data-member="' + esc(member.id) + '"'
+    return '<button type="button" class="pat-card char-card'
+      + (member.leader_tier === 2 ? " is-leader" : member.leader_tier === 1 ? " is-deputy" : "")
+      + '" data-member="' + esc(member.id) + '"'
       + ' style="--char-tint: ' + esc(mascot.tint || "#2f8f5b")
       + "; --char-tint-dark: " + esc(mascot.tint_dark || "#1f6b43")
       + "; --char-soft: " + esc(mascot.soft || "rgba(47, 143, 91, .14)") + '">'

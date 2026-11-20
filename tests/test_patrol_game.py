@@ -138,6 +138,9 @@ def test_the_roster_is_the_live_patrol(store, app):
     # them one at a time with previous/next buttons
     assert "data-pat-prev" not in page and "data-pat-next" not in page
     assert ".map(memberCard)" in js and "renderCards" in js
+    # the position wears a medal pill; the patrol's leaders are marked
+    # apart (the contact's card looks like everyone else's)
+    assert "poke-position" in js and "is-leader" in js and "is-contact" not in js
     # after the cards, the scout decides their own position in the game:
     # the step is on the page, its save address and list are in the scene,
     # and a raft submitted without one is sent back to that step
@@ -440,6 +443,25 @@ def test_game_5_cannot_finish_until_the_scout_decides_a_position(store, app):
                                    "elapsed_ms": "60000"}, headers=HEADERS)
     assert reply.get_json()["passed"] is True
     assert len(completed_records(store, viewer["id"], task["id"])) == 1
+
+
+def test_leaders_lead_the_deck_and_the_contact_is_ordinary(store, app):
+    """小隊長 and 副小隊長 stand at the front of the cards, marked as
+    leaders; the patrol contact keeps an ordinary card."""
+    viewer, contact, *_ = seed_patrol(store)
+    leader = add_member(store, "patrolleader", "鄭隊長", "Cheng Leader",
+                        "", full_profile("小隊長", "露營", "領導"))
+    deputy = add_member(store, "patroldeputy", "黃副隊", "Wong Deputy",
+                        "", full_profile("副小隊長", "行山", "繩結"))
+    task = task_of(store)
+    client = login(app, viewer)
+    _, scene = scene_of(client, task["id"])
+    ids = [m["id"] for m in scene["members"]]
+    assert ids[0] == leader["id"] and ids[1] == deputy["id"]
+    assert ids[2] == contact["id"]  # leaders first, then the contact
+    tiers = {m["id"]: m["leader_tier"] for m in scene["members"]}
+    assert tiers[leader["id"]] == 2 and tiers[deputy["id"]] == 1
+    assert tiers[contact["id"]] == 0
 
 
 def test_a_new_position_in_game_5_needs_its_description(store, app):

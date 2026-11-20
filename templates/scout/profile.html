@@ -35,7 +35,7 @@
         {% else %}
         <div class="poke-head">
           <span class="poke-name">{{ name_of(person) }}</span>
-          <span class="poke-hp"><small>HP</small> {{ stats.points_balance }}<span class="poke-type">{{ m.emoji }}</span></span>
+          <span class="poke-hp"><span class="poke-type">{{ m.emoji }}</span></span>
         </div>
         <div class="char-portrait poke-art">
           {% if m.img %}
@@ -48,7 +48,7 @@
         <div class="poke-info">
           <span>NO. {{ person.scout_no or '—' }}</span>
           <span>{{ patrol_name(person.get('patrol', '')) }}</span>
-          <span>{{ L(profile.position_zh, profile.position_en) or L('尚未填寫職位', 'No position yet') }}</span>
+          <span class="poke-position">🎖 {{ L(profile.position_zh, profile.position_en) or L('尚未填寫職位', 'No position yet') }}</span>
         </div>
         <div class="poke-moves">
           <div class="poke-ability">
@@ -108,7 +108,7 @@
           {% endif %}
         </div>
         <div class="char-details">
-          <div class="char-row"><span class="char-row-k">{{ L('職位', 'Position') }}</span><span class="char-row-v">{{ L(profile.position_zh, profile.position_en) or L('尚未填寫', 'Not written yet') }}</span></div>
+          <div class="char-row"><span class="char-row-k">{{ L('職位', 'Position') }}</span><span class="char-row-v is-position">{{ L(profile.position_zh, profile.position_en) or L('尚未填寫', 'Not written yet') }}</span></div>
           <div class="char-row"><span class="char-row-k">{{ L('小隊', 'Patrol') }}</span><span class="char-row-v">{{ patrol_name(person.get('patrol', '')) }}</span></div>
           <div class="char-row"><span class="char-row-k">{{ L('興趣', 'Interests') }}</span><span class="char-row-v">{{ profile.interests or L('尚未填寫。', 'Not written yet.') }}</span></div>
           {% if profile.camping_days or profile.hiking_times %}

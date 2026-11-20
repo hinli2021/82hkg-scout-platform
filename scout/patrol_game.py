@@ -122,15 +122,30 @@ def patrol_members(st, user: dict) -> list[dict]:
             "earned_badges": earned,
             "is_self": row["id"] == user["id"],
             "is_contact": CONTACT_WORD in position,
+            "leader_tier": _leader_tier(str(profile.get("position_zh") or position)),
             # No email here: addresses are private and never enter the game.
         })
-    # The contact first, then leaders of the patrol, then by name — the order
+    # The patrol's leaders first — 小隊長， then 副小隊長 — then the
+    # contact, then everyone with a position, then by name: the order
     # a scout would be introduced to the patrol.
     def order(member: dict):
-        rank = 0 if member["is_contact"] else 1 if member["position"] else 2
-        return (rank, member["name_zh"])
+        rank = 0 if member["position"] else 1
+        return (-member["leader_tier"], 0 if member["is_contact"] else 1,
+                rank, member["name_zh"])
 
     return sorted(members, key=order)
+
+
+def _leader_tier(position_zh: str) -> int:
+    """2 for the patrol leader （小隊長／高級小隊長）, 1 for their deputy
+    （副小隊長）, 0 for everyone else. The deputy is checked first: its
+    name contains the leader's."""
+    text = str(position_zh or "")
+    if "副小隊長" in text:
+        return 1
+    if "小隊長" in text:
+        return 2
+    return 0
 
 
 def contact_of(members: list[dict]) -> dict | None:

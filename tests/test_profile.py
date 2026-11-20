@@ -92,10 +92,10 @@ def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_sc
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "露營、繩結、音樂" in page and "小隊長" in page  # the card shows the position
     assert "請先完成個人檔案" not in page  # complete: the pop-up is gone
-    # the front follows a monster trading card: name and HP, picture window,
-    # info strip (number, patrol, position), then the moves
+    # the front follows a monster trading card: name, picture window,
+    # info strip (number, patrol, position), then the moves — no HP
     front = page[page.index("data-char-front"):page.index("data-char-back")]
-    assert "poke-head" in front and "HP" in front and "poke-info" in front
+    assert "poke-head" in front and "HP" not in front and "poke-info" in front
     assert "poke-moves" in front and "童軍經驗" in front
     assert "poke-rarity" not in front and "poke-bottom" not in front
 
@@ -152,6 +152,7 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     assert "其他：觀鳥" not in page and "其他：守夜" not in page
     front = page[page.index("data-char-front"):page.index("data-char-back")]
     assert "觀鳥" in front and "露營" in front
+    assert 'class="poke-position">🎖 聯絡' in front  # the position stands out
     # the edit form offers every pick back, Other words in their boxes
     assert 'value="聯絡" data-desc-zh="記錄出席，聯絡和通知大家。" data-desc-en="Records attendance, and contacts and reminds everyone." selected' in page
     assert 'value="守夜"' in page and 'value="觀鳥"' in page
