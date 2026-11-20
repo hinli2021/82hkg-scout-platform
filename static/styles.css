@@ -4835,8 +4835,20 @@ body.is-game main { padding-top: 6px; }
   box-shadow: inset 0 0 0 3px rgba(255, 235, 170, .9),
     0 0 0 3px rgba(63, 111, 180, .45), 0 18px 38px rgba(16, 42, 84, .45);
 }
-.pat-badge.pat-leader-badge { background: #d43d2a; color: #fff; }
-.pat-badge.pat-deputy-badge { background: #3f6fb4; color: #fff; }
+/* the leader's insignia bar: gold stripes on the dark green, the
+   fleur-de-lis sitting at the centre — one stripe for the deputy,
+   two for the patrol leader, two and a thin line for the senior */
+.rank-bar {
+  position: relative; display: flex; flex-direction: column; justify-content: center;
+  gap: 2px; background: #14532d; border: 1.5px solid #0b3d20; border-radius: 3px;
+  padding: 2.5px 0; margin-top: .35rem; flex: none;
+}
+.rank-stripe { display: block; height: .3rem; background: linear-gradient(180deg, #f3d27a, #dfae3e); }
+.rank-thin { display: block; height: .11rem; background: #dfae3e; }
+.rank-emblem {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  background: #14532d; color: #f3d27a; font-size: .78rem; line-height: 1; padding: .04rem .28rem;
+}
 .pat-card .char-portrait { flex: 1 1 auto; min-height: 9rem; }
 .pat-card .pat-badge { align-self: flex-start; }
 .pat-card .pat-muted { color: #7a5a30; font-size: .88rem; }

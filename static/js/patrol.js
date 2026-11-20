@@ -113,6 +113,16 @@
     return rows;
   }
 
+  /* the leader's insignia bar: gold stripes on dark green with the
+     fleur-de-lis at the centre, as the troop's own chart draws it */
+  function rankBar(member) {
+    if (!member.rank_bar) return "";
+    var html = '<span class="rank-bar" aria-hidden="true"><i class="rank-stripe"></i>';
+    if (member.rank_bar > 1) html += '<i class="rank-stripe"></i>';
+    if (member.rank_bar === 3) html += '<i class="rank-thin"></i>';
+    return html + '<span class="rank-emblem">⚜</span></span>';
+  }
+
   function memberCard(member) {
     var name = displayName(member);
     var position = (lang === "en" ? member.position_en : member.position_zh)
@@ -136,10 +146,7 @@
         + '<span class="poke-info"><span>NO. ' + esc(member.scout_no || "—") + "</span>"
         + "<span>" + esc(patrol || "") + '</span><span class="poke-position">🎖 '
         + esc(position) + "</span></span>"
-        + (member.leader_tier === 2
-            ? '<span class="pat-badge pat-leader-badge">👑 ' + esc(lang === "en" ? member.position_en : member.position_zh) + "</span>" : "")
-        + (member.leader_tier === 1
-            ? '<span class="pat-badge pat-deputy-badge">⭐ ' + esc(lang === "en" ? member.position_en : member.position_zh) + "</span>" : "")
+        + rankBar(member)
         + (member.is_contact
             ? '<span class="pat-badge">📨 ' + esc(lang === "en" ? "Patrol contact" : "小隊聯絡") + "</span>" : "")
         + '<span class="poke-moves">'

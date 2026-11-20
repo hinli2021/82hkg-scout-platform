@@ -462,6 +462,16 @@ def test_leaders_lead_the_deck_and_the_contact_is_ordinary(store, app):
     tiers = {m["id"]: m["leader_tier"] for m in scene["members"]}
     assert tiers[leader["id"]] == 2 and tiers[deputy["id"]] == 1
     assert tiers[contact["id"]] == 0
+    # the insignia bars from the troop's chart ride on the same members:
+    # one stripe for the deputy, two for the leader, none for the rest
+    bars = {m["id"]: m["rank_bar"] for m in scene["members"]}
+    assert bars[leader["id"]] == 2 and bars[deputy["id"]] == 1
+    assert bars[contact["id"]] == 0
+    senior = add_member(store, "patrolsenior", "高隊長", "Senior",
+                        "", full_profile("高級小隊長", "露營", "領導"))
+    _, scene = scene_of(client, task["id"])
+    senior_row = next(m for m in scene["members"] if m["id"] == senior["id"])
+    assert senior_row["rank_bar"] == 3 and senior_row["leader_tier"] == 2
 
 
 def test_a_new_position_in_game_5_needs_its_description(store, app):

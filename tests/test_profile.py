@@ -97,6 +97,7 @@ def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_sc
     front = page[page.index("data-char-front"):page.index("data-char-back")]
     assert "poke-head" in front and "HP" not in front and "poke-info" in front
     assert "poke-moves" in front and "童軍經驗" in front
+    assert "rank-bar" in front  # a 小隊長 wears the two-stripe insignia
     assert "poke-rarity" not in front and "poke-bottom" not in front
 
 

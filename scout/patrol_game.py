@@ -123,6 +123,7 @@ def patrol_members(st, user: dict) -> list[dict]:
             "is_self": row["id"] == user["id"],
             "is_contact": CONTACT_WORD in position,
             "leader_tier": _leader_tier(str(profile.get("position_zh") or position)),
+            "rank_bar": _rank_bar(str(profile.get("position_zh") or position)),
             # No email here: addresses are private and never enter the game.
         })
     # The patrol's leaders first — 小隊長， then 副小隊長 — then the
@@ -134,6 +135,20 @@ def patrol_members(st, user: dict) -> list[dict]:
                 rank, member["name_zh"])
 
     return sorted(members, key=order)
+
+
+def _rank_bar(position_zh: str) -> int:
+    """The insignia bar on a leader's card, from the troop's own chart:
+    副小隊長 one gold stripe, 小隊長 two, 高級小隊長 two and a thin line.
+    0 for everyone else."""
+    text = str(position_zh or "")
+    if "副小隊長" in text:
+        return 1
+    if "高級小隊長" in text:
+        return 3
+    if "小隊長" in text:
+        return 2
+    return 0
 
 
 def _leader_tier(position_zh: str) -> int:
