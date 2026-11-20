@@ -1094,7 +1094,12 @@ def accounts():
                      "position_text": load_profile(st, user["id"])["position_edit"]})
     rows.sort(key=lambda r: (str(r.get("patrol") or ""), str(r.get("display_name_zh") or "")))
     resets = [r for r in st.list("password_reset_requests") if r.get("status") == "pending"]
+    # what a leader can record: the appointed ranks first, then the duties
+    from .profile_routes import POSITION_OPTIONS as _POSITION_OPTIONS
+    position_ideas = (["高級小隊長", "小隊長", "副小隊長", "隊員"]
+                      + [item[0] for item in _POSITION_OPTIONS])
     return render_template("leader/accounts.html", scouts=rows, patrols=settings.get("patrols") or [],
+                           position_ideas=position_ideas,
                            patrol_filter=patrol_filter, search=request.args.get("q", ""),
                            reset_requests=resets, reset_patrols={r.get("user_id"): r.get("patrol") for r in resets},
                            mail_ready=mailer.is_configured(mailer.config(settings)))
@@ -1460,9 +1465,10 @@ def set_positions():
 
     The position lives on the scout's profile: it shows on their card and
     drives Game 5 （小隊名冊卡）, where the member whose position names them
-    the patrol contact is asked about by name. Scouts can still rewrite
-    their own position on their profile page afterwards; this form is for
-    recording the patrol's decisions in one go.
+    the patrol contact is asked about by name. The ranks （高級小隊長、
+    小隊長、副小隊長） are appointed here and only here — a scout cannot
+    pick one, change one, or hand one back; other positions scouts can
+    still decide for themselves.
     """
     st = store()
     form = request.form if request.form else {}

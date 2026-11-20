@@ -79,18 +79,23 @@ def test_the_old_history_address_lands_on_my_profile(store, new_scout):
 
 def test_a_scout_can_save_personal_words_and_the_profile_is_public(store, new_scout):
     reply = new_scout.post("/profile", data={
-        "position": "小隊長",
+        "position": "聯絡",
         "interests": "露營、繩結、音樂",
         "experience": "我參加了童軍兩年，去過一次大露營。",
         "share": "我喜歡畫畫，也喜歡教新成員綁繩結。", "strength": "畫畫",
     })
     assert reply.status_code == 200
     row = store.get("profiles", new_scout.id)
-    assert row["position"] == "小隊長" and row["interests"] == "露營、繩結、音樂"
+    assert row["position"] == "聯絡" and row["interests"] == "露營、繩結、音樂"
     assert row["visible"] in (True, "true", 1)
 
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert "露營、繩結、音樂" in page and "小隊長" in page  # the card shows the position
+    assert "露營、繩結、音樂" in page and "聯絡" in page  # the card shows the position
+    # once a leader appoints the scout patrol leader, the card wears it —
+    # leaders appoint ranks; the scout never picks one (see below)
+    store.update("profiles", new_scout.id, {"position": "小隊長"})
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "小隊長" in page
     assert "請先完成個人檔案" not in page  # complete: the pop-up is gone
     # the front follows a monster trading card: name, picture window,
     # info strip (number, patrol, position), then the moves — no HP
@@ -241,6 +246,46 @@ def test_a_profile_completes_without_a_position_until_game_5(store, new_scout):
     assert "data-profile-setup" not in new_scout.get("/home").get_data(as_text=True)
 
 
+def test_leader_ranks_are_appointed_never_picked(store, new_scout):
+    # a scout cannot give themselves a rank — not from the list form…
+    reply = new_scout.post("/profile", data={
+        "position_choice": "__other__", "position_other": "小隊長",
+        "position_desc": "帶領小隊", "interest_picks": ["露營"],
+        "camping_days": "1", "hiking_times": "2", "strength_choice": "繩結",
+    })
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_position_rank"
+    assert store.get("profiles", new_scout.id) is None
+    # …and not through the old plain fields either
+    reply = new_scout.post("/profile", data={
+        "position": "副小隊長", "interests": "露營",
+        "experience": "參加了童軍兩年。", "strength": "繩結",
+    })
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_position_rank"
+    assert store.get("profiles", new_scout.id) is None
+
+    # appointed by a leader, the rank rides along on the scout's own
+    # edits — but swapping it or handing it back is refused
+    store.insert("profiles", {
+        "user_id": new_scout.id, "position": "小隊長", "interests": "露營",
+        "camping_days": "1", "hiking_times": "2", "strength": "繩結",
+        "visible": True, "updated_at": "2026-01-01",
+    })
+    keep = {
+        "position_choice": "__other__", "position_other": "小隊長",
+        "interest_picks": ["露營", "行山"], "camping_days": "3",
+        "hiking_times": "2", "strength_choice": "繩結",
+    }
+    assert new_scout.post("/profile", data=keep).status_code == 200
+    assert store.get("profiles", new_scout.id)["position"] == "小隊長"
+    for swap in ({"position_other": "副小隊長"}, {"position_choice": "康樂"}):
+        reply = new_scout.post("/profile", data={**keep, **swap})
+        assert reply.status_code == 400
+        assert reply.get_json()["error"] == "profile_position_rank"
+    assert store.get("profiles", new_scout.id)["position"] == "小隊長"
+
+
 def test_an_other_position_joins_the_selection_list(store, new_scout, scout_client):
     data = {
         "position_choice": "__other__", "position_other": "營火主持人",
@@ -348,7 +393,7 @@ def test_the_pop_up_blocks_a_scout_until_the_profile_is_complete(store, new_scou
     assert store.get("profiles", new_scout.id) is None
 
     new_scout.post("/profile", data={
-        "position": "副小隊長", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。", "strength": "繩結",
+        "position": "聯絡", "interests": "露營", "experience": "參加了童軍兩年。", "share": "喜歡幫忙。", "strength": "繩結",
     })
     assert "data-profile-setup" not in new_scout.get("/home").get_data(as_text=True)
 
@@ -394,7 +439,7 @@ def test_english_profile_carries_no_chinese_headings(store, new_scout):
 
 def _complete(new_scout):
     new_scout.post("/profile", data={
-        "position": "小隊長", "interests": "露營、繩結",
+        "position": "聯絡", "interests": "露營、繩結",
         "experience": "我參加了童軍兩年。", "share": "我喜歡教新成員綁繩結。", "strength": "繩結",
     })
 

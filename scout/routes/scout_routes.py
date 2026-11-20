@@ -1217,7 +1217,8 @@ def patrol_position(task_id: str):
     from ..patrol_game import build_raft, patrol_members, unit_roster
     from .profile_routes import (OTHER_VALUE, POSITION_DESC_MAX,
                                  _picked_single, _position_desc_missing,
-                                 _position_options, _remember_custom_position)
+                                 _position_options, _rank_change_blocked,
+                                 _remember_custom_position)
 
     st = store()
     task = st.get("tasks", task_id)
@@ -1234,6 +1235,11 @@ def patrol_position(task_id: str):
                     "請先和隊員商量，選擇你的職位；揀「其他」的話，請寫明是甚麼職位。",
                     "Talk it over with your patrol and pick your position — "
                     "and if you pick Other, write what it is.")
+    if _rank_change_blocked(st, g.user["id"], position):
+        return fail(400, "profile_position_rank",
+                    "小隊長、副小隊長等職位由領袖委任，不可以自己揀；如需委任或更改，請找領袖。",
+                    "Patrol leader and deputy roles are appointed by the leader — "
+                    "you cannot pick one yourself. Please ask your leader.")
     position_desc = str(request.form.get("position_desc") or "").strip()
     if len(position_desc) > POSITION_DESC_MAX:
         return fail(400, "profile_position_desc", "職位描述太長，請寫短一點。",

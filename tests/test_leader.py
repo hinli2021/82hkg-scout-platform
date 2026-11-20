@@ -313,6 +313,8 @@ def test_a_leader_records_patrol_positions_in_one_save(leader_client, store):
     })
     page = leader_client.get("/leader/accounts").get_data(as_text=True)
     assert "小隊職位" in page and f'name="position_{s05["id"]}"' in page
+    # the appointed ranks are offered to the leader, and only the leader
+    assert 'id="position-ideas"' in page and '<option value="小隊長">' in page
 
     answer = leader_client.post("/leader/accounts/positions", data={
         f"position_{s05['id']}": "小隊聯絡",

@@ -396,7 +396,11 @@
         if (line) line.hidden = !desc;
         sel.title = desc; // the hover tooltip over the 職位 field
         if (descBox) descBox.hidden = !other;
-        if (descInput) descInput.required = other;
+        // an appointed 隊長 rank riding along under Other needs no
+        // description — it was not invented here
+        var nameInput = form.querySelector('[name="position_other"]');
+        var appointed = !!(nameInput && nameInput.value.indexOf("小隊長") >= 0);
+        if (descInput) descInput.required = other && !appointed;
       }
       sel.addEventListener('change', syncPosition);
       syncPosition();

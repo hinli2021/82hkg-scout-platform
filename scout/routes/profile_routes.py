@@ -141,11 +141,29 @@ def _position_descriptions(st=None) -> dict:
     return descriptions
 
 
+def _leader_rank(position: str) -> bool:
+    """小隊長、副小隊長 and 高級小隊長 are ranks, not duties."""
+    return "小隊長" in str(position or "")
+
+
+def _rank_change_blocked(st, user_id: str, position: str) -> bool:
+    """隊長 ranks are the leader's to appoint. A scout cannot pick one,
+    and one who holds one cannot hand it back or swap it either — the
+    appointment stands until the leader changes it. Keeping the exact
+    rank the leader gave (it rides along on every profile edit) is fine."""
+    current = load_profile(st, user_id)["position_zh"].strip()
+    if not (_leader_rank(current) or _leader_rank(position)):
+        return False
+    return current != str(position or "").strip()
+
+
 def _position_desc_missing(st, choice: str, position: str, description: str) -> bool:
     """A brand-new 職位 — written under Other, not on the list yet —
     cannot join without saying what the role has to do."""
     if choice != OTHER_VALUE or not position:
         return False
+    if _leader_rank(position):
+        return False  # appointed by the leader, not invented here
     if position in {item[0] for item in _position_options(st)}:
         return False
     return not str(description or "").strip()
@@ -525,6 +543,11 @@ def save():
             or len(values.get("experience") or "") > TEXT_MAX or len(values["share"]) > TEXT_MAX:
         return fail(400, "profile_long", "內容太長，請寫短一點。",
                     "That is too long — please keep it shorter.")
+    if _rank_change_blocked(st, g.user["id"], values["position"]):
+        return fail(400, "profile_position_rank",
+                    "小隊長、副小隊長等職位由領袖委任，不可以自己揀或更改；如需更改，請找領袖。",
+                    "Patrol leader and deputy roles are appointed by the leader — "
+                    "you cannot pick or change one yourself. Please ask your leader.")
     save_profile(st, g.user["id"], values)
     # a position written under Other joins the list for the next scout
     if str(body.get("position_choice") or "") == OTHER_VALUE:

@@ -474,6 +474,21 @@ def test_leaders_lead_the_deck_and_the_contact_is_ordinary(store, app):
     assert senior_row["rank_bar"] == 3 and senior_row["leader_tier"] == 2
 
 
+def test_game_5_cannot_hand_out_a_leader_rank(store, app):
+    """The last step decides a duty, never a rank: 小隊長 and friends
+    are the leader's appointment, in the game as much as on the form."""
+    viewer, *_ = seed_patrol(store)
+    task = task_of(store)
+    client = login(app, viewer)
+    reply = client.post(f"/tasks/{task['id']}/patrol-position",
+                        data={"position_choice": "__other__",
+                              "position_other": "小隊長",
+                              "position_desc": "帶領小隊"}, headers=HEADERS)
+    assert reply.status_code == 400
+    assert reply.get_json()["error"] == "profile_position_rank"
+    assert store.get("profiles", viewer["id"])["position"] == "隊員"
+
+
 def test_a_new_position_in_game_5_needs_its_description(store, app):
     """Inventing a position at the last step means describing it: the
     description is kept, and the next scout sees it on the list."""
