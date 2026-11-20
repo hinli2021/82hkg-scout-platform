@@ -109,7 +109,7 @@ INTEREST_OPTIONS = [
 # filled in the same plain way. A position invented under Other keeps
 # the description its inventor wrote (the position_descriptions setting).
 POSITION_DESCRIPTIONS = {
-    "聯絡": ("負責出席記錄，聯絡和通知大家。", "Keeps the attendance record, and contacts and reminds everyone."),
+    "聯絡": ("記錄出席，聯絡和通知大家。", "Records attendance, and contacts and reminds everyone."),
     "康樂": ("設計和帶領小隊活動。", "Designs and leads the patrol's activities."),
     "文書": ("記錄小隊會議和活動內容。", "Takes notes at patrol meetings and activities."),
     "物資管理": ("保管、清點和收拾小隊物資。", "Looks after, counts and packs away the patrol's equipment."),

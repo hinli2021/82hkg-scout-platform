@@ -144,7 +144,7 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert scene["my_position_other"] == "隊員"
     assert any(pair[0] == "聯絡" for pair in scene["position_options"])
     # every listed position carries what the role has to do
-    assert scene["position_descriptions"]["聯絡"][0] == "負責出席記錄，聯絡和通知大家。"
+    assert scene["position_descriptions"]["聯絡"][0] == "記錄出席，聯絡和通知大家。"
     assert "data-pat-position-desc" in page and 'name="position_desc"' in page
     assert "j.need_position" in js and "enterPosition" in js
     # a replay starts from the beginning too, story first; leaving

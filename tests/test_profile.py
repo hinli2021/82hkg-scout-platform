@@ -153,7 +153,7 @@ def test_position_strength_and_interests_are_picked_from_lists(store, new_scout)
     front = page[page.index("data-char-front"):page.index("data-char-back")]
     assert "觀鳥" in front and "露營" in front
     # the edit form offers every pick back, Other words in their boxes
-    assert 'value="聯絡" data-desc-zh="負責出席記錄，聯絡和通知大家。" data-desc-en="Keeps the attendance record, and contacts and reminds everyone." selected' in page
+    assert 'value="聯絡" data-desc-zh="記錄出席，聯絡和通知大家。" data-desc-en="Records attendance, and contacts and reminds everyone." selected' in page
     assert 'value="守夜"' in page and 'value="觀鳥"' in page
     assert 'data-other-box="position_choice" hidden' in page  # 聯絡 is listed
 
@@ -264,7 +264,7 @@ def test_an_other_position_joins_the_selection_list(store, new_scout, scout_clie
     assert 'value="營火主持人"' in other_page
     assert 'data-desc-zh="帶大家唱營火歌"' in other_page
     # the written duties ride on the listed positions too
-    assert 'data-desc-zh="負責出席記錄，聯絡和通知大家。"' in other_page
+    assert 'data-desc-zh="記錄出席，聯絡和通知大家。"' in other_page
 
 
 def test_a_position_written_before_the_lists_is_offered_back_as_other(store, new_scout):
