@@ -101,6 +101,17 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
         assert f"img/quest/flag/{name}.png" in page
         assert (flag_dir / f"{name}.png").is_file()
         assert not (flag_dir / f"{name}.svg").exists()
+    # the regional flag carries its bauhinia: a large white flower at
+    # the centre of the red field, not a plain red flag
+    regional = Image.open(flag_dir / "flag-regional.png").convert("RGB")
+    rw, rh = regional.size
+    assert rw >= 1200 and rw * 2 == rh * 3  # a clear 3:2 rendering
+    white = [(x, y) for y in range(0, rh, 4) for x in range(0, rw, 4)
+             if min(regional.getpixel((x, y))) > 200]
+    xs = [p[0] for p in white]; ys = [p[1] for p in white]
+    assert white and 0.45 < (max(ys) - min(ys)) / rh < 0.70
+    assert abs((min(xs) + max(xs)) / 2 - rw / 2) < rw * 0.05
+    assert abs((min(ys) + max(ys)) / 2 - rh / 2) < rh * 0.05
     assert "官方" in BANK["note_zh"] or "標準版本" in BANK["note_zh"]
     assert "official" in BANK["note_en"].lower() or "standard versions" in BANK["note_en"]
     # the ceremony is worked by the pipe machine: panel, notebook, pipes,

@@ -74,7 +74,7 @@
   <div class="cave-sources" hidden aria-hidden="true">
     {% for name in art_names %}
       <img data-flag-source="{{ name }}"
-           src="{{ url_for('static', filename='img/quest/flag/' ~ name ~ ('.svg' if name == 'valley' else '.png')) }}" alt="">
+           src="{{ url_for('static', filename='img/quest/flag/' ~ name ~ ('.svg' if name == 'valley' else '.png')) }}{{ '?v=20261124' if name == 'flag-regional' else '' }}" alt="">
     {% endfor %}
     {# the pipe machine: every part is a generated painting, in the same ink
        and watercolour as the other games — panel, notebook, pipes, lights,
