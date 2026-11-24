@@ -55,9 +55,15 @@
         <span class="rank-bar rank-count-{{ rankv }}" aria-hidden="true"><span class="rank-side"><i class="rank-stripe"></i>{% if rankv > 1 %}<i class="rank-stripe"></i>{% endif %}{% if rankv == 3 %}<i class="rank-thin"></i>{% endif %}</span><span class="rank-emblem">⚜</span><span class="rank-side"><i class="rank-stripe"></i>{% if rankv > 1 %}<i class="rank-stripe"></i>{% endif %}{% if rankv == 3 %}<i class="rank-thin"></i>{% endif %}</span></span>
         {% endif %}
         <div class="poke-moves">
-          <div class="poke-ability">
-            <span class="poke-ability-label">{{ L('興趣', 'Interests') }}</span>
-            <span class="poke-ability-text">{{ profile.interests or L('尚未填寫', 'Not written yet') }}</span>
+          <div class="poke-abilities">
+            <div class="poke-ability">
+              <span class="poke-ability-label">{{ L('興趣', 'Interests') }}</span>
+              <span class="poke-ability-text">{{ profile.interests or L('尚未填寫', 'Not written yet') }}</span>
+            </div>
+            <div class="poke-ability">
+              <span class="poke-ability-label">{{ L('我的強項', 'My strength') }}</span>
+              <span class="poke-ability-text">{{ profile.strength or L('尚未填寫', 'Not written yet') }}</span>
+            </div>
           </div>
           <div class="poke-move">
             <div class="poke-move-head">

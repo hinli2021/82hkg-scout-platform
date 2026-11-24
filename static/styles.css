@@ -1034,6 +1034,8 @@ body[data-lang="en"] .scene-prompt .en {
   border-radius: 6px; font-size: .76rem; font-weight: 800; white-space: nowrap; overflow: hidden;
 }
 .poke-moves { flex: none; display: flex; flex-direction: column; gap: .45rem; }
+.poke-abilities { display: flex; gap: .6rem; }
+.poke-abilities .poke-ability { flex: 1 1 0; min-width: 0; }
 .poke-ability { display: flex; gap: .5rem; align-items: baseline; }
 .poke-ability-label {
   flex: none; padding: .1rem .5rem; border-radius: 4px; font-size: .76rem; font-weight: 900;

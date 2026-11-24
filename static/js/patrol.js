@@ -167,9 +167,14 @@
         + esc(position) + "</span></span>"
         + rankBar(member)
         + '<span class="poke-moves">'
+        + '<span class="poke-abilities">'
         + '<span class="poke-ability"><span class="poke-ability-label">'
         + esc(lang === "en" ? "Interests" : "興趣") + '</span><span class="poke-ability-text">'
         + esc(member.interests || notYet) + "</span></span>"
+        + '<span class="poke-ability"><span class="poke-ability-label">'
+        + esc(lang === "en" ? "My strength" : "我的強項") + '</span><span class="poke-ability-text">'
+        + esc(member.strength || notYet) + "</span></span>"
+        + "</span>"
         + '<span class="poke-move"><span class="poke-move-head"><span class="poke-cost">'
         + esc(mascot.emoji || "🐣") + '</span><span class="poke-move-name">'
         + esc(lang === "en" ? "Scout experience" : "童軍經驗") + '</span></span>'
