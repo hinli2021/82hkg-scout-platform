@@ -434,10 +434,18 @@ def save_profile(st, user_id: str, values: dict) -> dict:
 
 
 def patrol_groups(st, viewer_id: str) -> list[dict]:
-    """Every scout, grouped by patrol, with who can be visited."""
+    """Every scout, grouped by patrol, with who can be visited.
+
+    The leaders' test account is not a patrol member (the same rule the
+    patrol game follows): it stays out of the Tiger list here too, while
+    the account itself can still sign in and look around.
+    """
+    from ..patrol_game import is_test_account
+
     profiles = {row.get("user_id"): load_profile(st, row.get("user_id"))
                 for row in st.list("profiles")}
-    scouts = [u for u in st.list("users") if u.get("role") == "scout"]
+    scouts = [u for u in st.list("users")
+              if u.get("role") == "scout" and not is_test_account(u)]
     scouts.sort(key=lambda u: (str(u.get("display_name_en") or u.get("display_name_zh") or ""),
                                str(u.get("username") or "")))
     order = [str(p) for p in (st.settings_cached().get("patrols") or ["Tiger", "Otter", "Seagull"])]

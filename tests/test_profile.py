@@ -608,3 +608,24 @@ def test_the_profiles_tab_exists_in_the_schema():
         "share", "share_visible", "strength", "visible", "updated_at",
         "card_image_url", "card_image_id", "card_generated_at"]
     assert key_field("profiles") == "user_id"
+
+
+def test_the_test_account_is_not_in_the_patrol_groups(store, new_scout):
+    """The leaders' test account (username `test`) never shows up as a Tiger
+    member on the profile page — the same rule the patrol game already follows."""
+    from scout.routes.profile_routes import patrol_groups
+    from scout.util import hash_password
+
+    hashed, salt = hash_password("scout1234")
+    tester = store.insert("users", {
+        "role": "scout", "username": "test", "password_hash": hashed,
+        "password_salt": salt, "display_name_zh": "測試帳戶",
+        "display_name_en": "Test Account", "section": "scout", "patrol": "Tiger",
+        "status": "active",
+    })
+    groups = patrol_groups(store, new_scout.id)
+    member_ids = {m["user"]["id"] for g in groups for m in g["members"]}
+    assert tester["id"] not in member_ids
+    assert new_scout.id in member_ids  # real Tiger members still listed
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "測試帳戶" not in page
