@@ -477,8 +477,8 @@ router = """
 
   // The crossing is laid, but game 2 is two halves: the chip now reads
   // 「已提交 · 等領袖批准」 (not done), the scout stands on area 3 — the walk may
-  // carry on to the drill ground — and the counters stay where they were until
-  // the leader approves.
+  // carry on to the drill ground — and both headline counts already include
+  // the waiting stop (only the badge itself still waits for the approval).
   document.addEventListener('bridge:crossed', function (event) {
     if (!event.detail || event.detail.cleared || game2Cleared) return;
     bridgeCrossed = true;
@@ -493,6 +493,14 @@ router = """
         if (me && third) third.querySelector('.stage-chip-card').appendChild(me);
       }
       moveNow(pane, 2, 3);
+      var areas = pane.querySelector('[data-areas-count]');
+      if (areas) areas.textContent = '2 / 5 個區域已走過';
+      var games = pane.querySelector('[data-games-count]');
+      if (games) games.textContent = '2 / 5 個遊戲已完成';
+      var bar = pane.querySelector('[data-quest-bar] > span');
+      if (bar) bar.style.width = '40%';
+      var raft = pane.querySelector('.story-raft-meter');
+      if (raft) raft.textContent = '2 / 5';
       var play = pane.querySelector('[data-journey-play]');
       if (play) {
         // the next game is the drill ground: the one button now points at it
@@ -555,9 +563,9 @@ router = """
   });
 
   // The manual is studied, but game 3 is two halves too: the chip reads
-  // 「已提交 · 等領袖批准」 (not done), the scout stands on area 4, and the
-  // counters wait for the leader's approval. Game 4 is not built yet, so the
-  // one button goes and the lock note returns — now naming game 4.
+  // 「已提交 · 等領袖批准」 (not done), the scout stands on area 4, and both
+  // headline counts already include the waiting stop. Game 4 is not built
+  // yet, so the one button goes and the lock note returns — naming game 4.
   document.addEventListener('drill:studied', function (event) {
     if (!event.detail || event.detail.cleared || game3Cleared) return;
     drillStudied = true;
@@ -572,6 +580,14 @@ router = """
         if (me && fourth) fourth.querySelector('.stage-chip-card').appendChild(me);
       }
       moveNow(pane, 3, 4);
+      var areas = pane.querySelector('[data-areas-count]');
+      if (areas) areas.textContent = '3 / 5 個區域已走過';
+      var games = pane.querySelector('[data-games-count]');
+      if (games) games.textContent = '3 / 5 個遊戲已完成';
+      var bar = pane.querySelector('[data-quest-bar] > span');
+      if (bar) bar.style.width = '60%';
+      var raft = pane.querySelector('.story-raft-meter');
+      if (raft) raft.textContent = '3 / 5';
       var play = pane.querySelector('[data-journey-play]');
       if (play) play.remove();          // games 4–5 are not built yet: nothing to press
       var lead = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
