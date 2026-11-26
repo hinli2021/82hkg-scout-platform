@@ -168,6 +168,18 @@ def login():
     )
 
 
+def _test_account(st) -> dict | None:
+    """The leaders' test account, whose sign-in door is the leader page.
+
+    It is a scout account (it plays the games as a new member would), but it
+    is not on any patrol's name list — leaders reach it from here instead.
+    """
+    from ..patrol_game import is_test_account
+    user = next((u for u in st.list("users")
+                 if is_test_account(u) and u.get("status") == "active"), None)
+    return public_user(user) if user else None
+
+
 @auth_routes.get("/login/leader")
 def leader_login_page():
     """The leaders' door.
@@ -177,13 +189,18 @@ def leader_login_page():
     though the code was never asked for. The card then offers the console and
     a sign-out button, which is also the way to test the code again.
     """
-    if store().needs_setup():
+    st = store()
+    if st.needs_setup():
         return redirect(url_for("auth_routes.setup"))
+    test_account = _test_account(st)
     if g.get("user") and g.user.get("role") == "leader":
-        return render_template("auth/leader_login.html", already=public_user(g.user), username="")
+        return render_template("auth/leader_login.html", already=public_user(g.user), username="",
+                               test_account=test_account)
     if g.get("user"):
-        return render_template("auth/leader_login.html", already=None, other=public_user(g.user), username="")
-    return render_template("auth/leader_login.html", already=None, username="")
+        return render_template("auth/leader_login.html", already=None, other=public_user(g.user), username="",
+                               test_account=test_account)
+    return render_template("auth/leader_login.html", already=None, username="",
+                           test_account=test_account)
 
 
 @auth_routes.post("/login/leader")
@@ -203,12 +220,13 @@ def leader_login():
             return fail(401, "bad_credentials", "帳號或密碼不正確", "Wrong username or password")
         return render_template("auth/leader_login.html",
                               error_zh="帳號或密碼不正確", error_en="Wrong username or password",
-                              username=username), 401
+                              username=username, test_account=_test_account(st)), 401
     if user.get("status") != "active":
         if wants_json():
             return fail(403, "locked", "此帳號已被停用", "This account is locked")
         return render_template("auth/leader_login.html",
-                              error_zh="此帳號已被停用", error_en="This account is locked"), 403
+                              error_zh="此帳號已被停用", error_en="This account is locked",
+                              test_account=_test_account(st)), 403
     token, _ = sign_in(st, user, request)
     if wants_json():
         return _set_session_cookie(jsonify({"ok": True, "redirect": home_for(user)}), token)

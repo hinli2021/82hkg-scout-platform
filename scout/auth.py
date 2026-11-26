@@ -158,10 +158,16 @@ def demo_username(handle: str) -> str | None:
 
 
 def scouts_in_patrol(store, patrol: str) -> list[dict]:
+    # The leaders' test account is not a patrol member: it never appears on
+    # the name list a patrol signs in from. Its own door is the leader
+    # sign-in page (see auth_routes.leader_login_page).
+    from .patrol_game import is_test_account
+
     wanted = str(patrol or "").strip().lower()
     rows = [
         public_user(u) for u in store.list("users")
         if u.get("role") == "scout" and u.get("status") == "active"
+        and not is_test_account(u)
         and str(u.get("patrol") or "").strip().lower() == wanted
     ]
     rows.sort(key=lambda u: str(u.get("display_name_zh") or u.get("username")))
