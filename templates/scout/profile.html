@@ -152,6 +152,12 @@
       {{ L('請上載一張你本人的真人相片，而且要清楚見到你的樣子。不要上載卡通、AI 生成圖、風景或別人的相片。相片會先由領袖批准，批准後才顯示在個人卡上；換上新相片也要重新批准。',
            'Upload a real-life photo of yourself, with your face clearly visible. No cartoons, AI pictures, scenery or photos of someone else. A leader approves it first — only then does it appear on your card, and a replacement needs approving again.') }}
     </p>
+    <div data-card-photo-preview-box hidden style="text-align:center">
+      <img data-card-photo-preview alt="{{ L('你選的相片預覽', 'Preview of the photo you picked') }}"
+           style="width:180px; height:180px; object-fit:cover; border-radius:10px; border:3px solid #d9b23a; background:#fff8e6">
+      <p class="chip warn" style="margin:0">👀 {{ L('先看預覽：是你本人、清楚見到你的樣子嗎？相片會這樣填滿卡上的人像框。沒問題才按「上載相片」。', 'Preview first: is it really you, face clearly visible? The photo will fill the card portrait like this. Only press “Upload photo” when it looks right.') }}</p>
+      <button class="btn" type="button" data-card-photo-cancel>✕ {{ L('取消，不上載這張', 'Cancel — don’t upload this one') }}</button>
+    </div>
     <form method="post" action="{{ url_for('profile_routes.card_photo_upload') }}"
           enctype="multipart/form-data" class="row wrap"
           style="gap:.5rem; justify-content:center; align-items:center">
@@ -159,6 +165,33 @@
       <button class="btn primary" type="submit">⬆️ {{ L('上載相片', 'Upload photo') }}</button>
     </form>
   </div>
+  <script>
+  (function () {
+    var box = document.querySelector('[data-card-photo]');
+    if (!box) return;
+    var input = box.querySelector('input[name="card_photo"]');
+    var wrap = box.querySelector('[data-card-photo-preview-box]');
+    var img = box.querySelector('[data-card-photo-preview]');
+    if (!input || !wrap || !img) return;
+    var cancel = box.querySelector('[data-card-photo-cancel]');
+    var url = null;
+    function clearPick() {
+      input.value = '';
+      wrap.hidden = true;
+      img.removeAttribute('src');
+      if (url) { URL.revokeObjectURL(url); url = null; }
+    }
+    input.addEventListener('change', function () {
+      var file = input.files && input.files[0];
+      if (!file) { clearPick(); return; }
+      if (url) URL.revokeObjectURL(url);
+      url = URL.createObjectURL(file);
+      img.src = url;
+      wrap.hidden = false;
+    });
+    if (cancel) cancel.addEventListener('click', clearPick);
+  })();
+  </script>
   {% endif %}
 </div>
 

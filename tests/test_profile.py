@@ -463,6 +463,16 @@ def test_my_profile_offers_a_real_photo_upload_not_a_card_generator(store, new_s
     assert "領袖批准" in page
 
 
+def test_picking_a_photo_previews_it_with_a_way_to_cancel(store, new_scout):
+    """Before anything is sent, the picked photo is previewed as it will
+    fill the card portrait, with a cancel that backs out cleanly."""
+    _complete(new_scout)
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "data-card-photo-preview-box" in page and "data-card-photo-preview" in page
+    assert "data-card-photo-cancel" in page and "取消，不上載這張" in page
+    assert "先看預覽" in page and "createObjectURL" in page
+
+
 def test_an_uploaded_photo_waits_for_a_leader_then_lands_on_my_card(store, new_scout, leader_client, app):
     import io
     reply = new_scout.post("/profile/card-photo",
