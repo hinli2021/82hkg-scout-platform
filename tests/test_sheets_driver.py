@@ -174,6 +174,10 @@ def test_json_and_typed_values_round_trip(sheets):
     assert sheets._from_cell("show_on_leaderboard", "") is False
     assert sheets._from_cell("points", "42") == 42
     assert sheets._from_cell("points", "") == 0
+    # gacha counters may sit in the sheet as "0.0"/"34.0" text; they must
+    # come back as numbers so no store ever hands int() that text
+    assert sheets._from_cell("pity", "0.0") == 0
+    assert sheets._from_cell("opened", "34.0") == 34
     assert sheets._to_cell("active", True) == "true"
 
 

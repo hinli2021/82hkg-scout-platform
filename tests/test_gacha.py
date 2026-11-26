@@ -17,6 +17,16 @@ class AlwaysCommon(random.Random):
         return list(population)[:k]
 
 
+def test_load_state_tolerates_sheet_text_counters(store, new_scout):
+    """Sheets can hand the counters back as text like "0.0" (and a copied
+    database keeps that text). The home page must not crash on it."""
+    user = new_scout.user
+    store.insert("gacha", {"user_id": user["id"], "pity": "0.0", "opened": "34.0"})
+    state = gacha.load_state(store, user["id"])
+    assert state["pity"] == 0
+    assert state["opened"] == 34
+
+
 def test_rates_are_the_public_table():
     assert sum(weight for _, weight in gacha.RATES) == 1000
     assert gacha.roll_rarity(AlwaysCommon()) == "C"
