@@ -13,6 +13,43 @@
   </div>
 </div>
 
+{% if request.args.get('status') != 'decided' and card_photos %}
+  <div class="section-title">
+    <h2>📸 {{ L('個人卡相片待批准', 'Card photos waiting for approval') }}</h2>
+    <span class="count">{{ card_photos | length }}</span>
+  </div>
+  <div class="stack" style="margin-bottom:1rem">
+    {% for item in card_photos %}
+      <div class="review-card">
+        <div class="review-head">
+          <span style="font-size:1.5rem">{{ item.who.get('avatar', '🦊') }}</span>
+          <div class="grow">
+            <strong>{{ name_of(item.who) }}</strong>
+            <div class="small muted">
+              {{ L(patrol_label(item.who.get('patrol', '')).zh, patrol_label(item.who.get('patrol', '')).en) }}
+              · {{ (item.profile.get('card_photo_uploaded_at') or '')[:16].replace('T', ' ') }}
+            </div>
+          </div>
+          <span class="chip warn">📸 {{ L('等批准', 'Waiting') }}</span>
+        </div>
+        <div class="review-body">
+          <p class="small" style="margin:0 0 .5rem">
+            {{ L('請先看清楚：必須是童軍本人的真人相片，而且清楚見到樣子，才可批准顯示在個人卡上。卡通、AI 圖、風景或別人的相片請退回。',
+                 'Check first: it must be a real-life photo of the scout, with their face clearly visible, before it may show on their card. Send back cartoons, AI pictures, scenery or someone else’s photo.') }}
+          </p>
+          <img src="{{ item.profile.get('card_photo_url') }}" alt="{{ name_of(item.who) }}"
+               style="max-width:240px; width:100%; border-radius:10px; border:1px solid var(--line)">
+          <form method="post" action="{{ url_for('leader_routes.card_photo_action', user_id=item.who.get('id')) }}"
+                class="row wrap" style="gap:.5rem; margin-top:.6rem">
+            <button class="btn primary" type="submit" name="action" value="approve">✔ {{ L('批准顯示', 'Approve') }}</button>
+            <button class="btn danger" type="submit" name="action" value="reject">{{ L('退回', 'Send back') }}</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
 {% if request.args.get('status') == 'decided' %}
   <div class="card">
     {% if decided %}

@@ -52,12 +52,11 @@ def test_a_ready_deployment_shows_every_check_green():
     # 寄信信箱是可選項：未設定不算「未就緒」，但會提示怎樣做
     assert by_key["email"]["ok"] is False and by_key["email"]["optional"] is True
     assert "docs/03" in by_key["email"]["fix_zh"]
-    assert by_key["card_key"]["ok"] is False and by_key["card_key"]["optional"] is True
-    assert "GEMINI_API_KEY" in by_key["card_key"]["fix_zh"]
+    assert "card_key" not in by_key  # no generated cards any more, so no key to set
     assert by_key["card_storage"]["ok"] is False and by_key["card_storage"]["optional"] is True
     assert "GOOGLE_DRIVE_FOLDER_ID" in by_key["card_storage"]["fix_zh"]
     assert "服務帳戶" in by_key["card_storage"]["detail_zh"]
-    assert checks["optional_pending"] == 3
+    assert checks["optional_pending"] == 2
 
 
 def test_an_empty_deployment_points_at_what_is_missing():

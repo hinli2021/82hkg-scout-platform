@@ -30,15 +30,14 @@
   <div class="char-scene">
     <div class="char-card" data-char-card style="--char-tint: {{ m.tint }}; --char-tint-dark: {{ m.tint_dark }}; --char-soft: {{ m.soft }}">
       <section class="char-face char-front" data-char-front aria-label="{{ L('角色卡正面', 'Character card front') }}">
-        {% if profile.card_image_url %}
-        <img class="char-generated-img" src="{{ profile.card_image_url }}" alt="{{ L('AI 生成的個人卡圖', 'My AI card picture') }}">
-        {% else %}
         <div class="poke-head">
           <span class="poke-name">{{ name_of(person) }}</span>
           <span class="poke-hp"><span class="poke-type">{{ m.emoji }}</span></span>
         </div>
         <div class="char-portrait poke-art">
-          {% if m.img %}
+          {% if profile.card_photo_status == 'approved' and profile.card_photo_url %}
+            <img class="char-photo" src="{{ profile.card_photo_url }}" alt="{{ L('個人相片', 'Personal photo') }}">
+          {% elif m.img %}
             <img src="{{ m.img }}" alt="">
           {% else %}
             <span class="char-portrait-emoji" aria-hidden="true">{{ m.emoji }}</span>
@@ -94,7 +93,6 @@
         <div class="poke-foot">
           <span>{{ L('港島第八十二旅童軍團', '82nd Hong Kong Island Scout Group') }}</span>
         </div>
-        {% endif %}
       </section>
 
       <section class="char-face char-back" data-char-back aria-label="{{ L('角色卡背面', 'Character card back') }}">
@@ -139,14 +137,27 @@
     🔄 <span data-char-flip-label>{{ L('看背面', 'See the back') }}</span>
   </button>
   {% if own %}
-  <div class="card-gen-box">
-    <a class="btn primary" href="{{ url_for('profile_routes.card_maker') }}">
-      🎴 {{ L('生成我的卡圖', 'Make my card picture') }}
-    </a>
+  <div class="card-gen-box" data-card-photo>
+    <strong>📸 {{ L('我的個人卡相片', 'My card photo') }}</strong>
+    {% if profile.card_photo_status == 'approved' and profile.card_photo_url %}
+      <p class="chip ok" style="margin:0">✔ {{ L('已獲領袖批准，相片顯示在卡上', 'Leader-approved — your photo is on the card') }}</p>
+    {% elif profile.card_photo_status == 'pending' and profile.card_photo_url %}
+      <img src="{{ profile.card_photo_url }}" alt="{{ L('已上載的相片', 'Your uploaded photo') }}"
+           style="max-width:180px; width:100%; border-radius:10px; border:1px solid var(--line)">
+      <p class="chip warn" style="margin:0">⏳ {{ L('等領袖批准中 — 批准後才會顯示在卡上', 'Waiting for a leader — it shows on the card only after approval') }}</p>
+    {% elif profile.card_photo_status == 'rejected' %}
+      <p class="chip danger" style="margin:0">✗ {{ L('上一張相片未獲批准，請重新上載', 'Your last photo was not approved — please upload another') }}</p>
+    {% endif %}
     <p class="muted small" style="margin:0; text-align:center">
-      {{ L('在卡牌生成器出圖，下載後上載回來，卡圖就會出現在這張卡上。',
-           'Make a picture in the card maker, download it and upload it back — it will appear on this card.') }}
+      {{ L('請上載一張你本人的真人相片，而且要清楚見到你的樣子。不要上載卡通、AI 生成圖、風景或別人的相片。相片會先由領袖批准，批准後才顯示在個人卡上；換上新相片也要重新批准。',
+           'Upload a real-life photo of yourself, with your face clearly visible. No cartoons, AI pictures, scenery or photos of someone else. A leader approves it first — only then does it appear on your card, and a replacement needs approving again.') }}
     </p>
+    <form method="post" action="{{ url_for('profile_routes.card_photo_upload') }}"
+          enctype="multipart/form-data" class="row wrap"
+          style="gap:.5rem; justify-content:center; align-items:center">
+      <input type="file" name="card_photo" accept="image/png,image/jpeg,image/webp" required>
+      <button class="btn primary" type="submit">⬆️ {{ L('上載相片', 'Upload photo') }}</button>
+    </form>
   </div>
   {% endif %}
 </div>
