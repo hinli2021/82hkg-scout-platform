@@ -342,3 +342,21 @@ def test_the_crossing_story_links_cave_to_ridge_and_is_paged():
     assert "石壁山嶺" in river["crossed"]["paras_zh"][-1]
     js = (root / "static/js/bridge.js").read_text(encoding="utf-8")
     assert 'data-bridge-go="intro-next"' in js and "state.ipage" in js
+
+
+def test_bridge_finish_screens_offer_a_clear_way_on():
+    """Waiting or approved, the crossing ends with a clear next-game button.
+
+    On the waiting (assess) card the button is the big primary one and the
+    notice beside it says the item still needs the leader's approval; on the
+    approved card the same clear button is there too (it used to be missing).
+    """
+    import json, pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    river = json.loads((root / "content/member-badge/river.json").read_text(encoding="utf-8"))
+    note = river["assess"]["pending_note_zh"]
+    assert "領袖批准" in note and "下一個遊戲" in note
+    assert "leader approves" in river["assess"]["pending_note_en"]
+    js = (root / "static/js/bridge.js").read_text(encoding="utf-8")
+    assert "function nextGameButton" in js and "nextGameButton()" in js
+    assert "next-game-note" in js and 'btn primary big' in js

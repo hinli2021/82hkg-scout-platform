@@ -576,6 +576,22 @@
           if (done) done.hidden = false;
           var submitBtn = $("[data-pat-submit]");
           if (submitBtn) submitBtn.hidden = true;
+          /* one clear way on from the finished raft: the next game the map
+             still owes, or back to the badge when this was the last one */
+          var finishBox = $("[data-pat-finish]");
+          if (finishBox) {
+            var finishLink = finishBox.querySelector("[data-pat-finish-link]");
+            var onwardGame = data.next_game;
+            if (finishLink && onwardGame && onwardGame.url) {
+              finishLink.href = onwardGame.url;
+              finishLink.textContent = "🎮 " + (lang === "en"
+                ? "On to the next game: " + (onwardGame.name_en || onwardGame.name_zh || "")
+                : "去下一個遊戲：" + (onwardGame.name_zh || onwardGame.name_en || ""));
+            } else if (finishLink && data.badge_url) {
+              finishLink.href = data.badge_url;
+            }
+            finishBox.hidden = false;
+          }
           runPassed = true;
         } else if (j.need_position) {
           /* the raft is right, but the last step is still missing:

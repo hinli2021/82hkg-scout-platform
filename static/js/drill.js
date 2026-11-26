@@ -1531,14 +1531,23 @@
       var next = cfg.next_game;
       var nextBtn = '';
       if (next && next.url) {
-        nextBtn = '<a class="btn ghost" href="' + esc(next.url) + '">' +
-          esc(fill(pick(a.go_next_zh, a.go_next_en) || '', {})) + '</a>';
+        var nextLabel = fill(pick(a.go_next_zh, a.go_next_en) || '', {});
+        var nextName = pick(next.name_zh, next.name_en) || '';
+        if (nextName && nextLabel.indexOf(nextName) === -1) {
+          nextLabel = nextLabel ? nextLabel + (isEn() ? ': ' : '：') + nextName : nextName;
+        }
+        nextBtn = '<a class="btn primary big" href="' + esc(next.url) + '">' +
+          esc('🎮 ' + nextLabel) + '</a>';
       }
+      var pendingNote = pick(a.pending_note_zh, a.pending_note_en) ||
+        pick('⏳ 提提你：這一關已提交，但要等領袖批准才算完成——請找領袖親身考核（見上），領袖在領袖帳戶按「批准」後才會變成 ✓。你可以先去玩下一個遊戲，批准之後會自動生效。',
+             '⏳ Note: this game is sent, but it only counts once your leader approves it — perform for your leader in person (see above), and it turns into a ✓ when they press approve in the leader account. You can play the next game now; the approval will land whenever it happens.');
       return kicker(pick(a.kicker_zh, a.kicker_en), 'good') +
         '<h1 class="cave-title">' + esc(pick(a.title_zh, a.title_en)) + '</h1>' +
         '<p class="cave-line small">' + esc(pick(a.lead_zh, a.lead_en)) + '</p>' +
         pointsHtml +
         '<p class="cave-line small">' + esc(pick(a.after_zh, a.after_en)) + '</p>' +
+        (nextBtn ? '<p class="next-game-note">' + esc(pendingNote) + '</p>' : '') +
         '<div class="drill-wait" data-drill-wait>' +
           '<span class="drill-wait-row">' +
             '<button class="btn" type="button" data-drill-go="check">🔄 ' +
@@ -1632,6 +1641,16 @@
           esc(pick(studied.retry_zh, studied.retry_en)) + '</button></div>');
     }
 
+    /* the way on from a finished game: one clear button, named for the next game */
+    function nextGameButton() {
+      var next = cfg.next_game;
+      if (!next || !next.url) return '';
+      var name = pick(next.name_zh, next.name_en) || '';
+      return '<a class="btn primary big" href="' + esc(next.url) + '">' +
+        esc(pick('🎮 去下一個遊戲', '🎮 On to the next game') +
+            (name ? (isEn() ? ': ' : '：') + name : '')) + '</a>';
+    }
+
     function result() {
       var studied = cfg.studied_card || {};
       state.ticked = true;
@@ -1647,7 +1666,8 @@
           '<div class="cave-actions cave-actions-split">' +
             '<button class="btn ghost" type="button" data-drill-go="restart">' +
               esc(pick(studied.again_zh, studied.again_en)) + '</button>' +
-            (badgeLink ? badgeLink.outerHTML : '') +
+            (nextGameButton() || (badgeLink ? badgeLink.outerHTML.replace('<a ', '<a class="btn primary big" ') : '')) +
+            (nextGameButton() && badgeLink ? badgeLink.outerHTML : '') +
           '</div>');
       state.scene = 'result';
       mark('result');

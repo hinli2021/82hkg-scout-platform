@@ -2712,6 +2712,13 @@ body.is-game main { padding-top: 6px; }
 }
 .bridge-code-row input::placeholder { letter-spacing: normal; text-transform: none; color: rgba(255, 255, 255, .38); }
 .bridge-code-row input:focus-visible { outline: 3px solid #ffe4a8; outline-offset: 2px; }
+/* the notice that sits with the next-game button on an approval game's
+   waiting card: what the scout must still do, in one highlighted block */
+.next-game-note {
+  margin: .45rem 0 .1rem; padding: .55rem .7rem; border-radius: .6rem;
+  border: 1px solid rgba(255, 213, 128, .45); background: rgba(255, 183, 77, .13);
+  color: #ffe9bd; font-size: .88rem; line-height: 1.55; text-align: left;
+}
 .bridge-code-note { margin: .15rem 0 0; font-size: .84rem; color: #d9e6d9; }
 .bridge-code-note.is-bad { color: #ffb1a3; }
 
