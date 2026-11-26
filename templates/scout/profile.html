@@ -169,6 +169,26 @@
 </form>
 {% endif %}
 
+{% if own and show_test_reset %}
+{# ── 🧪 測試帳戶：把遊戲進度還原，像新會員一樣重玩 ─────────────────── #}
+<div class="section-title"><h2>🧪 {{ L('測試帳戶', 'Test account') }}</h2></div>
+<section class="card" data-test-reset>
+  <p>{{ L('這是領袖的測試帳戶。按下面按鈕，可以把五個遊戲的進度還原：遊戲紀錄、由遊戲賺到的積分、已領的會員章和遊戲送出的卡包都會清走，之後就像新會員一樣重新玩過。個人檔案（職位、興趣等）不會改動。',
+          'This is the leaders’ test account. The button below reverts the five games: their records, the points the games paid, the earned Membership Badge and the packs the games granted are cleared, so you can play again as a new member. Your profile (position, interests…) is not touched.') }}</p>
+  <div style="margin-top:.8rem">
+    <button class="btn danger" type="button" data-reset-open>🔄 {{ L('重設遊戲進度', 'Reset game progress') }}</button>
+  </div>
+  <div data-reset-confirm hidden style="margin-top:.8rem">
+    <p class="chip brass">⚠️ {{ L('確定要重設？清走的進度不能復原。', 'Are you sure? Cleared progress cannot be restored.') }}</p>
+    <div class="row wrap" style="gap:.5rem; margin-top:.6rem">
+      <button class="btn primary" type="button" data-reset-yes>✔ {{ L('確定重設', 'Yes, reset it') }}</button>
+      <button class="btn ghost" type="button" data-reset-no>{{ L('取消', 'Cancel') }}</button>
+    </div>
+    <p class="small" data-reset-msg role="status" aria-live="polite" style="margin-top:.6rem"></p>
+  </div>
+</section>
+{% endif %}
+
 {# ── 各小隊成員 ───────────────────────────────────────────────────────── #}
 <div class="section-title"><h2>🧑‍🤝‍🧑 {{ L('各小隊成員', 'Scouts by patrol') }}</h2></div>
 <div class="stack">

@@ -629,3 +629,89 @@ def test_the_test_account_is_not_in_the_patrol_groups(store, new_scout):
     assert new_scout.id in member_ids  # real Tiger members still listed
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "測試帳戶" not in page
+
+
+def _make_test_account(store):
+    from scout.util import hash_password
+    hashed, salt = hash_password("scout1234")
+    return store.insert("users", {
+        "role": "scout", "username": "test", "password_hash": hashed,
+        "password_salt": salt, "display_name_zh": "測試帳戶",
+        "display_name_en": "Test Account", "section": "scout", "patrol": "Tiger",
+        "status": "active",
+    })
+
+
+def _login(app, user):
+    client = app.test_client()
+    reply = client.post(f"/login/scout/{user['patrol']}/{user['id']}",
+                        data={"password": "scout1234"})
+    assert reply.status_code in (200, 302)
+    return client
+
+
+def test_only_the_test_account_sees_and_can_use_the_reset(store, app, new_scout):
+    """🧪 The reset button lives on the test account's profile page only;
+    any other scout asking for the reset is refused."""
+    tester = _make_test_account(store)
+
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "data-test-reset" not in page
+    refused = new_scout.post("/profile/test-reset",
+                             headers={"X-Requested-With": "fetch"})
+    assert refused.status_code == 403
+
+    client = _login(app, tester)
+    page = client.get("/profile").get_data(as_text=True)
+    assert "data-test-reset" in page and "重設遊戲進度" in page
+
+
+def test_the_reset_reverts_games_points_badge_and_packs(store, app):
+    """After a test-account reset, the five games, their points, the badge
+    award and the game-granted packs are gone — and stats agree again."""
+    from scout.gacha import grant_pack, load_state
+    from scout.routes.profile_routes import _membership_game_tasks
+
+    tester = _make_test_account(store)
+    badge, task_ids = _membership_game_tasks(store)
+    assert badge and len(task_ids) >= 5
+    task_id = sorted(task_ids)[0]
+    store.insert("progress_records", {
+        "user_id": tester["id"], "badge_id": badge["id"], "task_id": task_id,
+        "attempt_no": 1, "status": "completed", "score": 30,
+        "points_awarded": 30,
+    })
+    store.insert("points_ledger", {
+        "user_id": tester["id"], "entry_type": "task", "points_delta": 30,
+        "reason_zh": "完成任務", "reason_en": "done", "ref_type": "task",
+        "ref_id": task_id, "created_by": "auto",
+    })
+    store.insert("badge_awards", {"user_id": tester["id"], "badge_id": badge["id"],
+                                  "awarded_by": "auto"})
+    store.insert("points_ledger", {
+        "user_id": tester["id"], "entry_type": "badge", "points_delta": 50,
+        "reason_zh": "考獲", "reason_en": "earned", "ref_type": "badge",
+        "ref_id": badge["id"], "created_by": "auto",
+    })
+    grant_pack(store, tester, key=f"task:{task_id}", kind="standard",
+               source="task", ref_id=task_id, reason_zh="完成", reason_en="done")
+    store.stats_for(tester["id"])
+    store.rebuild_stats(tester["id"])
+    assert store.stats_for(tester["id"])["points_balance"] == 80
+
+    client = _login(app, tester)
+    reply = client.post("/profile/test-reset", headers={"X-Requested-With": "fetch"})
+    assert reply.status_code == 200 and reply.get_json()["ok"]
+
+    uid = tester["id"]
+    assert not [r for r in store.list("progress_records") if r["user_id"] == uid]
+    assert not [r for r in store.list("badge_awards") if r["user_id"] == uid]
+    assert not [r for r in store.list("points_ledger") if r["user_id"] == uid]
+    assert load_state(store, uid)["packs_json"] == []
+    assert load_state(store, uid)["grants_json"] == []
+    stats = store.stats_for(uid)
+    assert stats["points_balance"] == 0 and stats["tasks_done"] == 0
+    # and the account can earn the same pack all over again
+    assert grant_pack(store, tester, key=f"task:{task_id}", kind="standard",
+                      source="task", ref_id=task_id,
+                      reason_zh="完成", reason_en="done") is True
