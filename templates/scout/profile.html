@@ -313,6 +313,14 @@
       message.textContent = document.documentElement.lang === 'en'
         ? (data.message_en || data.message_zh || '')
         : (data.message_zh || data.message_en || '');
+      /* Game 3 keeps its half-read manual in this browser, where the server
+         reset cannot reach: wipe those keys too, or the replay would
+         quietly resume at a later stage instead of starting over. */
+      try {
+        Object.keys(window.localStorage)
+          .filter(function (key) { return key.indexOf('drill-manual-') === 0; })
+          .forEach(function (key) { window.localStorage.removeItem(key); });
+      } catch (e) { /* the server side is already reset */ }
       window.setTimeout(function () { window.location.reload(); }, 900);
     }).catch(function (error) {
       message.textContent = error && error.message ? error.message : failedText;

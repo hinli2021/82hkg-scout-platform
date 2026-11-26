@@ -659,6 +659,7 @@ def test_only_the_test_account_sees_and_can_use_the_reset(store, app, new_scout)
     assert "data-test-reset" not in page
     assert "data-reset-open" not in page
     assert "/profile/test-reset" not in page
+    assert "drill-manual-" not in page
     refused = new_scout.post("/profile/test-reset",
                              headers={"X-Requested-With": "fetch"})
     assert refused.status_code == 403
@@ -676,6 +677,10 @@ def test_only_the_test_account_sees_and_can_use_the_reset(store, app, new_scout)
     assert "confirmBox.hidden = false" in page
     assert "scrollIntoView" in page
     assert "fetch(endpoint" in page
+    # Game 3 keeps its half-read manual in the browser, beyond the server
+    # reset's reach: a successful reset wipes those keys too, so the replay
+    # starts at stage 1 (it used to resume mid-manual after a reset).
+    assert "drill-manual-" in page and "removeItem(key)" in page
 
 
 def test_the_reset_reverts_games_points_badge_and_packs(store, app):

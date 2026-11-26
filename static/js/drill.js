@@ -233,7 +233,11 @@
     function artUrl(name) { return urls[name] || ''; }
     function ridgeArt() { return (cfg.intro || {}).image || 'ridge'; }
 
-    var storeKey = 'drill-manual-' + (cfg.task_id || 'demo');
+    /* the saved answers are one scout's, on this browser: keyed by account
+       as well as task, so a shared tablet never hands a half-read manual to
+       the next scout — and the test account's profile reset wipes its own
+       keys (drill-manual-…) so a replay starts at the very first stage */
+    var storeKey = 'drill-manual-' + (cfg.user_id || 'demo') + '-' + (cfg.task_id || 'demo');
     var answers = {};            /* move id → its check's answer, once passed in time */
     try {
       var saved = JSON.parse(window.localStorage.getItem(storeKey) || '{}');
