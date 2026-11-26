@@ -4,8 +4,17 @@
 {% block content %}
 {% set animal = url_for('static', filename='img/mascots/' ~ (user.patrol | lower) ~ '.webp') %}
 {% set beats = quest.beats_zh if lang != 'en' else quest.beats_en %}
-{% set done_areas = stages | selectattr('done') | list | length %}
-{% set games_done = stages | selectattr('game_done') | list | length %}
+{# Both headline counts include a stop the scout has played through and
+   sent in, even while it still waits for a leader's approval (crossed /
+   studied / pending) — the scout has walked it and finished the game;
+   only the badge's own completion stays approval-based. #}
+{% set count_ns = namespace(areas=0, games=0) %}
+{% for stage in stages %}
+  {% if stage.done or stage.crossed or stage.studied or stage.pending %}{% set count_ns.areas = count_ns.areas + 1 %}{% endif %}
+  {% if stage.game_done or stage.crossed or stage.studied or stage.pending %}{% set count_ns.games = count_ns.games + 1 %}{% endif %}
+{% endfor %}
+{% set done_areas = count_ns.areas %}
+{% set games_done = count_ns.games %}
 {% set next_stage = (stages | selectattr('next') | list | first) %}
 {% if next_stage and next_stage.game_ready and next_stage.game_task and not badge.locked %}
   {% set play = url_for('scout_routes.task_cave', task_id=next_stage.game_task.id)

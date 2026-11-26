@@ -360,3 +360,15 @@ def test_bridge_finish_screens_offer_a_clear_way_on():
     js = (root / "static/js/bridge.js").read_text(encoding="utf-8")
     assert "function nextGameButton" in js and "nextGameButton()" in js
     assert "next-game-note" in js and 'btn primary big' in js
+
+
+def test_a_crossed_bridge_counts_on_the_map_while_it_waits(app, store, new_scout):
+    """The map's two headline counts include a stop played through and sent
+    in, even before the leader approves it (the badge itself stays unlit)."""
+    finish_cave(store, new_scout)
+    cross(store, new_scout)
+    badge = badge_of(engine.progress_for(store, new_scout.id))
+    assert badge['progress_done'] == 1, 'the badge counter still waits for approval'
+    page = new_scout.get(f"/badges/{badge['id']}").get_data(as_text=True)
+    assert "2 / 5 個區域已走過" in page
+    assert "2 / 5 個遊戲已完成" in page

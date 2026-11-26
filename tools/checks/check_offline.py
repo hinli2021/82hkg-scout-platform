@@ -419,7 +419,8 @@ with sync_playwright() as pw:
     assert page.locator("#pane-bridge [data-bridge-go='demo-approve']").count() == 1, \
         "the offline demo offers its labelled stand-in for the leader's approval"
     page.screenshot(path=os.path.join(SHOTS, "offline-bridge-assess.png"), full_page=False)
-    # the map chip knows the two halves: crossed, standing on area 3, still 1/5
+    # the map chip knows the two halves: crossed, standing on area 3, and the
+    # headline counts already include the waiting stop
     page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
     chip2 = page.locator("#pane-quest-map .stage-chip[data-stage='2']").inner_text()
     assert "已提交 · 等領袖批准" in chip2, chip2
@@ -428,8 +429,8 @@ with sync_playwright() as pw:
     assert page.locator("#pane-quest-map .stage-chip[data-stage='2'].is-done").count() == 0, \
         "a crossing without the approval is not a cleared game"
     meter_mid = page.locator("#pane-quest-map .quest-progress").inner_text()
-    assert "1 / 5 個遊戲已完成" in meter_mid, meter_mid
-    print("  crossed, code waiting:", meter_mid.replace("\n", " "))
+    assert "2 / 5 個遊戲已完成" in meter_mid, meter_mid
+    print("  crossed, code waiting, counts include it:", meter_mid.replace("\n", " "))
     # wandering away and back re-opens the assess card, not the river bank
     page.evaluate("window.OFFLINE_DEMO.go('bridge')"); page.wait_for_timeout(300)
     assert page.get_attribute("#pane-bridge [data-bridge]", "data-bridge-scene") == "result"
@@ -623,12 +624,12 @@ with sync_playwright() as pw:
     assert "等領袖批准" in assess3 and "前、後、左、右移一步" in assess3, assess3[:180]
     page.evaluate("window.OFFLINE_DEMO.go('quest-map')"); page.wait_for_timeout(300)
     meter = page.locator("#pane-quest-map .quest-progress").inner_text()
-    assert "2 / 5 個遊戲已完成" in meter, meter
+    assert "3 / 5 個遊戲已完成" in meter, meter
     chip3 = page.locator("#pane-quest-map .stage-chip[data-stage='3']").inner_text()
     assert "已提交" in chip3 and "等領袖批准" in chip3, chip3
     page.evaluate("window.OFFLINE_DEMO.go('home')"); page.wait_for_timeout(200)
     assert "2 / 5" in page.locator("#pane-home [data-badge-meter]").first.inner_text()
-    print("  drill: both sections studied, counters still wait →", meter.replace("\n", " "))
+    print("  drill: both sections studied, map counts include it, badge still waits →", meter.replace("\n", " "))
 
     # back on the assess card: the demo's stand-in approval clears game 3
     page.evaluate("window.OFFLINE_DEMO.go('drill')"); page.wait_for_timeout(300)
