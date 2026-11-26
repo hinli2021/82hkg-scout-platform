@@ -406,6 +406,17 @@ class Store:
     def upload_file(self, *, name: str, mime_type: str, data: bytes) -> dict:
         return self.driver.upload_file(name=name, mime_type=mime_type, data=data)
 
+    def delete_file(self, file_id: str) -> bool:
+        """Best-effort removal of an uploaded file; False when the driver
+        cannot (or the file is already gone) — callers carry on regardless."""
+        delete = getattr(self.driver, "delete_file", None)
+        if delete is None or not str(file_id or "").strip():
+            return False
+        try:
+            return bool(delete(str(file_id).strip()))
+        except Exception:
+            return False
+
     # --- settings -----------------------------------------------------------
     def settings(self, force: bool = False) -> dict:
         if self._settings_cache is not None and not force:

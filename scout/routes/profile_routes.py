@@ -747,15 +747,21 @@ def card_photo_upload():
     if not data:
         return fail(400, "card_file", "請選擇一張相片（PNG、JPG 或 WebP）。",
                     "Please choose a photo (PNG, JPG or WebP).")
+    existing = st.get("profiles", g.user["id"]) or {}
+    previous_id = str(existing.get("card_photo_id") or "")
     data, mime, ext = _compact_card_picture(data, file.mimetype or "image/png", ext)
     uploaded = st.upload_file(name=f"photo-{g.user['id']}.{ext}", mime_type=mime, data=data)
     url = _card_display_url(uploaded)
     patch = {"card_photo_url": url, "card_photo_id": str(uploaded.get("id") or ""),
              "card_photo_status": "pending", "card_photo_uploaded_at": now_iso()}
-    if st.get("profiles", g.user["id"]):
+    if existing:
         st.update("profiles", g.user["id"], patch)
     else:
         st.insert("profiles", {"user_id": g.user["id"], **patch})
+    # only the latest upload is kept: the replaced file is deleted once
+    # the new one is safely stored, so a failed upload loses nothing
+    if previous_id and previous_id != patch["card_photo_id"]:
+        st.delete_file(previous_id)
     audit(g.user, "profile_card_photo_upload", "profiles", g.user["id"],
           {"stored": uploaded.get("stored")})
     if wants_json():

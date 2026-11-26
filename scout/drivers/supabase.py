@@ -202,6 +202,14 @@ class SupabaseDriver:
             "stored": "supabase",
         }
 
+    def delete_file(self, file_id: str) -> bool:
+        path = str(file_id or "").lstrip("/")
+        if not path:
+            return False
+        self._api(f"/storage/v1/object/{self.bucket}", method="DELETE",
+                  body={"prefixes": [path]})
+        return True
+
     def clear(self) -> None:
         for collection in COLLECTION_ORDER:
             self._api(self._rest(collection, "?key=not.is.null"),

@@ -1034,8 +1034,11 @@ def card_photo_action(user_id: str):
         return _done("已批准：相片會顯示在童軍的個人卡上",
                      "Approved — the photo now shows on the scout's card",
                      "leader_routes.review")
+    previous_id = str(profile.get("card_photo_id") or "")
     st.update("profiles", user_id, {"card_photo_status": "rejected",
                                     "card_photo_url": "", "card_photo_id": ""})
+    if previous_id:
+        st.delete_file(previous_id)  # a sent-back photo is not kept either
     audit(g.user, "card_photo_reject", "profiles", user_id, {})
     return _done("已退回：請童軍上載一張清楚見到樣子的真人相片",
                  "Sent back — ask the scout for a real photo with their face clearly visible",
