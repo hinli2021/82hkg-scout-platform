@@ -49,6 +49,23 @@
     {% endif %}
     {% endif %}
 
+    {% if test_account and not already %}
+      {# ── 🧪 the leaders' test account: a scout's eyes, reached from here ── #}
+      <div class="demo-accounts">
+        <p class="demo-title">
+          🧪 {{ L('測試帳戶（領袖專用）', 'Test account (leaders)') }}
+        </p>
+        <a class="btn" style="width:100%"
+           href="{{ url_for('auth_routes.scout_password', patrol=test_account.patrol, user_id=test_account.id) }}">
+          🧪 {{ L('以測試帳戶登入（童軍視角）', 'Sign in as the test account (scout view)') }}
+        </a>
+        <p class="demo-note">
+          {{ L('用測試帳戶像新會員一樣試玩五個遊戲；它不會出現在任何小隊的名單上。按上面按鈕，再輸入測試帳戶的密碼即可。',
+                 'Play the five games as a new member with the test account. It never appears on a patrol name list — use the button above, then the test account’s password.') }}
+        </p>
+      </div>
+    {% endif %}
+
     {% if demo_login %}
       {# ── the two demo accounts: one tap each, no password ── #}
       <div class="demo-accounts">

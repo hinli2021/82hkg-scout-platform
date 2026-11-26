@@ -870,3 +870,39 @@ def test_official_defaults_leave_the_demo_accounts_out(client):
     """正式上線：登入頁沒有示範帳戶、沒有示範提示（示範要明確開啟）。"""
     page = client.get("/login").get_data(as_text=True)
     assert "demo-accounts" not in page and "示範帳戶" not in page
+
+
+def test_the_test_account_signs_in_from_the_leader_door(client, store, app):
+    """🧪 The leaders' test account left the Tiger name list: its door is the
+    leader sign-in page, and from there it still signs in as a scout."""
+    from scout.util import hash_password
+
+    # no test account yet → the leader door has no test entry
+    assert "以測試帳戶登入" not in client.get("/login/leader").get_data(as_text=True)
+
+    hashed, salt = hash_password("scout1234")
+    tester = store.insert("users", {
+        "role": "scout", "username": "test", "password_hash": hashed,
+        "password_salt": salt, "display_name_zh": "測試帳戶",
+        "display_name_en": "Test Account", "section": "scout", "patrol": "Tiger",
+        "status": "active",
+    })
+
+    # it is gone from the Tiger name list (real Tigers remain)
+    names = client.get("/login/scout/Tiger").get_data(as_text=True)
+    assert "測試帳戶" not in names and "王小明" in names
+    from scout.auth import scouts_in_patrol
+    assert tester["id"] not in {u["id"] for u in scouts_in_patrol(store, "Tiger")}
+
+    # …and its entry now sits on the leader door, pointing at its password page
+    door = client.get("/login/leader").get_data(as_text=True)
+    assert "以測試帳戶登入（童軍視角）" in door
+    assert f"/login/scout/Tiger/{tester['id']}" in door
+
+    # following it signs the test account in as a scout, to the scout home
+    fresh = app.test_client()
+    assert fresh.get(f"/login/scout/Tiger/{tester['id']}").status_code == 200
+    reply = fresh.post(f"/login/scout/Tiger/{tester['id']}",
+                       data={"password": "scout1234"})
+    assert reply.status_code == 302
+    assert _path(reply.headers["Location"]) == "/home"
