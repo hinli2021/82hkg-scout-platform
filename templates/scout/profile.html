@@ -172,14 +172,22 @@
 {% if own and show_test_reset %}
 {# ── 🧪 測試帳戶：把遊戲進度還原，像新會員一樣重玩 ─────────────────── #}
 <div class="section-title"><h2>🧪 {{ L('測試帳戶', 'Test account') }}</h2></div>
-<section class="card" data-test-reset>
+<section class="card" data-test-reset
+         data-reset-endpoint="{{ url_for('profile_routes.test_reset') }}">
   <p>{{ L('這是領袖的測試帳戶。按下面按鈕，可以把五個遊戲的進度還原：遊戲紀錄、由遊戲賺到的積分、已領的會員章和遊戲送出的卡包都會清走，之後就像新會員一樣重新玩過。個人檔案（職位、興趣等）不會改動。',
           'This is the leaders’ test account. The button below reverts the five games: their records, the points the games paid, the earned Membership Badge and the packs the games granted are cleared, so you can play again as a new member. Your profile (position, interests…) is not touched.') }}</p>
-  <div style="margin-top:.8rem">
-    <button class="btn danger" type="button" data-reset-open>🔄 {{ L('重設遊戲進度', 'Reset game progress') }}</button>
+  <div data-reset-start style="margin-top:.8rem">
+    <button class="btn danger" type="button" data-reset-open
+            aria-expanded="false" aria-controls="test-reset-confirm">
+      🔄 {{ L('重設遊戲進度', 'Reset game progress') }}
+    </button>
   </div>
-  <div data-reset-confirm hidden style="margin-top:.8rem">
-    <p class="chip brass">⚠️ {{ L('確定要重設？清走的進度不能復原。', 'Are you sure? Cleared progress cannot be restored.') }}</p>
+  <div id="test-reset-confirm" class="alert warn" data-reset-confirm hidden
+       role="alertdialog" aria-labelledby="test-reset-confirm-title"
+       style="margin-top:.8rem; margin-bottom:0">
+    <p id="test-reset-confirm-title" style="margin:0">
+      <strong>⚠️ {{ L('確定要重設？清走的進度不能復原。', 'Are you sure? Cleared progress cannot be restored.') }}</strong>
+    </p>
     <div class="row wrap" style="gap:.5rem; margin-top:.6rem">
       <button class="btn primary" type="button" data-reset-yes>✔ {{ L('確定重設', 'Yes, reset it') }}</button>
       <button class="btn ghost" type="button" data-reset-no>{{ L('取消', 'Cancel') }}</button>
@@ -244,4 +252,75 @@
   });
 })();
 </script>
+{% if own and show_test_reset %}
+<script>
+(function () {
+  var section = document.querySelector('[data-test-reset]');
+  if (!section) return;
+
+  var start = section.querySelector('[data-reset-start]');
+  var openButton = section.querySelector('[data-reset-open]');
+  var confirmBox = section.querySelector('[data-reset-confirm]');
+  var yesButton = section.querySelector('[data-reset-yes]');
+  var noButton = section.querySelector('[data-reset-no]');
+  var message = section.querySelector('[data-reset-msg]');
+  if (!start || !openButton || !confirmBox || !yesButton || !noButton || !message) return;
+
+  var endpoint = section.getAttribute('data-reset-endpoint');
+  var workingText = {{ L('正在重設…', 'Resetting…') | tojson }};
+  var failedText = {{ L('重設失敗，請再試一次。', 'The reset failed. Please try again.') | tojson }};
+
+  function showConfirmation() {
+    start.hidden = true;
+    confirmBox.hidden = false;
+    openButton.setAttribute('aria-expanded', 'true');
+    confirmBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(function () { yesButton.focus({ preventScroll: true }); }, 250);
+  }
+
+  function hideConfirmation() {
+    confirmBox.hidden = true;
+    start.hidden = false;
+    openButton.setAttribute('aria-expanded', 'false');
+    message.textContent = '';
+    openButton.focus({ preventScroll: true });
+  }
+
+  function setBusy(busy) {
+    yesButton.disabled = busy;
+    noButton.disabled = busy;
+  }
+
+  openButton.addEventListener('click', showConfirmation);
+  noButton.addEventListener('click', hideConfirmation);
+  yesButton.addEventListener('click', function () {
+    setBusy(true);
+    message.textContent = workingText;
+    fetch(endpoint, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'fetch' }
+    }).then(function (response) {
+      return response.json().catch(function () { return {}; }).then(function (data) {
+        if (!response.ok || !data.ok) {
+          var serverMessage = document.documentElement.lang === 'en'
+            ? data.message_en : data.message_zh;
+          throw new Error(serverMessage || failedText);
+        }
+        return data;
+      });
+    }).then(function (data) {
+      message.textContent = document.documentElement.lang === 'en'
+        ? (data.message_en || data.message_zh || '')
+        : (data.message_zh || data.message_en || '');
+      window.setTimeout(function () { window.location.reload(); }, 900);
+    }).catch(function (error) {
+      message.textContent = error && error.message ? error.message : failedText;
+      setBusy(false);
+      yesButton.focus({ preventScroll: true });
+    });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

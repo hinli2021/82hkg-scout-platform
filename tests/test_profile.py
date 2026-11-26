@@ -657,6 +657,8 @@ def test_only_the_test_account_sees_and_can_use_the_reset(store, app, new_scout)
 
     page = new_scout.get("/profile").get_data(as_text=True)
     assert "data-test-reset" not in page
+    assert "data-reset-open" not in page
+    assert "/profile/test-reset" not in page
     refused = new_scout.post("/profile/test-reset",
                              headers={"X-Requested-With": "fetch"})
     assert refused.status_code == 403
@@ -664,6 +666,16 @@ def test_only_the_test_account_sees_and_can_use_the_reset(store, app, new_scout)
     client = _login(app, tester)
     page = client.get("/profile").get_data(as_text=True)
     assert "data-test-reset" in page and "重設遊戲進度" in page
+    # The confirmation starts hidden, and the page carries the script that
+    # reveals it when the first button is pressed (a missing listener was
+    # previously reported as "nothing happens after I press the button").
+    assert 'data-reset-endpoint="/profile/test-reset' in page
+    assert 'id="test-reset-confirm"' in page
+    assert "data-reset-confirm hidden" in page
+    assert "data-reset-yes" in page and "確定重設" in page
+    assert "confirmBox.hidden = false" in page
+    assert "scrollIntoView" in page
+    assert "fetch(endpoint" in page
 
 
 def test_the_reset_reverts_games_points_badge_and_packs(store, app):
