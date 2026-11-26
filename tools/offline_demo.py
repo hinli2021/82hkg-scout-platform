@@ -322,13 +322,22 @@ router = """
   /* A cleared location keeps a small door of its own: the live map does the same,
      so the offline file must not be the only place without a way back in. */
   function replayDoor(chip, pane, label) {
-    if (!chip || chip.querySelector('.stage-chip-replay')) return;
+    if (!chip || chip.querySelector('.stage-chip-replay:not(.stage-chip-continue)')) return;
     var card = chip.querySelector('.stage-chip-card') || chip;
     var door = document.createElement('a');
     door.className = 'stage-chip-replay';
     door.setAttribute('data-nav', pane);
     door.textContent = '🎮 ' + label;
     card.appendChild(door);
+  }
+
+  /* The way on lives on the current stop (the live map does the same): when
+     a game clears, the continue pill walks to the next stop with the scout. */
+  function carryPlay(pane, toN) {
+    var play = pane.querySelector('[data-journey-play]');
+    var chip = pane.querySelector('.stage-chip[data-stage="' + toN + '"]');
+    var card = chip && chip.querySelector('.stage-chip-card');
+    if (play && card) card.appendChild(play);
   }
 
   function go(id, exitApproved) {
@@ -429,6 +438,7 @@ router = """
         play.setAttribute('data-nav', 'bridge');
         play.removeAttribute('href');
         play.textContent = '🎮 繼續歷險 · 進入遊戲 2';
+        carryPlay(pane, 2);
       }
       var lead = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
       if (lead) lead.textContent = '直接進入「迷霧渡口」。';
@@ -489,6 +499,7 @@ router = """
         play.setAttribute('data-nav', 'drill');
         play.removeAttribute('href');
         play.textContent = '🎮 繼續歷險 · 進入遊戲 3';
+        carryPlay(pane, 3);
       }
       var lead = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
       if (lead) lead.textContent = '直接進入「步操訓練場」。';
@@ -534,6 +545,7 @@ router = """
         play.setAttribute('data-nav', 'drill');
         play.removeAttribute('href');
         play.textContent = '🎮 繼續歷險 · 進入遊戲 3';
+        carryPlay(pane, 3);
       }
       var launch = pane.querySelector('[data-journey-launch] .story-launch-note:not([data-journey-wait])');
       if (launch) launch.textContent = '直接進入「步操訓練場」。';

@@ -3769,6 +3769,14 @@ body.is-game main { padding-top: 6px; }
 .stage-chip-replay:hover { background: rgba(47, 91, 63, .18); }
 .stage-chip.is-done .stage-chip-replay { color: #2f5b3f; }
 
+/* The current stop's own way in: the replay pill's shape, filled solid so a
+   scout who left a game and came back sees at once where to press. */
+.stage-chip-continue {
+  color: #fff; background: #2f5b3f; border-color: #2f5b3f;
+  box-shadow: 0 4px 12px rgba(23, 69, 44, .35);
+}
+.stage-chip-continue:hover { background: #24472f; color: #fff; }
+
 /* ══ 荒島逃生 · the opening story (2026-10-18, remade same day) ═════════════
    A first-time scout is told the escape in eight picture cards, laid INSIDE
    the page — the top bar's shortcuts stay within reach as the way out. Each

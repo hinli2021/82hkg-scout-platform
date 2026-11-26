@@ -286,7 +286,7 @@ def test_the_offline_how_to_play_page_still_plays():
 
 
 def test_the_offline_demo_carries_the_cave_without_a_paper():
-    """From the one bottom button directly into the 50-question cave."""
+    """From the one pill on the stop directly into the 50-question cave."""
     import html
     import pathlib
     import re
