@@ -835,6 +835,9 @@ def task_drill(task_id: str):
     scenes = {
         **manual,
         "task_id": task_id,
+        # the manual's half-read answers live in this browser, keyed by the
+        # scout who earned them — a shared tablet must not hand them on
+        "user_id": g.user["id"],
         "sections": sections,
         "labels": manual.get("labels") or {},
         "assess": manual.get("assess") or {},

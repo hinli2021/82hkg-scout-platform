@@ -113,6 +113,20 @@ def test_the_drill_page_waits_without_a_code_box(app, store, new_scout):
     assert response.status_code in (404, 405), 'the code route no longer exists'
 
 
+def test_the_drill_page_keys_its_saved_manual_to_the_scout(app, store, new_scout):
+    """Game 3's half-read answers live in the browser: the page must say
+    whose they are, so the game keys them by account, not by task alone —
+    a shared tablet (or the leaders' test account after a reset) must not
+    resume somebody else's stage."""
+    import pathlib
+    task = task_of(store)
+    import html as _html
+    source = _html.unescape(new_scout.get(f"/tasks/{task['id']}/drill").get_data(as_text=True))
+    assert f'"user_id": "{new_scout.id}"' in source
+    js = (pathlib.Path(__file__).resolve().parent.parent / "static" / "js" / "drill.js").read_text(encoding="utf-8")
+    assert "drill-manual-" in js and "(cfg.user_id || 'demo')" in js
+
+
 def test_an_unstudied_manual_cannot_be_signed_off(app, store, new_scout):
     task = task_of(store)
     status = new_scout.get(f"/tasks/{task['id']}/status").get_json()
