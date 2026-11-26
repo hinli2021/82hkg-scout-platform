@@ -51,6 +51,11 @@ class SupabaseDriver:
         self.service_role_key = service_role_key
         self.bucket = bucket or "uploads"
         self._tables_checked = False
+        # One session for the life of the driver: a page load fires a dozen
+        # PostgREST calls, and a fresh TCP+TLS handshake on every one of them
+        # costs far more than the queries themselves when the database is an
+        # ocean away from the last deployment region this ran in.
+        self._session = requests.Session()
 
     # --- transport ----------------------------------------------------------
     def _api(self, path: str, method: str = "GET", body=None, raw: bytes | None = None,
