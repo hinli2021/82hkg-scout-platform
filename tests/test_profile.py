@@ -709,3 +709,28 @@ def test_the_reset_reverts_games_points_badge_and_packs(store, app):
     assert grant_pack(store, tester, key=f"task:{task_id}", kind="standard",
                       source="task", ref_id=task_id,
                       reason_zh="完成", reason_en="done") is True
+
+
+def test_only_the_latest_photo_upload_is_kept(store, new_scout, leader_client):
+    """A second upload deletes the first file — storage keeps one photo
+    per scout, the latest. A sent-back photo is deleted too."""
+    import io
+    import pathlib
+    _complete(new_scout)
+    uploads = pathlib.Path(store.driver.uploads_dir)
+
+    new_scout.post("/profile/card-photo",
+                   data={"card_photo": (io.BytesIO(b"\x89PNG first"), "card.png")})
+    first = store.get("profiles", new_scout.id)
+    first_name = first["card_photo_url"].rsplit("/", 1)[-1]
+    assert (uploads / first_name).exists()
+
+    new_scout.post("/profile/card-photo",
+                   data={"card_photo": (io.BytesIO(b"\x89PNG second"), "card.png")})
+    second = store.get("profiles", new_scout.id)
+    second_name = second["card_photo_url"].rsplit("/", 1)[-1]
+    assert second_name != first_name and (uploads / second_name).exists()
+    assert not (uploads / first_name).exists(), "the replaced upload is deleted"
+
+    leader_client.post(f"/leader/card-photos/{new_scout.id}", data={"action": "reject"})
+    assert not (uploads / second_name).exists(), "a sent-back photo is not kept"

@@ -358,6 +358,13 @@ class SheetsDriver:
             "stored": "drive",
         }
 
+    def delete_file(self, file_id: str) -> bool:
+        file_id = str(file_id or "").strip()
+        if not file_id:
+            return False
+        self._api(f"https://www.googleapis.com/drive/v3/files/{file_id}", method="DELETE")
+        return True
+
     def clear(self) -> None:
         for collection in COLLECTION_ORDER:
             for row in self.list(collection):

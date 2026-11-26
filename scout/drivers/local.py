@@ -179,6 +179,16 @@ class LocalDriver:
             handle.write(data)
         return {"id": safe, "url": f"/uploads/{safe}", "stored": "local"}
 
+    def delete_file(self, file_id: str) -> bool:
+        safe = os.path.basename(str(file_id or ""))
+        if not safe:
+            return False
+        path = os.path.join(self.uploads_dir, safe)
+        if os.path.isfile(path):
+            os.remove(path)
+            return True
+        return False
+
     def clear(self) -> None:
         with self._lock:
             self._cache.clear()
