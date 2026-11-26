@@ -452,48 +452,91 @@ def _complete(new_scout):
     })
 
 
-def test_my_profile_links_to_the_card_maker(store, new_scout):
+def test_my_profile_offers_a_real_photo_upload_not_a_card_generator(store, new_scout):
     _complete(new_scout)
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert 'href="/card-maker' in page and "生成我的卡圖" in page
-
-    maker = new_scout.get("/card-maker")
-    assert maker.status_code == 200
-    body = maker.get_data(as_text=True)
-    assert "card-generator.html" in body and "上載卡圖" in body
-    # the original Google link is one tap away (Google forbids embedding it,
-    # so it opens in a new window where its key is provided automatically)
-    assert "https://gemini.google.com/share/026550477ded" in body
-    assert 'target="_blank"' in body
-
-    # the embedded generator is locked to the Pokémon system
-    generator = new_scout.client.get("/static/card-generator.html").get_data(as_text=True)
-    assert "scout-pokemon-lock" in generator and 'data-sys="pokemon"' in generator
+    assert "生成我的卡圖" not in page and "/card-maker" not in page
+    assert "data-card-photo" in page and "上載相片" in page
+    # the rule is spelled out where the scout uploads: a real-life photo of
+    # themselves, face clearly visible, leader-approved before it shows
+    assert "真人相片" in page and "清楚見到你的樣子" in page
+    assert "領袖批准" in page
 
 
-def test_an_uploaded_card_picture_lands_on_my_card(store, new_scout):
+def test_an_uploaded_photo_waits_for_a_leader_then_lands_on_my_card(store, new_scout, leader_client, app):
     import io
-    reply = new_scout.post("/profile/card-upload",
-                            data={"card_image": (io.BytesIO(b"\x89PNG fake"), "card.png")})
+    reply = new_scout.post("/profile/card-photo",
+                           data={"card_photo": (io.BytesIO(b"\x89PNG fake"), "card.png")})
     assert reply.status_code == 400
     assert reply.get_json()["error"] == "profile_incomplete"
 
     _complete(new_scout)
-    reply = new_scout.post("/profile/card-upload",
-                            data={"card_image": (io.BytesIO(b"notes"), "notes.txt")})
+    reply = new_scout.post("/profile/card-photo",
+                           data={"card_photo": (io.BytesIO(b"notes"), "notes.txt")})
     assert reply.status_code == 400
     assert reply.get_json()["error"] == "card_file"
 
-    reply = new_scout.post("/profile/card-upload",
-                            data={"card_image": (io.BytesIO(b"\x89PNG fake"), "card.png")})
+    reply = new_scout.post("/profile/card-photo",
+                           data={"card_photo": (io.BytesIO(b"\x89PNG fake"), "card.png")})
     assert reply.status_code == 200
+    assert reply.get_json()["card_photo_status"] == "pending"
     row = store.get("profiles", new_scout.id)
-    assert row["card_image_url"].startswith("/uploads/")
+    assert row["card_photo_status"] == "pending"
+    assert row["card_photo_url"].startswith("/uploads/")
+
+    # waiting: the card itself still wears the mascot, and another scout
+    # visiting sees no photo at all — only the owner sees the waiting preview
     page = new_scout.get("/profile").get_data(as_text=True)
-    assert "char-generated-img" in page and row["card_image_url"] in page
+    assert "char-photo" not in page and "等領袖批准中" in page
+    visitor = _login(app, next(u for u in store.list("users") if u["username"] == "scout05"))
+    seen = visitor.get(f"/profile/{new_scout.id}").get_data(as_text=True)
+    assert row["card_photo_url"] not in seen and "char-photo" not in seen
+
+    # the leader finds it in the review queue and approves it there
+    queue = leader_client.get("/leader/review").get_data(as_text=True)
+    assert row["card_photo_url"] in queue and "個人卡相片待批准" in queue
+    reply = leader_client.post(f"/leader/card-photos/{new_scout.id}", data={"action": "approve"})
+    assert reply.status_code in (200, 302)
+    assert store.get("profiles", new_scout.id)["card_photo_status"] == "approved"
+
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "char-photo" in page and row["card_photo_url"] in page
+    seen = visitor.get(f"/profile/{new_scout.id}").get_data(as_text=True)
+    assert "char-photo" in seen and row["card_photo_url"] in seen
+
+    # a replacement goes back to waiting, off the card, until approved again;
+    # and a leader can send a photo back instead
+    reply = new_scout.post("/profile/card-photo",
+                           data={"card_photo": (io.BytesIO(b"\x89PNG fake2"), "card.png")})
+    assert reply.status_code == 200
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "char-photo" not in page
+    reply = leader_client.post(f"/leader/card-photos/{new_scout.id}", data={"action": "reject"})
+    assert reply.status_code in (200, 302)
+    row = store.get("profiles", new_scout.id)
+    assert row["card_photo_status"] == "rejected" and not row["card_photo_url"]
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "未獲批准" in page
+
+    # a scout may not approve their own photo
+    reply = new_scout.post("/profile/card-photo",
+                           data={"card_photo": (io.BytesIO(b"\x89PNG fake3"), "card.png")})
+    assert reply.status_code == 200
+    reply = new_scout.post(f"/leader/card-photos/{new_scout.id}", data={"action": "approve"})
+    assert reply.status_code in (302, 403)
+    assert store.get("profiles", new_scout.id)["card_photo_status"] == "pending"
 
 
-def test_an_uploaded_card_picture_is_stored_as_avif_or_webp(store, new_scout):
+def test_an_old_generated_card_picture_no_longer_covers_the_card(store, new_scout):
+    """Generated card pictures are retired: even one already on file stays
+    off the card — the designed card (or an approved photo) is what shows."""
+    _complete(new_scout)
+    store.update("profiles", new_scout.id, {"card_image_url": "/uploads/old-generated.webp"})
+    page = new_scout.get("/profile").get_data(as_text=True)
+    assert "char-generated-img" not in page and "/uploads/old-generated.webp" not in page
+
+
+def test_an_uploaded_photo_is_stored_as_avif_or_webp(store, new_scout):
     import io
     import pathlib
 
@@ -501,104 +544,27 @@ def test_an_uploaded_card_picture_is_stored_as_avif_or_webp(store, new_scout):
     _complete(new_scout)
     buffer = io.BytesIO()
     Image.new("RGB", (240, 360), (30, 90, 60)).save(buffer, format="PNG")
-    reply = new_scout.post("/profile/card-upload",
-                           data={"card_image": (io.BytesIO(buffer.getvalue()), "card.png")})
+    reply = new_scout.post("/profile/card-photo",
+                           data={"card_photo": (io.BytesIO(buffer.getvalue()), "card.png")})
     assert reply.status_code == 200
     row = store.get("profiles", new_scout.id)
-    assert row["card_image_url"].endswith((".avif", ".webp"))
+    assert row["card_photo_url"].endswith((".avif", ".webp"))
     # the stored file really is that format, not just renamed
-    name = row["card_image_url"].rsplit("/", 1)[-1]
+    name = row["card_photo_url"].rsplit("/", 1)[-1]
     raw = (pathlib.Path(store.driver.uploads_dir) / name).read_bytes()
     assert len(raw) < len(buffer.getvalue())
     with Image.open(io.BytesIO(raw)) as stored:
         assert stored.format in ("AVIF", "WEBP") and stored.size == (240, 360)
 
 
-# ── the in-page generator borrows the platform key through the proxy ─────
-
-_PROXY_BODY = {"contents": [{"role": "user", "parts": [{"text": "畫一張 Pokémon 卡"}]}],
-               "generationConfig": {"imageConfig": {"aspectRatio": "2:3"}}}
-
-
-class _FakeUpstream:
-    def __init__(self, status=200, payload=None):
-        self.status_code = status
-        import json as _json
-        self.content = _json.dumps(payload if payload is not None else {
-            "candidates": [{"content": {"parts": [
-                {"inlineData": {"mimeType": "image/png", "data": "aGVsbG8="}}]}}],
-        }).encode()
-
-
-def test_the_card_proxy_needs_a_complete_profile_and_a_platform_key(store, new_scout, monkeypatch):
-    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
-    assert reply.status_code == 400
-    assert "完成個人檔案" in reply.get_json()["error"]["message"]
-
+def test_the_card_generator_is_gone(store, new_scout):
+    """No self-generated cards any more: the maker page, the key-lending
+    proxy, the old upload door and the generator file itself are all gone."""
     _complete(new_scout)
-    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
-    assert reply.status_code == 400
-    assert "平台尚未設定出圖金鑰" in reply.get_json()["error"]["message"]
-
-    reply = new_scout.post("/profile/card-image-proxy", json={"contents": []})
-    assert reply.status_code == 400
-    assert "不完整" in reply.get_json()["error"]["message"]
-
-
-def test_the_card_proxy_forwards_with_the_platform_key(store, new_scout, app, monkeypatch):
-    import requests as requests_module
-    from scout.routes import profile_routes
-    app.config["GEMINI_API_KEY"] = "platform-key"
-    seen = {}
-
-    def fake_post(url, params=None, timeout=None, json=None):
-        seen.update(url=url, params=params, json=json)
-        return _FakeUpstream()
-
-    monkeypatch.setattr(requests_module, "post", fake_post)
-    _complete(new_scout)
-    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
-    assert reply.status_code == 200
-    assert reply.get_json()["candidates"][0]["content"]["parts"][0]["inlineData"]["data"] == "aGVsbG8="
-    # the platform key goes upstream; it is never part of the answer
-    assert seen["params"] == {"key": "platform-key"}
-    assert "gemini-2.5-flash-image" in seen["url"]
-    assert seen["json"]["contents"] == _PROXY_BODY["contents"]
-    assert b"platform-key" not in reply.data
-    rows = [r for r in store.list("audit_log") if r.get("action") == "profile_card_proxy"]
-    assert len(rows) == 1
-
-    # half a minute between generations
-    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
-    assert reply.status_code == 429
-    assert "等半分鐘" in reply.get_json()["error"]["message"]
-
-
-def test_the_card_proxy_has_a_daily_limit(store, new_scout, app, monkeypatch):
-    import requests as requests_module
-    app.config["GEMINI_API_KEY"] = "platform-key"
-    monkeypatch.setattr(requests_module, "post", lambda *a, **kw: _FakeUpstream())
-    _complete(new_scout)
-    from scout.util import now_iso
-    for _ in range(25):
-        store.insert("audit_log", {
-            "actor_id": new_scout.id, "actor_role": "scout", "action": "profile_card_proxy",
-            "entity": "profiles", "entity_id": new_scout.id, "detail_json": "{}",
-            "created_at": now_iso(),
-        })
-    # jump the last entry back so only the daily cap can refuse this call
-    rows = [r for r in store.list("audit_log") if r.get("action") == "profile_card_proxy"]
-    store.update("audit_log", rows[-1]["id"], {"created_at": "2020-01-01T00:00:00.000Z"})
-    reply = new_scout.post("/profile/card-image-proxy", json=_PROXY_BODY)
-    assert reply.status_code == 429
-    assert "今日的出圖次數已用完" in reply.get_json()["error"]["message"]
-
-
-def test_the_embedded_generator_uses_the_proxy_not_a_pasted_key(new_scout):
-    generator = new_scout.client.get("/static/card-generator.html").get_data(as_text=True)
-    assert "/profile/card-image-proxy" in generator
-    assert ".gear { display: none" in generator
+    assert new_scout.get("/card-maker").status_code == 404
+    assert new_scout.post("/profile/card-image-proxy", json={"contents": []}).status_code in (404, 405)
+    assert new_scout.post("/profile/card-upload", data={}).status_code in (404, 405)
+    assert new_scout.client.get("/static/card-generator.html").status_code == 404
 
 
 def test_the_profiles_tab_exists_in_the_schema():
@@ -606,7 +572,8 @@ def test_the_profiles_tab_exists_in_the_schema():
     assert COLLECTIONS["profiles"]["fields"] == [
         "user_id", "position", "interests", "experience", "camping_days", "hiking_times",
         "share", "share_visible", "strength", "visible", "updated_at",
-        "card_image_url", "card_image_id", "card_generated_at"]
+        "card_image_url", "card_image_id", "card_generated_at",
+        "card_photo_url", "card_photo_id", "card_photo_status", "card_photo_uploaded_at"]
     assert key_field("profiles") == "user_id"
 
 

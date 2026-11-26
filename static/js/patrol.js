@@ -152,15 +152,12 @@
     /* the very card the member sees on their own profile page — the same
        classes, the same layout, drawn from the same live profile */
     var front;
-    if (member.card_image_url) {
-      front = '<img class="char-generated-img" src="' + esc(member.card_image_url)
-        + '" alt="' + esc(lang === "en" ? "AI card picture" : "AI 生成的個人卡圖") + '">';
-    } else {
-      front = '<span class="poke-head"><span class="poke-name">' + esc(name) + "</span>"
+    front = '<span class="poke-head"><span class="poke-name">' + esc(name) + "</span>"
         + '<span class="poke-hp"><span class="poke-type">' + esc(mascot.emoji || "🐣") + "</span></span></span>"
         + '<span class="char-portrait poke-art">'
-        + (mascot.img ? '<img src="' + esc(mascot.img) + '" alt="">'
-                      : '<span class="char-portrait-emoji" aria-hidden="true">' + esc(mascot.emoji || "🐣") + "</span>")
+        + (member.card_photo_url ? '<img class="char-photo" src="' + esc(member.card_photo_url) + '" alt="">'
+                      : (mascot.img ? '<img src="' + esc(mascot.img) + '" alt="">'
+                      : '<span class="char-portrait-emoji" aria-hidden="true">' + esc(mascot.emoji || "🐣") + "</span>"))
         + '<span class="char-avatar" aria-hidden="true">' + esc(member.avatar || "🦊") + "</span></span>"
         + '<span class="poke-info"><span>NO. ' + esc(member.scout_no || "—") + "</span>"
         + "<span>" + esc(patrol || "") + '</span><span class="poke-position">🎖 '
@@ -187,7 +184,6 @@
         + "</span>"
         + '<span class="poke-foot"><span>' + esc(lang === "en" ? "82nd Hong Kong Island Scout Group" : "港島第八十二旅童軍團")
         + "</span></span>";
-    }
     return '<button type="button" class="pat-card char-card'
       + (member.leader_tier === 2 ? " is-leader" : member.leader_tier === 1 ? " is-deputy" : "")
       + '" data-member="' + esc(member.id) + '"'

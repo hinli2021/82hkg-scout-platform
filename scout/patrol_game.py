@@ -100,7 +100,9 @@ def patrol_members(st, user: dict) -> list[dict]:
             "name_en": _name(row, "en"),
             "avatar": str(row.get("avatar") or "🦊"),
             "scout_no": str(row.get("scout_no") or "").strip(),
-            "card_image_url": str(profile.get("card_image_url") or "").strip(),
+            # only a leader-approved real-life photo rides on the card
+            "card_photo_url": (str(profile.get("card_photo_url") or "").strip()
+                               if profile.get("card_photo_status") == "approved" else ""),
             "position_zh": str(profile.get("position_zh") or position),
             "position_en": str(profile.get("position_en") or position),
             "position": position,

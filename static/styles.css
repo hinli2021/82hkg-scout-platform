@@ -1021,6 +1021,8 @@ body[data-lang="en"] .scene-prompt .en {
   background: linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, .38) 46%, rgba(160, 220, 255, .22) 52%, transparent 66%);
 }
 .char-portrait img { width: 100%; height: 100%; object-fit: contain; padding: .4rem; }
+/* a leader-approved real-life photo fills the portrait window, no letterbox */
+.char-portrait img.char-photo { object-fit: cover; padding: 0; }
 .char-portrait-emoji { font-size: 6rem; }
 .char-avatar {
   position: absolute; right: .5rem; bottom: .5rem; z-index: 1; width: 52px; height: 52px;

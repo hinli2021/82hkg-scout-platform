@@ -225,7 +225,7 @@ def test_the_roster_is_the_live_patrol(store, app):
     assert scene["roster_size"] == len(members)
     by_id = {m["id"]: m for m in scene["members"]}
     assert by_id[singer["id"]]["strength"] == "唱歌"
-    assert "card_image_url" in by_id[singer["id"]]
+    assert by_id[singer["id"]]["card_photo_url"] == ""  # no leader-approved photo yet
 
     # editing the profile redraws the card at once
     store.update("profiles", singer["id"], {"strength": "彈結他"})
