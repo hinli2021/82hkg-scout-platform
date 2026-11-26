@@ -433,6 +433,34 @@ def save_profile(st, user_id: str, values: dict) -> dict:
     return load_profile(st, user_id)
 
 
+def _is_test_user(user: dict) -> bool:
+    """The leaders' test account — the only one allowed a progress reset."""
+    from ..patrol_game import is_test_account
+    return is_test_account(user or {})
+
+
+def _membership_game_tasks(st) -> tuple[dict | None, set]:
+    """The Membership Badge's five game tasks, plus the flag cascade.
+
+    The valley flagpole files items 8–10 as its own doing, so those records
+    belong to game 4's reset too. Item 1's opening credit, item 3's meeting
+    ticks and item 11's leader session are not games, and stay.
+    """
+    from ..engine import as_json
+    badge = next((b for b in st.list("badges")
+                  if (as_json(b.get("guide_json"), {}) or {}).get("quest")), None)
+    if not badge:
+        return None, set()
+    quest = (as_json(badge.get("guide_json"), {}) or {}).get("quest") or {}
+    codes = {str((area.get("game") or {}).get("task_code") or "")
+             for area in quest.get("areas") or []}
+    codes |= {"M08", "M09", "M10"}
+    task_ids = {t["id"] for t in st.list("tasks")
+                if t.get("badge_id") == badge["id"]
+                and str(t.get("code") or "") in codes}
+    return badge, task_ids
+
+
 def patrol_groups(st, viewer_id: str) -> list[dict]:
     """Every scout, grouped by patrol, with who can be visited.
 
@@ -480,6 +508,7 @@ def _context(st, person: dict, *, own: bool) -> dict:
         "earned_badges": [b for b in progress["badges"] if b["earned"]],
         "groups": patrol_groups(st, g.user["id"]),
         "own": own,
+        "show_test_reset": bool(own and _is_test_user(person)),
     }
 
 
@@ -490,6 +519,65 @@ def page():
     context = _context(st, g.user, own=True)
     context["profile_required"] = not profile_complete(context["profile"])
     return render_template("scout/profile.html", **context)
+
+
+@profile_routes.post("/profile/test-reset")
+@scout_required
+def test_reset():
+    """🧪 The test account wipes its own game progress to play as a new member.
+
+    Only the leaders' test account (username `test`) may do this, and only
+    ever to itself. The five games' records go, together with what the games
+    paid out: their points-ledger entries, the badge award, and the card
+    packs the games granted (opened cards and the profile itself stay).
+    Stats are rebuilt from what remains, so points and tallies agree with
+    the ledger again afterwards.
+    """
+    st = store()
+    if not _is_test_user(g.user):
+        return fail(403, "test_reset_forbidden",
+                    "只有測試帳戶可以重設遊戲進度。",
+                    "Only the test account can reset game progress.")
+    uid = g.user["id"]
+    badge, task_ids = _membership_game_tasks(st)
+    counts = {
+        "progress": st.remove_where(
+            "progress_records",
+            lambda r: r.get("user_id") == uid and r.get("task_id") in task_ids),
+        "awards": st.remove_where(
+            "badge_awards",
+            lambda r: r.get("user_id") == uid
+            and (not badge or r.get("badge_id") == badge["id"])),
+        "ledger": st.remove_where(
+            "points_ledger",
+            lambda r: r.get("user_id") == uid and (
+                (r.get("entry_type") == "task" and r.get("ref_id") in task_ids)
+                or (bool(badge) and r.get("entry_type") == "badge"
+                    and r.get("ref_id") == badge["id"]))),
+    }
+    counts["packs"] = 0
+    if st.get("gacha", uid):
+        from ..gacha import load_state, save_state
+        state = load_state(st, uid)
+        packs = state["packs_json"]
+        state["packs_json"] = [
+            p for p in packs
+            if not ((p.get("source") == "task" and p.get("ref_id") in task_ids)
+                    or (badge and p.get("source") == "badge"
+                        and p.get("ref_id") == badge["id"]))]
+        state["grants_json"] = [
+            k for k in state["grants_json"]
+            if not (str(k).startswith("task:") and str(k)[5:] in task_ids)
+            and not (badge and str(k) == f"badge:{badge['id']}")]
+        counts["packs"] = len(packs) - len(state["packs_json"])
+        save_state(st, state)
+    st.stats_for(uid)  # rebuild only patches a row that is already there
+    st.rebuild_stats(uid)
+    audit(g.user, "test_reset", "user", uid, counts)
+    return ok(
+        message_zh="已重設：五個遊戲進度、相關積分、獎章和遊戲卡包都清走了，可以像新會員一樣重新玩。",
+        message_en="Reset done: the five games' progress, their points, the badge and the game-granted packs are cleared — play again as a new member.",
+        **counts)
 
 
 @profile_routes.post("/profile")
