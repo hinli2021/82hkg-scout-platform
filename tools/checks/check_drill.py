@@ -448,7 +448,7 @@ def main():
         page.goto(f'{BASE}/badges/{badge["id"]}')
         page.wait_for_load_state('networkidle')
         area3 = page.inner_text('.stage-chip[data-stage="3"]')
-        check('等你開始' in area3, 'area 3 on the map still reads as ready to play')
+        check('等你開始' not in area3, 'area 3 on the map carries no waiting-around label')
 
         # ── a finished scout re-opens on the section card, not the flip cards
         page.goto(drill_url)

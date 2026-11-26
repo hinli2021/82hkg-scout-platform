@@ -245,7 +245,7 @@ def test_first_location_is_readable_in_place_with_one_direct_start(new_scout, st
     # the map carries no description (2026-10-18): place, game and state only —
     # what the game is about is read inside the game itself
     assert 'stage-chip-desc' not in first and '四段壁畫' not in first
-    assert 'data-game-state' in first
+    assert 'data-game-state' not in first and '等你開始' not in first  # unstarted: no state label, the pill says it
     assert 'stage-radio' not in page and 'stage-panel' not in page
     assert page.count('data-journey-play') == 1
     # the one action sits on the first stop itself, in the same pill shape as
@@ -377,7 +377,7 @@ def test_a_cave_cleared_scout_lands_on_the_same_page(app, store):
     assert "2 / 5 個遊戲已完成" in page
     third = page[page.index('data-stage="3"'):]
     third = third[:third.index('</li>')]
-    assert '步操訓練場' in third and '等你開始' in third   # game 3 is built and waiting
+    assert '步操訓練場' in third and '等你開始' not in third   # game 3 is built and waiting, unlabelled
     assert 'quest-board' not in page
 
 
