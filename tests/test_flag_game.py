@@ -129,24 +129,24 @@ def test_the_flagpole_page_is_the_game(scout_client, store):
     for name in ("panel", "raise-1", "raise-2", "raise-3", "raise-4"):
         assert (pipe_dir / f"{name}.jpg").is_file(), name
     # the fittings that sit on the panel — notebook, start button, sockets and
-    # the four pipes — have their backgrounds removed, so they are PNGs whose
-    # corners must actually be transparent
+    # the four pipes — have their backgrounds removed, so they are transparent
+    # cut-outs (WebP now, for a tenth of the bytes) whose corners must be clear
     from PIL import Image
     for name in ("notebook", "button-start", "button-start-red", "hole", "pipe-straight",
                  "pipe-elbow", "pipe-zigzag", "pipe-wave",
                  "hole-pipe-straight", "hole-pipe-elbow",
                  "hole-pipe-zigzag", "hole-pipe-wave"):
         assert f'data-flag-source="{name}"' in page, name
-        path = pipe_dir / f"{name}.png"
+        path = pipe_dir / f"{name}.webp"
         assert path.is_file(), name
         with Image.open(path) as im:
             assert im.mode == "RGBA" and im.getpixel((0, 0))[3] == 0, name
             if name.startswith("hole-pipe"):
                 # a fitted pipe is the whole hole picture, same size as the hole
-                assert im.size == Image.open(pipe_dir / "hole.png").size, name
+                assert im.size == Image.open(pipe_dir / "hole.webp").size, name
             if name == "button-start-red":
                 # the red button swaps in without jumping: same size as the green
-                assert im.size == Image.open(pipe_dir / "button-start.png").size, name
+                assert im.size == Image.open(pipe_dir / "button-start.webp").size, name
     # the old paper is a study link, not the game itself
     assert "forms.gle" not in page.split("data-flag-link")[0]
 
