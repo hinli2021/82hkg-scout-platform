@@ -167,7 +167,8 @@ class SheetsDriver:
             return to_bool(text)
         if field in {"order_index", "points_reward", "points", "pass_score", "attempt_no", "score",
                      "points_awarded", "points_delta", "points_cost", "stock", "points_balance",
-                     "tasks_done", "badges_done", "streak_current", "streak_best"}:
+                     "tasks_done", "badges_done", "streak_current", "streak_best",
+                     "pity", "opened"}:
             try:
                 return float(text) if "." in text else int(text or 0)
             except ValueError:

@@ -232,6 +232,19 @@ def blank_state(user_id: str) -> dict:
     }
 
 
+def _count(value) -> int:
+    """A counter as a whole number, however the store hands it back.
+
+    Google Sheets can return a counter as the text "0.0", and a copied
+    database keeps that text — int("0.0") would crash the home page, so
+    go through float and never raise.
+    """
+    try:
+        return int(float(value or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
 def load_state(store, user_id: str) -> dict:
     row = store.get("gacha", user_id) or blank_state(user_id)
     return {
@@ -240,8 +253,8 @@ def load_state(store, user_id: str) -> dict:
         "owned_json": dict(_json(row.get("owned_json"), {})),
         "grants_json": list(_json(row.get("grants_json"), [])),
         "last_open_json": _json(row.get("last_open_json"), None),
-        "pity": int(row.get("pity") or 0),
-        "opened": int(row.get("opened") or 0),
+        "pity": _count(row.get("pity")),
+        "opened": _count(row.get("opened")),
         "updated_at": row.get("updated_at") or now_iso(),
     }
 
