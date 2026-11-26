@@ -235,7 +235,7 @@ def test_every_door_to_the_badge_opens_the_one_page(new_scout, store):
 
 
 def test_first_location_is_readable_in_place_with_one_direct_start(new_scout, store):
-    """Nothing to select, no cast-off step: one bottom CTA opens the cave."""
+    """Nothing to select, no cast-off step: one pill on the stop opens the cave."""
     badge = member_badge(store)
     cave = next(t for t in tasks_of(store, badge) if t['code'] == 'M04')
     page = new_scout.get(f"/badges/{badge['id']}").get_data(as_text=True)
@@ -248,12 +248,14 @@ def test_first_location_is_readable_in_place_with_one_direct_start(new_scout, st
     assert 'data-game-state' in first
     assert 'stage-radio' not in page and 'stage-panel' not in page
     assert page.count('data-journey-play') == 1
+    # the one action sits on the first stop itself, in the same pill shape as
+    # a cleared stop's 再玩一次 — nothing to press below the map any more
+    assert 'stage-chip-continue' in first and 'data-continue="stage-1"' in first
+    assert f'/tasks/{cave["id"]}/cave' in first
+    assert '開始歷險 · 進入遊戲 1' in first
     launch = page[page.index('class="story-launch" data-journey-launch'):].split('</div>', 1)[0]
-    assert launch.count('data-journey-play') == 1
-    assert launch.count('<a ') == 1, 'only the direct game entry belongs here'
+    assert 'data-journey-play' not in launch and '<a ' not in launch
     assert '童軍綱要參考' not in page and 'Syllabus reference' not in page
-    assert f'/tasks/{cave["id"]}/cave' in launch
-    assert '開始歷險 · 進入遊戲 1' in launch
     assert 'data-quest-start' not in page and '划出去' not in page
     assert 'class="stage-items"' not in page, 'syllabus remains on its own reference page'
 
@@ -422,6 +424,18 @@ def test_a_cleared_game_says_so(scout_client, store):
     launch = launch[:launch.index('</a>')]
     assert f'/tasks/{bridge["id"]}' in launch, "the offer is the bridge, the next unplayed game"
     assert '進入遊戲 2' in launch
+    # …and it sits on the second stop itself, shaped like the first stop's
+    # replay pill — a scout who left mid-game presses the stop they stand on,
+    # never a button below the map (leader's ask)
+    second = page[page.index('data-stage="2"'):]
+    second = second[:second.index('</li>')]
+    assert 'data-journey-play' in second and 'stage-chip-continue' in second
+    assert 'data-continue="stage-2"' in second
+    first = page[page.index('class="stage-chip stage-chip-first'):]
+    first = first[:first.index('</li>')]
+    assert 'data-replay="stage-1"' in first and 'data-journey-play' not in first
+    below = page[page.index('class="story-launch" data-journey-launch'):]
+    assert 'data-journey-play' not in below
 
 
 def test_syllabus_reference_has_no_map_entry_but_direct_url_still_works(scout_client, store):

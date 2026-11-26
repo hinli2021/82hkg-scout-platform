@@ -173,9 +173,21 @@
                         ⏳ {{ L('看批准狀態', 'Check the approval') }}
                       </a>
                     {% endif %}
-                    {# A cleared game keeps a small door of its own: the bottom
-                       button carries on to the NEXT game, and a scout who wants
-                       to walk this one again taps here. #}
+                    {# The stop a scout stands on carries its own way in, in the
+                       same pill shape as a cleared stop's 再玩一次 below: leave
+                       a game, come back, and the button is on the stop itself —
+                       nobody hunts for a second button under the map. #}
+                    {% if stage.next and stage.game_ready and stage.game_task and not badge.locked %}
+                      <a class="stage-chip-replay stage-chip-continue" data-journey-play
+                         data-continue="stage-{{ stage.n }}"
+                         href="{{ play }}">
+                        ▶ {{ L(quest.start_zh, quest.start_en) if stage.n == 1
+                              else L('繼續歷險 · 進入遊戲 ' ~ stage.game_n,
+                                     'Continue the journey · Game ' ~ stage.game_n) }}
+                      </a>
+                    {% endif %}
+                    {# A cleared game keeps a small door of its own: a scout who
+                       wants to walk this one again taps here. #}
                     {% if stage.done and stage.game_ready and stage.game_task and not badge.locked %}
                       <a class="stage-chip-replay" data-replay="stage-{{ stage.n }}"
                          href="{{ url_for('scout_routes.task_cave', task_id=stage.game_task.id)
@@ -218,8 +230,9 @@
   </li>
 </ol>
 
-{# A single, obvious action below the map. No cast-off form or second Play
-   button inside a location. Future games use the same action when ready. #}
+{# No action below the map any more: the one way on sits on the current stop
+   itself (the stage-chip-continue pill above, shaped like a cleared stop's
+   再玩一次). This bar only carries the notes — earned, or waiting on a leader. #}
 <div class="story-launch" data-journey-launch>
   {% if badge.earned %}
     <p class="story-launch-note">🎖 {{ L('五個遊戲全部完成！你已考獲會員章。',
@@ -235,13 +248,6 @@
   {% if next_stage and next_stage.n == 1 %}
     <p class="story-launch-note" data-journey-wait hidden>🔒 {{ L('遊戲 2 尚未開放，請等待領袖加入。',
                                                                      'Game 2 is not available yet. Your leader will add it later.') }}</p>
-  {% endif %}
-  {% if not badge.earned and next_stage and next_stage.game_ready and next_stage.game_task and not badge.locked %}
-    <a class="btn primary big" data-journey-play href="{{ play }}">
-      🎮 {{ L(quest.start_zh, quest.start_en) if next_stage.n == 1
-            else L('繼續歷險 · 進入遊戲 ' ~ next_stage.game_n,
-                   'Continue the journey · Game ' ~ next_stage.game_n) }}
-    </a>
   {% endif %}
 </div>
 </div>
