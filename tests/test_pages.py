@@ -468,13 +468,20 @@ def test_login_is_one_full_screen_scene_with_the_animals_as_buttons(app, client)
 def test_the_scene_image_is_served_and_reasonably_sized(client):
     art = client.get("/static/img/mascots/scene.jpg")
     assert art.status_code == 200
-    assert 40_000 < len(art.get_data()) < 900_000                  # crisp, but quick to load
+    data = art.get_data()
+    # The full-screen login hero is quality-first: a high-quality JPEG made
+    # once from the master, never a generically slimmed WebP generation.
+    assert 450_000 < len(data) < 900_000
+    from io import BytesIO
+    from PIL import Image
+    with Image.open(BytesIO(data)) as image:
+        assert image.format == "JPEG" and image.size == (1920, 1048)
 
 
 def test_the_group_logo_is_served_and_used(client):
     """The 82HKG logo: on the front page, in the topbar of every page, as favicon."""
     logo = client.get("/static/img/brand/82hkg-logo.webp")
-    assert logo.status_code == 200 and len(logo.get_data()) > 20_000
+    assert logo.status_code == 200 and len(logo.get_data()) > 100_000
     assert client.get("/static/img/brand/favicon.png").status_code == 200
 
     login = client.get("/login").get_data(as_text=True)
@@ -503,7 +510,7 @@ def test_mascot_artwork_is_served(client):
     for name in ("tiger", "otter", "seagull"):
         art = client.get(f"/static/img/mascots/{name}.webp")
         assert art.status_code == 200
-        assert len(art.get_data()) > 12_000                     # real artwork, not a stub
+        assert len(art.get_data()) > 50_000                     # q88 tiles, not slimmed stubs
 
 
 def test_the_name_page_wears_its_mascot(client):

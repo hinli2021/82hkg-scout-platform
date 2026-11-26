@@ -5,7 +5,7 @@
 
 {# ══ the full-screen camp scene — the three animals are the buttons ══ #}
 <div class="scene-login" id="scene-login">
-  <img class="scene-img" src="{{ url_for('static', filename='img/mascots/scene.jpg') }}"
+  <img class="scene-img" src="{{ url_for('static', filename='img/mascots/scene.jpg') }}?v={{ asset_v('img/mascots/scene.jpg') }}"
        width="1920" height="1048" alt="" draggable="false">
   <div class="scene-scrim" aria-hidden="true"></div>
   <div class="scene-veil" aria-hidden="true"></div>
@@ -49,7 +49,7 @@
 
   <div class="scene-hud tr">
     <span class="scene-logo">
-      <img src="{{ url_for('static', filename='img/brand/82hkg-logo.webp') }}"
+      <img src="{{ url_for('static', filename='img/brand/82hkg-logo.webp') }}?v={{ asset_v('img/brand/82hkg-logo.webp') }}"
            width="900" height="483" alt="{{ L(settings.unit_name_zh, settings.unit_name_en) }}"
            draggable="false">
     </span>
