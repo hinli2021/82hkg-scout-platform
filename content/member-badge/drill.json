@@ -1593,7 +1593,9 @@
     "demo_note_zh": "離線示範沒有領袖帳戶；按一下，就當作領袖在帳戶裡批准了。",
     "demo_note_en": "The offline demo has no leader account — one press stands in for the leader’s approval.",
     "waiting_zh": "⏳ 已提交 · 等領袖批准",
-    "waiting_en": "⏳ Sent · waiting for your leader"
+    "waiting_en": "⏳ Sent · waiting for your leader",
+    "pending_note_zh": "⏳ 提提你：手冊已學完，但第 6 項要等領袖批准才算完成。請找領袖親身示範步操動作接受考核；領袖在領袖帳戶按「批准」後，第 6 項才會變成 ✓。你不用乾等——按下面綠色按鈕先去玩下一個遊戲，批准之後會自動生效。",
+    "pending_note_en": "⏳ Note: the manual is learned, but item 6 only counts once your leader approves it. Perform the drill movements for your leader in person; when they press approve in the leader account, item 6 turns into a ✓. No need to just wait — use the green button below to play the next game now, and the approval will land whenever it happens."
   },
   "studied": {
     "kicker_zh": "全部通過",

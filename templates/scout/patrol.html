@@ -123,6 +123,12 @@
               </button>
             </div>
           </form>
+          {# 木筏出發之後: one clear way on — the next game, or back to the badge
+             when this was the last one the map still owed #}
+          <div class="cave-actions" data-pat-finish hidden>
+            <a class="btn primary big" data-pat-finish-link href="{{ badge_url }}">
+              🎖 {{ L('回到會員章 · 看看會員章進度', 'Back to the badge — see your Membership Badge progress') }}</a>
+          </div>
         </section>
 
         {# 最後一步：木筏坐穩之後，和隊員商量，決定自己的職位 #}

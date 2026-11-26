@@ -440,3 +440,13 @@ def test_the_cave_story_opens_the_island_journey_and_points_to_the_river():
     js = (root / "static/js/cave.js").read_text(encoding="utf-8")
     # the story is told page by page, like every other game
     assert 'data-cave-go="intro-next"' in js and "state.ipage" in js
+
+
+def test_cave_and_flag_finishes_offer_a_clear_way_on():
+    """Games 1 and 4 already end on a clear next-game button — keep them so."""
+    import pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    cave_tpl = (root / "templates/scout/cave.html").read_text(encoding="utf-8")
+    assert 'data-cave-link="next"' in cave_tpl and "繼續歷程" in cave_tpl
+    flag_js = (root / "static/js/flag.js").read_text(encoding="utf-8")
+    assert "去下一關" in flag_js and "btn primary" in flag_js

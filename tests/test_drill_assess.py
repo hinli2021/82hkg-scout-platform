@@ -168,3 +168,21 @@ def test_the_drill_story_arrives_from_the_crossing_and_is_paged():
     assert "沙灘" in drill["studied"]["pass_note_zh"]
     js = (root / "static/js/drill.js").read_text(encoding="utf-8")
     assert 'data-drill-go="intro-next"' in js and "state.ipage" in js
+
+
+def test_drill_finish_screens_offer_a_clear_way_on():
+    """Waiting or approved, the drill ground ends with a clear next-game button.
+
+    On the waiting (assess) card the button is the big primary one and the
+    notice beside it says the item still needs the leader's approval; on the
+    approved card the same clear button is there too (it used to be missing).
+    """
+    import json, pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    drill = json.loads((root / "content/member-badge/drill.json").read_text(encoding="utf-8"))
+    note = drill["assess"]["pending_note_zh"]
+    assert "領袖批准" in note and "下一個遊戲" in note
+    assert "leader approves" in drill["assess"]["pending_note_en"]
+    js = (root / "static/js/drill.js").read_text(encoding="utf-8")
+    assert "function nextGameButton" in js and "nextGameButton()" in js
+    assert "next-game-note" in js and 'btn primary big' in js

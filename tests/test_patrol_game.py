@@ -787,3 +787,14 @@ def test_an_upgraded_patrol_task_moves_from_80_to_100(store):
     assert store.upgrade_patrol_game() is True
     assert store.get("tasks", task["id"])["pass_score"] == 100
     assert store.upgrade_patrol_game() is False
+
+
+def test_patrol_finish_offers_a_clear_way_on():
+    """When the raft sets off, one big button leads on: the next game the map
+    still owes, or back to the badge when game 5 was the last one."""
+    import pathlib
+    root = pathlib.Path(__file__).resolve().parent.parent
+    tpl = (root / "templates/scout/patrol.html").read_text(encoding="utf-8")
+    assert "data-pat-finish" in tpl and "data-pat-finish-link" in tpl
+    js = (root / "static/js/patrol.js").read_text(encoding="utf-8")
+    assert "data-pat-finish" in js and "next_game" in js and "badge_url" in js
