@@ -178,16 +178,16 @@
           "title_zh": "能辨認中華人民共和國國旗和國徽；並能說明其含意。",
           "title_en": "Recognise the national flag and emblem of the People's Republic of China and explain their meaning.",
           "req_zh": [
-            "完成「第 7 至 10 項試卷」，合格分數為 24 分／30 分",
+            "在溪谷先讀筆記，再自己做完升旗禮",
             "能認出國旗、國徽並說出含意"
           ],
           "req_en": [
-            "Complete the Items 7–10 paper — pass mark 24 / 30",
+            "Read the notebook in the valley, then finish the ceremony yourself",
             "Recognise the national flag and emblem and explain their meaning"
           ],
           "method": "self",
-          "method_note_zh": "自行考核 — 第 7 至 10 項共用同一份試卷",
-          "method_note_en": "Self-check — items 7–10 share one paper",
+          "method_note_zh": "遊戲 4 — 做完升旗禮即完成",
+          "method_note_en": "Game 4 — finishing the ceremony completes it",
           "links": [
             {
               "label_zh": "第 7 至 10 項試卷（Google Form）",
@@ -211,11 +211,11 @@
           "title_zh": "能辨認香港特別行政區區旗和區徽；並能說明其含意。",
           "title_en": "Recognise the regional flag and emblem of the Hong Kong SAR and explain their meaning.",
           "req_zh": [
-            "由「第 7 至 10 項試卷」考核",
+            "由溪谷旗桿的升旗禮一併完成",
             "能認出區旗、區徽並說出含意"
           ],
           "req_en": [
-            "Covered by the Items 7–10 paper",
+            "Cleared together when you finish the valley ceremony",
             "Recognise the regional flag and emblem and explain their meaning"
           ],
           "method": "self",
@@ -239,11 +239,11 @@
           "title_zh": "認識在國歌奏唱和升掛國旗、區旗時應有之禮儀，以及升國旗的基本程序。",
           "title_en": "Know the proper etiquette when the national anthem is played and the flags are raised, and the basic flag-raising procedure.",
           "req_zh": [
-            "由「第 7 至 10 項試卷」考核",
+            "由溪谷旗桿的升旗禮一併完成",
             "示範國歌奏唱及升旗時應有的禮儀"
           ],
           "req_en": [
-            "Covered by the Items 7–10 paper",
+            "Cleared together when you finish the valley ceremony",
             "Show the correct etiquette for the anthem and flag-raising"
           ],
           "method": "self",
@@ -261,11 +261,11 @@
           "title_zh": "明瞭設立國歌的用意，並能背唱之。",
           "title_en": "Understand the purpose of the national anthem and be able to sing it from memory.",
           "req_zh": [
-            "由「第 7 至 10 項試卷」考核",
+            "由溪谷旗桿的升旗禮一併完成",
             "能背唱國歌"
           ],
           "req_en": [
-            "Covered by the Items 7–10 paper",
+            "Cleared together when you finish the valley ceremony",
             "Sing the national anthem from memory"
           ],
           "method": "self",
@@ -437,8 +437,8 @@
             "icon": "🏞️",
             "name_zh": "溪谷旗桿",
             "name_en": "The valley flagpole",
-            "hint_zh": "溪邊豎著旗桿。國旗、區旗與升旗禮儀，都在這裡考。",
-            "hint_en": "A flagpole by the stream. The flags and the flag ceremony are tested here.",
+            "hint_zh": "溪邊的旗桿空著。先讀筆記，再自己把國旗升到桿頂。",
+            "hint_en": "The flagpole by the stream is empty. Read the notebook, then raise the flag yourself.",
             "items": [
               7,
               8,
@@ -446,13 +446,13 @@
             ],
             "game": {
               "n": 4,
-              "kind": "",
-              "ready": false,
-              "name_zh": "即將推出",
-              "name_en": "Coming soon",
-              "blurb_zh": "內容待領袖提供。",
-              "blurb_en": "The leader will add this game later.",
-              "task_code": ""
+              "kind": "flag",
+              "ready": true,
+              "task_code": "M07",
+              "name_zh": "溪谷旗桿",
+              "name_en": "The valley flagpole",
+              "blurb_zh": "先讀溪邊的筆記，學懂旗徽、禮儀和國歌，再自己做升旗禮。做完即完成第 7 至 10 項。",
+              "blurb_en": "Read the notebook by the stream, learn the flags, the ceremony and the anthem, then perform it yourself. Finishing clears items 7 to 10."
             }
           },
           {
@@ -468,13 +468,13 @@
             ],
             "game": {
               "n": 5,
-              "kind": "",
-              "ready": false,
-              "name_zh": "即將推出",
-              "name_en": "Coming soon",
-              "blurb_zh": "這一區的遊戲正在製作，等待領袖加入。",
-              "blurb_en": "This area’s game is being built. Your leader will add it later.",
-              "task_code": ""
+              "kind": "patrol",
+              "ready": true,
+              "task_code": "M02",
+              "name_zh": "小隊名冊卡",
+              "name_en": "Patrol cards",
+              "blurb_zh": "四個考驗完成，終於抵達海邊，小隊正在岸邊等候。先翻開成員卡，認識每位成員的姓名、職位、興趣和強項，也要知道誰是小隊聯絡和怎樣聯絡他；然後在岸邊的木板上，從全團童軍的姓名中找出所有小隊成員，再按木筏每個崗位的要求安排成員，每個崗位都安排正確；最後一步，和隊員商量，決定自己的職位（未決定職位，不可以完成遊戲 5），全隊即可乘木筏離開小島，完成第 2 項。",
+              "blurb_en": "The four challenges are done and the seaside is here, with the patrol waiting on the shore. Flip through the member cards and learn everyone's name, position, interests and strengths — and who the patrol contact is and how to reach them. Then find every patrol member among the unit's names on the wooden board at the shore, and seat each member at the raft station whose requirement they match; with every station holding the right member, the last step is to talk it over with your patrol and decide your own position (game 5 cannot be finished without one) — then the patrol rides the raft off the island and item 2 is complete."
             }
           }
         ],
