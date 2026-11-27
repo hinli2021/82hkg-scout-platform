@@ -525,14 +525,14 @@ def main():
                 ease = page.locator('[data-drill-flip="stand-at-ease"]')
                 check(ease.count() == 1, 'the next carousel card is Stand at ease')
                 ease_anim = ease.locator('[data-drill-animation="stand-at-ease"]')
-                check(ease_anim.count() == 1 and ease_anim.locator('[data-drill-frame]').count() == 7,
-                      'the Stand at ease card front is a seven-frame statue animation')
+                check(ease_anim.count() == 1 and ease_anim.locator('[data-drill-frame]').count() == 6,
+                      'the Stand at ease card front is a six-frame statue animation')
                 ease_srcs = ease_anim.locator('img').evaluate_all(
                     "imgs => imgs.map(img => img.getAttribute('src') || '')")
                 expected_ease_frames = [
                     'alert-5-alert.jpg', 'alert-4-lower.jpg', 'alert-2-lift.jpg',
                     'alert-3-close.jpg', 'stand-at-ease-5-lower-out.jpg',
-                    'stand-at-ease-6-land.jpg', 'alert-1-stand-at-ease.jpg',
+                    'alert-1-stand-at-ease.jpg',
                 ]
                 check(len(ease_srcs) == len(expected_ease_frames)
                       and all(name in src for name, src in zip(expected_ease_frames, ease_srcs))

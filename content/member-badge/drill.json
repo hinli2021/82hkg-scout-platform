@@ -148,19 +148,13 @@
               "img": "img/quest/drill/movements/stand-at-ease-5-lower-out.jpg",
               "label_zh": "5 · 左腳向外落下，雙手同時移至身後",
               "label_en": "5 · Lower the left foot outward as both hands move behind the back",
-              "hold_ms": 291
-            },
-            {
-              "img": "img/quest/drill/movements/stand-at-ease-6-land.jpg",
-              "label_zh": "6 · 左腳接近地面，準備向外踏下",
-              "label_en": "6 · Left foot close to the ground, ready to step out",
-              "hold_ms": 222
+              "hold_ms": 402
             },
             {
               "img": "img/quest/drill/movements/alert-1-stand-at-ease.jpg",
-              "label_zh": "7 · 左腳踏下，雙腳分開，雙手在身後中央，成稍息",
-              "label_en": "7 · Place the left foot down, feet apart and hands behind the back — stand at ease",
-              "hold_ms": 866
+              "label_zh": "6 · 左腳踏下，雙腳分開，雙手在身後中央，成稍息",
+              "label_en": "6 · Place the left foot down, feet apart and hands behind the back — stand at ease",
+              "hold_ms": 977
             }
           ],
           "manual": "手冊 p.31",
