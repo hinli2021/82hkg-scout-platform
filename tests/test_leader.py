@@ -554,23 +554,24 @@ def test_leader_can_bind_a_new_game_to_an_empty_area(leader_client, scout_client
             'game_name_zh': '尋路挑戰', 'game_name_en': 'Find the trail',
             'game_blurb_zh': '一個由領袖提供的遊戲。',
             'game_blurb_en': 'A game created by the leader.', 'task_id': game['id']}
-    # areas 2 and 3 carry the built-in games, so the leader binds the new one to area 4
+    # areas 2 to 4 carry the built-in games, so the leader binds the new one to area 5
     assert leader_client.post(path + '/2', data=data).status_code == 409
     assert leader_client.post(path + '/3', data=data).status_code == 409
-    assert leader_client.post(path + '/4', data=data).status_code == 200
+    assert leader_client.post(path + '/4', data=data).status_code == 409
+    assert leader_client.post(path + '/5', data=data).status_code == 200
     guide = engine.as_json(store.get('badges', badge['id'])['guide_json'], {})
     assert guide['quest']['areas'][0]['game']['task_code'] == 'M04'
     assert guide['quest']['areas'][1]['game']['task_code'] == 'M05'      # the bridge stays put
     assert guide['quest']['areas'][2]['game']['task_code'] == 'M06'      # the drill ground too
-    assert guide['quest']['areas'][3]['game']['task_code'] == game['code']
-    assert guide['quest']['areas'][3]['name_zh'] == '雲霧小徑'
-    assert all(not a['game']['ready'] for a in guide['quest']['areas'][4:])
+    assert guide['quest']['areas'][4]['game']['task_code'] == game['code']
+    assert guide['quest']['areas'][4]['name_zh'] == '雲霧小徑'
+    assert guide['quest']['areas'][3]['game']['task_code'] == 'M07'   # the flagpole stays put
     scout_page = scout_client.get(f"/badges/{badge['id']}").get_data(as_text=True)
-    area4 = scout_page[scout_page.index('data-stage="4"'):]
-    area4 = area4[:area4.index('</li>')]
-    assert '雲霧小徑' in area4 and '尋路挑戰' in area4
+    area5 = scout_page[scout_page.index('data-stage="5"'):]
+    area5 = area5[:area5.index('</li>')]
+    assert '雲霧小徑' in area5 and '尋路挑戰' in area5
     # the blurb is saved with the area but no longer shown on the map
-    assert '一個由領袖提供的遊戲。' not in area4
+    assert '一個由領袖提供的遊戲。' not in area5
     assert f'/tasks/{game["id"]}' not in scout_page, 'the next game waits until game 1 clears'
 
     cave = next(t for t in store.list('tasks') if t.get('code') == 'M04')
@@ -589,11 +590,11 @@ def test_leader_can_bind_a_new_game_to_an_empty_area(leader_client, scout_client
     # a cleared area keeps only its small 再玩一次 door, never the main offer
     assert next_page.count(f'/tasks/{cave["id"]}/cave') == 1
     assert 'data-replay="stage-1"' in next_page
-    # the same game may not be linked twice — area 5 is still empty, so it takes the 409
-    assert leader_client.post(path + '/5', data={**data, 'task_id': game['id']}).status_code == 409
+    # the same game may not be linked twice — every area is taken, so area 4 refuses it
+    assert leader_client.post(path + '/4', data={**data, 'task_id': game['id']}).status_code == 409
     guide = engine.as_json(store.get('badges', badge['id'])['guide_json'], {})
-    assert not guide['quest']['areas'][4]['game']['ready']
-    assert guide['quest']['areas'][3]['game']['ready'], 'a plain re-save keeps area 4 as it is'
+    assert guide['quest']['areas'][4]['game']['ready'], 'a plain re-save keeps area 5 as it is'
+    assert guide['quest']['areas'][3]['game']['task_code'] == 'M07'
     legacy = next(t for t in store.list('tasks') if t.get('code') == 'M03')
     assert leader_client.post(path + '/3', data={'task_id': legacy['id']}).status_code == 400
     assert leader_client.post(f"/leader/content/tasks/{game['id']}",
@@ -608,7 +609,7 @@ def test_leader_can_bind_a_new_game_to_an_empty_area(leader_client, scout_client
     assert leader_client.post(f"/leader/content/badges/{badge['id']}",
                               data={'code': 'NOT-SC-01'}).status_code == 409
     # A built area is never dropped by accident: the form must say “replace”.
-    assert leader_client.post(path + '/4', data={'task_id': ''}).status_code == 409
+    assert leader_client.post(path + '/5', data={'task_id': ''}).status_code == 409
     # Unassignment is possible only before anybody has tried the new game.
     assert leader_client.post(path + '/2', data={'task_id': '',
                                                  'replace': '1'}).status_code == 200
@@ -625,11 +626,11 @@ def test_a_game_with_previous_progress_cannot_auto_clear_a_new_area(leader_clien
     assert create.status_code == 200 and create.get_json()['ok']
     task = next(t for t in store.list('tasks') if t.get('title_zh') == '另一個遊戲')
     assert new_scout.post(f"/tasks/{task['id']}/submit", data={'q0': '1'}).get_json()['passed']
-    response = leader_client.post(f"/leader/content/badges/{badge['id']}/games/4",
+    response = leader_client.post(f"/leader/content/badges/{badge['id']}/games/5",
                                   data={'task_id': task['id']})
     assert response.status_code == 409 and response.get_json()['error'] == 'old_progress'
     after = engine.as_json(store.get('badges', badge['id'])['guide_json'], {})
-    assert not after['quest']['areas'][3]['game']['ready']
+    assert not after['quest']['areas'][4]['game']['ready']
     assert engine.progress_for(store, new_scout.id)['badges'][0]['progress_done'] == 0
 
 

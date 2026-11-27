@@ -149,6 +149,7 @@
         <label class="switch"><input type="checkbox" name="flag_streaks" value="1" {{ 'checked' if flags.get('streaks') }}> {{ L('連續活躍紀錄', 'Streaks') }}</label>
         <label class="switch"><input type="checkbox" name="flag_evidence_upload" value="1" {{ 'checked' if flags.get('evidence_upload') }}> {{ L('相片上載（Google Drive）', 'Photo upload (Google Drive)') }}</label>
         <label class="switch"><input type="checkbox" name="flag_announcements" value="1" {{ 'checked' if flags.get('announcements') }}> {{ L('公告', 'Notices') }}</label>
+        <label class="switch"><input type="checkbox" name="flag_gacha" value="1" {{ 'checked' if flags.get('gacha', True) }}> 🃏 {{ L('抽卡（完成遊戲或獎章得卡包）', 'Card packs (a pack for finishing a game or a badge)') }}</label>
       </div>
     </div>
 

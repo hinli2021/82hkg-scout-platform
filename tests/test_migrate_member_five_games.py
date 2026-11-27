@@ -50,7 +50,9 @@ def test_existing_demo_upgrade_is_idempotent_and_preserves_progress(store, data_
     third_area = updated['quest']['areas'][2]['game']
     assert third_area['task_code'] == 'M06' and third_area['ready']
     assert third_area['kind'] == 'drill'
-    assert all(not a['game']['ready'] for a in updated['quest']['areas'][3:])
+    fourth = updated['quest']['areas'][3]['game']
+    assert fourth['task_code'] == 'M07' and fourth['ready'] and fourth['kind'] == 'flag'
+    assert all(not a['game']['ready'] for a in updated['quest']['areas'][4:])
     changed = store.get('tasks', cave['id'])
     assert changed['title_zh'] == '第 4 項：童軍歷史山洞（遊戲 1）'
     assert len(engine.as_json(changed['config_json'], {})['questions']) == 50

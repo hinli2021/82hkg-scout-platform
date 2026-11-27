@@ -158,11 +158,20 @@ def daily_finish():
         reason_en=f"Daily challenge: {meta['name_en']}",
         ref_type="daily", ref_id=daily.ref_id(day), created_by="auto",
     )
+    from ..gacha import enabled, grant_pack
+    pack = False
+    if enabled(st.settings_cached()):
+        pack = grant_pack(
+            st, g.user, key=daily.ref_id(day), kind="standard", source="daily",
+            ref_id=daily.ref_id(day),
+            reason_zh=f"完成每日挑戰：{meta['name_zh']}",
+            reason_en=f"Finished the daily challenge: {meta['name_en']}",
+        )
     audit(g.user, "daily_finish", "daily", day, {"kind": today_puzzle["kind"], "points": points,
                                                  "elapsed_ms": elapsed})
     stats_row = st.stats_for(g.user["id"])
     balance = as_int(stats_row.get("points_balance"))
-    return ok(points=points, balance=balance, elapsed_ms=elapsed,
+    return ok(points=points, balance=balance, elapsed_ms=elapsed, pack=pack,
               # 同一個 streak 定義，回應與頂欄、主頁一致
               streak=as_int(stats_row.get("streak_current")),
               daily_streak=_streak(st, g.user["id"], day), already=False,

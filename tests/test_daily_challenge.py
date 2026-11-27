@@ -183,7 +183,9 @@ def test_the_daily_is_for_scouts_and_appears_on_home(app, store, scout_client, l
     assert app.test_client().get("/daily").status_code in (302, 401)
 
     home = scout_client.get("/home").get_data(as_text=True)
-    assert "daily-teaser" in home and "每日挑戰" in home
+    # the daily challenge is a square button on home, shaped like a badge tile
+    assert "badge-tiles feature-tiles" in home and "badge-tile feature-tile" in home
+    assert "daily-teaser" not in home and "每日挑戰" in home
     assert "每日挑戰" in scout_client.get("/home").get_data(as_text=True)
 
     page = scout_client.get("/daily").get_data(as_text=True)

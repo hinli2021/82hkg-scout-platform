@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}{{ L('抽卡', 'Cards') }}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='gacha.css') }}?v={{ asset_v('gacha.css') }}">
+{% endblock %}
+
+{% block hud_chips %}
+  <div class="hud-chips">
+    <span class="chip brass">🃏 {{ summary.packs }}</span>
+    <span class="chip">🪙 {{ summary.points }}</span>
+    <span class="chip">{{ summary.owned }}/{{ summary.total }}</span>
+  </div>
+{% endblock %}
+
+{% block content %}
+{% macro foil_pack(gold, ghost=false) %}
+<span class="foil-scene">
+  <span class="foil-shadow" aria-hidden="true"></span>
+  <span class="foil-box">
+    <span class="foil-edge left" aria-hidden="true"></span>
+    <span class="foil-edge right" aria-hidden="true"></span>
+    <span class="foil-edge top" aria-hidden="true"></span>
+    <span class="foil-edge bottom" aria-hidden="true"></span>
+    <span class="foil-back" aria-hidden="true"></span>
+    <span class="foil-front">
+      <span class="foil-crimp" aria-hidden="true"></span>
+      <span class="foil-slips" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="foil-body">
+        <span class="foil-seal" aria-hidden="true"><b>82</b></span>
+        {% if not ghost %}
+          <span class="foil-title">{{ L('金卡包' if gold else '童軍卡包', 'Gold pack' if gold else 'Scout pack') }}</span>
+          <span class="foil-sub">{{ L('五張技能卡', 'Five skill cards') }}</span>
+          {% if summary.next_reason_zh %}
+            <span class="foil-why">{{ L(summary.next_reason_zh, summary.next_reason_en) }}</span>
+          {% endif %}
+        {% endif %}
+      </span>
+      <span class="foil-crimp bottom" aria-hidden="true"></span>
+      <span class="foil-sheen" aria-hidden="true"></span>
+    </span>
+  </span>
+</span>
+{% endmacro %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a>
+      <span class="breadcrumb-arrow">›</span>{{ L('抽卡', 'Cards') }}</div>
+    <h1 style="margin:0">🃏 {{ L('抽卡', 'Cards') }}</h1>
+    <p class="muted small" style="margin:.2rem 0 0">
+      {{ L('完成遊戲、任務、每日挑戰或獎章，就得到一個卡包。普通卡包也可以用 ' ~ summary.price ~ ' 積分換。金卡包不能買。',
+           'Finish a game, a task, the daily challenge or a badge to earn a pack. A normal pack can also be bought for ' ~ summary.price ~ ' points. Gold packs cannot be bought.') }}
+    </p>
+  </div>
+</div>
+
+<section class="gacha-stage" id="gacha-stage">
+  {% if reveal %}
+    {% include 'scout/_gacha_reveal.html' %}
+  {% elif summary.packs %}
+    <p class="gacha-count" data-pack-count-label>
+      {{ L('卡包', 'Packs') }} <strong data-pack-count>{{ summary.packs }}</strong>
+      {% if summary.gold %}<span class="gacha-gold-note">· {{ L(summary.gold ~ ' 個金卡包', summary.gold ~ ' gold') }}</span>{% endif %}
+    </p>
+    <p class="gacha-pity">
+      {% if summary.until_sr == 0 %}
+        {{ L('下一包必出 SR 或以上', 'Next pack guarantees an SR or better') }}
+      {% else %}
+        {{ L('再 ' ~ summary.until_sr ~ ' 包必出 SR 或以上',
+             summary.until_sr ~ ' pack' ~ ('s' if summary.until_sr != 1 else '') ~ ' until an SR or better') }}
+      {% endif %}
+    </p>
+    <form method="post" action="{{ url_for('gacha_routes.open_pack') }}" data-pack-form>
+      <button class="foil {{ 'is-gold' if summary.next_kind == 'gold' else '' }}" type="submit"
+              aria-label="{{ L('打開卡包', 'Open pack') }}">
+        {{ foil_pack(summary.next_kind == 'gold') }}
+      </button>
+    </form>
+    <p class="gacha-tap">▲ {{ L('點一下打開', 'Tap to open') }} ▲</p>
+  {% else %}
+    <div class="gacha-empty">
+      <span class="foil is-ghost" aria-hidden="true">{{ foil_pack(false, true) }}</span>
+      <p>{{ L('還沒有卡包。完成一個遊戲、一項任務或一個獎章，或者用積分換一個普通卡包。',
+              'No pack yet. Finish a game, a task or a badge, or buy a normal pack with points.') }}</p>
+      <a class="btn" href="{{ url_for('scout_routes.badges') }}">{{ L('去看獎章', 'See badges') }}</a>
+    </div>
+  {% endif %}
+</section>
+
+<section class="card gacha-buy">
+  <div>
+    <h2 style="margin:0">{{ L('用積分換普通卡包', 'Buy a normal pack') }}</h2>
+    <p class="muted small" style="margin:.25rem 0 0">
+      {{ L(summary.price ~ ' 積分一個。金卡包不能買，只在考獲獎章時得到。',
+           summary.price ~ ' points each. Gold packs cannot be bought — they come only with a badge.') }}
+    </p>
+  </div>
+  <form method="post" action="{{ url_for('gacha_routes.buy_pack') }}">
+    {% if summary.points >= summary.price %}
+      <button class="btn brass" type="submit">{{ L('換一個 · ' ~ summary.price, 'Buy one · ' ~ summary.price) }}</button>
+    {% else %}
+      <button class="btn" type="button" disabled>{{ L('積分不夠', 'Not enough points') }}</button>
+    {% endif %}
+  </form>
+</section>
+
+<section class="gacha-album" id="album">
+  <div class="section-title">
+    <h2>{{ L('圖鑑', 'Album') }}</h2>
+    <span class="count">{{ summary.owned }}/{{ summary.total }}</span>
+  </div>
+  <div class="album-filters" role="navigation" aria-label="{{ L('圖鑑分類', 'Album categories') }}">
+    <div class="album-filter-group">
+      <p class="album-filter-label">{{ L('全部', 'All') }}</p>
+      <div class="album-jumps">
+        <a class="chip {{ 'brass' if not category else 'light' }}" href="{{ all_href }}"
+           {% if not category %}aria-current="true"{% endif %}>
+          {{ L('全部卡', 'All cards') }}
+          <span class="album-chip-count">{{ summary.owned }}/{{ summary.total }}</span>
+        </a>
+      </div>
+    </div>
+    {% for family in families %}
+      <div class="album-filter-group">
+        <p class="album-filter-label">{{ L(family.zh, family.en) }}</p>
+        <div class="album-jumps">
+          {% for section in family.sections %}
+            <a class="chip {{ 'brass' if category and category.id == section.id else 'light' }}"
+               href="{{ section.href }}"
+               {% if category and category.id == section.id %}aria-current="true"{% endif %}>
+              {{ L(section.zh, section.en) }}
+              <span class="album-chip-count">{{ section.owned }}/{{ section.total }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="gacha-filters" data-filters>
+    <button type="button" class="chip brass" data-filter="all">{{ L('全部', 'All') }}</button>
+    <button type="button" class="chip" data-filter="owned">{{ L('已有', 'Owned') }}</button>
+    <button type="button" class="chip" data-filter="SR">SR+</button>
+    {% for row in rates %}
+      <button type="button" class="chip" data-filter="{{ row.code }}">{{ row.code }}</button>
+    {% endfor %}
+  </div>
+  {% for section in sections %}
+    <section class="album-section" id="album-{{ section.id }}" data-album-section>
+      <div class="album-section-head">
+        <h3>{{ L(section.zh, section.en) }}</h3>
+        <span class="count">{{ section.owned }}/{{ section.total }}</span>
+      </div>
+      <p class="album-none muted small" hidden data-album-none>{{ L('這一類沒有符合的卡。', 'Nothing in this category matches.') }}</p>
+      <div class="album-grid">
+        {% for card in section.cards %}
+          <article class="mini-card {{ 'is-owned rarity-' ~ card.rarity|lower if card.owned else 'is-locked' }}"
+                   data-owned="{{ '1' if card.owned else '0' }}" data-rarity="{{ card.rarity }}">
+            <header>
+              {% if card.owned %}<span class="gcard-tier">{{ card.rarity }}</span>{% else %}<span class="gcard-tier">?</span>{% endif %}
+              <span>{{ L(card.zh, card.en) }}</span>
+              {% if card.count > 1 %}<b class="mini-count">×{{ card.count }}</b>{% endif %}
+            </header>
+            <div class="mini-art">
+              {% if card.owned and card.art %}
+                <img src="{{ url_for('static', filename=card.art) }}" alt="">
+              {% else %}
+                <span aria-hidden="true">{{ card.emoji if card.owned else '🂠' }}</span>
+              {% endif %}
+            </div>
+            {% if card.owned %}
+              <footer><span>{{ L('知識', 'Knowledge') }} {{ card.know }}</span><span>{{ L('實踐', 'Practice') }} {{ card.pract }}</span></footer>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+</section>
+
+<details class="card gacha-rules">
+  <summary>{{ L('稀有度與保底', 'Rarities and pity') }}</summary>
+  <p class="muted small">
+    {{ L('每包五張。十包都沒有 SR 或以上，下一包一定有一張。考獲獎章的是金卡包，打開時必定有 SR 或以上。積分只能換普通卡包。',
+         'Five cards in a pack. After ten packs with nothing of SR or better, the next pack has one. A badge earns a gold pack, which always has an SR or better. Points buy a normal pack only.') }}
+  </p>
+  <table class="gacha-rate-table">
+    <thead><tr><th>{{ L('稀有度', 'Rarity') }}</th><th>{{ L('名稱', 'Name') }}</th><th>{{ L('機率', 'Rate') }}</th><th>{{ L('倍數', 'Multiplier') }}</th></tr></thead>
+    <tbody>
+      {% for row in rates %}
+        <tr>
+          <td>{{ row.code }}</td>
+          <td>{{ L(row.zh, row.en) }}</td>
+          <td>{{ row.rate }}%</td>
+          <td>×{{ { 'C': 1, 'UC': 1.5, 'R': 2, 'SR': 3, 'SSR': 5, 'UR': 8, 'LR': 12 }[row.code] }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</details>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/gacha.js') }}?v={{ asset_v('js/gacha.js') }}"></script>
+{% endblock %}

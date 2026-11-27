@@ -14,8 +14,9 @@ from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, re
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 
 from ..auth import needs_first_time, public_user, scout_required
-from ..content import (cave_adventure, cave_images, drill_images, drill_manual,
-                       drill_required_moves, river_adventure, river_images)
+from ..content import (cave_adventure, cave_images, ceremony, ceremony_questions,
+                       drill_images, drill_manual, drill_required_moves,
+                       river_adventure, river_images)
 from ..engine import (
     GAME_MAX_MS, GAME_MIN_MS, as_int, as_json, award_task_completion, build_suggestions,
     credit_opening_stages, evaluate_submission, game_areas, points_summary, progress_for,
@@ -62,6 +63,8 @@ def _home_context(user: dict) -> dict:
         "announcements": _active_announcements(st, "scout"),
         "next_task": progress["overall"]["next_task"],
         "daily": _daily_teaser(st, user["id"]),
+        "gacha": _gacha_teaser(st, user),
+        "feedback": _feedback_teaser(st, user["id"]),
     }
 
 
@@ -76,6 +79,20 @@ def _daily_teaser(st, user_id: str) -> dict:
                  and row.get("ref_id") == key for row in st.list("points_ledger"))
     return {"date": today, "kind": daily.puzzle()["kind"], "meta": meta,
             "played": played, "points": daily.POINTS_FAST}
+
+
+def _feedback_teaser(st, user_id: str) -> dict:
+    """Home tile for the 意見箱: how many of this scout's entries still wait."""
+    from .feedback_routes import teaser
+    return teaser(st, user_id)
+
+
+def _gacha_teaser(st, user: dict):
+    """Home strip for unopened packs. Hidden when a leader switches 抽卡 off."""
+    from ..gacha import enabled, summary
+    if not enabled(st.settings_cached()):
+        return None
+    return summary(st, user)
 
 
 # ── 主頁 ────────────────────────────────────────────────────────────────────
@@ -95,7 +112,7 @@ def _quest_started(st, user_id: str, badge_id: str) -> bool:
 
 
 def _game_kind_for(task: dict, badge: dict | None) -> str:
-    """Which arcade game this task is: 'cave', 'bridge', 'drill' or '' else.
+    """Which arcade game this task is: 'cave', 'bridge', 'drill', 'flag' or ''.
 
     A game plays in its own full-bleed page (`/tasks/<id>/cave`,
     `/tasks/<id>/bridge`, `/tasks/<id>/drill`) rather than the ordinary task
@@ -111,7 +128,7 @@ def _game_kind_for(task: dict, badge: dict | None) -> str:
         if game.get("task_code") != task.get("code") or not game.get("ready"):
             continue
         area_kind = (game.get("kind") or "").strip()
-        if area_kind in ("cave", "bridge", "drill") and (not kind or kind == area_kind):
+        if area_kind in ("cave", "bridge", "drill", "flag") and (not kind or kind == area_kind):
             return area_kind
     return ""
 
@@ -135,6 +152,13 @@ def _is_badge_drill_task(task: dict, badge: dict | None) -> bool:
     if not drill_manual().get("sections"):
         return False
     return _game_kind_for(task, badge) == "drill"
+
+
+def _is_badge_flag_task(task: dict, badge: dict | None) -> bool:
+    """The valley flagpole is the only way to complete items 7 to 10."""
+    if not ceremony().get("stations"):
+        return False
+    return _game_kind_for(task, badge) == "flag"
 
 
 @scout_routes.get("/badges")
@@ -285,6 +309,8 @@ def _game_url(task: dict, kind: str) -> str:
         return url_for("scout_routes.task_bridge", task_id=task["id"])
     if kind == "drill":
         return url_for("scout_routes.task_drill", task_id=task["id"])
+    if kind == "flag":
+        return url_for("scout_routes.task_flag", task_id=task["id"])
     return url_for("scout_routes.task_player", task_id=task["id"])
 
 
@@ -369,6 +395,7 @@ def _task_context(user: dict, task_id: str) -> dict | None:
         "cave_ready": _is_badge_cave_task(task, badge),
         "bridge_ready": _is_badge_bridge_task(task, badge),
         "drill_ready": _is_badge_drill_task(task, badge),
+        "flag_ready": _is_badge_flag_task(task, badge),
         "badge": badge,
         "progress": progress,
         "stats": progress["stats"],
@@ -391,6 +418,8 @@ def task_player(task_id: str):
         return redirect(url_for("scout_routes.task_bridge", task_id=task_id))
     if context["drill_ready"]:
         return redirect(url_for("scout_routes.task_drill", task_id=task_id))
+    if context["flag_ready"]:
+        return redirect(url_for("scout_routes.task_flag", task_id=task_id))
     return render_template("scout/task.html", **context)
 
 
@@ -881,6 +910,151 @@ def drill_submit(task_id: str):
               message_en="The manual is learned! Now see your leader and perform the movements and hand signs in person. Item 6 is finished once your leader approves it in the leader account.")
 
 
+FLAG_ART = ["valley", "flag-national", "flag-regional", "emblem-national", "emblem-regional"]
+
+
+@scout_routes.get("/tasks/<task_id>/flag")
+@scout_required
+def task_flag(task_id: str):
+    """第 7 至 10 項的溪谷旗桿 — the badge's fourth game.
+
+    Like the other games it runs entirely in the browser (so it also plays
+    inside the offline demo file) from `content/member-badge/ceremony-bank.json`.
+    The route hands over the seven stations and the answer to each question:
+    the actions are the game, and the paper is what the leader already set.
+    Passing the mark files items 7, 8, 9 and 10 together.
+    """
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["flag_ready"] or task.get("status") != "published":
+        abort(404)
+    if context["badge"].get("locked"):
+        abort(403)
+    bank = ceremony()
+    if not bank.get("stations"):
+        abort(404)
+
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    cleared_now = any(r.get("status") == "completed" for r in mine)
+    onward = _journey_next(g.user, task)
+
+    # the browser plays the questions, so it must know which answer is right;
+    # the server checks the same key again on submit, so a guessed post fails
+    scenes = {
+        "task_id": task_id,
+        "stations": bank["stations"],
+        "intro": bank.get("intro") or [],
+        "ending": bank.get("ending") or [],
+        "total": bank.get("total", 30),
+        "note_zh": bank.get("note_zh", ""),
+        "note_en": bank.get("note_en", ""),
+        "submit_url": url_for("scout_routes.flag_submit", task_id=task_id),
+        "badge_url": url_for("scout_routes.badge_detail", badge_id=task["badge_id"]),
+        "cleared_now": cleared_now,
+        "next_game": ({"name_zh": onward["name_zh"], "name_en": onward["name_en"],
+                       "url": _game_url(onward["task"], onward["kind"])}
+                      if onward else None),
+    }
+    config = context["task"].get("config_json") or {}
+    config = json.loads(config) if isinstance(config, str) else config
+    return render_template(
+        "scout/flag.html",
+        task=context["task"], badge=context["badge"],
+        scene_json=json.dumps(scenes, ensure_ascii=False),
+        art_names=FLAG_ART,
+        badge_url=scenes["badge_url"],
+        cleared_now=cleared_now,
+        links=[row for row in (config.get("links") or []) if row.get("url")],
+    )
+
+
+def _flag_siblings(st, task: dict) -> list[dict]:
+    """Items 8, 9 and 10 — cleared by the same ceremony as item 7."""
+    return [row for row in st.list("tasks")
+            if row.get("badge_id") == task.get("badge_id")
+            and str(row.get("code") or "") in ("M08", "M09", "M10")]
+
+
+@scout_routes.post("/tasks/<task_id>/flag-submit")
+@scout_required
+def flag_submit(task_id: str):
+    """The ceremony is over — re-check all 30 answers, then file the items.
+
+    The browser's score is never trusted: every answer is checked again
+    against `ceremony-bank.json`. The ceremony is finished only when every
+    question is answered right — the story teaches first, and a miss sends
+    the scout back to that line. Finishing completes items 7 to 10 together.
+    A replay after that changes nothing.
+    """
+    st = store()
+    task = st.get("tasks", task_id)
+    context = _task_context(g.user, task_id) if task else None
+    if not context or not context["flag_ready"] or task.get("status") != "published":
+        return fail(404, "task_not_found", "找不到遊戲", "Game not found")
+    if context["badge"].get("locked"):
+        return fail(403, "badge_locked", "請先完成上一個進度性獎章", "Finish the earlier award first")
+
+    questions = ceremony_questions()
+    correct = 0
+    given: dict[str, int] = {}
+    for question in questions:
+        choice = as_int_or(request.form.get(question["id"]), None)
+        if choice is None:
+            continue
+        given[question["id"]] = choice
+        if choice == question.get("answer"):
+            correct += 1
+    passed = len(questions) > 0 and len(given) == len(questions) and correct == len(questions)
+
+    mine = [r for r in st.list("progress_records")
+            if r.get("user_id") == g.user["id"] and r.get("task_id") == task_id]
+    already = any(r.get("status") == "completed" for r in mine)
+
+    if not passed and not already:
+        return fail(400, "flag_unfinished",
+                    "升旗禮還沒做完。筆記裡沒答對的，再做一次。",
+                    "The ceremony is not finished. Do the lines you missed again.")
+    if not already:
+        record = st.insert("progress_records", {
+            "user_id": g.user["id"], "badge_id": task.get("badge_id"), "task_id": task_id,
+            "attempt_no": len(mine) + 1, "status": "completed", "score": correct,
+            "leader_comment": "",
+            "answers_json": json.dumps(
+                {**given, "_ms": _elapsed_ms(request.form.get("elapsed_ms"))},
+                ensure_ascii=False),
+            "checklist_json": None, "evidence_url": "", "reflection_text": "",
+            "points_awarded": 0, "submitted_at": now_iso(),
+            "decided_at": "", "decided_by": "",
+        })
+        award_task_completion(st, user=g.user, task=task, badge=context["badge"],
+                              record=record, awarded_by="auto")
+        # the same paper covers items 8, 9 and 10, so they clear together
+        for sibling in _flag_siblings(st, task):
+            done = [r for r in st.list("progress_records")
+                    if r.get("user_id") == g.user["id"] and r.get("task_id") == sibling["id"]
+                    and r.get("status") == "completed"]
+            if done:
+                continue
+            sibling_record = st.insert("progress_records", {
+                "user_id": g.user["id"], "badge_id": task.get("badge_id"),
+                "task_id": sibling["id"], "attempt_no": 1, "status": "completed",
+                "score": correct, "leader_comment": "", "answers_json": None,
+                "checklist_json": None, "evidence_url": "", "reflection_text": "",
+                "points_awarded": 0, "submitted_at": now_iso(),
+                "decided_at": "", "decided_by": "",
+            })
+            award_task_completion(st, user=g.user, task=sibling, badge=context["badge"],
+                                  record=sibling_record, awarded_by="auto")
+        audit(g.user, "flag_submit", "tasks", task_id,
+              {"score": correct, "of": len(questions)})
+    return ok(passed=True, status="completed", already_done=already,
+              detail={"score": correct, "of": len(questions)},
+              message_zh="旗已升到桿頂。第 7 至 10 項完成。",
+              message_en="The flag is at the top. Items 7 to 10 are done.")
+
+
 @scout_routes.post("/tasks/<task_id>/submit")
 @scout_required
 def submit(task_id: str):
@@ -916,6 +1090,11 @@ def submit(task_id: str):
         return fail(403, "play_the_drill",
                     "第 6 項請在第三個區域完成步操訓練場：學完找領袖親身考核，領袖批准即完成。",
                     "Play the drill ground in area three to finish item 6: study the manual, perform it for your leader — their approval finishes it.")
+    if _is_badge_flag_task(task, badge) or (
+            badge and badge.get("code") == "SC-01" and str(task.get("code") or "") in ("M08", "M09", "M10")):
+        return fail(403, "play_the_flag",
+                    "第 7 至 10 項請在溪谷旗桿完成：先讀筆記，再自己做升旗禮，做完即完成。",
+                    "Finish items 7 to 10 at the valley flagpole: read the notebook, then perform the ceremony. Finishing it clears them.")
 
     mine = [r for r in st.list("progress_records")
             if r.get("user_id") == user["id"] and r.get("task_id") == task_id]

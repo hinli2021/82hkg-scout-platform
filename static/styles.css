@@ -411,6 +411,8 @@ tbody tr:hover { background: #fcfdfb; }
 @media (min-width: 560px) { .badge-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 /* 進度性獎章 come in fives — let them sit in one row on a laptop */
 @media (min-width: 1020px) { .badge-tiles { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* the home features （每日挑戰 and 抽卡） wear the same square shape */
+.feature-tiles { margin: .9rem 0 .4rem; }
 .badge-tile {
   aspect-ratio: 1 / 1; position: relative; overflow: hidden; cursor: pointer;
   background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-lg);
@@ -1587,7 +1589,7 @@ a.q-dot:hover { background: var(--brass-light); }
   border: 1px dashed rgba(146, 104, 48, .38); pointer-events: none;
 }
 .map-canvas { position: relative; height: 340px; }
-.map-island { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-island { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .map-trail { position: absolute; inset: 0; width: 100%; height: 100%; }
 .map-trail-dash {
   fill: none; stroke: #a9793c; stroke-width: 2.8px; stroke-linecap: round;
@@ -3977,16 +3979,6 @@ body.is-game main { padding-top: 6px; }
 .daily-games { display: flex; flex-wrap: wrap; gap: .35rem; }
 .daily-games .chip.is-now { background: var(--brass-light); border-color: var(--brass-dark); color: #2b1d0c; font-weight: 800; }
 
-/* Home: the daily-challenge strip */
-.daily-teaser {
-  display: flex; align-items: center; gap: .8rem; text-decoration: none;
-  padding: .8rem 1rem; margin: .8rem 0;
-}
-.daily-teaser-emoji { font-size: 1.8rem; line-height: 1; }
-.daily-teaser-text { display: grid; gap: .15rem; flex: 1 1 auto; }
-.daily-teaser-text strong { color: var(--ink); }
-.daily-teaser.is-done { opacity: .75; }
-
 /* ── 龍虎榜：三張榜 ───────────────────────────────────────────────────── */
 .lb-mine { margin-bottom: 1.1rem; }
 .lb-mine .chip { text-decoration: none; }
@@ -4044,4 +4036,573 @@ body.is-game main { padding-top: 6px; }
   .lb-mine .row.wrap { gap: .3rem; }
   .lb-game-head h3 { font-size: .95rem; }
   .lb-game-head .chip { font-size: .72rem; }
+}
+
+/* ══ 溪谷旗桿 — game 4. The scene fills the picture; the question card keeps
+   the same glass panel as the other games, so a phone still sees the question
+   and its answers together. ═══════════════════════════════════════════════ */
+.flag .cave-picture { background: #e7bd75; }
+/* the painting is the valley, same ink as the earlier games. Soften it only
+   while a diagram is on top, so the cloths stay readable. */
+.flag .cave-picture:has(.flag-gallery, .flag-poles, .flag-big, .flag-hoist, .flag-score) .cave-art {
+  opacity: .42;
+  filter: saturate(.85) brightness(.8);
+}
+/* the start screen: no card of words below the picture — the kicker, the
+   title, the short description and the start button are merged into the
+   valley painting itself, in a shaded band across its foot. Once the walk
+   begins flag.js drops the class, the band goes and the card returns. */
+#flag-root.is-start-screen .cave-card-wrap { display: none; }
+.flag-start-overlay { display: none; }
+#flag-root.is-start-screen .flag-start-overlay {
+  display: block; position: absolute; z-index: 5;
+  left: 50%; bottom: 3.5%; transform: translateX(-50%);
+  width: min(44rem, 93%); max-height: 72%; overflow-y: auto;
+  box-sizing: border-box; padding: .85rem 1.1rem .95rem;
+  border-radius: .85rem; text-align: center; color: #eef5ee;
+  background: linear-gradient(180deg, rgba(7, 20, 13, .82), rgba(5, 15, 10, .92));
+  border: 1px solid rgba(255, 255, 255, .16);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .45);
+}
+.flag-start-title { color: #fff; margin: .45rem 0 .4rem; font-size: clamp(1.15rem, 2.6vw, 1.6rem); }
+.flag-start-line { margin: .35rem auto; max-width: 38rem; line-height: 1.55; color: #e6efe6; }
+.flag-start-overlay .cave-actions { justify-content: center; }
+.flag-scene {
+  position: absolute; inset: 2.4rem 0 0; display: flex; align-items: flex-end;
+  justify-content: center; pointer-events: none;
+}
+.flag-scene > * { pointer-events: auto; }
+.flag-board {
+  position: relative; width: min(100%, 46rem); height: 100%;
+  margin: 0 auto;
+}
+/* the notes are read in an open notebook: picture on the left page,
+   description on the right page */
+.flag-board:has(.notebook-open) { width: min(100%, 60rem); }
+.notebook-open {
+  position: relative; width: 100%; aspect-ratio: 1411 / 752; margin: 0 auto;
+  background: url("img/quest/flag/pipe/notebook-bg.jpg") center / contain no-repeat;
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 7%;
+  padding: 7% 8.5% 9%; box-sizing: border-box; align-content: start;
+  filter: drop-shadow(0 16px 26px rgba(0,0,0,.4));
+}
+.notebook-page-left {
+  display: flex; flex-direction: column; gap: .5rem;
+  align-items: center; justify-content: flex-start; padding-top: 1%;
+  min-height: 0;
+}
+.notebook-page-img {
+  width: min(100%, 17rem); max-height: 100%; object-fit: contain;
+  border-radius: .3rem; box-shadow: 0 6px 14px rgba(60, 40, 10, .35);
+}
+.notebook-page-left .notebook-page-img { flex: 0 1 auto; min-height: 0; }
+.notebook-page-right { color: #3b3121; min-height: 0; overflow: hidden; }
+.notebook-page-right h3 {
+  margin: .1rem 0 .45rem; color: #2f2413;
+  font-size: clamp(1rem, 2.2vw, 1.45rem); line-height: 1.25;
+}
+.notebook-page-right p {
+  margin: 0 0 .55rem; line-height: 1.6;
+  font-size: clamp(.82rem, 1.55vw, 1.02rem);
+}
+.notebook-page-fact {
+  border-left: 3px solid #b98a2f; background: rgba(185, 138, 47, .14);
+  padding: .3rem .55rem; font-weight: 700; border-radius: 0 .35rem .35rem 0;
+}
+
+/* the cloths the scout names and hangs — diagrams, drawn to the specification */
+.flag-cloth {
+  display: block; width: 100%; height: auto;
+  border-radius: .35rem; box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
+}
+.flag-cloth.is-small { width: 7.4rem; }
+.flag-cloth.is-fly { width: 8.6rem; filter: drop-shadow(0 8px 10px rgba(0,0,0,.35)); transform-origin: left center; animation: flag-wave 2.4s ease-in-out infinite; }
+@keyframes flag-wave {
+  0%, 100% { transform: skewY(0deg) scaleX(1); }
+  50% { transform: skewY(2.4deg) scaleX(.97); }
+}
+
+/* station: name the four pictures */
+.flag-gallery {
+  position: absolute; inset: 6% 4% 8%; display: grid;
+  grid-template-columns: 1fr 1fr; gap: .8rem; align-content: center;
+}
+.flag-tile {
+  position: relative; display: grid; place-items: center; margin: 0; padding: .55rem;
+  border: 0; border-radius: .8rem; cursor: pointer;
+  background: rgba(255, 255, 255, .16);
+  box-shadow: 0 0 0 2px rgba(255,255,255,.28) inset;
+  transition: transform .15s ease;
+}
+.flag-tile:hover { transform: translateY(-2px); }
+.flag-tile.is-done { box-shadow: 0 0 0 3px #7dcea0 inset; }
+.flag-tile.is-asking { box-shadow: 0 0 0 3px #ffd25a inset; animation: flag-glow 1.1s ease-in-out infinite; }
+.flag-tile .flag-cloth { width: min(100%, 11rem); }
+.flag-tick {
+  position: absolute; top: .3rem; right: .4rem; font-weight: 800; color: #eafff2;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+/* station: tap the glowing parts */
+.flag-big {
+  position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%);
+  width: min(78%, 26rem);
+}
+.flag-hot {
+  position: absolute; border: 0; padding: 0; border-radius: 50%; cursor: pointer;
+  background: rgba(255, 222, 0, .18);
+  box-shadow: 0 0 0 3px rgba(255, 210, 90, .9), 0 0 18px rgba(255, 210, 90, .8);
+  animation: flag-glow 1.1s ease-in-out infinite;
+}
+.flag-hot.is-done { background: rgba(125, 206, 160, .25); box-shadow: 0 0 0 3px #7dcea0; animation: none; }
+.flag-hot.is-asking { background: rgba(255, 210, 90, .4); }
+.flag-hot[data-part="field"] { inset: 4% 4% 4% 4%; border-radius: .4rem; }
+.flag-hot[data-part="stars"] { left: 6%; top: 6%; width: 42%; height: 58%; }
+.flag-hot[data-part="big"] { left: 8%; top: 10%; width: 22%; height: 34%; }
+.flag-hot[data-part="small"] { left: 27%; top: 7%; width: 20%; height: 48%; }
+.flag-hot[data-part="point"] { left: 30%; top: 30%; width: 14%; height: 20%; }
+.flag-hot[data-part="flower"] { left: 30%; top: 18%; width: 40%; height: 62%; }
+.flag-hot[data-part="colours"] { left: 18%; top: 62%; width: 64%; height: 22%; border-radius: .6rem; }
+
+@keyframes flag-glow {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255, 210, 90, .95), 0 0 12px rgba(255, 210, 90, .7); }
+  50% { box-shadow: 0 0 0 5px rgba(255, 244, 190, 1), 0 0 26px rgba(255, 210, 90, 1); }
+}
+
+/* station: two poles, flags to drag */
+.flag-poles { position: absolute; inset: 0; }
+.flag-pole {
+  position: absolute; bottom: 7%; width: .55rem; border-radius: .3rem;
+  background: linear-gradient(#f4f6f8, #9aa0a6);
+  box-shadow: 2px 0 0 rgba(255,255,255,.4) inset;
+}
+.flag-pole[data-pole="left"] { left: 34%; height: 74%; }
+.flag-pole[data-pole="right"] { left: 66%; height: 74%; }
+.flag-pole .flag-knob {
+  position: absolute; top: -.55rem; left: 50%; transform: translateX(-50%);
+  width: .9rem; height: .9rem; border-radius: 50%; background: #ffd25a;
+}
+.flag-pole .flag-base {
+  position: absolute; bottom: -.35rem; left: 50%; transform: translateX(-50%);
+  width: 2.4rem; height: .55rem; border-radius: .3rem; background: #8d8f93;
+}
+.flag-slot {
+  position: absolute; top: 1.1rem; left: .55rem; width: 4.6rem; height: 3.1rem;
+  border-radius: .3rem; border: 2px dashed rgba(255,255,255,.75);
+  background: rgba(255,255,255,.08);
+}
+.flag-slot.is-full { border-style: solid; border-color: transparent; background: none; }
+.flag-slot .flag-cloth { width: 4.6rem; margin: 0; border-radius: .2rem; }
+.flag-tray {
+  position: absolute; left: 0; right: 0; bottom: 9%;
+  display: flex; justify-content: center; gap: 1.2rem;
+}
+.flag-drag {
+  width: 5.2rem; padding: .3rem; border: 0; border-radius: .5rem; cursor: grab;
+  background: rgba(255,255,255,.18);
+  box-shadow: 0 6px 16px rgba(0,0,0,.3);
+}
+.flag-drag:active { cursor: grabbing; }
+.flag-drag .flag-cloth { width: 100%; box-shadow: none; }
+.flag-drag.is-used { visibility: hidden; }
+
+/* the hoist the scout drags up the pole */
+.flag-hoist {
+  position: absolute; left: 58%; bottom: 12%; width: 9rem; z-index: 3;
+  padding: 0; border: 0; background: none; cursor: grab; touch-action: none;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.4));
+}
+.flag-hoist .flag-cloth { border-radius: .15rem; }
+.flag-rope {
+  position: absolute; left: 63%; bottom: 10%; width: 2px; height: 70%;
+  background: repeating-linear-gradient(#f4f1e6, #f4f1e6 6px, #b9b29f 6px, #b9b29f 10px);
+}
+
+/* the anthem score */
+.flag-score {
+  position: absolute; inset: 7% 5% 8%; overflow: auto;
+  padding: .8rem 1rem; border-radius: .8rem;
+  background: rgba(255, 252, 244, .92); color: #2a2418;
+  box-shadow: 0 12px 30px rgba(0,0,0,.3);
+}
+.flag-score p { margin: .28rem 0; font-size: 1.02rem; line-height: 1.7; }
+.flag-gap {
+  display: inline-block; min-width: 4.2rem; margin: 0 .15rem; padding: .05rem .55rem;
+  border: 0; border-bottom: 2px solid #b42318; border-radius: .3rem;
+  background: #fff4d2; color: #b42318; font: inherit; font-weight: 800;
+  cursor: pointer; animation: flag-glow 1.1s ease-in-out infinite;
+}
+.flag-gap.is-done { background: #e5f6ec; color: #1d4b31; border-bottom-color: #1d4b31; animation: none; cursor: default; }
+.flag-gap.is-asking { background: #ffd25a; }
+
+/* the question card's answer row */
+.flag-options { display: grid; gap: .45rem; margin-top: .7rem; }
+.flag-option {
+  text-align: left; padding: .62rem .8rem; border-radius: .7rem; border: 0; cursor: pointer;
+  background: rgba(255,255,255,.1); color: inherit; font: inherit; font-weight: 650;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset;
+}
+.flag-option:hover { background: rgba(255,255,255,.2); }
+.flag-option.is-right { background: #1d4b31; }
+.flag-option.is-wrong { background: #7a2e24; }
+.flag-why { margin: .55rem 0 0; font-size: .92rem; opacity: .9; }
+.flag-note { margin: .3rem 0 0; font-size: .78rem; opacity: .75; }
+.flag-fact {
+  margin: .55rem 0 0; padding: .5rem .7rem; border-radius: .55rem;
+  background: rgba(255, 210, 90, .2); font-weight: 750;
+}
+.flag-book {
+  display: inline-block; margin-top: .7rem; padding: 0; border: 0;
+  background: none; color: inherit; font: inherit; text-decoration: underline;
+  cursor: pointer; opacity: .85;
+}
+.flag-notebook {
+  position: absolute; left: 5%; bottom: 8%; width: 6.4rem; height: 4.4rem;
+  background: #f4efe2; border-radius: .25rem .55rem .55rem .25rem;
+  box-shadow: 0 12px 22px rgba(0, 0, 0, .35); transform: rotate(-8deg);
+  pointer-events: none;
+}
+.flag-notebook::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: .55rem;
+  background: #6b3a2a; border-radius: .25rem 0 0 .25rem;
+}
+
+/* ── the pipe machine: four runs of pipe work the flagpole ──────────────
+   Every visible part is one of the generated paintings (panel, notebook,
+   pipes, lights, start button, the flag a quarter higher). The code only
+   lays them out; it does not draw any of them. */
+.pipe-story-prop {
+  position: absolute; left: 50%; top: 47%; transform: translate(-50%, -50%);
+  width: min(72%, 24rem);
+}
+/* at the ending the raised flag fills the scene on its own: the notebook
+   prop steps aside so it cannot cover the pole or the flag at its top */
+#flag-root.is-ending .pipe-story-prop { display: none; }
+.pipe-story-prop .pipe-story-book { width: 100%; height: auto; display: block; filter: drop-shadow(0 14px 22px rgba(0,0,0,.4)); }
+.pipe-machine {
+  position: relative; width: 100%; height: 100%;
+  display: flex; align-items: center; gap: .6rem; padding: .5rem .6rem;
+}
+.pipe-note[hidden], .pipe-popup[hidden] { display: none !important; }
+.pipe-notebook {
+  flex: 0 0 clamp(4.4rem, 13%, 7.6rem); padding: 0; border: 0; background: none;
+  cursor: pointer; color: #fff;
+}
+.pipe-notebook-img { width: 100%; height: auto; display: block; filter: drop-shadow(0 10px 14px rgba(0,0,0,.45)); }
+.pipe-notebook span {
+  display: inline-block; margin-top: .3rem; padding: .14rem .5rem; border-radius: 999px;
+  background: rgba(9, 26, 18, .72); border: 1px solid rgba(255,255,255,.35);
+  font-size: .74rem; font-weight: 750; line-height: 1.25;
+}
+.pipe-panel { position: relative; flex: 1 1 auto; min-width: 0; }
+.pipe-panel-inner { position: relative; }
+.pipe-pan-hint { display: none; }
+.pipe-panel-img { width: 100%; height: auto; display: block; border-radius: .5rem; box-shadow: 0 16px 36px rgba(0,0,0,.45); }
+/* holes scattered over the panel's dark board; the fitted pipe (its
+   painting with the background removed) lies across its hole */
+.pipe-holes { position: absolute; inset: 0; }
+.pipe-hole {
+  position: absolute; padding: 0; border: 0; background: none; cursor: pointer;
+  overflow: visible; color: #fff;
+}
+.pipe-hole-img { width: 100%; height: auto; display: block; filter: drop-shadow(0 6px 10px rgba(0,0,0,.55)); }
+.pipe-hole:hover .pipe-hole-img, .pipe-hole:focus-visible .pipe-hole-img {
+  filter: drop-shadow(0 0 12px rgba(255, 210, 90, .95));
+}
+/* a pipe the start button has proved wrong is ringed in red light until
+   it is swapped or taken out */
+.pipe-hole.is-wrong .pipe-hole-img {
+  filter: drop-shadow(0 0 7px rgba(255, 64, 40, .95)) drop-shadow(0 0 16px rgba(255, 64, 40, .75));
+}
+.pipe-hole.is-wrong::after {
+  content: ""; position: absolute; inset: -7% -4%; z-index: 3; pointer-events: none;
+  border: 3px solid rgba(255, 82, 58, .95); border-radius: .45rem;
+  box-shadow: 0 0 16px rgba(255, 64, 40, .85), inset 0 0 12px rgba(255, 64, 40, .5);
+  animation: pipe-wrong-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes pipe-wrong-pulse {
+  from { box-shadow: 0 0 8px rgba(255, 64, 40, .55), inset 0 0 6px rgba(255, 64, 40, .35); }
+  to { box-shadow: 0 0 20px rgba(255, 64, 40, .95), inset 0 0 14px rgba(255, 64, 40, .55); }
+}
+.pipe-hole-no {
+  position: absolute; top: 5%; right: 3.5%; z-index: 2;
+  min-width: 1.05rem; padding: .05rem .2rem; border-radius: 999px;
+  background: rgba(255, 210, 90, .92); color: #3a2a08;
+  font-size: .62rem; font-weight: 900; line-height: 1.15; pointer-events: none;
+}
+/* the start button is a fitting on the panel itself, and the machine's
+   only signal: red button for wrong, green glow for right */
+.pipe-start {
+  position: absolute; left: 81%; top: 48%; z-index: 4; width: 18%;
+  padding: 0; border: 0; background: none; cursor: pointer; color: #fff;
+}
+.pipe-start-img {
+  width: 100%; height: auto; display: block;
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.5));
+  transition: filter .35s ease, transform .35s ease;
+}
+.pipe-start.is-wrong .pipe-start-img {
+  filter: drop-shadow(0 0 9px rgba(255, 64, 40, .95)) drop-shadow(0 0 20px rgba(255, 64, 40, .8));
+  animation: pipe-wrong-pulse 1s ease-in-out infinite alternate;
+}
+.pipe-start.is-right .pipe-start-img {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 10px rgba(64, 220, 120, .95)) drop-shadow(0 0 24px rgba(64, 220, 120, .8));
+}
+.pipe-start span {
+  position: absolute; left: 50%; top: 92%; transform: translateX(-50%);
+  padding: .1rem .55rem; border-radius: 999px; white-space: nowrap;
+  background: rgba(20, 90, 50, .88); border: 1px solid rgba(160, 255, 190, .6);
+  font-size: .72rem; font-weight: 800;
+}
+.pipe-start:active .pipe-start-img { transform: translateY(2px); }
+.pipe-count {
+  position: absolute; left: 2.5%; bottom: 3.5%; z-index: 4;
+  padding: .12rem .55rem; border-radius: 999px;
+  background: rgba(9, 26, 18, .72); border: 1px solid rgba(255,255,255,.35);
+  color: #fff7e0; font-size: .78rem; font-weight: 800; pointer-events: none;
+}
+.pipe-note {
+  position: absolute; left: .45rem; top: 2.9rem; bottom: .45rem; z-index: 7;
+  width: min(24rem, 88%); overflow-y: auto; padding: .8rem .9rem;
+  border-radius: .7rem; background: #f7efdb; color: #2a2418;
+  box-shadow: 0 18px 40px rgba(0,0,0,.5);
+}
+.pipe-note-head { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.pipe-note-close { border: 0; background: none; font: inherit; cursor: pointer; padding: .15rem .4rem; }
+.pipe-note-page { border-top: 1px solid rgba(90, 70, 40, .3); padding: .55rem 0 .2rem; }
+.pipe-note-page h3 { margin: .2rem 0 .25rem; font-size: .98rem; }
+.pipe-note-page p { margin: .2rem 0; line-height: 1.5; font-size: .9rem; }
+.pipe-note-fact { font-weight: 800; background: rgba(255, 210, 90, .35); border-radius: .4rem; padding: .35rem .5rem; }
+.pipe-note-art { margin-bottom: .3rem; }
+.pipe-note-foot { font-size: .72rem; opacity: .75; }
+/* the fitting screen that pops up from a hole */
+.pipe-popup {
+  position: absolute; inset: 2.5% 3.5%; z-index: 8; overflow-y: auto;
+  padding: .85rem 1rem 1rem; border-radius: .85rem;
+  background: linear-gradient(180deg, rgba(10, 28, 19, .96), rgba(6, 19, 13, .98));
+  border: 1px solid rgba(255, 210, 90, .55); color: #eef5ee;
+  box-shadow: 0 24px 60px rgba(0,0,0,.6);
+}
+.pipe-popup-head { display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+.pipe-popup-kicker {
+  padding: .14rem .6rem; border-radius: 999px;
+  background: rgba(217, 164, 65, .18); border: 1px solid rgba(217, 164, 65, .45);
+  color: #ffe4a8; font-size: .74rem; font-weight: 800;
+}
+.pipe-popup-close {
+  border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.08); color: #fff;
+  border-radius: 999px; width: 2rem; height: 2rem; cursor: pointer; font: inherit;
+}
+.pipe-popup-q { margin: .45rem 0 .3rem; color: #fff; font-size: clamp(1.02rem, 2.2vw, 1.35rem); }
+.pipe-popup .btn.ghost {
+  color: #fff3d6; border-color: rgba(255, 227, 168, .8);
+  background: rgba(255, 243, 214, .14);
+}
+.pipe-popup .btn.ghost:hover { background: rgba(255, 243, 214, .26); color: #ffffff; }
+.pipe-piece-word { color: #241a08; font-size: .92rem; }
+.pipe-fit {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 7.2rem; margin-top: .6rem; padding: .6rem;
+  border: 2px dashed rgba(255, 210, 90, .75); border-radius: .7rem;
+  background: rgba(255, 244, 214, .08);
+}
+.pipe-fit.is-over, .pipe-fit.is-fitted { border-style: solid; border-color: #7dcea0; background: rgba(125, 206, 160, .13); }
+.pipe-fit-socket { width: min(15rem, 62%); height: auto; }
+.pipe-fit-img { width: min(27rem, 88%); height: auto; max-height: 8.5rem; object-fit: contain; }
+.pipe-fit-hint, .pipe-fit-word {
+  position: absolute; left: 50%; bottom: .35rem; transform: translateX(-50%);
+  padding: .1rem .6rem; border-radius: 999px; white-space: nowrap;
+  background: rgba(9, 26, 18, .8); color: #fff7e0; font-size: .76rem; font-weight: 800;
+}
+.pipe-context { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .6rem; }
+.pipe-context .flag-cloth { width: min(9.5rem, 44%); }
+.pipe-tray { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.2rem, 1fr)); gap: .55rem; margin-top: .7rem; }
+.pipe-piece {
+  padding: .35rem .4rem .45rem; border-radius: .6rem; cursor: grab; font: inherit;
+  background: #f7efdb; color: #2a2418; border: 1px solid rgba(120, 90, 40, .4);
+  box-shadow: 0 8px 18px rgba(0,0,0,.3);
+  touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.pipe-piece:active { cursor: grabbing; }
+.pipe-piece.is-dragging { opacity: .45; }
+/* the copy of the pipe that follows the pointer while it is carried */
+.pipe-drag-ghost {
+  position: fixed; z-index: 999; transform: translate(-50%, -50%);
+  pointer-events: none; opacity: .92; cursor: grabbing;
+}
+.pipe-piece-img { width: 100%; height: 3.4rem; object-fit: contain; display: block; }
+.pipe-piece-word { display: block; margin-top: .25rem; font-weight: 800; text-align: center; line-height: 1.3; }
+.pipe-piece.is-placed { box-shadow: 0 0 0 3px #2f8f57 inset; background: #e4f4e6; }
+.pipe-card-count { font-weight: 800; color: #ffe4a8; }
+/* while the how-to pop-up is shown, the card below the picture is gone:
+   no leftover words and no second next button under the pop-up */
+#flag-root.is-howto-open .cave-card-wrap { display: none; }
+/* ── how to play: a pop-up of picture steps over the scene ─────────── */
+.howto {
+  position: absolute; inset: 1.5% 2.5%; z-index: 9; overflow-y: auto;
+  padding: .8rem 1rem .95rem; border-radius: .85rem; text-align: center;
+  background: linear-gradient(180deg, rgba(10, 28, 19, .97), rgba(6, 19, 13, .98));
+  border: 1px solid rgba(255, 210, 90, .55); color: #eef5ee;
+  box-shadow: 0 24px 60px rgba(0,0,0,.6);
+}
+.howto-head { display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+.howto-kicker {
+  padding: .14rem .6rem; border-radius: 999px;
+  background: rgba(217, 164, 65, .18); border: 1px solid rgba(217, 164, 65, .45);
+  color: #ffe4a8; font-size: .74rem; font-weight: 800;
+}
+.howto-skip {
+  color: #fff3d6; border: 1px solid rgba(255, 227, 168, .8); cursor: pointer; font: inherit;
+  background: rgba(255, 243, 214, .14); border-radius: 999px; padding: .2rem .7rem;
+  font-size: .78rem; font-weight: 800;
+}
+.howto-diagram {
+  margin: .65rem auto .4rem; max-width: 34rem; min-height: 9.5rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .45rem;
+}
+.howto-title { margin: .3rem 0 .2rem; color: #fff; font-size: clamp(1.05rem, 2.4vw, 1.45rem); }
+.howto-body { margin: 0 auto; max-width: 36rem; line-height: 1.55; font-size: .95rem; }
+.howto-dots { display: flex; gap: .4rem; justify-content: center; margin: .6rem 0 .2rem; }
+.howto-dot { width: .55rem; height: .55rem; border-radius: 50%; background: rgba(255,255,255,.28); }
+.howto-dot.is-on { background: #ffd75e; box-shadow: 0 0 8px rgba(255, 215, 94, .9); }
+.howto-actions { justify-content: center; }
+.howto .btn.ghost {
+  color: #fff3d6; border-color: rgba(255, 227, 168, .8);
+  background: rgba(255, 243, 214, .14);
+}
+/* the diagrams are the game's own paintings, laid out like screenshots */
+.howto-shot { position: relative; width: min(100%, 30rem); }
+.howto-panel { width: 100%; height: auto; display: block; border-radius: .5rem; box-shadow: 0 12px 26px rgba(0,0,0,.5); }
+.howto-hole, .howto-start {
+  position: absolute; transform: translate(-50%, -50%); display: block;
+}
+.howto-start { left: 90%; top: 57%; width: 17%; transform: translate(-50%, -50%); }
+.howto-hole-img, .howto-start-img { width: 100%; height: auto; display: block; filter: drop-shadow(0 6px 10px rgba(0,0,0,.55)); }
+.howto-ring {
+  position: absolute; transform: translate(-50%, -50%); aspect-ratio: 1.9;
+  border: 3px solid rgba(255, 215, 94, .95); border-radius: 999px; pointer-events: none;
+  box-shadow: 0 0 14px rgba(255, 215, 94, .8), inset 0 0 10px rgba(255, 215, 94, .45);
+  animation: howto-ring-pulse 1.1s ease-in-out infinite alternate;
+}
+.howto-count {
+  position: absolute; right: 2%; bottom: 3%; padding: .12rem .55rem; border-radius: 999px;
+  background: rgba(9, 26, 18, .85); color: #ffe4a8; font-weight: 900; font-size: .8rem;
+  border: 1px solid rgba(255, 210, 90, .7);
+}
+.howto-tray { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; width: min(100%, 32rem); }
+.howto-piece {
+  background: #f7efdb; border: 1px solid rgba(120, 90, 40, .4); border-radius: .6rem;
+  padding: .3rem .35rem .4rem; color: #241a08; font-weight: 800; font-size: .78rem;
+  display: flex; flex-direction: column; align-items: center; gap: .15rem;
+}
+.howto-piece-img { width: 100%; height: 2.6rem; object-fit: contain; display: block; }
+.howto-piece.is-picked { box-shadow: 0 0 0 3px #2f8f57 inset, 0 0 14px rgba(125, 206, 160, .8); background: #e4f4e6; }
+.howto-drop { position: relative; width: min(70%, 18rem); height: 5.2rem; }
+.howto-drop-hole { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 62%; }
+.howto-drop-pipe {
+  position: absolute; left: 50%; top: 0; width: 34%; z-index: 2;
+  animation: howto-drop-move 1.8s ease-in-out infinite;
+}
+.howto-drop-img { width: 100%; height: auto; display: block; }
+.howto-swap { position: relative; width: min(78%, 21rem); aspect-ratio: 1245 / 610; }
+.howto-swap-a, .howto-swap-b {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+}
+.howto-swap-a { animation: howto-swap-a 3.2s ease-in-out infinite; }
+.howto-swap-b { animation: howto-swap-b 3.2s ease-in-out infinite; }
+.howto-lights { display: flex; align-items: center; gap: .8rem; width: min(100%, 32rem); justify-content: center; }
+.howto-light-case { display: flex; flex-direction: column; align-items: center; gap: .4rem; width: 42%; }
+.howto-button-img { width: 4.6rem; height: auto; display: block; filter: drop-shadow(0 6px 12px rgba(0,0,0,.5)); }
+.howto-button-img.is-glowing { filter: drop-shadow(0 0 9px rgba(64, 220, 120, .95)) drop-shadow(0 0 20px rgba(64, 220, 120, .85)); }
+.howto-wrong { width: 78%; filter: drop-shadow(0 0 7px rgba(255, 64, 40, .95)) drop-shadow(0 0 15px rgba(255, 64, 40, .7)); }
+.howto-raise { width: 62%; height: 5.6rem; overflow: hidden; border-radius: .45rem; box-shadow: 0 8px 16px rgba(0,0,0,.45); }
+.howto-raise-img { width: 100%; height: 100%; object-fit: cover; animation: howto-rise 2.6s ease-in-out infinite alternate; }
+.howto-arrow { font-size: 1.6rem; color: #ffd75e; font-weight: 900; }
+@keyframes howto-ring-pulse {
+  from { box-shadow: 0 0 6px rgba(255, 215, 94, .5), inset 0 0 5px rgba(255, 215, 94, .3); }
+  to { box-shadow: 0 0 18px rgba(255, 215, 94, .95), inset 0 0 12px rgba(255, 215, 94, .55); }
+}
+@keyframes howto-drop-move {
+  0%, 18% { transform: translate(-50%, 0); opacity: 1; }
+  62%, 82% { transform: translate(-50%, 2.1rem); opacity: 1; }
+  100% { transform: translate(-50%, 2.1rem); opacity: 0; }
+}
+@keyframes howto-swap-a { 0%, 38% { opacity: 1; } 55%, 88% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes howto-swap-b { 0%, 38% { opacity: 0; } 55%, 88% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes howto-rise { from { transform: translateY(9%); } to { transform: translateY(-4%); } }
+.pipe-raise { position: absolute; inset: 0; }
+.pipe-raise-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pipe-raise-badge {
+  position: absolute; top: .55rem; left: .6rem; padding: .22rem .7rem; border-radius: 999px;
+  background: rgba(9, 26, 18, .78); color: #fff7e0; border: 1px solid rgba(255, 210, 90, .7);
+  font-weight: 850;
+}
+.flag-board:has(.pipe-machine), .flag-board:has(.pipe-raise) { width: min(100%, 64rem); }
+@media (max-width: 700px) {
+  /* a phone's picture is short and wide, so give the start painting room:
+     the title, the whole description and the start button merged into it
+     must be visible together, not hidden inside a scrolling band */
+  #flag-root.is-start-screen .cave-picture { min-height: 35rem; }
+  #flag-root.is-start-screen .flag-start-overlay { max-height: 92%; padding: .7rem .8rem .8rem; }
+  .flag-start-title { font-size: 1.18rem; }
+  .flag-start-line { font-size: .9rem; line-height: 1.5; }
+  .pipe-machine { gap: .3rem; padding: .35rem .3rem; }
+  .pipe-notebook { flex-basis: 3.4rem; }
+  .pipe-notebook span { font-size: .62rem; padding: .1rem .35rem; }
+  .pipe-start span { font-size: .6rem; }
+  .pipe-count { font-size: .66rem; }
+    .pipe-hole-no { font-size: .52rem; min-width: .85rem; }
+  /* on a phone the picture is short, so the fitting pop-up leaves the
+     board and covers the screen instead: the whole question, the socket
+     and the tray get room, and the socket stays pinned to the top of
+     the pop-up while the tray is scrolled, so a pipe can always be
+     dragged onto a socket that is on screen */
+  .pipe-popup {
+    position: fixed; inset: 4.4rem .55rem .55rem; z-index: 80;
+    padding: .65rem .7rem .8rem;
+  }
+  .pipe-fit { min-height: 5.4rem; position: sticky; top: 0; z-index: 3; background: rgba(9, 26, 18, .97); }
+  .pipe-context .flag-cloth { width: min(8rem, 42%); }
+  /* the how-to pop-up gets the same phone treatment, so a whole step —
+     diagram, short words and the next button — fits the screen at once */
+  .howto { position: fixed; inset: 4.4rem .55rem .55rem; z-index: 80; }
+  .pipe-note { top: 2.4rem; }
+  /* phone holes are tiny at board width, so the panel is shown enlarged:
+     twice as wide inside a frame the scout swipes sideways, which makes
+     every hole about twice as wide and far easier to tap. The frame
+     opens centred on the black board (see flag.js). */
+  .pipe-panel {
+    overflow-x: auto; overflow-y: hidden; border-radius: .5rem;
+    overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin; scrollbar-color: rgba(217, 164, 65, .6) transparent;
+  }
+  .pipe-panel-inner { width: 200%; }
+  .pipe-pan-hint {
+    display: block; position: absolute; right: .55rem; bottom: .3rem; z-index: 6;
+    padding: .12rem .55rem; border-radius: 999px; pointer-events: none;
+    background: rgba(9, 26, 18, .78); color: #fff7e0;
+    border: 1px solid rgba(255, 210, 90, .55); font-size: .68rem; font-weight: 800;
+  }
+  .notebook-open { padding: 6% 7.5% 8%; column-gap: 6%; }
+  .notebook-page-right h3 { font-size: .82rem; margin-bottom: .25rem; }
+  .notebook-page-right p { font-size: .64rem; line-height: 1.45; margin-bottom: .3rem; }
+  .notebook-page-img { width: min(100%, 9rem); }
+  .pipe-piece-img { height: 2.7rem; }
+}
+
+@media (max-width: 700px) {
+  .flag-gallery { inset: 4% 3% 4%; gap: .5rem; }
+  .flag-tile { padding: .35rem; }
+  .flag-big { width: min(92%, 22rem); }
+  .flag-score { inset: 4% 3% 4%; padding: .6rem .7rem; }
+  .flag-score p { font-size: .92rem; }
+  .flag-cloth.is-fly { width: 6.4rem; }
+  .flag-notebook { width: 4.6rem; height: 3.2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flag-hot, .flag-tile.is-asking, .flag-gap, .flag-cloth.is-fly { animation: none; }
+  .pipe-hole.is-wrong::after { animation: none; }
+  .howto-ring, .howto-drop-pipe, .howto-swap-a, .howto-swap-b, .howto-raise-img { animation: none; }
+  .pipe-start.is-wrong .pipe-start-img { animation: none; }
 }

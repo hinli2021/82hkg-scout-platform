@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{# 溪谷旗桿 takes the window, like the cave, the crossing and the drill ground. #}
+{% block body_attrs %}class="is-game"{% endblock %}
+
+{% block title %}{{ L('溪谷旗桿', 'The valley flagpole') }}{% endblock %}
+
+{# ── 溪谷旗桿 — the fourth game of 會員章 (第 7 至 10 項). One ceremony by the
+      stream: name the flags, tap the glowing parts, hang the flags, fill the
+      anthem, then raise the flag in time with the music. The 30 questions and
+      their answers come from the leader's paper; the game only adds the
+      actions. Everything runs in static/js/flag.js, so it also plays inside
+      the offline demo file. ── #}
+{% block content %}
+<div class="crumbs">
+  <a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a><span class="breadcrumb-arrow">›</span>
+  <a href="{{ url_for('scout_routes.badge_detail', badge_id=badge.id) }}">{{ L(badge.title_zh, badge.title_en) }}</a><span class="breadcrumb-arrow">›</span>
+  {{ L('遊戲 4：溪谷旗桿', 'Game 4 — the valley flagpole') }}
+</div>
+
+<section class="cave flag is-start-screen" id="flag-root" data-flag
+         data-flag-config="{{ scene_json | forceescape }}">
+  <div class="cave-stage">
+    <div class="cave-picture">
+      <img class="cave-art-backdrop" alt="" aria-hidden="true"
+           src="{{ url_for('static', filename='img/quest/flag/valley.jpg') }}">
+      <img class="cave-art" data-flag-art
+           src="{{ url_for('static', filename='img/quest/flag/valley.jpg') }}"
+           alt="{{ L('溪谷旗桿', 'The valley flagpole') }}">
+      <div class="cave-shade" aria-hidden="true"></div>
+      <header class="cave-hud">
+        <a class="cave-hud-link" href="{{ url_for('scout_routes.home') }}">🏠 {{ L('主頁', 'Home') }}</a>
+        <span class="cave-hud-mid" data-flag-progress>{{ L('溪谷旗桿', 'The valley flagpole') }}</span>
+        <a class="cave-hud-link" href="{{ badge_url }}">🎖 {{ L('會員章', 'Badge') }}</a>
+      </header>
+      {# before the walk starts, the words live on the painting itself:
+         kicker, title, the short description and the start button sit in
+         a shaded band across the foot of the valley, and there is no
+         separate card of words below the picture. flag.js takes the
+         is-start-screen class away the moment the walk begins, and the
+         card below comes back for the story and the machine. #}
+      <div class="flag-start-overlay">
+        {% if cleared_now %}
+          <span class="cave-kicker">{{ L('第 7 至 10 項', 'Items 7 to 10') }}</span>
+          <h1 class="flag-start-title">{{ L('旗已升到桿頂', 'The flag is at the top') }}</h1>
+          <p class="flag-start-line">{{ L('你已升完這面旗，第 7 至 10 項完成。想再走一次溪谷，可以再升一次。',
+                                    'You have raised the flag. Items 7 to 10 are done. Walk the valley again if you want to raise it once more.') }}</p>
+          <div class="cave-actions">
+            <button class="btn" type="button" data-flag-go>{{ L('再走一次溪谷', 'Walk the valley again') }}</button>
+          </div>
+        {% else %}
+          <span class="cave-kicker">{{ L('遊戲 4', 'Game 4') }}</span>
+          <h1 class="flag-start-title">{{ L('山脊在身後', 'The ridge is behind you') }}</h1>
+          <p class="flag-start-line">{{ L('步操場還在上面。小徑向下，溪水聲傳來。溪邊的旗桿由一部舊喉管機帶動，四組喉管都已拆開。筆記就放在控制板左邊：接好一組喉管，旗便升起四分之一；四組全部接對，旗才會到達桿頂。',
+                                    'The parade ground is still above you. The path drops, and a stream is running. The flagpole by the stream is worked by an old pipe machine, but all four runs of pipe have been taken apart. The notebook is on the left of the control panel: connect one run right and the flag rises a quarter; get all four right and it reaches the top.') }}</p>
+          <div class="cave-actions">
+            <button class="btn primary big" type="button" data-flag-go data-cheer="🚩,✨">
+              {{ L('沿溪走下去', 'Follow the stream down') }}</button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="cave-card-wrap">
+      <div class="cave-card" data-flag-card aria-live="polite">
+        {% if cleared_now %}
+          <span class="cave-kicker">{{ L('第 7 至 10 項', 'Items 7 to 10') }}</span>
+          <h1 class="cave-title">{{ L('旗已升到桿頂', 'The flag is at the top') }}</h1>
+          <p class="cave-line">{{ L('你已升完這面旗，第 7 至 10 項完成。想再走一次溪谷，可以再升一次。',
+                                    'You have raised the flag. Items 7 to 10 are done. Walk the valley again if you want to raise it once more.') }}</p>
+          <div class="cave-actions">
+            <button class="btn" type="button" data-flag-go>{{ L('再走一次溪谷', 'Walk the valley again') }}</button>
+          </div>
+        {% else %}
+          <span class="cave-kicker">{{ L('遊戲 4', 'Game 4') }}</span>
+          <h1 class="cave-title">{{ L('山脊在身後', 'The ridge is behind you') }}</h1>
+          <p class="cave-line">{{ L('步操場還在上面。小徑向下，溪水聲傳來。溪邊的旗桿由一部舊喉管機帶動，四組喉管都已拆開。筆記就放在控制板左邊：接好一組喉管，旗便升起四分之一；四組全部接對，旗才會到達桿頂。',
+                                    'The parade ground is still above you. The path drops, and a stream is running. The flagpole by the stream is worked by an old pipe machine, but all four runs of pipe have been taken apart. The notebook is on the left of the control panel: connect one run right and the flag rises a quarter; get all four right and it reaches the top.') }}</p>
+          <div class="cave-actions">
+            <button class="btn primary big" type="button" data-flag-go data-cheer="🚩,✨">
+              {{ L('沿溪走下去', 'Follow the stream down') }}</button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div hidden aria-hidden="true">
+    <a data-flag-link="badge" href="{{ badge_url }}">🎖 {{ L('回到會員章', 'Back to the badge') }}</a>
+    {% for link in links or [] %}
+      <a data-flag-link="ref" href="{{ link.url }}" target="_blank" rel="noopener">🔗 {{ L(link.label_zh, link.label_en) }}</a>
+    {% endfor %}
+  </div>
+
+  {# every picture the ceremony can show, so nothing is fetched mid-game.
+     The valley is the one drawing; the four flags and emblems are the
+     official artwork (see the note in ceremony-bank.json). #}
+  <div class="cave-sources" hidden aria-hidden="true">
+    {% for name in art_names %}
+      <img data-flag-source="{{ name }}"
+           src="{{ url_for('static', filename='img/quest/flag/' ~ name ~ ('.svg' if name == 'valley' else '.png')) }}" alt="">
+    {% endfor %}
+    {# the pipe machine: every part is a generated painting, in the same ink
+       and watercolour as the other games — panel, notebook, pipes, lights,
+       start button, and the flag a quarter higher after each run #}
+    <img data-flag-source="panel" src="{{ url_for('static', filename='img/quest/flag/pipe/panel.jpg') }}" alt="">
+    <img data-flag-source="notebook" src="{{ url_for('static', filename='img/quest/flag/pipe/notebook.png') }}" alt="">
+    <img data-flag-source="button-start" src="{{ url_for('static', filename='img/quest/flag/pipe/button-start.png') }}" alt="">
+    <img data-flag-source="button-start-red" src="{{ url_for('static', filename='img/quest/flag/pipe/button-start-red.png') }}" alt="">
+    <img data-flag-source="hole" src="{{ url_for('static', filename='img/quest/flag/pipe/hole.png') }}" alt="">
+    <img data-flag-source="hole-pipe-straight" src="{{ url_for('static', filename='img/quest/flag/pipe/hole-pipe-straight.png') }}" alt="">
+    <img data-flag-source="hole-pipe-elbow" src="{{ url_for('static', filename='img/quest/flag/pipe/hole-pipe-elbow.png') }}" alt="">
+    <img data-flag-source="hole-pipe-zigzag" src="{{ url_for('static', filename='img/quest/flag/pipe/hole-pipe-zigzag.png') }}" alt="">
+    <img data-flag-source="hole-pipe-wave" src="{{ url_for('static', filename='img/quest/flag/pipe/hole-pipe-wave.png') }}" alt="">
+    <img data-flag-source="pipe-straight" src="{{ url_for('static', filename='img/quest/flag/pipe/pipe-straight.png') }}" alt="">
+    <img data-flag-source="pipe-elbow" src="{{ url_for('static', filename='img/quest/flag/pipe/pipe-elbow.png') }}" alt="">
+    <img data-flag-source="pipe-zigzag" src="{{ url_for('static', filename='img/quest/flag/pipe/pipe-zigzag.png') }}" alt="">
+    <img data-flag-source="pipe-wave" src="{{ url_for('static', filename='img/quest/flag/pipe/pipe-wave.png') }}" alt="">
+    {% for n in range(1, 5) %}
+      <img data-flag-source="raise-{{ n }}" src="{{ url_for('static', filename='img/quest/flag/pipe/raise-' ~ n ~ '.jpg') }}" alt="">
+    {% endfor %}
+  </div>
+
+  <noscript>
+    <p class="small muted">{{ L('旗桿遊戲需要開啟 JavaScript。請開啟後再試，或請領袖協助。',
+                                'The flagpole needs JavaScript. Enable it and try again, or ask your leader for help.') }}</p>
+  </noscript>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/flag.js') }}?v={{ asset_v('js/flag.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,925 @@
+{
+  "title_zh": "溪谷旗桿",
+  "title_en": "The valley flagpole",
+  "pass_mark": 30,
+  "total": 30,
+  "note_zh": "國旗、國徽圖：中國人大網及中國政府網公布的標準版本；區旗、區徽圖：香港特區政府禮賓處公布的圖樣。",
+  "note_en": "National flag and emblem: the standard versions published by the National People's Congress and the PRC government. Regional flag and emblem: the artwork published by the Protocol Division of the HKSAR Government.",
+  "stations": [
+    {
+      "id": "look",
+      "kind": "tap",
+      "name_zh": "認旗徽",
+      "name_en": "Name them",
+      "lead_zh": "風把筆記掀上了。四幅圖還在溪邊，你要自己說出每一幅是甚麼。",
+      "lead_en": "The wind shuts the notebook. The four pictures are still by the stream. Name each one yourself.",
+      "questions": [
+        {
+          "id": "q1",
+          "art": "flag-regional",
+          "prompt_zh": "請替以下圖案配上適當的名稱。",
+          "prompt_en": "Name this picture.",
+          "options_zh": [
+            "區旗",
+            "國旗",
+            "國徽",
+            "區徽"
+          ],
+          "options_en": [
+            "Regional flag",
+            "National flag",
+            "National emblem",
+            "Regional emblem"
+          ],
+          "answer": 0,
+          "echo_zh": "袋子裡第一塊、中間有白花的，是區旗。",
+          "echo_en": "The first cloth, the one with the white flower, is the regional flag."
+        },
+        {
+          "id": "q2",
+          "art": "flag-national",
+          "prompt_zh": "請替以下圖案配上適當的名稱。",
+          "prompt_en": "Name this picture.",
+          "options_zh": [
+            "國旗",
+            "區旗",
+            "區徽",
+            "國徽"
+          ],
+          "options_en": [
+            "National flag",
+            "Regional flag",
+            "Regional emblem",
+            "National emblem"
+          ],
+          "answer": 0,
+          "echo_zh": "五顆黃星的那一塊，是國旗。",
+          "echo_en": "The cloth with five yellow stars is the national flag."
+        },
+        {
+          "id": "q3",
+          "art": "emblem-national",
+          "prompt_zh": "請替以下圖案配上適當的名稱。",
+          "prompt_en": "Name this picture.",
+          "options_zh": [
+            "國徽",
+            "國旗",
+            "區徽",
+            "區旗"
+          ],
+          "options_en": [
+            "National emblem",
+            "National flag",
+            "Regional emblem",
+            "Regional flag"
+          ],
+          "answer": 0,
+          "echo_zh": "有城樓和齒輪的圓章，是國徽。",
+          "echo_en": "The round badge with the gate and the gear is the national emblem."
+        },
+        {
+          "id": "q4",
+          "art": "emblem-regional",
+          "prompt_zh": "請替以下圖案配上適當的名稱。",
+          "prompt_en": "Name this picture.",
+          "options_zh": [
+            "區旗",
+            "國徽",
+            "區徽",
+            "國旗"
+          ],
+          "options_en": [
+            "Regional flag",
+            "National emblem",
+            "Regional emblem",
+            "National flag"
+          ],
+          "answer": 2,
+          "echo_zh": "白花圍成一圈的圓章，是區徽。",
+          "echo_en": "The round badge with the white flower in a ring is the regional emblem."
+        }
+      ],
+      "learn": [
+        {
+          "title_zh": "袋子裡的第一塊布",
+          "title_en": "The first cloth in the pack",
+          "body_zh": "你解開袋子。第一塊布是紅的，中間一朵白花，像在風裡動。",
+          "body_en": "You open the pack. The first cloth is red, with a white flower in the middle, as if it were moving in the wind.",
+          "art": "flag-regional",
+          "fact_zh": "筆記寫：這是香港特別行政區區旗。",
+          "fact_en": "The notebook says: this is the regional flag of the Hong Kong SAR."
+        },
+        {
+          "title_zh": "五顆星的那一塊",
+          "title_en": "The cloth with five stars",
+          "body_zh": "第二塊也是紅的，角上五顆黃星。",
+          "body_en": "The second cloth is red too, with five yellow stars in the corner.",
+          "art": "flag-national",
+          "fact_zh": "筆記寫：這是中華人民共和國國旗。",
+          "fact_en": "The notebook says: this is the national flag of the People's Republic of China."
+        },
+        {
+          "title_zh": "圓的紅章",
+          "title_en": "A round red badge",
+          "body_zh": "袋底有一塊圓章，紅底上是城樓、齒輪，還有麥和稻。",
+          "body_en": "At the bottom of the pack is a round badge: a gate, a gear, and ears of wheat and rice on red.",
+          "art": "emblem-national",
+          "fact_zh": "筆記寫：這是國徽。",
+          "fact_en": "The notebook says: this is the national emblem."
+        },
+        {
+          "title_zh": "另一塊圓章",
+          "title_en": "The other round badge",
+          "body_zh": "還有一塊圓章，白花圍成一圈，每瓣裡有一顆星。",
+          "body_en": "There is another round badge: a white flower in a ring, a star in each petal.",
+          "art": "emblem-regional",
+          "fact_zh": "筆記寫：這是區徽。",
+          "fact_en": "The notebook says: this is the regional emblem."
+        }
+      ]
+    },
+    {
+      "id": "stars",
+      "kind": "parts",
+      "name_zh": "國旗",
+      "name_en": "The national flag",
+      "lead_zh": "筆記合上了。旗上的部分一一發光。點開它，說出筆記裡的那一句。",
+      "lead_en": "The notebook closes. The parts of the flag glow, one by one. Tap each one and say what the notebook said.",
+      "questions": [
+        {
+          "id": "q5",
+          "part": "field",
+          "prompt_zh": "中華人民共和國國旗的紅色象徵甚麼？",
+          "prompt_en": "What does the red of the national flag stand for?",
+          "options_zh": [
+            "喜慶",
+            "豐收",
+            "革命",
+            "和平"
+          ],
+          "options_en": [
+            "Celebration",
+            "Harvest",
+            "Revolution",
+            "Peace"
+          ],
+          "answer": 2,
+          "echo_zh": "國旗的紅色象徵革命。",
+          "echo_en": "The red of the national flag stands for revolution."
+        },
+        {
+          "id": "q6",
+          "part": "stars",
+          "prompt_zh": "國旗上的五顆黃星象徵甚麼？",
+          "prompt_en": "What do the five yellow stars stand for?",
+          "options_zh": [
+            "五個民族",
+            "五個省份",
+            "中國人民大團結",
+            "五項原則"
+          ],
+          "options_en": [
+            "Five peoples",
+            "Five provinces",
+            "The great unity of the Chinese people",
+            "Five principles"
+          ],
+          "answer": 2,
+          "echo_zh": "五顆黃星象徵中國人民大團結。",
+          "echo_en": "The five yellow stars stand for the great unity of the Chinese people."
+        },
+        {
+          "id": "q7",
+          "part": "big",
+          "prompt_zh": "最大的那顆黃星代表甚麼？",
+          "prompt_en": "What does the largest yellow star stand for?",
+          "options_zh": [
+            "中國共產黨",
+            "中國人民",
+            "中華民族",
+            "中央人民政府"
+          ],
+          "options_en": [
+            "The Communist Party of China",
+            "The Chinese people",
+            "The Chinese nation",
+            "The Central People's Government"
+          ],
+          "answer": 0,
+          "echo_zh": "最大的黃星代表中國共產黨。",
+          "echo_en": "The largest yellow star stands for the Communist Party of China."
+        },
+        {
+          "id": "q8",
+          "part": "small",
+          "prompt_zh": "四顆小星代表四個階級。以下哪一個不是四顆小星所代表的階級？",
+          "prompt_en": "The four small stars stand for four classes. Which of the following is not one of those classes?",
+          "options_zh": [
+            "工人階級",
+            "農民階級",
+            "城市小資產階級",
+            "地主階級"
+          ],
+          "options_en": [
+            "The working class",
+            "The peasantry",
+            "The urban petty bourgeoisie",
+            "The landlord class"
+          ],
+          "answer": 3,
+          "echo_zh": "四顆小星代表工人階級、農民階級、城市小資產階級和民族資產階級。地主階級不在其中。",
+          "echo_en": "The four small stars stand for the working class, the peasantry, the urban petty bourgeoisie and the national bourgeoisie. The landlord class is not one of them."
+        },
+        {
+          "id": "q9",
+          "part": "point",
+          "prompt_zh": "四顆小星各有一角指向大星的中心，這表示甚麼？",
+          "prompt_en": "Each small star has one point aimed at the centre of the big star. What does that show?",
+          "options_zh": [
+            "四個階級互相對立",
+            "星星圍着太陽轉",
+            "五星各管一方",
+            "中國共產黨領導下的革命人民大團結"
+          ],
+          "options_en": [
+            "The four classes stand against each other",
+            "Stars circling the sun",
+            "Each star governs one region",
+            "The great unity of the revolutionary people under the leadership of the Communist Party of China"
+          ],
+          "answer": 3,
+          "echo_zh": "小星指向大星，表示中國共產黨領導下的革命人民大團結。",
+          "echo_en": "The small stars pointing at the big star show the great unity of the revolutionary people under the leadership of the Communist Party of China."
+        }
+      ],
+      "learn": [
+        {
+          "title_zh": "整面紅",
+          "title_en": "The red field",
+          "body_zh": "你把國旗攤在溪石上。整面是紅的，筆記在這一頁畫了一條線。",
+          "body_en": "You spread the national flag on a stream stone. The whole field is red, and the notebook has drawn a line on this page.",
+          "art": "flag-national",
+          "part": "field",
+          "fact_zh": "紅色象徵革命。",
+          "fact_en": "The red stands for revolution."
+        },
+        {
+          "title_zh": "五顆黃星",
+          "title_en": "Five yellow stars",
+          "body_zh": "五顆黃星聚在旗的一角。最大的那顆在旁邊，四顆小的圍著它。",
+          "body_en": "Five yellow stars gather in one corner. The largest sits apart, and four small ones gather near it.",
+          "art": "flag-national",
+          "part": "stars",
+          "fact_zh": "五顆星象徵中國人民大團結。最大的那顆代表中國共產黨。",
+          "fact_en": "The five stars stand for the great unity of the Chinese people. The largest stands for the Communist Party of China."
+        },
+        {
+          "title_zh": "四顆小星的一角",
+          "title_en": "One point of each small star",
+          "body_zh": "四顆小星各有一角，對準大星的中心。",
+          "body_en": "Each small star has one point aimed at the centre of the big star.",
+          "art": "flag-national",
+          "part": "point",
+          "fact_zh": "四顆小星代表工人階級、農民階級、城市小資產階級和民族資產階級。這個指向，表示中國共產黨領導下的革命人民大團結。",
+          "fact_en": "The four small stars stand for the working class, the peasantry, the urban petty bourgeoisie and the national bourgeoisie. The pointing shows the great unity of the revolutionary people under the leadership of the Communist Party of China."
+        }
+      ]
+    },
+    {
+      "id": "flower",
+      "kind": "parts",
+      "name_zh": "區旗",
+      "name_en": "The regional flag",
+      "lead_zh": "花還在旗上。點開發光的地方，用自己的話說出來。",
+      "lead_en": "The flower is still on the flag. Tap the glowing part and say it in your own words.",
+      "questions": [
+        {
+          "id": "q10",
+          "part": "field",
+          "prompt_zh": "香港特別行政區區旗的紅色背景代表甚麼？",
+          "prompt_en": "What does the red ground of the regional flag stand for?",
+          "options_zh": [
+            "革命",
+            "中國",
+            "喜慶",
+            "香港"
+          ],
+          "options_en": [
+            "Revolution",
+            "China",
+            "Celebration",
+            "Hong Kong"
+          ],
+          "answer": 1,
+          "echo_zh": "區旗的紅色背景代表中國。",
+          "echo_en": "The red ground of the regional flag stands for China."
+        },
+        {
+          "id": "q11",
+          "part": "flower",
+          "prompt_zh": "區旗上的花是甚麼花？",
+          "prompt_en": "Which flower is on the regional flag?",
+          "options_zh": [
+            "蓮花",
+            "梅花",
+            "洋紫荊",
+            "玫瑰"
+          ],
+          "options_en": [
+            "Lotus",
+            "Plum blossom",
+            "Bauhinia",
+            "Rose"
+          ],
+          "answer": 2,
+          "echo_zh": "區旗上的花是洋紫荊。",
+          "echo_en": "The flower on the regional flag is a bauhinia."
+        },
+        {
+          "id": "q12",
+          "part": "colours",
+          "prompt_zh": "區旗紅白兩色並用，象徵甚麼？",
+          "prompt_en": "Red and white are used together on the regional flag. What does that stand for?",
+          "options_zh": [
+            "和平與繁榮",
+            "東西方交融",
+            "五星紅旗的延伸",
+            "一國兩制"
+          ],
+          "options_en": [
+            "Peace and prosperity",
+            "East meeting West",
+            "An extension of the national flag",
+            "One Country, Two Systems"
+          ],
+          "answer": 3,
+          "echo_zh": "紅白兩色象徵一國兩制。",
+          "echo_en": "Red and white together stand for One Country, Two Systems."
+        }
+      ],
+      "learn": [
+        {
+          "title_zh": "區旗的紅底",
+          "title_en": "The red ground",
+          "body_zh": "區旗也是紅的，可是筆記說，這紅色和國旗的紅色不是同一個意思。",
+          "body_en": "The regional flag is red too, but the notebook says this red does not mean the same thing as the national flag's red.",
+          "art": "flag-regional",
+          "part": "field",
+          "fact_zh": "區旗的紅色背景代表中國。中間的花是洋紫荊。",
+          "fact_en": "The red ground stands for China. The flower in the middle is a bauhinia."
+        },
+        {
+          "title_zh": "紅與白",
+          "title_en": "Red and white",
+          "body_zh": "白花放在紅底上。兩種顏色並在一起，筆記在旁邊寫了一行。",
+          "body_en": "A white flower on a red ground. The two colours sit together, and the notebook has a line beside them.",
+          "art": "flag-regional",
+          "part": "colours",
+          "fact_zh": "紅白兩色並用，象徵一國兩制。",
+          "fact_en": "Red and white together stand for One Country, Two Systems."
+        }
+      ]
+    },
+    {
+      "id": "poles",
+      "kind": "poles",
+      "name_zh": "兩支旗桿",
+      "name_en": "Two flagpoles",
+      "lead_zh": "現在換你。把兩面旗拖上旗桿，再判斷筆記裡的那句話對不對。",
+      "lead_en": "Your turn. Drag both flags onto the poles, then say whether the notebook's line is true.",
+      "questions": [
+        {
+          "id": "q13",
+          "setup": "march",
+          "prompt_zh": "列隊持旗行進時，國旗走在最前。",
+          "prompt_en": "When flags are carried in a parade, the national flag goes first.",
+          "options_zh": [
+            "正確",
+            "錯誤"
+          ],
+          "options_en": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "echo_zh": "持旗行進時國旗走在最前。這句正確。",
+          "echo_en": "When flags are carried, the national flag goes first. True."
+        },
+        {
+          "id": "q14",
+          "setup": "hang",
+          "prompt_zh": "兩旗平列懸掛時，左方是國旗。",
+          "prompt_en": "When the two flags hang side by side, the national flag is on the left.",
+          "options_zh": [
+            "正確",
+            "錯誤"
+          ],
+          "options_en": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why_zh": "以背向牆壁的人的左右為準，國旗在右方。",
+          "why_en": "Take left and right from someone facing away from the wall: the national flag is on the right.",
+          "echo_zh": "背向牆壁來看，國旗在右方。左方是國旗，這句錯誤。",
+          "echo_en": "With your back to the wall, the national flag is on the right. The claim that it is on the left is false."
+        },
+        {
+          "id": "q15",
+          "setup": "one",
+          "prompt_zh": "國旗和區旗可以同掛在一支旗桿上。",
+          "prompt_en": "The national flag and the regional flag may fly from the same pole.",
+          "options_zh": [
+            "正確",
+            "錯誤"
+          ],
+          "options_en": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why_zh": "每支旗桿只掛一面旗。",
+          "why_en": "One flag to a pole.",
+          "echo_zh": "每支旗桿只掛一面旗。同掛一桿，這句錯誤。",
+          "echo_en": "One flag to a pole. Sharing a pole is false."
+        },
+        {
+          "id": "q16",
+          "setup": "raise",
+          "prompt_zh": "兩旗並列升起時，國旗先升。",
+          "prompt_en": "When the two flags are raised together, the national flag goes up first.",
+          "options_zh": [
+            "正確",
+            "錯誤"
+          ],
+          "options_en": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "echo_zh": "並列升起，國旗先升。這句正確。",
+          "echo_en": "Raised together, the national flag goes up first. True."
+        },
+        {
+          "id": "q17",
+          "setup": "lower",
+          "prompt_zh": "兩旗並列降下時，國旗先降。",
+          "prompt_en": "When the two flags are lowered together, the national flag comes down first.",
+          "options_zh": [
+            "正確",
+            "錯誤"
+          ],
+          "options_en": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why_zh": "國旗最後才降。",
+          "why_en": "The national flag is lowered last.",
+          "echo_zh": "國旗最後才降，不是先降。這句錯誤。",
+          "echo_en": "The national flag is lowered last, not first. False."
+        },
+        {
+          "id": "q18",
+          "setup": "music",
+          "prompt_zh": "升旗和降旗都要奏國歌。",
+          "prompt_en": "The anthem is played both when the flag is raised and when it is lowered.",
+          "options_zh": [
+            "正確",
+            "錯誤"
+          ],
+          "options_en": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why_zh": "只有升旗才奏國歌。",
+          "why_en": "The anthem is played only when the flag is raised.",
+          "echo_zh": "只有升旗才奏國歌。升降都奏，這句錯誤。",
+          "echo_en": "The anthem is played only when the flag is raised. False."
+        }
+      ],
+      "learn": [
+        {
+          "title_zh": "行進的隊伍",
+          "title_en": "The parade",
+          "body_zh": "筆記畫了一小隊人，沿著溪邊走，手裡持著旗。",
+          "body_en": "The notebook draws a small patrol walking the bank, flags in their hands.",
+          "scene": "poles",
+          "fact_zh": "列隊持旗行進時，國旗走在最前。這句是正確的。",
+          "fact_en": "When flags are carried in a parade, the national flag goes first. That statement is true."
+        },
+        {
+          "title_zh": "牆上的左右",
+          "title_en": "Left and right on the wall",
+          "body_zh": "兩面旗平排掛著。筆記要你轉過身，背向牆壁，再用自己的左右去看。",
+          "body_en": "The two flags hang side by side. The notebook tells you to turn your back to the wall, and take left and right from there.",
+          "scene": "poles",
+          "fact_zh": "那樣看，國旗在右方，不在左方。所以「左方是國旗」是錯誤的。而且每支旗桿只掛一面旗，兩面旗不可以同掛一桿。",
+          "fact_en": "Seen that way, the national flag is on the right, not the left. So the claim that it is on the left is false. And one flag to a pole — the two flags may not share a pole."
+        },
+        {
+          "title_zh": "先升後降",
+          "title_en": "Up first, down last",
+          "body_zh": "筆記的最後一幅小圖，是兩支旗桿一起升降。",
+          "body_en": "The notebook's last small drawing is the two poles, raising and lowering together.",
+          "scene": "poles",
+          "fact_zh": "並列升起時，國旗先升，這句正確。並列降下時，國旗最後才降，不是先降。升旗才奏國歌，降旗不奏。",
+          "fact_en": "Raised together, the national flag goes up first — true. Lowered together, it comes down last, not first. The anthem is played only when the flag is raised, not when it is lowered."
+        }
+      ]
+    },
+    {
+      "id": "anthem",
+      "kind": "tap",
+      "name_zh": "國歌",
+      "name_en": "The anthem",
+      "lead_zh": "樂譜上的字淡了。點每一個問號，把筆記裡的答案唱回來。",
+      "lead_en": "The words on the score have faded. Tap each mark and sing the notebook's answer back.",
+      "questions": [
+        {
+          "id": "q19",
+          "prompt_zh": "國歌的名稱是甚麼？",
+          "prompt_en": "What is the anthem called?",
+          "options_zh": [
+            "黃河大合唱",
+            "歌唱祖國",
+            "東方紅",
+            "義勇軍進行曲"
+          ],
+          "options_en": [
+            "The Yellow River Cantata",
+            "Ode to the Motherland",
+            "The East is Red",
+            "March of the Volunteers"
+          ],
+          "answer": 3,
+          "echo_zh": "國歌的名稱是義勇軍進行曲。",
+          "echo_en": "The anthem is called March of the Volunteers."
+        },
+        {
+          "id": "q20",
+          "prompt_zh": "國歌在哪一年被正式採用？",
+          "prompt_en": "In which year was the anthem officially adopted?",
+          "options_zh": [
+            "一九四九年",
+            "一九四五年",
+            "一九一九年",
+            "一九七八年"
+          ],
+          "options_en": [
+            "1949",
+            "1945",
+            "1919",
+            "1978"
+          ],
+          "answer": 0,
+          "echo_zh": "正式採用的年份是一九四九年。",
+          "echo_en": "It was officially adopted in 1949."
+        },
+        {
+          "id": "q21",
+          "prompt_zh": "國歌原是哪一套電影的主題曲？",
+          "prompt_en": "The anthem was first the theme of which film?",
+          "options_zh": [
+            "風雲兒女",
+            "大路",
+            "漁光曲",
+            "馬路天使"
+          ],
+          "options_en": [
+            "Children of Troubled Times",
+            "The Big Road",
+            "Song of the Fishermen",
+            "Street Angel"
+          ],
+          "answer": 0,
+          "echo_zh": "它原是電影《風雲兒女》的主題曲。",
+          "echo_en": "It was first the theme of the film Children of Troubled Times."
+        },
+        {
+          "id": "q22",
+          "prompt_zh": "為甚麼採用這首歌做國歌？",
+          "prompt_en": "Why was this song adopted as the anthem?",
+          "options_zh": [
+            "提醒人民居安思危",
+            "曲調容易唱",
+            "歌詞最短",
+            "它是最早的一首進行曲"
+          ],
+          "options_en": [
+            "To remind the people to think of danger in times of peace",
+            "The tune is easy to sing",
+            "The words are the shortest",
+            "It was the earliest march"
+          ],
+          "answer": 0,
+          "echo_zh": "採用它，是要提醒人民居安思危。",
+          "echo_en": "It was adopted to remind the people to think of danger in times of peace."
+        }
+      ],
+      "learn": [
+        {
+          "title_zh": "樂譜最上的名字",
+          "title_en": "The name at the top of the score",
+          "body_zh": "筆記夾著一頁舊樂譜，邊角都濕了。最上的一行是歌名，旁邊有年份，還有一套電影的名字。",
+          "body_en": "The notebook holds an old score, damp at the corners. The top line is the song's name, with a year beside it, and the name of a film.",
+          "scene": "score",
+          "fact_zh": "國歌叫《義勇軍進行曲》，一九四九年正式採用。它原本是電影《風雲兒女》的主題曲。",
+          "fact_en": "The anthem is called March of the Volunteers. It was officially adopted in 1949. It was first the theme of the film Children of Troubled Times."
+        },
+        {
+          "title_zh": "為甚麼是這一首",
+          "title_en": "Why this song",
+          "body_zh": "樂譜底下有一行小字，像是回答一個還沒有問出口的問題。",
+          "body_en": "Under the score is a small line, as if answering a question not yet asked.",
+          "scene": "score",
+          "fact_zh": "採用這首歌，是要提醒人民居安思危。",
+          "fact_en": "It was adopted to remind the people to think of danger in times of peace."
+        }
+      ]
+    },
+    {
+      "id": "sing",
+      "kind": "sing",
+      "name_zh": "唱國歌",
+      "name_en": "Sing it",
+      "lead_zh": "溪風把那幾個字吹走了。點開空格，把字唱回去。",
+      "lead_en": "The stream wind has blown those words away. Tap each gap and sing the word back in.",
+      "lines_zh": [
+        "起來！不願做{q23}的人們！",
+        "把我們的血肉，築成我們新的{q24}！",
+        "{q25}到了最危險的時候，",
+        "每個人被迫着發出最後的{q26}。",
+        "起來！起來！起來！",
+        "我們{q27}，",
+        "冒着敵人的炮火，前進！",
+        "冒着敵人的炮火，前進！",
+        "前進！前進！{q28}！"
+      ],
+      "lines_en": [
+        "Arise, ye who refuse to be {q23}!",
+        "With our flesh and blood, let us build a new {q24}!",
+        "The {q25} faces its greatest danger,",
+        "and each of us is forced to give out a final {q26}.",
+        "Arise! Arise! Arise!",
+        "Our million hearts beat as {q27},",
+        "Brave the enemy's fire, march on!",
+        "Brave the enemy's fire, march on!",
+        "March on! March on! {q28}!"
+      ],
+      "questions": [
+        {
+          "id": "q23",
+          "prompt_zh": "起來！不願做____的人們！",
+          "prompt_en": "Arise, ye who refuse to be ____!",
+          "options_zh": [
+            "主人",
+            "臣民",
+            "奴隸",
+            "俘虜"
+          ],
+          "options_en": [
+            "masters",
+            "subjects",
+            "slaves",
+            "captives"
+          ],
+          "answer": 2,
+          "echo_zh": "那一句是：不願做奴隸的人們。",
+          "echo_en": "The line is: ye who refuse to be slaves."
+        },
+        {
+          "id": "q24",
+          "prompt_zh": "把我們的血肉，築成我們新的____！",
+          "prompt_en": "With our flesh and blood, let us build a new ____!",
+          "options_zh": [
+            "家園",
+            "國家",
+            "長城",
+            "城牆"
+          ],
+          "options_en": [
+            "home",
+            "country",
+            "Great Wall",
+            "city wall"
+          ],
+          "answer": 2,
+          "echo_zh": "築成我們新的長城。",
+          "echo_en": "Let us build a new Great Wall."
+        },
+        {
+          "id": "q25",
+          "prompt_zh": "____到了最危險的時候，",
+          "prompt_en": "The ____ faces its greatest danger,",
+          "options_zh": [
+            "中國人民",
+            "中國",
+            "祖國",
+            "中華民族"
+          ],
+          "options_en": [
+            "Chinese people",
+            "China",
+            "motherland",
+            "Chinese nation"
+          ],
+          "answer": 3,
+          "echo_zh": "中華民族到了最危險的時候。",
+          "echo_en": "The Chinese nation faces its greatest danger."
+        },
+        {
+          "id": "q26",
+          "prompt_zh": "每個人被迫着發出最後的____。",
+          "prompt_en": "Each of us is forced to give out a final ____.",
+          "options_zh": [
+            "吼聲",
+            "呼聲",
+            "歌聲",
+            "吶喊"
+          ],
+          "options_en": [
+            "roar",
+            "cry",
+            "song",
+            "shout"
+          ],
+          "answer": 0,
+          "echo_zh": "發出最後的吼聲。",
+          "echo_en": "Give out a final roar."
+        },
+        {
+          "id": "q27",
+          "prompt_zh": "我們____，",
+          "prompt_en": "Our million hearts beat as ____,",
+          "options_zh": [
+            "團結一致",
+            "萬眾一心",
+            "同心協力",
+            "眾志成城"
+          ],
+          "options_en": [
+            "one in unity",
+            "one",
+            "one in effort",
+            "one in will"
+          ],
+          "answer": 1,
+          "echo_zh": "我們萬眾一心。",
+          "echo_en": "Our million hearts beat as one."
+        },
+        {
+          "id": "q28",
+          "prompt_zh": "前進！前進！____！",
+          "prompt_en": "March on! March on! ____!",
+          "options_zh": [
+            "進",
+            "衝",
+            "上",
+            "前"
+          ],
+          "options_en": [
+            "On",
+            "Charge",
+            "Up",
+            "Forward"
+          ],
+          "answer": 0,
+          "echo_zh": "前進！前進！進！",
+          "echo_en": "March on! March on! On!"
+        }
+      ],
+      "learn": [
+        {
+          "title_zh": "第一句",
+          "title_en": "The first line",
+          "body_zh": "筆記要你先把開頭兩句唱出來，缺的字它已經填好。",
+          "body_en": "The notebook asks you to sing the first two lines. It has already filled the missing words.",
+          "scene": "score",
+          "fact_zh": "起來！不願做奴隸的人們！把我們的血肉，築成我們新的長城！",
+          "fact_en": "Arise, ye who refuse to be slaves! With our flesh and blood, let us build a new Great Wall!"
+        },
+        {
+          "title_zh": "最危險的時候",
+          "title_en": "The hour of greatest danger",
+          "body_zh": "再唱下去。誰到了最危險的時候，每個人被迫發出甚麼。",
+          "body_en": "Sing on. Who faces the greatest danger, and what is each of us forced to give out.",
+          "scene": "score",
+          "fact_zh": "中華民族到了最危險的時候，每個人被迫着發出最後的吼聲。",
+          "fact_en": "The Chinese nation faces its greatest danger, and each of us is forced to give out a final roar."
+        },
+        {
+          "title_zh": "最後一個字",
+          "title_en": "The last word",
+          "body_zh": "筆記把結尾兩句圈了起來。",
+          "body_en": "The notebook has circled the last two lines.",
+          "scene": "score",
+          "fact_zh": "我們萬眾一心。前進！前進！進！",
+          "fact_en": "Our million hearts beat as one. March on! March on! On!"
+        }
+      ]
+    },
+    {
+      "id": "raise",
+      "kind": "raise",
+      "name_zh": "升旗",
+      "name_en": "Raise the flag",
+      "lead_zh": "按住國旗，沿著繩子拉到桿頂。升上去之後，回答最後兩題。",
+      "lead_en": "Hold the national flag and draw it up the rope to the top. Then answer the last two questions.",
+      "questions": [
+        {
+          "id": "q29",
+          "prompt_zh": "升旗時，國歌奏多久？",
+          "prompt_en": "How long does the anthem play while the flag is raised?",
+          "options_zh": [
+            "約 20 秒",
+            "約 45 至 49 秒",
+            "約 90 秒",
+            "整首歌唱兩遍"
+          ],
+          "options_en": [
+            "About 20 seconds",
+            "About 45 to 49 seconds",
+            "About 90 seconds",
+            "The song sung twice"
+          ],
+          "answer": 1,
+          "why_zh": "旗要在國歌奏完時剛好升到桿頂。",
+          "why_en": "The flag should reach the top just as the anthem ends.",
+          "echo_zh": "國歌大約奏四十五至四十九秒。",
+          "echo_en": "The anthem plays for about forty-five to forty-nine seconds."
+        },
+        {
+          "id": "q30",
+          "prompt_zh": "穿整齊制服列隊看升旗，誰敬禮？",
+          "prompt_en": "In uniform, formed up for the flag raising, who salutes?",
+          "options_zh": [
+            "全體童軍都敬禮",
+            "只有領袖敬禮，其餘立正",
+            "只有最前排敬禮",
+            "沒有人敬禮，全部稍息"
+          ],
+          "options_en": [
+            "Every Scout salutes",
+            "Only the leaders salute; the rest stand at attention",
+            "Only the front rank salutes",
+            "Nobody salutes; everyone stands at ease"
+          ],
+          "answer": 1,
+          "echo_zh": "只有領袖敬禮，其餘的人立正。",
+          "echo_en": "Only the leaders salute; the rest stand at attention."
+        }
+      ],
+      "learn": [
+        {
+          "title_zh": "清晨的升旗",
+          "title_en": "The morning raising",
+          "body_zh": "筆記最後一頁只有兩行，寫在繩子的圖旁邊。",
+          "body_en": "The notebook's last page has only two lines, written beside a drawing of the rope.",
+          "scene": "raise",
+          "fact_zh": "升旗配合國歌，大約四十五至四十九秒，歌奏完，旗剛好到桿頂。穿整齊制服列隊時，只有領袖敬禮，其餘的人立正。",
+          "fact_en": "Raise the flag with the anthem, about forty-five to forty-nine seconds, so it reaches the top as the music ends. In uniform, formed up, only the leaders salute; everyone else stands at attention."
+        }
+      ]
+    }
+  ],
+  "rule_zh": "先在故事裡讀筆記，再自己做升旗禮。禮做完，即完成第 7 至 10 項。",
+  "rule_en": "Read the notebook inside the story, then perform the ceremony yourself. Finishing it clears items 7 to 10.",
+  "intro": [
+    {
+      "title_zh": "山脊在身後",
+      "title_en": "The ridge is behind you",
+      "body_zh": "步操場還在上面。小徑轉過石壁，忽然向下。霧薄了，你聽見溪水，也聞到一點海的味道。",
+      "body_en": "The parade ground is still above you. The path turns past the cliff and drops. The mist thins. You hear a stream, and a little of the sea."
+    },
+    {
+      "prop": "notebook",
+      "title_zh": "空著的旗桿",
+      "title_en": "The empty flagpole",
+      "body_zh": "溪邊立著一支旗桿，繩子垂下來，上面沒有旗。桿腳綁著一個帆布袋，袋帶下壓著一本被水浸過的筆記。",
+      "body_en": "A flagpole stands by the stream, its rope hanging empty. A canvas pack is tied at the foot, and a water-stained notebook is tucked under the strap."
+    },
+    {
+      "prop": "notebook",
+      "title_zh": "筆記",
+      "title_en": "Notebook",
+      "body_zh": "第一頁寫著：去海邊的路，要等清晨的升旗禮做對了才會開。先讀這本筆記，再自己做一次。旗升到桿頂，谷口就通向木筏。",
+      "body_en": "The first page says the way to the sea stays shut until the morning ceremony is done right. Read the notebook, then do it yourself. When the flag reaches the top, the valley opens toward the raft."
+    }
+  ],
+  "ending": [
+    {
+      "title_zh": "旗在桿頂",
+      "title_en": "The flag at the top",
+      "body_zh": "繩子停了。國旗在晨風裡展開。溪水還在流，可是谷口的樹分開了一點。",
+      "body_en": "The rope goes still. The national flag opens in the morning wind. The stream still runs, but the trees at the valley mouth have parted a little."
+    },
+    {
+      "title_zh": "通向海邊",
+      "title_en": "Toward the sea",
+      "body_zh": "你看見一條淡色的光。那是海。第 7 至 10 項，就在這一次升旗裡完成。前面還有臨海山崗，木筏正在沙灘上等候。",
+      "body_en": "You see a pale line of light. That is the sea. Items 7 to 10 are done in this one ceremony. The seaward bluff is still ahead, and the raft is waiting on the beach."
+    }
+  ]
+}

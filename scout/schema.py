@@ -111,6 +111,24 @@ COLLECTIONS: dict[str, dict] = {
         "label": "Settings",
         "fields": ["key", "value_json", "updated_at"],
     },
+    # One row per scout report or idea sent from the 意見箱. A new tab only —
+    # existing Sheet columns are untouched. (The older `suggestions` tab is
+    # the leader-written recommendation list on Home, a different thing.)
+    "feedback": {
+        "label": "Feedback",
+        "fields": [
+            "id", "user_id", "kind", "title", "body", "status",
+            "points_awarded", "leader_comment", "created_at", "decided_at", "decided_by",
+        ],
+    },
+    # One row per scout. A new tab only — existing Sheet columns are untouched.
+    "gacha": {
+        "label": "Gacha",
+        "fields": [
+            "user_id", "packs_json", "owned_json", "grants_json", "last_open_json",
+            "pity", "opened", "updated_at",
+        ],
+    },
 }
 
 COLLECTION_ORDER = list(COLLECTIONS.keys())
@@ -120,19 +138,21 @@ JSON_FIELDS = {
     "guide_json",          # 會員章的完成指南（一整份結構）
     "prerequisite_badge_ids", "config_json", "answers_json", "checklist_json",
     "detail_json", "value_json",
+    "packs_json", "owned_json", "grants_json", "last_open_json",
 }
 #: Fields stored as numbers.
 NUMBER_FIELDS = {
     "order_index", "points_reward", "points", "pass_score", "attempt_no", "score",
     "points_awarded", "points_delta", "points_cost", "stock", "points_balance",
     "tasks_done", "badges_done", "streak_current", "streak_best",
+    "pity", "opened",
 }
 #: Fields stored as booleans.
 BOOL_FIELDS = {"must_change_password", "show_on_leaderboard", "active", "pinned"}
 
 
 def key_field(collection: str) -> str:
-    if collection == "stats":
+    if collection in ("stats", "gacha"):
         return "user_id"
     if collection == "settings":
         return "key"
@@ -154,6 +174,7 @@ DEFAULT_SETTINGS: dict = {
         "evidence_upload": True,
         "streaks": True,
         "announcements": True,
+        "gacha": True,            # 抽卡 — on; a leader can hide it
     },
     "leaderboard_metrics": ["badges", "tasks"],
     "leaderboard_scopes": ["unit", "patrol", "all"],
@@ -322,27 +343,25 @@ SEED_BADGES = [
             },
             {
                 "code": "M07",
-                "title_zh": "第 7 項：國旗與國徽",
-                "title_en": "Item 7 — national flag and emblem",
-                "instruction_zh": "能辨認中華人民共和國國旗和國徽，並能說明其含意。完成「第 7 至 10 項試卷」（24 分／30 分合格）後打勾。",
-                "instruction_en": "Recognise the national flag and emblem of the PRC and explain their meaning. Tick this when you have completed the Items 7–10 paper (pass mark 24/30).",
-                "type": "checklist", "points": 10,
-                "config_json": {
-                    "items": [{"zh": "我已完成第 7 至 10 項試卷（24 分／30 分或以上），並能說出國旗、國徽的含意",
-                               "en": "I passed the Items 7–10 paper (24/30 or above) and can explain the national flag and emblem"}],
-                    "links": [
-                        {"label_zh": "第 7 至 10 項試卷（Google Form）", "label_en": "Items 7–10 paper (Google Form)",
-                         "url": "https://forms.gle/NmdM72WapUpbajFHA"},
-                        {"label_zh": "溫習資源", "label_en": "Study resources",
-                         "url": "https://drive.google.com/drive/folders/1LtM4RykgGrrITxZRwWHeN-pWHnxKBKTY?usp=drive_link"},
-                    ]},
+                "title_zh": "第 7 項：溪谷旗桿（遊戲 4）",
+                "title_en": "Item 7 — the valley flagpole (game 4)",
+                "instruction_zh": "能辨認中華人民共和國國旗和國徽，並能說明其含意。第四個區域只有這一個遊戲：沿溪讀筆記，學懂旗徽、升旗禮儀和國歌，再自己做一次升旗禮。禮做完，第 7 至 10 項一起完成。",
+                "instruction_en": "Recognise the national flag and emblem of the PRC and explain their meaning. The fourth area's only game: follow the stream, read the notebook, learn the flags, the ceremony and the anthem, then perform the ceremony yourself. Finishing it clears items 7 to 10 together.",
+                "type": "quiz", "points": 10, "pass_score": 0,
+                "config_json": {"kind": "flag", "require_all": True,
+                                "links": [
+                                    {"label_zh": "第 7 至 10 項試卷（Google Form）", "label_en": "Items 7–10 paper (Google Form)",
+                                     "url": "https://forms.gle/NmdM72WapUpbajFHA"},
+                                    {"label_zh": "溫習資源", "label_en": "Study resources",
+                                     "url": "https://drive.google.com/drive/folders/1LtM4RykgGrrITxZRwWHeN-pWHnxKBKTY?usp=drive_link"},
+                                ]},
             },
             {
                 "code": "M08",
                 "title_zh": "第 8 項：區旗與區徽",
                 "title_en": "Item 8 — regional flag and emblem",
-                "instruction_zh": "能辨認香港特別行政區區旗和區徽，並能說明其含意。由「第 7 至 10 項試卷」考核。",
-                "instruction_en": "Recognise the HKSAR regional flag and emblem and explain their meaning. Covered by the Items 7–10 paper.",
+                "instruction_zh": "能辨認香港特別行政區區旗和區徽，並能說明其含意。由溪谷旗桿的升旗禮一併完成。",
+                "instruction_en": "Recognise the HKSAR regional flag and emblem and explain their meaning. Cleared together when you finish the valley ceremony.",
                 "type": "checklist", "points": 10,
                 "config_json": {
                     "items": [{"zh": "我能認出區旗、區徽，並說出它們的含意",
@@ -356,8 +375,8 @@ SEED_BADGES = [
                 "code": "M09",
                 "title_zh": "第 9 項：國歌奏唱與升旗禮儀",
                 "title_en": "Item 9 — etiquette for the anthem and flag-raising",
-                "instruction_zh": "認識在國歌奏唱和升掛國旗、區旗時應有之禮儀，以及升國旗的基本程序。由「第 7 至 10 項試卷」考核。",
-                "instruction_en": "Know the proper etiquette when the national anthem is played and the flags are raised, and the basic flag-raising procedure. Covered by the Items 7–10 paper.",
+                "instruction_zh": "認識在國歌奏唱和升掛國旗、區旗時應有之禮儀，以及升國旗的基本程序。由溪谷旗桿的升旗禮一併完成。",
+                "instruction_en": "Know the proper etiquette when the national anthem is played and the flags are raised, and the basic flag-raising procedure. Cleared together when you finish the valley ceremony.",
                 "type": "checklist", "points": 10,
                 "config_json": {"items": [
                     {"zh": "我知道國歌奏唱及升旗時應有的禮儀，以及升國旗的基本程序",
@@ -367,8 +386,8 @@ SEED_BADGES = [
                 "code": "M10",
                 "title_zh": "第 10 項：國歌的用意與背唱",
                 "title_en": "Item 10 — purpose of the anthem, sing from memory",
-                "instruction_zh": "明瞭設立國歌的用意，並能背唱之。由「第 7 至 10 項試卷」考核。",
-                "instruction_en": "Understand the purpose of the national anthem and be able to sing it from memory. Covered by the Items 7–10 paper.",
+                "instruction_zh": "明瞭設立國歌的用意，並能背唱之。由溪谷旗桿的升旗禮一併完成。",
+                "instruction_en": "Understand the purpose of the national anthem and be able to sing it from memory. Cleared together when you finish the valley ceremony.",
                 "type": "checklist", "points": 10,
                 "config_json": {"items": [
                     {"zh": "我明瞭國歌的用意，並能背唱國歌",

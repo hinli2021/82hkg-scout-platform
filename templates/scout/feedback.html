@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import empty_state with context %}
+{% block title %}{{ L('意見箱', 'Feedback') }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('scout_routes.home') }}">{{ L('主頁', 'Home') }}</a>
+      <span class="breadcrumb-arrow">›</span>{{ L('意見箱', 'Feedback') }}</div>
+    <h1 style="margin:0">💡 {{ L('意見箱', 'Feedback') }}</h1>
+    <p class="muted small" style="margin:.2rem 0 0">
+      {{ L('平台有問題，或者你有新主意，都可以在這裏告訴領袖。領袖查看後，可能會給你積分作獎勵。',
+           'Found a problem, or have an idea for the platform? Tell your leaders here. After a leader reads it, you may earn points for it.') }}
+    </p>
+  </div>
+</div>
+
+<div class="console-split">
+  <div>
+    <div class="section-title"><h2>✏️ {{ L('寫一項意見', 'Write an entry') }}</h2></div>
+    <form class="card" method="post" action="{{ url_for('feedback_routes.submit') }}">
+      <label class="field"><span>{{ L('這是甚麼？', 'What is this?') }}</span>
+        <span class="row wrap" style="gap:.5rem">
+          {% for key, meta in kinds.items() %}
+            <label class="chip light" style="cursor:pointer">
+              <input type="radio" name="kind" value="{{ key }}" {{ 'checked' if key == 'bug' else '' }} style="margin:0 .3rem 0 0">
+              {{ meta.emoji }} {{ L(meta.zh, meta.en) }}
+            </label>
+          {% endfor %}
+        </span>
+      </label>
+      <label class="field"><span>{{ L('標題', 'Title') }}</span>
+        <input type="text" name="title" required maxlength="80"
+               placeholder="{{ L('例如：抽卡頁面在手機上看不到按鈕', 'e.g. The cards page button is hidden on my phone') }}">
+      </label>
+      <label class="field"><span>{{ L('內容', 'Details') }}</span>
+        <textarea name="body" required maxlength="2000" rows="6"
+                  placeholder="{{ L('請寫清楚在哪一頁、發生甚麼事；如果是建議，請寫你想有甚麼新功能。', 'Say which page it is on and what happens. For an idea, say what you would like to have.') }}"></textarea>
+      </label>
+      <button class="btn primary" type="submit">📨 {{ L('送出', 'Send') }}</button>
+    </form>
+  </div>
+
+  <div>
+    <div class="section-title"><h2>📜 {{ L('我送出的意見', 'What I sent') }}</h2>
+      {% if mine %}<span class="count">{{ mine|length }}</span>{% endif %}
+    </div>
+    {% if mine %}
+      <div class="stack">
+        {% for row in mine %}
+          <div class="card">
+            <div class="spread wrap">
+              <div>
+                <span class="chip light">{{ kinds[row.kind].emoji }} {{ L(kinds[row.kind].zh, kinds[row.kind].en) }}</span>
+                <strong>{{ row.title }}</strong>
+                <div class="small muted" style="white-space:pre-wrap">{{ row.body }}</div>
+                {% if row.leader_comment %}
+                  <div class="small" style="margin-top:.35rem">{{ L('領袖回覆：', 'Leader reply: ') }}{{ row.leader_comment }}</div>
+                {% endif %}
+              </div>
+              <span class="row">
+                {% if row.status == 'rewarded' %}
+                  <span class="chip ok">⭐ +{{ row.points_awarded }} {{ L('分', 'points') }}</span>
+                {% elif row.status == 'closed' %}
+                  <span class="chip">{{ L('已處理', 'Handled') }}</span>
+                {% else %}
+                  <span class="chip warn">⏳ {{ L('等領袖查看', 'Waiting for a leader') }}</span>
+                {% endif %}
+                <span class="timeline-when">{{ (row.created_at or '')[:10] }}</span>
+              </span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {{ empty_state('📭', '你還沒有送出意見。', 'You have not sent anything yet.') }}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
