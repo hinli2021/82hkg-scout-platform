@@ -359,45 +359,45 @@
           "animation": [
             {
               "img": "img/quest/drill/movements/seq/left-turn/f01.webp",
-              "hold_ms": 396,
+              "hold_ms": 399,
               "label_zh": "向左轉：以左腳掌及右腳尖為軸心向左轉 90 度（轉至面向畫面右方），抬腳九十度，右腳放下靠攏，回復立正",
               "label_en": "Left turn: pivot 90 degrees to his left on the left ball and right toe until he faces the right of the image, knee raised at ninety degrees, the right foot comes down and closes — back at Alert"
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f02.webp",
-              "hold_ms": 189
+              "hold_ms": 190
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f03.webp",
-              "hold_ms": 189
+              "hold_ms": 190
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f04.webp",
-              "hold_ms": 189
+              "hold_ms": 190
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f05.webp",
-              "hold_ms": 283
+              "hold_ms": 266
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f06.webp",
-              "hold_ms": 226
+              "hold_ms": 227
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f07.webp",
-              "hold_ms": 453
+              "hold_ms": 456
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f08.webp",
-              "hold_ms": 226
+              "hold_ms": 227
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f09.webp",
-              "hold_ms": 264
+              "hold_ms": 266
             },
             {
               "img": "img/quest/drill/movements/seq/left-turn/f10.webp",
-              "hold_ms": 585
+              "hold_ms": 589
             }
           ]
         },
